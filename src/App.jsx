@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <div className="Logo">
-        <img src="src/assets/Logo.svg" className='LogoSVG'></img>
+        <img src="public/images/Logo.svg" className='LogoSVG'></img>
       </div>
     </>
   )
