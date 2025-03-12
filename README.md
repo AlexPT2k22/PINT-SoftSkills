@@ -4,7 +4,7 @@
 ```
 # Tecnologias Usadas
 
-  - Supabase
+  - Azure
   - React
   - NodeJS
   - Vite
