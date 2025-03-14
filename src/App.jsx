@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 
 function App() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [timer, setTimer] = useState(null);
 
   // Add a useEffect hook
   useEffect(() => {
@@ -10,11 +11,20 @@ function App() {
       setActiveSlide((prevSlide) => (prevSlide + 1) % 3); // 3 is the number of slides
     }, 5000); // 5000 is the duration in milliseconds
 
+    setTimer(interval); // Save the interval to the state
+
     return () => clearInterval(interval); // Clear the interval when the component unmounts
   }, []);
 
   const handleDotClick = (index) => {
+    clearInterval(timer); // Clear the interval when a dot is clicked
     setActiveSlide(index);
+
+    const newInterval = setInterval(() => {
+      setActiveSlide((prevSlide) => (prevSlide + 1) % 3);
+    }, 5000);
+    
+    setTimer(newInterval);
   };
 
   return (
