@@ -141,7 +141,7 @@ h2 {
   outline: 2px solid #2c5282;
 }
 
-.signup-button {
+.signup-button, .login-button {
   width: 100%;
   padding: 0.8rem;
   background-color: #3b82f6;
@@ -166,6 +166,7 @@ h2 {
   color: #3b82f6;
   text-decoration: none;
   font-weight: 500;
+  cursor: pointer;
 }
 
 /* Responsive adjustments */

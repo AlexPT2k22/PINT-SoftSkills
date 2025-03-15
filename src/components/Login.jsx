@@ -1,6 +1,13 @@
 import "../App.css";
+import { useState} from "react";
 
 function Login() {
+  const [Login, setLogin] = useState(0); // 0 para Sign Up e 1 para Log In
+
+  const changeToLogin = () => {
+    setLogin(Login ^ 1); // Alterna entre 0 e 1 (XOR)
+  }
+
   return (
     <>
       <div className="right-panel">
@@ -31,12 +38,10 @@ function Login() {
             </svg>
           </div>
         </div>
-
         <h2>Bem-Vindo!</h2>
-
         <form className="login-form">
           <div className="form-group">
-            <input type="text" placeholder="Username" />
+            {Login === 0 && <input type="text" placeholder="Username" />}
           </div>
           <div className="form-group">
             <input type="email" placeholder="Email" />
@@ -44,15 +49,17 @@ function Login() {
           <div className="form-group">
             <input type="password" placeholder="Password" />
           </div>
-          <button type="submit" className="signup-button">
-            Sign Up
-          </button>
+          {Login === 0 && <button type="submit" className="signup-button">
+            Criar conta
+          </button>}
+          {Login === 1 && <button type="submit" className="login-button">
+            Entrar
+          </button>}
         </form>
 
         <div className="login-link">
-          <p>
-            Já tem conta? <a href="#">Log In</a>
-          </p>
+          {Login === 0 && <p>Já tem conta? <a onClick={changeToLogin}>Entrar</a></p>}
+          {Login === 1 && <p>Não tem conta? <a onClick={changeToLogin}>Criar conta</a></p>}
         </div>
       </div>
     </>
