@@ -3,6 +3,7 @@ import { useState} from "react";
 
 function Login() {
   const [Login, setLogin] = useState(0); // 0 para Sign Up e 1 para Log In
+  const [rememberMe, setRememberMe] = useState(false);
 
   const changeToLogin = () => {
     setLogin(Login ^ 1); // Alterna entre 0 e 1 (XOR)
@@ -49,6 +50,15 @@ function Login() {
           <div className="form-group">
             <input type="password" placeholder="Password" />
           </div>
+          {Login === 1 && (
+            <div className="form-extra">
+              <div className="checkbox-itens">
+                <input className="checkbox" type="checkbox" id="remember-me" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
+              <label className="checkbox-text" htmlFor="remember-me">Guardar log-in</label>
+              </div>
+              <a>Reset password</a>
+            </div>
+          )}
           {Login === 0 && <button type="submit" className="signup-button">
             Criar conta
           </button>}
