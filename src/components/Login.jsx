@@ -1,5 +1,5 @@
 import "../App.css";
-import { useState} from "react";
+import { useState } from "react";
 
 function Login() {
   const [Login, setLogin] = useState(0); // 0 para Sign Up e 1 para Log In
@@ -7,7 +7,7 @@ function Login() {
 
   const changeToLogin = () => {
     setLogin(Login ^ 1); // Alterna entre 0 e 1 (XOR)
-  }
+  };
 
   return (
     <>
@@ -53,23 +53,43 @@ function Login() {
           {Login === 1 && (
             <div className="form-extra">
               <div className="checkbox-itens">
-                <input className="checkbox" type="checkbox" id="remember-me" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
-              <label className="checkbox-text" htmlFor="remember-me">Guardar log-in</label>
+                <input
+                  className="checkbox"
+                  type="checkbox"
+                  id="remember-me"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                />
+                <label className="checkbox-text" htmlFor="remember-me">
+                  Guardar log-in
+                </label>
               </div>
               <a>Reset password</a>
             </div>
           )}
-          {Login === 0 && <button type="submit" className="signup-button">
-            Criar conta
-          </button>}
-          {Login === 1 && <button type="submit" className="login-button">
-            Entrar
-          </button>}
+          {Login === 0 && (
+            <button type="submit" className="signup-button">
+              Criar conta
+            </button>
+          )}
+          {Login === 1 && (
+            <button type="submit" className="login-button">
+              Entrar
+            </button>
+          )}
         </form>
 
         <div className="login-link">
-          {Login === 0 && <p>Já tem conta? <a onClick={changeToLogin}>Entrar</a></p>}
-          {Login === 1 && <p>Não tem conta? <a onClick={changeToLogin}>Criar conta</a></p>}
+          {Login === 0 && (
+            <p>
+              Já tem conta? <a onClick={changeToLogin}>Entrar</a>
+            </p>
+          )}
+          {Login === 1 && (
+            <p>
+              Não tem conta? <a onClick={changeToLogin}>Criar conta</a>
+            </p>
+          )}
         </div>
       </div>
     </>
