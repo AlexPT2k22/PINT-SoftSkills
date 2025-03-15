@@ -1,9 +1,32 @@
 import "../App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Login() {
-  const [Login, setLogin] = useState(0); // 0 para Sign Up e 1 para Log In
+  const [Login, setLogin] = useState(1); // 0 para Sign Up e 1 para Log In
   const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("email");
+    const storedPassword = localStorage.getItem("password");
+    if (storedEmail && storedPassword) {
+      setEmail(storedEmail);
+      setPassword(storedPassword);
+      setRememberMe(true);
+    }
+  }, []);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (rememberMe) {
+      localStorage.setItem("email", email);
+      localStorage.setItem("password", password);
+    } else {
+      localStorage.removeItem("email");
+      localStorage.removeItem("password");
+    }
+  };
 
   const changeToLogin = () => {
     setLogin(Login ^ 1); // Alterna entre 0 e 1 (XOR)
@@ -40,15 +63,15 @@ function Login() {
           </div>
         </div>
         <h2>Bem-Vindo!</h2>
-        <form className="login-form">
+        <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
             {Login === 0 && <input type="text" placeholder="Username" />}
           </div>
           <div className="form-group">
-            <input type="email" placeholder="Email" />
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required/>
           </div>
           <div className="form-group">
-            <input type="password" placeholder="Password" />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
           </div>
           {Login === 1 && (
             <div className="form-extra">
