@@ -244,18 +244,11 @@ body {
   margin-top: 0.31rem;
   font-size: 24px;
 }
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .login-container {
-    flex-direction: column;
-  }
-  
+
   .left-panel {
-    height: 40vh;
-    min-height: 300px;
-  }
-  
-  .right-panel {
-    height: 60vh;
+    display: none;
   }
 }
