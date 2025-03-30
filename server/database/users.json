@@ -1,0 +1,23 @@
+[
+  {
+    "Username": "Alex",
+    "email": "",
+    "Password": "qe412",
+    "LinkedIN": "NULL",
+    "Type": "admin"
+  },
+  {
+    "Username": "Bruno",
+    "email": "",
+    "Password": "fj1234",
+    "LinkedIN": "NULL",
+    "Type": "user"
+  },
+  {
+    "Username": "ADW",
+    "email": "",
+    "Password": "fjwfe",
+    "LinkedIN": "NULL",
+    "Type": "user"
+  }
+]
