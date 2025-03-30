@@ -6,6 +6,7 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
@@ -17,14 +18,52 @@ function Login() {
     }
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault(); // Evita que a página recarregue
+
+    let url = "http://localhost:8080/";
+    let method = "POST";
+    let body = {};
+
     if (rememberMe) {
       localStorage.setItem("email", email);
       localStorage.setItem("password", password);
     } else {
       localStorage.removeItem("email");
       localStorage.removeItem("password");
+    }
+
+    if (Login === 0) {
+      // Sign Up logic
+      //console.log("Sign Up:", { username, email, password });
+      body = {
+        Username: username,
+        Email: email,
+        Password: password,
+        LinkedIN: "NULL",
+        Type: "user",
+      };
+      url += "users/register";
+    }
+    if (Login === 1) {
+      // Log In logic
+      console.log("Log In:", { email, password });
+    }
+    if (Login === 2) {
+      // Reset Password logic
+      console.log("Reset Password:", { email });
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
@@ -71,16 +110,28 @@ function Login() {
             <h2 className="welcome-text">Bem-Vindo!</h2>
           </>
         )}
-        {Login === 2 && (<>
-          <div className="reset-title-div">
-           <h2 className="reset-title">Reset password?</h2>
-          <i class="fi fi-ss-key"></i> 
-          </div>
-          <p className="reset-desc">Introduza o e-mail associado à sua conta para receber <br></br> um link para repor a password</p>
-          </>)}
+        {Login === 2 && (
+          <>
+            <div className="reset-title-div">
+              <h2 className="reset-title">Reset password?</h2>
+              <i class="fi fi-ss-key"></i>
+            </div>
+            <p className="reset-desc">
+              Introduza o e-mail associado à sua conta para receber <br></br> um
+              link para repor a password
+            </p>
+          </>
+        )}
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            {Login === 0 && <input type="text" placeholder="Username" />}
+            {Login === 0 && (
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            )}
           </div>
           <div className="form-group">
             <input
@@ -91,15 +142,17 @@ function Login() {
               required
             />
           </div>
-          {Login !== 2 && (<div className="form-group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>)}
+          {Login !== 2 && (
+            <div className="form-group">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          )}
           {Login === 1 && (
             <div className="form-extra">
               <div className="checkbox-itens">
@@ -130,12 +183,16 @@ function Login() {
           {Login === 2 && (
             <>
               <div className="form-group-buttons-reset">
-              <button type="button" className="cancel-button" onClick={changeToLogin}>
-                Cancelar
-              </button>
-              <button type="button" className="login-button">
-                Reset password
-              </button>
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={changeToLogin}
+                >
+                  Cancelar
+                </button>
+                <button type="button" className="login-button">
+                  Reset password
+                </button>
               </div>
             </>
           )}

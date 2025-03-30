@@ -10,13 +10,28 @@ router.get("/", (req, res) => {
   res.send(users); //teste
 });
 
-router.post("/", (req, res) => {
+router.post("/register", (req, res) => {
+  //  "/users/register"
   const user = req.body; //teste
-  if (!user.Name || !user.Pass) {
+  if (!user.Username || !user.Password || !user.Email) {
     return res
       .status(400)
-      .json({ error: "O campo Name e Pass são obrigatórios!" });
+      .json({ error: "O campo Username, email e password são obrigatórios!" });
   }
+
+  // Verifica se o utilizador já existe
+  const existingUser = users.find((u) => u.Username === user.Username);
+  if (existingUser) {
+    console.log(`Utilizador ${user.Username} já existe!`);
+    return res.status(400).json({ error: "Utilizador já existe!" });
+  }
+  // Verifica se o email já existe
+  const existingEmail = users.find((u) => u.Email === user.Email);
+  if (existingEmail) {
+    console.log(`Email ${user.Email} já existe!`);
+    return res.status(400).json({ error: "Email já existe!" });
+  }
+
   users.push(user); // Adiciona o novo utilizador ao array de utilizadores
   fs.writeFile(
     usersFilePath,
@@ -24,9 +39,13 @@ router.post("/", (req, res) => {
     "utf-8",
     (err) => {
       if (err) {
+        console.log(err);
         return res.status(500).json({ error: "Erro ao guardar utilizador!" });
       }
-      res.json({ message: `Utilizador ${user.Name} adicionado com sucesso!` });
+      res.json({
+        message: `Utilizador ${user.Username} adicionado com sucesso!`,
+      });
+      console.log(`Utilizador ${user.Username} adicionado com sucesso!`);
     }
   );
 });

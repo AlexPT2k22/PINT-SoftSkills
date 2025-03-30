@@ -1,22 +1,29 @@
 [
   {
     "Username": "Alex",
-    "email": "",
+    "Email": "",
     "Password": "qe412",
     "LinkedIN": "NULL",
     "Type": "admin"
   },
   {
-    "Username": "Bruno",
-    "email": "",
+    "Username": "ruca",
+    "Email": "",
     "Password": "fj1234",
     "LinkedIN": "NULL",
     "Type": "user"
   },
   {
     "Username": "ADW",
-    "email": "",
+    "Email": "",
     "Password": "fjwfe",
+    "LinkedIN": "NULL",
+    "Type": "user"
+  },
+  {
+    "Username": "Alex2",
+    "Email": "6871@gmail.com",
+    "Password": "gYi2",
     "LinkedIN": "NULL",
     "Type": "user"
   }
