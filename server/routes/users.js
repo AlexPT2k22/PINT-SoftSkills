@@ -1,3 +1,4 @@
+const { error } = require("console");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -48,6 +49,26 @@ router.post("/register", (req, res) => {
       console.log(`Utilizador ${user.Username} adicionado com sucesso!`);
     }
   );
+});
+
+router.post("/login", (req, res) => {
+  const user = req.body;
+  if (!user.Email || !user.Password) { // verificar os campos obrigatorios
+    return res
+      .status(400)
+      .json({ error: "O campo Email e password são obrigatórios!" });
+  }
+
+  // verificar se o user existe
+  const userExist = users.find((u) => u.Email === user.Email && u.Password === user.Password);
+  if (userExist){
+    console.log(`Sucesso`);
+    res.sendStatus(200).json("Sucesso");
+    // redirecionar para a dashboard
+  }else{
+    res.json({error: "Email ou password errados"});
+  }
+
 });
 
 module.exports = router;

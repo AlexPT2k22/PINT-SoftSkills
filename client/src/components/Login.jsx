@@ -47,7 +47,12 @@ function Login() {
     }
     if (Login === 1) {
       // Log In logic
-      console.log("Log In:", { email, password });
+      //console.log("Log In:", { email, password });
+      body = {
+        Email: email,
+        Password: password
+      };
+      url += "users/login";
     }
     if (Login === 2) {
       // Reset Password logic
