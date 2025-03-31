@@ -55,7 +55,7 @@ router.post("/login", (req, res) => {
   const user = req.body;
   if (!user.Email || !user.Password) { // verificar os campos obrigatorios
     return res
-      .status(400)
+      .status(500)
       .json({ error: "O campo Email e password são obrigatórios!" });
   }
 
@@ -63,10 +63,10 @@ router.post("/login", (req, res) => {
   const userExist = users.find((u) => u.Email === user.Email && u.Password === user.Password);
   if (userExist){
     console.log(`Sucesso`);
-    res.sendStatus(200).json("Sucesso");
+    res.sendStatus(200);
     // redirecionar para a dashboard
   }else{
-    res.json({error: "Email ou password errados"});
+    res.sendStatus(401).json({error: "Email ou password errados"});
   }
 
 });

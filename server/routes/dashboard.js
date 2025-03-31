@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 router.get("/", (req,res) => {
-    res.json("Teste");
+    res.json("Dashboard");
 })
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import "../App.css";
 import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function Login() {
   const [Login, setLogin] = useState(1); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
@@ -43,7 +44,7 @@ function Login() {
         LinkedIN: "NULL",
         Type: "user",
       };
-      url += "users/register";
+      url += "user/register";
     }
     if (Login === 1) {
       // Log In logic
@@ -52,7 +53,7 @@ function Login() {
         Email: email,
         Password: password
       };
-      url += "users/login";
+      url += "user/login";
     }
     if (Login === 2) {
       // Reset Password logic
@@ -67,6 +68,9 @@ function Login() {
         },
         body: JSON.stringify(body),
       });
+      if (response.status === 200){
+        
+      }
     } catch (error) {
       console.error("Error:", error);
     }
