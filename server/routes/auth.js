@@ -19,33 +19,48 @@ router.get("/linkedin", (req, res) => {
 
 router.get("/linkedin/callback", async (req, res) => {
   const { code } = req.query;
-  console.log("Code:", code);
-  if (!code) {
-    return res.status(400).json({ error: "Código não encontrado!" });
-  }
-  try {
-    const token = axios.post('https://www.linkedin.com/oauth/v2/accessToken', {
-        grant_type: 'authorization_code',
-        code: code,
+console.log("Code:", code);
+
+if (!code) {
+  return res.status(400).json({ error: "Código não encontrado!" });
+}
+
+try {
+  // 1️⃣ Esperar pela resposta do LinkedIn
+  const tokenResponse = await axios.post(
+    "https://www.linkedin.com/oauth/v2/accessToken",
+    null,
+    {
+      params: {
+        grant_type: "authorization_code",
+        code,
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: process.env.REDIRECT_URL,
-    });
-    console.log(token.data.access_token);
+      },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
 
-    const profileResponse = await axios.get("https://api.linkedin.com/v2/me", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-    });
+  const accessToken = tokenResponse.data.access_token;
+  console.log("Access Token:", accessToken);
 
-    const username = profileResponse.data.localizedFirstName;
+  // 2️⃣ Buscar o perfil do usuário com o token recebido
+  const profileResponse = await axios.get("https://api.linkedin.com/v2/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
 
-    console.log("Username:", username);
-    res.redirect(`http://localhost:5173/`);
+  const username = profileResponse.data.localizedFirstName;
+  console.log("Username:", username);
 
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Erro ao autenticar com o LinkedIn!" });
-  }
+  // 3️⃣ Redirecionar para o frontend
+  res.redirect(`http://localhost:5173/`);
+} catch (error) {
+  console.error("Error:", error.response?.data || error.message);
+  res.status(500).json({ error: "Erro ao autenticar com o LinkedIn!" });
+}
 });
 
 module.exports = router;
