@@ -19,7 +19,7 @@ router.get("/linkedin", (req, res) => {
 
 router.get("/linkedin/callback", async (req, res) => {
   const { code } = req.query;
-  console.log("Code:", code);
+  //console.log("Code:", code);
 
   if (!code) {
     return res.status(400).json({ error: "Código não encontrado!" });
@@ -44,7 +44,7 @@ router.get("/linkedin/callback", async (req, res) => {
     );
 
     const accessToken = tokenResponse.data.access_token;
-    console.log("Access Token:", accessToken);
+    //console.log("Access Token:", accessToken);
 
     const profileResponse = await axios.get("https://api.linkedin.com/v2/userinfo", {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -53,8 +53,8 @@ router.get("/linkedin/callback", async (req, res) => {
     const userProfile = profileResponse.data;
     const username = userProfile.name;
     const email = userProfile.email;
-    console.log("Username:", username);
-    console.log("Email:", email);
+    //console.log("Username:", username);
+    //console.log("Email:", email);
 
     res.redirect(`http://localhost:8080/dashboard?username=${username}`);
   } catch (error) {
