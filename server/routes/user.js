@@ -8,6 +8,7 @@ let users = require(usersFilePath);
 // rota para /users
 router.get("/", (req, res) => {
   res.send(users); //teste
+  console.log(users);
 });
 
 // "/users/register"
