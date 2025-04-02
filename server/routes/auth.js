@@ -17,7 +17,7 @@ router.get("/linkedin", (req, res) => {
   res.redirect(linkedin_url);
 });
 
-router.get("/linkedin/callback", (req, res) => {
+router.get("/linkedin/callback", async (req, res) => {
   const { code } = req.query;
   console.log("Code:", code);
   if (!code) {
@@ -31,9 +31,16 @@ router.get("/linkedin/callback", (req, res) => {
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: process.env.REDIRECT_URL,
     });
-    console.log("Token:", token);
+    console.log(token.data.access_token);
 
-    res.redirect(`http://localhost:5173/dashboard`);
+    const profileResponse = await axios.get("https://api.linkedin.com/v2/me", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const username = profileResponse.data.localizedFirstName;
+
+    console.log("Username:", username);
+    res.redirect(`http://localhost:5173/`);
 
   } catch (error) {
     console.error("Error:", error);
