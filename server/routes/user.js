@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const usersFilePath = path.join(__dirname, "../database/users.json");
