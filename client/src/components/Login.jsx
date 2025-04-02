@@ -180,16 +180,29 @@ function Login() {
             </div>
           )}
           {Login === 0 && (
-            <button type="submit" className="signup-button">
-              Criar conta
-            </button>
+            <>
+              <button type="submit" className="signup-button">
+                Criar conta
+              </button>
+              <Divider text="Ou registe-se com"/>
+              <div className="enter-with">
+                <button className="enter-with-button" type="button">
+                  <img src="./images/linkedin.svg" alt="linkedin"></img>
+                </button>
+              </div>
+            </>
           )}
           {Login === 1 && (
             <>
               <button type="submit" className="login-button">
                 Entrar
               </button>
-              <Divider />
+              <Divider text="Ou entre com"/>
+              <div className="enter-with">
+                <button className="enter-with-button" type="button">
+                  <img src="./images/linkedin.svg" alt="linkedin"></img>
+                </button>
+              </div>
             </>
           )}
           {Login === 2 && (
