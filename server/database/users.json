@@ -33,5 +33,12 @@
     "Password": "1231243",
     "LinkedIN": "NULL",
     "Type": "user"
+  },
+  {
+    "Username": "AlexTESTE",
+    "Password": "passteste",
+    "Email": "aenmail@gmail.com",
+    "LinkedIN": "",
+    "Type": "user"
   }
 ]
