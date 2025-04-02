@@ -1,9 +1,15 @@
 import "../App.css";
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import Divider from "./Divider.jsx";
 
 function Login() {
+  const navigate = useNavigate();
   const [Login, setLogin] = useState(1); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
@@ -74,6 +80,11 @@ function Login() {
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+  const linked_in_login = async (e) => {
+    e.preventDefault(); // Evita que a página recarregue
+    const url = "http://localhost:8080/auth/linkedin";
+    window.location.href = url;
   };
 
   const changeToLogin = () => {
@@ -184,7 +195,7 @@ function Login() {
               <button type="submit" className="signup-button">
                 Criar conta
               </button>
-              <Divider text="Ou registe-se com"/>
+              <Divider text="Ou registe-se com" />
               <div className="enter-with">
                 <button className="enter-with-button" type="button">
                   <img src="./images/linkedin.svg" alt="linkedin"></img>
@@ -197,9 +208,13 @@ function Login() {
               <button type="submit" className="login-button">
                 Entrar
               </button>
-              <Divider text="Ou entre com"/>
+              <Divider text="Ou entre com" />
               <div className="enter-with">
-                <button className="enter-with-button" type="button">
+                <button
+                  className="enter-with-button"
+                  type="button"
+                  onClick={linked_in_login}
+                >
                   <img src="./images/linkedin.svg" alt="linkedin"></img>
                 </button>
               </div>
