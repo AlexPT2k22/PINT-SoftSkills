@@ -56,7 +56,7 @@ router.get("/linkedin/callback", async (req, res) => {
     console.log("Username:", username);
     console.log("Email:", email);
 
-    res.redirect(`http://localhost:5173/`);
+    res.redirect(`http://localhost:8080/dashboard?username=${username}`);
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Erro ao autenticar com o LinkedIn!" });

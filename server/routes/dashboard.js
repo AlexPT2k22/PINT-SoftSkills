@@ -4,7 +4,8 @@ const fs = require("fs");
 const path = require("path");
 
 router.get("/", (req,res) => {
-    res.json("Dashboard");
+    const username = req.query.username;
+    res.json(`Bem vindo ${username}`);
 })
 
 module.exports = router;
