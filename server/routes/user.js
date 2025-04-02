@@ -13,7 +13,13 @@ router.get("/", (req, res) => {
 
 // "/users/register"
 router.post("/register", (req, res) => {
-  const user = req.body; //teste
+  const user = {
+    Username: req.body.Username,
+    Password: req.body.Password,
+    Email: req.body.Email,
+    LinkedIN: "", // para guardar o link do linkedin
+    Type: "user",
+  }; //teste
   if (!user.Username || !user.Password || !user.Email) {
     return res
       .status(400)
