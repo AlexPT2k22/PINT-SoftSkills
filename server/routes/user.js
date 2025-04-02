@@ -6,12 +6,12 @@ const path = require("path");
 const usersFilePath = path.join(__dirname, "../database/users.json");
 let users = require(usersFilePath);
 
-// rota para /users
+// rota para /user
 router.get("/", (req, res) => {
   res.send(users); //teste
 });
 
-// "/users/register"
+// "/user/register"
 router.post("/register", (req, res) => {
   const user = {
     Username: req.body.Username,
