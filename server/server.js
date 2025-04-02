@@ -8,6 +8,9 @@ app.use(express.json());
 app.use(cors());
 app.use("/user", userRoute);
 app.use("/dashboard", dashboardRoute);
+app.get("/", (req, res) => {
+  res.status(404).json("404: Página não encontrada!");
+});
 app.get("/api", (req, res) => {
   res.status(200).json("API funciona");
 });

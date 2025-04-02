@@ -1,4 +1,3 @@
-const { error } = require("console");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -11,8 +10,8 @@ router.get("/", (req, res) => {
   res.send(users); //teste
 });
 
+// "/users/register"
 router.post("/register", (req, res) => {
-  //  "/users/register"
   const user = req.body; //teste
   if (!user.Username || !user.Password || !user.Email) {
     return res
@@ -53,22 +52,24 @@ router.post("/register", (req, res) => {
 
 router.post("/login", (req, res) => {
   const user = req.body;
-  if (!user.Email || !user.Password) { // verificar os campos obrigatorios
+  if (!user.Email || !user.Password) {
+    // verificar os campos obrigatorios
     return res
       .status(500)
       .json({ error: "O campo Email e password são obrigatórios!" });
   }
 
   // verificar se o user existe
-  const userExist = users.find((u) => u.Email === user.Email && u.Password === user.Password);
-  if (userExist){
+  const userExist = users.find(
+    (u) => u.Email === user.Email && u.Password === user.Password
+  );
+  if (userExist) {
     console.log(`Sucesso`);
     res.sendStatus(200);
     // redirecionar para a dashboard
-  }else{
-    res.sendStatus(401).json({error: "Email ou password errados"});
+  } else {
+    res.sendStatus(401).json({ error: "Email ou password errados" });
   }
-
 });
 
 module.exports = router;

@@ -1,6 +1,7 @@
 import "../App.css";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Divider from "./Divider.jsx";
 
 function Login() {
   const [Login, setLogin] = useState(1); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
@@ -51,7 +52,7 @@ function Login() {
       //console.log("Log In:", { email, password });
       body = {
         Email: email,
-        Password: password
+        Password: password,
       };
       url += "user/login";
     }
@@ -68,8 +69,7 @@ function Login() {
         },
         body: JSON.stringify(body),
       });
-      if (response.status === 200){
-        
+      if (response.status === 200) {
       }
     } catch (error) {
       console.error("Error:", error);
@@ -185,9 +185,12 @@ function Login() {
             </button>
           )}
           {Login === 1 && (
-            <button type="submit" className="login-button">
-              Entrar
-            </button>
+            <>
+              <button type="submit" className="login-button">
+                Entrar
+              </button>
+              <Divider />
+            </>
           )}
           {Login === 2 && (
             <>
