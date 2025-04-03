@@ -1,11 +1,17 @@
 const express = require("express");
+const fs = require("fs");
+const pool = require("../database.js");
 const axios = require("axios");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 require("dotenv").config();
 const path = require("path");
 const usersFilePath = path.join(__dirname, "../database/users.json");
 let users = require(usersFilePath);
 const linkedin_url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&state=foobar&scope=openid%20profile%20email`;
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // "/auth"
 router.get("/", (_, res) => {
@@ -79,7 +85,7 @@ router.get("/linkedin/callback", async (req, res) => {
   }
 });
 
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
   const user = {
     Username: req.body.Username,
     Password: req.body.Password,
@@ -93,56 +99,63 @@ router.post("/register", (req, res) => {
       .json({ error: "O campo Username, email e password são obrigatórios!" });
   }
 
-  // Verifica se o utilizador já existe
-  const existingUser = users.find((u) => u.Username === user.Username);
-  if (existingUser) {
-    console.log(`Utilizador ${user.Username} já existe!`);
-    return res.status(400).json({ error: "Utilizador já existe!" });
-  }
-  // Verifica se o email já existe
-  const existingEmail = users.find((u) => u.Email === user.Email);
-  if (existingEmail) {
-    console.log(`Email ${user.Email} já existe!`);
-    return res.status(400).json({ error: "Email já existe!" });
-  }
+  try {
+    const userExist = await pool.query(`SELECT * FROM users WHERE email = $1`, [
+      user.Email,
+    ]);
+    //console.log(userExist.rows.length);
 
-  users.push(user); // Adiciona o novo utilizador ao array de utilizadores
-  fs.writeFile(
-    usersFilePath,
-    JSON.stringify(users, null, 2),
-    "utf-8",
-    (err) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Erro ao guardar utilizador!" });
-      }
-      res.json({
-        message: `Utilizador ${user.Username} adicionado com sucesso!`,
-      });
-      console.log(`Utilizador ${user.Username} adicionado com sucesso!`);
+    if (userExist.rows.length > 0) {
+      return res.status(400).json({ error: "Email já existe!" });
     }
-  );
+
+    const hashedPassword = await bcrypt.hash(user.Password, 10); // hash da password
+
+    await pool.query(
+      "INSERT INTO users (username, password, email, linkedIN) VALUES ($1, $2, $3, $4)",
+      [user.Username, hashedPassword, user.Email, "NULL"]
+    );
+
+    console.log("User registado com sucesso!");
+    res.status(201).json({ message: "User registado com sucesso!" });
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Erro ao registar" });
+  }
 });
 
-router.post("/login", (req, res) => {
-  const user = req.body;
-  if (!user.Email || !user.Password) {
+router.post("/login", async (req, res) => {
+  const { Email, Password } = req.body;
+  if (!Email || !Password) {
     // verificar os campos obrigatorios
     return res
       .status(500)
       .json({ error: "O campo Email e password são obrigatórios!" });
   }
 
-  // verificar se o user existe
-  const userExist = users.find(
-    (u) => u.Email === user.Email && u.Password === user.Password
-  );
-  if (userExist) {
-    console.log(`Sucesso`);
-    res.sendStatus(200);
-    // redirecionar para a dashboard
-  } else {
-    res.sendStatus(401).json({ error: "Email ou password errados" });
+  try {
+    const userExist = await pool.query("SELECT * FROM users WHERE email = $1", [
+      Email,
+    ]);
+    const user = userExist.rows[0];
+    if (!user) {
+      return res.status(401).json({ error: "Email ou password inválidos!" });
+    }
+    const passwordMatch = await bcrypt.compare(
+      Password,
+      userExist.rows[0].password
+    );
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Email ou password inválidos!" });
+    }
+    const token = jwt.sign({ id: user.id, email: user.Email }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    console.log("User autenticado com sucesso! Com token:", token);
+    res.json(token);
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Erro ao autenticar!" });
   }
 });
 
