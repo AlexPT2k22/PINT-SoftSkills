@@ -69,7 +69,7 @@ router.get("/linkedin/callback", async (req, res) => {
         `http://localhost:8080/dashboard?username=${LinkedinUsername}`
       );
     } else {
-      //return res.status(401).json({ error: "User não existe" });
+      return res.status(401).json({ error: "User não existe" });
       // TODO: adicionar o user a db 
     }
   } catch (error) {
