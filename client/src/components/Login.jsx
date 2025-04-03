@@ -51,7 +51,7 @@ function Login() {
         LinkedIN: "NULL",
         Type: "user",
       };
-      url += "user/register";
+      url += "auth/register";
     }
     if (Login === 1) {
       // Log In logic
@@ -60,7 +60,7 @@ function Login() {
         Email: email,
         Password: password,
       };
-      url += "user/login";
+      url += "auth/login";
     }
     if (Login === 2) {
       // Reset Password logic
@@ -81,9 +81,10 @@ function Login() {
       console.error("Error:", error);
     }
   };
+
   const linked_in_login = async (e) => {
     e.preventDefault(); // Evita que a página recarregue
-    const url = "http://localhost:8080/auth/linkedin";
+    const url = "http://localhost:8080/auth/linkedin"; // URL do backend
     window.location.href = url;
   };
 
