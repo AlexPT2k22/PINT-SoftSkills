@@ -5,10 +5,18 @@ const fs = require("fs");
 const path = require("path");
 const usersFilePath = path.join(__dirname, "../database/users.json");
 let users = require(usersFilePath);
+const createClient = require("@supabase/supabase-js");
+const supabase = createClient(
+  `${process.env.SUPABASE_URL}`,
+  `${process.env.SUPABASE_KEY}`
+);
 
 // rota para /user
-router.get("/", (req, res) => {
-  res.send(users); //teste
+router.get("/", async (req, res) => {
+  //res.send(users); //teste
+  const { data, error } = await supabase
+  .from('users')
+  .select()
 });
 
 // "/user/register"
