@@ -5,7 +5,6 @@ const fs = require("fs");
 const path = require("path");
 const usersFilePath = path.join(__dirname, "../database/users.json");
 let users = require(usersFilePath);
-const supabase = require("../controllers/supabase.js"); // Supabase client
 
 // rota para /user
 router.get("/", async (req, res) => {
