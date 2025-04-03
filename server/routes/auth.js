@@ -6,15 +6,17 @@ const path = require("path");
 const usersFilePath = path.join(__dirname, "../database/users.json");
 let users = require(usersFilePath);
 const linkedin_url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&state=foobar&scope=openid%20profile%20email`;
+const supabase = require("../controllers/supabase.js"); // Supabase client
 
 // "/auth"
 router.get("/", (_, res) => {
   res.json("Auth");
 });
 
-router.get("/linkedin", (_, res) => {
+/*router.get("/linkedin", (_, res) => {
   res.redirect(linkedin_url);
 });
+
 router.get("/linkedin/callback", async (req, res) => {
   const { code } = req.query;
   //console.log("Code:", code);
@@ -76,6 +78,48 @@ router.get("/linkedin/callback", async (req, res) => {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Erro ao autenticar com o LinkedIn!" });
   }
+});*/
+
+router.get("/linkedin", async (req, res) => {
+  const { data, erro } = await supabase.auth.signInWithOAuth({
+    provider: "linkedin_oidc",
+    options: {
+      redirect_to: process.env.REDIRECT_URL,
+    },
+  });
+
+  if (data.url) {
+    res.redirect(data.url);
+  }
+});
+
+router.get("/callback", async (req, res) => {
+  const code = req.query.code;
+  const next = req.query.next ?? "/";
+  if (code) {
+    const supabase = createServerClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return parseCookieHeader(context.req.headers.cookie ?? "");
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              context.res.appendHeader(
+                "Set-Cookie",
+                serializeCookieHeader(name, value, options)
+              )
+            );
+          },
+        },
+      }
+    );
+    await supabase.auth.exchangeCodeForSession(code);
+  }
+  console.log("Success!");
+  res.redirect(303, `/${next.slice(1)}`);
 });
 
 module.exports = router;

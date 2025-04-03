@@ -5,18 +5,43 @@ const fs = require("fs");
 const path = require("path");
 const usersFilePath = path.join(__dirname, "../database/users.json");
 let users = require(usersFilePath);
-const createClient = require("@supabase/supabase-js");
-const supabase = createClient(
-  `${process.env.SUPABASE_URL}`,
-  `${process.env.SUPABASE_KEY}`
-);
+const supabase = require("../controllers/supabase.js"); // Supabase client
 
 // rota para /user
 router.get("/", async (req, res) => {
   //res.send(users); //teste
-  const { data, error } = await supabase
-  .from('users')
-  .select()
+  const { data, error } = await supabase.from("users").select();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
+});
+
+// rota para /user/signup
+router.post("/signup", async (req, res) => {
+  const { username, email, password } = req.body;
+  console.log("Username:", username);
+  console.log("Email:", email);
+  if (!username || !email || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username, email e password são obrigatórios!" });
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        username: username,
+      },
+    },
+  });
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
 });
 
 // "/user/register"
