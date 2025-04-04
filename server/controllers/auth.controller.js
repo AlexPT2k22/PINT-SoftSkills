@@ -206,7 +206,7 @@ const verifyEmail = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  res.clearCookie("jwt");
+  res.clearCookie("token");
   res.status(200).json({ message: "Logout realizado com sucesso!" });
 };
 
