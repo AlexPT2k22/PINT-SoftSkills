@@ -8,6 +8,7 @@ const {
   verifyEmail,
   logout,
   forgotPassword,
+  resetPassword,
 } = require("../controllers/auth.controller.js");
 
 // "/auth"
@@ -23,6 +24,6 @@ router.post("/login", login);
 router.post("/verifyemail", verifyEmail);
 router.post("/logout", logout);
 router.post("/forgotpassword", forgotPassword);
-// router.post("/resetpassword", resetPassword); // TODO: implementar o reset password
+router.post("/resetpassword", resetPassword);
 
 module.exports = router;

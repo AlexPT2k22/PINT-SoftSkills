@@ -1,11 +1,16 @@
 const generateJWTandsetCookie = require("../utils/generateJWT");
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const axios = require("axios");
 const { Op } = require("sequelize");
 require("dotenv").config();
 const linkedin_url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&scope=openid%20profile%20email`;
-const { sendVerificationEmail, sendResetEmail } = require("../mail/emails.js");
+const {
+  sendVerificationEmail,
+  sendResetEmail,
+  sendConfirmationEmail,
+} = require("../mail/emails.js");
 
 const register = async (req, res) => {
   const { username, password, email } = req.body;
@@ -219,7 +224,7 @@ const forgotPassword = async (req, res) => {
       return res.status(404).json({ error: "Email não encontrado!" });
     }
 
-    const resetToken = Math.floor(100000 + Math.random() * 900000); // gerar um token de redefinição radom
+    const resetToken = crypto.randomBytes(32).toString("hex"); // gerar um token de redefinição
     const resetExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // expira em 24 horas
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = resetExpires;
@@ -228,13 +233,50 @@ const forgotPassword = async (req, res) => {
     await sendResetEmail(
       user.username,
       user.email,
-      `${process.env.CLIENT_URL}/resetpassword/${resetToken}`
+      `${process.env.CLIENT_URL}/resetpassword?${resetToken}`
     );
 
     res.status(200).json({ message: "Email de redefinição enviado!" });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Erro ao enviar o email!" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { password } = req.body;
+  const { resetToken } = req.query;
+
+  if (!password) {
+    return res.status(400).json({ error: "Password é obrigatória!" });
+  }
+
+  try {
+    const user = await User.findOne({
+      where: { resetPasswordToken: resetToken },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "Token inválido ou expirado!" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10); // hash da password
+    user.password = hashedPassword; // atualizar a password
+    user.resetPasswordToken = null; // remover o token de redefinição
+    user.resetPasswordExpires = null; // remover a data de expiração do token
+    await user.save(); // guardar as alterações
+
+    await sendConfirmationEmail(
+      user.username,
+      user.email,
+      `${process.env.CLIENT_URL}/login?login=2`
+    );
+
+    res.status(200).json({
+      message: "Password redefinida com sucesso!",
+    });
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Erro ao redefinir a password!" });
   }
 };
 
@@ -246,4 +288,5 @@ module.exports = {
   verifyEmail,
   logout,
   forgotPassword,
+  resetPassword,
 };

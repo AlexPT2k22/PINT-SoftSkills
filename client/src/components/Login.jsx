@@ -1,10 +1,12 @@
 import "../App.css";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Divider from "./Divider.jsx";
 import ErrorMessage from "./error_message.jsx";
 
 function Login() {
-  const [Login, setLogin] = useState(1); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
+  const [searchParams] = useSearchParams();
+  const [Login, setLogin] = useState(null); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,6 +14,12 @@ function Login() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const loginType = searchParams.get("login");
+    if (loginType === "2") {
+      setLogin(2);
+    } else {
+      setLogin(1);
+    }
     const storedEmail = localStorage.getItem("email");
     const storedPassword = localStorage.getItem("password");
     if (storedEmail && storedPassword) {
@@ -19,7 +27,7 @@ function Login() {
       setPassword(storedPassword);
       setRememberMe(true);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Evita que a página recarregue
