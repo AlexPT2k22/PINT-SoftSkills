@@ -113,7 +113,7 @@ router.post("/register", async (req, res) => {
 
     await pool.query(
       "INSERT INTO users (username, password, email, linkedIN) VALUES ($1, $2, $3, $4)",
-      [user.Username, hashedPassword, user.Email, user.LinkedIN]
+      [user.Username, hashedPassword, user.Email, user.LinkedIN || null]
     );
 
     console.log("User registado com sucesso!");
