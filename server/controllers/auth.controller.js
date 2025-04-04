@@ -2,8 +2,10 @@ const generateJWTandsetCookie = require("../utils/generateJWT");
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const axios = require("axios");
+const { Op } = require("sequelize");
 require("dotenv").config();
 const linkedin_url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&scope=openid%20profile%20email`;
+const sendVerificationEmail = require("../mail/emails.js");
 
 const register = async (req, res) => {
   const { username, password, email } = req.body;
@@ -24,11 +26,15 @@ const register = async (req, res) => {
 
   try {
     const userExist = await User.findOne({
-      where: { email: email },
+      where: { [Op.or]: [{ email: email }, { username: username }] },
     });
-    //console.log(userExist.rows.length);
+    //console.log(userExist);
     if (userExist) {
-      return res.status(400).json({ error: "Email já em uso!" });
+      if (userExist.dataValues.email === email) {
+        return res.status(400).json({ error: "Email já em uso!" });
+      } else if (userExist.dataValues.username === username) {
+        return res.status(400).json({ error: "Username já em uso!" });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10); // hash da password
@@ -45,10 +51,21 @@ const register = async (req, res) => {
 
     await user.save();
     generateJWTandsetCookie(res, user.id); // gerar o token
+    await sendVerificationEmail(user.username, user.email, verificationToken); // enviar o email de verificação
 
-    res
-      .status(201)
-      .json({ message: `User ${user.username} registado com sucesso!` });
+    res.status(201).json({
+      message: `User ${user.username} registado com sucesso!`,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        password: undefined,
+        linkedIn: user.linkedIn,
+        type: user.type,
+        createdAt: user.createdAt,
+        isVerified: user.isVerified,
+      },
+    });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Erro ao registar" });
