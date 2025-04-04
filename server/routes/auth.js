@@ -160,7 +160,7 @@ router.post("/login", async (req, res) => {
       }
     );
 
-    //console.log("User autenticado com sucesso! Com token:", token);
+    console.log("User autenticado com sucesso! Com token:", token);
     res.json(token);
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
