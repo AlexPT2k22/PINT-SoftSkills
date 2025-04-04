@@ -113,7 +113,7 @@ router.post("/register", async (req, res) => {
 
     await pool.query(
       "INSERT INTO users (username, password, email, linkedIN) VALUES ($1, $2, $3, $4)",
-      [user.Username, hashedPassword, user.Email, "NULL"]
+      [user.Username, hashedPassword, user.Email, user.LinkedIN]
     );
 
     console.log("User registado com sucesso!");
@@ -126,31 +126,40 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { Email, Password } = req.body;
+  // verificar os campos obrigatorios
   if (!Email || !Password) {
-    // verificar os campos obrigatorios
     return res
       .status(500)
       .json({ error: "O campo Email e password são obrigatórios!" });
   }
-
+  // verificar se o user existe
   try {
     const userExist = await pool.query("SELECT * FROM users WHERE email = $1", [
       Email,
     ]);
     const user = userExist.rows[0];
+
     if (!user) {
       return res.status(401).json({ error: "Email ou password inválidos!" });
     }
+
     const passwordMatch = await bcrypt.compare(
       Password,
       userExist.rows[0].password
     );
+
     if (!passwordMatch) {
       return res.status(401).json({ error: "Email ou password inválidos!" });
     }
-    const token = jwt.sign({ id: user.id, email: user.Email }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, username: user.username },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+
     console.log("User autenticado com sucesso! Com token:", token);
     res.json(token);
   } catch (error) {
