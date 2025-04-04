@@ -6,6 +6,7 @@ const dashboardRoute = require("./routes/dashboard.js");
 const authRoutes = require("./routes/auth.route.js");
 const authenticateToken = require("./middlewares/authmiddleware.js");
 const { connectDB } = require("./database/database.js");
+const port = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(cors());
@@ -26,7 +27,7 @@ app.get("/api/private", authenticateToken, (req, res) => {
   res.json({ message: `Olá ${req.user.username}, estás autenticado!` });
 });
 
-app.listen(8080, () => {
+app.listen(port, () => {
   connectDB(); // Conectar ao banco de dados
   console.log("Server started on port: ", 8080);
 });
