@@ -48,11 +48,11 @@ function Login() {
         return;
       }
       body = {
-        Username: username,
-        Email: email,
-        Password: password,
-        LinkedIN: "NULL",
-        Type: "user",
+        username: username,
+        email: email,
+        password: password,
+        linkedIN: null,
+        type: "user",
       };
       url += "api/auth/register";
     }
@@ -60,8 +60,8 @@ function Login() {
       // Log In logic
       //console.log("Log In:", { email, password });
       body = {
-        Email: email,
-        Password: password,
+        email: email,
+        password: password,
       };
       url += "api/auth/login";
     }

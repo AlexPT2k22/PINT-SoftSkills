@@ -4,7 +4,7 @@ require("dotenv").config();
 
 // rota para /user
 router.get("/", async (req, res) => {
-  res.send(users); //teste
+  res.send("lista de users"); //teste
 });
 
 module.exports = router;

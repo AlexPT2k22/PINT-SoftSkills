@@ -1,7 +1,12 @@
+const generateJWTandsetCookie = require("../utils/generateJWT");
 const User = require("../models/user.model");
+const bcrypt = require("bcrypt");
+const axios = require("axios");
+require("dotenv").config();
+const linkedin_url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&scope=openid%20profile%20email`;
 
 const register = async (req, res) => {
-  const { Username, Password, Email } = req.body;
+  const { username, password, email } = req.body;
 
   /*const user = {
     Username: req.body.Username,
@@ -11,7 +16,7 @@ const register = async (req, res) => {
     Type: "user",
   };*/
 
-  if (!Username || !Password || !Email) {
+  if (!username || !password || !email) {
     return res
       .status(400)
       .json({ error: "Todos os campos devem estar preenchidos" });
@@ -19,29 +24,31 @@ const register = async (req, res) => {
 
   try {
     const userExist = await User.findOne({
-      where: { email: Email },
+      where: { email: email },
     });
     //console.log(userExist.rows.length);
     if (userExist) {
       return res.status(400).json({ error: "Email já em uso!" });
     }
 
-    const hashedPassword = await bcrypt.hash(Password, 10); // hash da password
+    const hashedPassword = await bcrypt.hash(password, 10); // hash da password
     const verificationToken = Math.floor(100000 + Math.random() * 900000); // gerar um token de verificação radom
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // expira em 24 horas
     const user = await User.create({
-      username: Username,
+      username: username,
       password: hashedPassword,
-      email: Email,
+      email: email,
       linkedIn: null,
       verificationToken,
       verificationExpires,
     });
 
     await user.save();
+    generateJWTandsetCookie(res, user.id); // gerar o token
 
-    console.log("User registado com sucesso! User:");
-    res.status(201).json({ message: "User registado com sucesso!" });
+    res
+      .status(201)
+      .json({ message: `User ${user.username} registado com sucesso!` });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Erro ao registar" });
@@ -151,3 +158,5 @@ const linkedINLogin = async (req, res) => {
     res.status(500).json({ error: "Erro ao autenticar com o LinkedIn!" });
   }
 };
+
+module.exports = { register, login, linkedIN_url, linkedINLogin };

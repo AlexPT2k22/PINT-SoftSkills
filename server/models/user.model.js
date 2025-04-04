@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = new Sequelize("sqlite::memory:");
+const { sequelize } = require("../database/database.js"); // Importa a conexão com o banco de dados
 
 const User = sequelize.define(
   "users",
@@ -13,7 +13,6 @@ const User = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
       unique: true,
-      required: true,
     },
     email: {
       type: Sequelize.STRING,
@@ -22,12 +21,10 @@ const User = sequelize.define(
       validate: {
         isEmail: true,
       },
-      required: true,
     },
     password: {
       type: Sequelize.STRING,
       allowNull: false,
-      required: true,
     },
     firstName: {
       type: Sequelize.STRING,
@@ -50,7 +47,7 @@ const User = sequelize.define(
     },
     lastLogin: {
       type: Sequelize.DATE,
-      defaultValue: Date.now,
+      defaultValue: () => new Date(),
     },
     isVerified: {
       type: Sequelize.BOOLEAN,
@@ -63,6 +60,7 @@ const User = sequelize.define(
   },
   {
     timestamps: true,
+    underscored: true,
   }
 );
 

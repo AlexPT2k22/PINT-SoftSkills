@@ -3,8 +3,9 @@ const app = express();
 const cors = require("cors");
 const userRoute = require("./routes/user.js");
 const dashboardRoute = require("./routes/dashboard.js");
-const authRoutes = require("./routes/auth.js");
+const authRoutes = require("./routes/auth.route.js");
 const authenticateToken = require("./middlewares/authmiddleware.js");
+const { connectDB } = require("./database/database.js");
 
 app.use(express.json());
 app.use(cors());
@@ -26,5 +27,6 @@ app.get("/api/private", authenticateToken, (req, res) => {
 });
 
 app.listen(8080, () => {
-  console.log("Server started on port 8080");
+  connectDB(); // Conectar ao banco de dados
+  console.log("Server started on port: ", 8080);
 });
