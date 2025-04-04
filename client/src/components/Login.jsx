@@ -1,20 +1,15 @@
 import "../App.css";
 import { useEffect, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
 import Divider from "./Divider.jsx";
+import ErrorMessage from "./error_message.jsx";
 
 function Login() {
-  const navigate = useNavigate();
   const [Login, setLogin] = useState(1); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
@@ -76,6 +71,12 @@ function Login() {
         body: JSON.stringify(body),
       });
       if (response.status === 200) {
+        console.log("Login bem sucedido!");
+        setError(null);
+      } else if (response.status === 401) {
+        setError(1);
+      } else {
+        setError(2);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -84,7 +85,7 @@ function Login() {
 
   const linked_in_login = async (e) => {
     e.preventDefault(); // Evita que a página recarregue
-    const url = "http://localhost:8080/auth/linkedin"; // URL do backend
+    const url = "http://localhost:8080/api/auth/linkedin"; // URL do backend
     window.location.href = url;
   };
 
@@ -209,6 +210,12 @@ function Login() {
               <button type="submit" className="login-button">
                 Entrar
               </button>
+              {error === 1 && (
+                <ErrorMessage message="Email ou password incorretos!" />
+              )}
+              {error === 2 && (
+                <ErrorMessage message="Hmm... Parece que houve um erro com o servidor" />
+              )}
               <Divider text="Ou entre com" />
               <div className="enter-with">
                 <button

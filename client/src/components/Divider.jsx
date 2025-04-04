@@ -4,8 +4,9 @@ const Divider = ({
   width = "100%",
   height = "2px",
   color = "#DFE4EA",
-  margin = "10px 0",
-  text = "OU",
+  marginTop = "1.1rem",
+  marginBottom = ".8rem",
+  text,
 }) => {
   return (
     <div
@@ -13,7 +14,8 @@ const Divider = ({
         display: "flex",
         alignItems: "center",
         width,
-        margin,
+        marginTop,
+        marginBottom,
       }}
     >
       <div style={{ flex: 1, height, backgroundColor: color }} />
