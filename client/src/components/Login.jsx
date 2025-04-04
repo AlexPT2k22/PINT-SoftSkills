@@ -51,7 +51,7 @@ function Login() {
         LinkedIN: "NULL",
         Type: "user",
       };
-      url += "auth/register";
+      url += "/api/auth/register";
     }
     if (Login === 1) {
       // Log In logic
@@ -60,7 +60,7 @@ function Login() {
         Email: email,
         Password: password,
       };
-      url += "auth/login";
+      url += "api/auth/login";
     }
     if (Login === 2) {
       // Reset Password logic
