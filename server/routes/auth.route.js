@@ -5,6 +5,8 @@ const {
   login,
   linkedIN_url,
   linkedINLogin,
+  verifyEmail,
+  logout,
 } = require("../controllers/auth.controller.js");
 
 // "/auth"
@@ -17,5 +19,7 @@ router.get("/linkedin", linkedIN_url);
 router.get("/linkedin/callback", linkedINLogin);
 router.post("/register", register);
 router.post("/login", login);
+router.post("/verifyemail", verifyEmail);
+router.post("/logout", logout);
 
 module.exports = router;

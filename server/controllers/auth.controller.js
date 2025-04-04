@@ -176,4 +176,45 @@ const linkedINLogin = async (req, res) => {
   }
 };
 
-module.exports = { register, login, linkedIN_url, linkedINLogin };
+const verifyEmail = async (req, res) => {
+  const { code } = req.body;
+
+  try {
+    const user = await User.findOne({
+      where: {
+        verificationToken: code,
+        verificationExpires: {
+          [Op.gt]: new Date(), // verifica se o token ainda é válido
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Token inválido ou expirado!" });
+    }
+
+    user.isVerified = true; // marcar o user como verificado
+    user.verificationToken = null; // remover o token de verificação
+    user.verificationExpires = null; // remover a data de expiração do token
+    await user.save(); // guardar as alterações
+
+    res.status(200).json({ message: "Email verificado com sucesso!" });
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Erro ao verificar o email!" });
+  }
+};
+
+const logout = async (req, res) => {
+  res.clearCookie("jwt");
+  res.status(200).json({ message: "Logout realizado com sucesso!" });
+};
+
+module.exports = {
+  register,
+  login,
+  linkedIN_url,
+  linkedINLogin,
+  verifyEmail,
+  logout,
+};

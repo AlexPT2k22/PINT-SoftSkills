@@ -42,8 +42,8 @@ const User = sequelize.define(
       },
     },
     role: {
-      type: Sequelize.ENUM("user", "admin"),
-      defaultValue: "user",
+      type: Sequelize.ENUM("formando", "formador", "admin"),
+      defaultValue: "formando",
     },
     lastLogin: {
       type: Sequelize.DATE,
