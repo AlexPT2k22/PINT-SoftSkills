@@ -25,7 +25,7 @@ function Login() {
     e.preventDefault(); // Evita que a página recarregue
     setError(null); // Limpa o erro antes de fazer a requisição
 
-    let url = "http://localhost:8080/";
+    let url = "http://localhost:8080/" || "https://pint-softskills-api.onrender.com";
     let method = "POST";
     let body = {};
 
