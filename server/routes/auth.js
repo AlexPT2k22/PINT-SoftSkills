@@ -1,11 +1,7 @@
 const express = require("express");
-const pool = require("../database.js");
 const axios = require("axios");
 const bcrypt = require("bcrypt");
 const router = express.Router();
-require("dotenv").config();
-const linkedin_url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&state=foobar&scope=openid%20profile%20email`;
-const generateJWTandsetCookie = require("../utils/generateJWT.js");
 
 // "/auth"
 router.get("/", (_, res) => {

@@ -1,15 +1,18 @@
-const { Pool } = require("pg");
+const { Sequelize } = require("sequelize");
 require("dotenv").config();
-
-const pool = new Pool({
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  port: process.env.PGPORT,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
-module.exports = pool;
+const sequelize = new Sequelize(
+  `${process.env.PGDATABASE}`,
+  `${process.env.PGUSER}`,
+  `${process.env.PGPASSWORD}`,
+  {
+    host: `${process.env.PGHOST}`,
+    dialect: "postgres",
+    port: process.env.PGPORT,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // Isto evita problemas com certificados self-signed
+      },
+    },
+  }
+);
