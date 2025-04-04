@@ -1,17 +1,11 @@
 const express = require("express");
-const fs = require("fs");
 const pool = require("../database.js");
 const axios = require("axios");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const router = express.Router();
 require("dotenv").config();
-const path = require("path");
-const usersFilePath = path.join(__dirname, "../database/users.json");
-let users = require(usersFilePath);
 const linkedin_url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&state=foobar&scope=openid%20profile%20email`;
-
-const JWT_SECRET = process.env.JWT_SECRET;
+const generateJWTandsetCookie = require("../utils/generateJWT.js");
 
 // "/auth"
 router.get("/", (_, res) => {
@@ -152,15 +146,8 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Email ou password inválidos!" });
     }
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email, username: user.username },
-      JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    console.log("User autenticado com sucesso! Com token:", token);
+    const token = generateJWTandsetCookie(res, user.id); // gerar o token
+    //console.log("User autenticado com sucesso! Com token:", token);
     res.json(token);
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
