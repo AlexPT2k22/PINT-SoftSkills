@@ -23,6 +23,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Evita que a página recarregue
+    setError(null); // Limpa o erro antes de fazer a requisição
 
     let url = "http://localhost:8080/";
     let method = "POST";
@@ -39,6 +40,10 @@ function Login() {
     if (Login === 0) {
       // Sign Up logic
       //console.log("Sign Up:", { username, email, password });
+      if (!username || !email || !password) {
+        setError("O campo Username, Email e Password são obrigatórios!");
+        return;
+      }
       body = {
         Username: username,
         Email: email,
@@ -46,7 +51,7 @@ function Login() {
         LinkedIN: "NULL",
         Type: "user",
       };
-      url += "/api/auth/register";
+      url += "api/auth/register";
     }
     if (Login === 1) {
       // Log In logic
@@ -70,16 +75,16 @@ function Login() {
         },
         body: JSON.stringify(body),
       });
-      if (response.status === 200) {
-        console.log("Login bem sucedido!");
-        setError(null);
-      } else if (response.status === 401) {
-        setError(1);
-      } else {
-        setError(2);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro desconhecido");
       }
+
+      console.log("Bem sucedido:", data);
     } catch (error) {
-      console.error("Error:", error);
+      setError(error.message || "Erro desconhecido");
     }
   };
 
@@ -197,6 +202,7 @@ function Login() {
               <button type="submit" className="signup-button">
                 Criar conta
               </button>
+              {error && <ErrorMessage message={error} />}
               <Divider text="Ou registe-se com" />
               <div className="enter-with">
                 <button className="enter-with-button" type="button">
@@ -210,12 +216,7 @@ function Login() {
               <button type="submit" className="login-button">
                 Entrar
               </button>
-              {error === 1 && (
-                <ErrorMessage message="Email ou password incorretos!" />
-              )}
-              {error === 2 && (
-                <ErrorMessage message="Hmm... Parece que houve um erro com o servidor" />
-              )}
+              {error && <ErrorMessage message={error} />}
               <Divider text="Ou entre com" />
               <div className="enter-with">
                 <button

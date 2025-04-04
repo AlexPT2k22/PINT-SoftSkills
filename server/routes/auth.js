@@ -106,7 +106,7 @@ router.post("/register", async (req, res) => {
     //console.log(userExist.rows.length);
 
     if (userExist.rows.length > 0) {
-      return res.status(400).json({ error: "Email já existe!" });
+      return res.status(400).json({ error: "Email já em uso!" });
     }
 
     const hashedPassword = await bcrypt.hash(user.Password, 10); // hash da password
@@ -129,7 +129,7 @@ router.post("/login", async (req, res) => {
   // verificar os campos obrigatorios
   if (!Email || !Password) {
     return res
-      .status(500)
+      .status(401)
       .json({ error: "O campo Email e password são obrigatórios!" });
   }
   // verificar se o user existe
