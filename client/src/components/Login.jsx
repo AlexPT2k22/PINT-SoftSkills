@@ -25,7 +25,10 @@ function Login() {
     e.preventDefault(); // Evita que a página recarregue
     setError(null); // Limpa o erro antes de fazer a requisição
 
-    let url = process.env.NODE_ENV === "production" ? "https://pint-softskills-api.onrender.com/" : "http://localhost:8080/";
+    let url =
+      process.env.NODE_ENV === "production"
+        ? "https://pint-softskills-api.onrender.com/"
+        : "http://localhost:8080/"; // verifica se está em produção ou desenvolvimento
     let method = "POST";
     let body = {};
 
