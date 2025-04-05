@@ -1,7 +1,12 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
-const sequelize = new Sequelize(`${process.env.PG_URL}`, {
+const PG_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.PROD_PG_URL
+    : process.env.DEV_PG_URL;
+
+const sequelize = new Sequelize(PG_URL, {
   dialect: "postgres",
   dialectOptions: {
     ssl: {
