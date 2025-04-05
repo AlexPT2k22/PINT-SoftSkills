@@ -36,7 +36,7 @@ function Login() {
     let url =
       process.env.NODE_ENV === "production"
         ? "https://pint-softskills-api.onrender.com/"
-        : "http://localhost:8080/"; // verifica se está em produção ou desenvolvimento
+        : "http://localhost:4000"; // verifica se está em produção ou desenvolvimento
     let method = "POST";
     let body = {};
 
@@ -62,7 +62,7 @@ function Login() {
         linkedIN: null,
         type: "user",
       };
-      url += "api/auth/register";
+      url += "/api/auth/register";
     }
     if (Login === 1) {
       // Log In logic
@@ -71,11 +71,12 @@ function Login() {
         email: email,
         password: password,
       };
-      url += "api/auth/login";
+      url += "/api/auth/login";
     }
     if (Login === 2) {
       // Reset Password logic
       console.log("Reset Password:", { email });
+      url += "/api/auth/forgotpassword";
     }
 
     try {

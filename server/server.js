@@ -29,5 +29,5 @@ app.get("/api/private", authenticateToken, (req, res) => {
 
 app.listen(port, () => {
   connectDB(); // Conectar ao banco de dados
-  console.log("Server started on port: ", 8080);
+  console.log("Server started on port: ", port);
 });
