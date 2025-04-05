@@ -14,15 +14,6 @@ const {
 
 const register = async (req, res) => {
   const { username, password, email } = req.body;
-
-  /*const user = {
-    Username: req.body.Username,
-    Password: req.body.Password,
-    Email: req.body.Email,
-    LinkedIN: "",
-    Type: "user",
-  };*/
-
   if (!username || !password || !email) {
     return res
       .status(400)
