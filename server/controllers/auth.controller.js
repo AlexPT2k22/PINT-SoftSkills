@@ -24,7 +24,6 @@ const register = async (req, res) => {
     const userExist = await User.findOne({
       where: { [Op.or]: [{ email: email }, { username: username }] },
     });
-    //console.log(userExist);
     if (userExist) {
       if (userExist.dataValues.email === email) {
         return res.status(400).json({ error: "Email já em uso!" });
@@ -50,17 +49,7 @@ const register = async (req, res) => {
     await sendVerificationEmail(user.username, user.email, verificationToken); // enviar o email de verificação
 
     res.status(201).json({
-      message: `User ${user.username} registado com sucesso!`,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        password: undefined,
-        linkedIn: user.linkedIn,
-        type: user.type,
-        createdAt: user.createdAt,
-        isVerified: user.isVerified,
-      },
+      message: `Registado com sucesso! Verifique o seu email para confirmar a conta!`,
     });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);

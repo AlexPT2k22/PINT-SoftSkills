@@ -209,7 +209,7 @@ const RESET_PASSWORD_EMAIL_TEMPLATE = `<!DOCTYPE html>
                         <td style="padding: 0 0 25px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
                           Olá,<br><br>
 
-Recebemos um pedido para repôe a sua password na nossa plataforma.
+Recebemos um pedido para repôr a sua password na nossa plataforma.
 Se foi você que fez este pedido, clique no botão abaixo para criar uma nova palavra-passe:
                         </td>
                       </tr>

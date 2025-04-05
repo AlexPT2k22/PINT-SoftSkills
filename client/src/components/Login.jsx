@@ -92,9 +92,9 @@ function Login() {
 
       if (!response.ok) {
         throw new Error(data.error || "Erro desconhecido");
+      } else if (response.status === 200 || response.status === 201) {
+        setError(<span style={{ color: "green" }}>{data.message}</span>); // Mensagem de sucesso
       }
-
-      console.log("Bem sucedido:", data);
     } catch (error) {
       setError(error.message || "Erro desconhecido");
     }
@@ -102,7 +102,7 @@ function Login() {
 
   const linked_in_login = async (e) => {
     e.preventDefault(); // Evita que a página recarregue
-    const url = "http://localhost:8080/api/auth/linkedin"; // URL do backend
+    const url = "http://localhost:4000/api/auth/linkedin"; // URL do backend
     window.location.href = url;
   };
 

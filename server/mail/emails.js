@@ -1,4 +1,5 @@
-const { mailtrapClient, sender } = require("./mailtrap.config.js");
+const { resend, sender } = require("./mailtrap.config.js");
+const { Resend } = require("resend");
 const {
   VERIFICATION_EMAIL_TEMPLATE,
   RESET_PASSWORD_EMAIL_TEMPLATE,
@@ -6,12 +7,13 @@ const {
 } = require("./emailTemplates.js");
 
 const sendVerificationEmail = async (username, email, verificationToken) => {
-  const recipent = [{ email }];
-
+  // Convert recipient object to string format for email sending
+  const recipientString = email.toString();
   try {
-    const response = await mailtrapClient.send({
+    console.log(`Sending verification email to ${email}`); // Log the recipient email
+    const response = await resend.emails.send({
       from: sender,
-      to: recipent,
+      to: recipientString,
       subject: "Verificação de Email",
       html: VERIFICATION_EMAIL_TEMPLATE.replace(
         "{user_name}",
@@ -19,19 +21,19 @@ const sendVerificationEmail = async (username, email, verificationToken) => {
       ).replace("{verification_token}", verificationToken),
       category: "Email verification",
     });
-    console.log("Email sent successfully:", response);
+    response.statusCode = 200;
   } catch (error) {
     console.error("Error sending email:", error);
   }
 };
 
 const sendResetEmail = async (username, email, resetUrl) => {
-  const recipent = [{ email }];
+  const recipientString = email.toString();
 
   try {
-    const response = await mailtrapClient.send({
+    const response = await resend.emails.send({
       from: sender,
-      to: recipent,
+      to: recipientString,
       subject: "Redefinição de password",
       html: RESET_PASSWORD_EMAIL_TEMPLATE.replace(
         "{user_name}",
@@ -46,12 +48,12 @@ const sendResetEmail = async (username, email, resetUrl) => {
 };
 
 const sendConfirmationEmail = async (username, email, resetPasswordUrl) => {
-  const recipent = [{ email }];
+  const recipientString = email.toString();
 
   try {
-    const response = await mailtrapClient.send({
+    const response = await resend.emails.send({
       from: sender,
-      to: recipent,
+      to: recipientString,
       subject: "Alteração de password",
       html: PASSWORD_CHANGE_EMAIL_TEMPLATE.replace(
         "{user_name}",

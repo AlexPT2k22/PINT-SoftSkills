@@ -1,18 +1,13 @@
-const { MailtrapClient } = require("mailtrap");
+const { Resend } = require("resend");
 require("dotenv").config();
 
-const TOKEN = process.env.MAILTRAP_API_KEY;
+const TOKEN = process.env.RESEND_API_KEY;
 
-const mailtrapClient = new MailtrapClient({
-  token: TOKEN,
-});
+const resend = new Resend(TOKEN);
 
-const sender = {
-  email: "hello@demomailtrap.co",
-  name: "Softskills",
-};
+const sender = 'SoftSkills <softskills-teste@alexandrefernandes.dev>';
 
 module.exports = {
-  mailtrapClient,
+  resend,
   sender,
 };
