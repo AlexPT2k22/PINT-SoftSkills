@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Divider from "./Divider.jsx";
 import ErrorMessage from "./error_message.jsx";
+import useAuthStore from "../store/authStore.js";
+import ButtonWithLoader from "./butao_loader.jsx";
 
 function Login() {
   const [searchParams] = useSearchParams();
@@ -11,7 +13,8 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [error, setError] = useState(null);
+  //const [errorMsg, setError] = useState(null);
+  const { signup, error, isLoading } = useAuthStore();
 
   useEffect(() => {
     const loginType = searchParams.get("login");
@@ -31,11 +34,11 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Evita que a página recarregue
-    setError(null); // Limpa o erro antes de fazer a requisição
+    //setError(null); // Limpa o erro antes de fazer a requisição
 
     let url =
       process.env.NODE_ENV === "production"
-        ? "https://pint-softskills-api.onrender.com/"
+        ? "https://pint-softskills-api.onrender.com"
         : "http://localhost:4000"; // verifica se está em produção ou desenvolvimento
     let method = "POST";
     let body = {};
@@ -55,14 +58,13 @@ function Login() {
         setError("O campo Username, Email e Password são obrigatórios!");
         return;
       }
-      body = {
+      /*body = {
         username: username,
         email: email,
         password: password,
         linkedIN: null,
-        type: "user",
-      };
-      url += "/api/auth/register";
+      };*/
+      //url += "/api/auth/register";
     }
     if (Login === 1) {
       // Log In logic
@@ -71,7 +73,7 @@ function Login() {
         email: email,
         password: password,
       };
-      url += "/api/auth/login";
+      //url += "/api/auth/login";
     }
     if (Login === 2) {
       // Reset Password logic
@@ -80,7 +82,7 @@ function Login() {
     }
 
     try {
-      const response = await fetch(url, {
+      /*const response = await fetch(url, {
         method: method,
         headers: {
           "Content-Type": "application/json",
@@ -97,9 +99,13 @@ function Login() {
         if (Login === 0) {
           window.location.href = "/auth"; // Redireciona para a página auth após o registro
         }
+      }*/
+      if (Login === 0) {
+        await signup(username, email, password, null); // Chama a função de registro
+        window.location.href = "/auth";
       }
     } catch (error) {
-      setError(error.message || "Erro desconhecido");
+      console.log(error.response.data.error);
     }
   };
 
@@ -215,7 +221,11 @@ function Login() {
           {Login === 0 && (
             <>
               <button type="submit" className="signup-button">
-                Criar conta
+                {isLoading ? (
+                  <ButtonWithLoader isLoading={isLoading} />
+                ) : (
+                  "Criar conta"
+                )}
               </button>
               {error && <ErrorMessage message={error} />}
               <Divider text="Ou registe-se com" />

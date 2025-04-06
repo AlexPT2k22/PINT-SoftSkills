@@ -52,7 +52,7 @@ const register = async (req, res) => {
       message: `Registado com sucesso! Verifique o seu email para confirmar a conta!`,
     });
   } catch (error) {
-    console.error("Error:", error.response?.data || error.message);
+    console.error("Error:", error.message || error);
     res.status(500).json({ error: "Erro ao registar" });
   }
 };
@@ -171,17 +171,17 @@ const verifyEmail = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ error: "Token inválido ou expirado!" });
+      return res.status(400).json({ error: "Código inválido ou expirado!" });
     }
 
     user.isVerified = true; // marcar o user como verificado
     user.verificationToken = null; // remover o token de verificação
     user.verificationExpires = null; // remover a data de expiração do token
-    await user.save(); // guardar as alterações
+    await user.save();
 
     res.status(200).json({ message: "Email verificado com sucesso!" });
   } catch (error) {
-    console.error("Error:", error.response?.data || error.message);
+    console.error("Error:", error.response.data || error.message);
     res.status(500).json({ error: "Erro ao verificar o email!" });
   }
 };

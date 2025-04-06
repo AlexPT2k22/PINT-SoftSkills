@@ -1,6 +1,8 @@
 import React from "react";
 
 const ErrorMessage = ({ message }) => {
+  if (!message) return null; // Se não houver mensagem, não renderiza nada
+  console.log("Erro: " + message); // Loga a mensagem de erro no console
   return (
     <div
       style={{

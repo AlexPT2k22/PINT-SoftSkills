@@ -1,11 +1,15 @@
 import "../styles/auth.css";
-import { useState, useRef } from "react";
+import { useState, useRef, use } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuthStore from "../store/authStore.js";
+import ErrorMessage from "./error_message.jsx";
+import ButtonWithLoader from "./butao_loader.jsx";
 
 function Auth() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const reference = useRef([]);
   const navigate = useNavigate();
+  const { error, isLoading, verify_email } = useAuthStore();
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // só permite dígitos de 0-9
@@ -43,10 +47,16 @@ function Auth() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const codVerification = code.join("");
-    console.log(codVerification);
+    console.log(`Código enviado: ${codVerification}`);
+    try {
+      await verify_email(codVerification);
+      navigate("/login");
+    } catch (error) {
+      console.log(error.response.data.error);
+    }
   };
 
   return (
@@ -77,8 +87,13 @@ function Auth() {
             Não recebeu o código?
             <a className="auth-resend-text">Reenviar código</a>
           </p>
+          {error && <ErrorMessage message={error} />}
           <button className="auth-button" onClick={handleSubmit}>
-            Verificar
+            {isLoading ? (
+              <ButtonWithLoader isLoading={isLoading} />
+            ) : (
+              "Verificar"
+            )}
           </button>
         </form>
       </div>
