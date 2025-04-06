@@ -1,5 +1,3 @@
-import "./App.css";
-import "./inicio";
 import {
   BrowserRouter as Router,
   Route,
@@ -7,12 +5,14 @@ import {
   Navigate,
 } from "react-router-dom";
 import Inicio from "./inicio";
+import AuthPage from "./authpage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Inicio />}></Route>
+        <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/" element={<Navigate to={"/login"} />}></Route>
       </Routes>
     </Router>

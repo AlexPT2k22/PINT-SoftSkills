@@ -1,4 +1,3 @@
-import "./App.css";
 import Login from "./components/Login.jsx"
 import Slides from "./components/Slides.jsx";
 
