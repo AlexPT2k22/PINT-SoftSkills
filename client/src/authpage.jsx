@@ -1,10 +1,9 @@
 import Slides from "./components/Slides.jsx";
 import Auth from "./components/auth.jsx";
-import "./styles/auth.css";
 
 function AuthPage() {
   return (
-    <div className="auth-container">
+    <div className="auth-page-container">
       <Slides />
       <Auth />
     </div>
