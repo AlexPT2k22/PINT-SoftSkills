@@ -23,7 +23,7 @@
   justify-content: center;
   gap: 1rem;
   padding: 1rem;
-  box-shadow: 0 0 30px #4f93ff69;
+  box-shadow: 0 0 20px #4f93ff69;
 }
 
 .auth-form {
@@ -42,12 +42,12 @@
 .auth-border h2 {
   font-size: 1.8rem;
   color: #333;
-  margin-bottom: 1rem;
 }
 
-.auth-border p {
+.code-text {
   font-size: 1.1rem;
   color: #666;
+  margin-bottom: 1.5rem;
 }
 
 .auth-input {
@@ -76,9 +76,32 @@
   border-radius: 10px;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 1rem;
 }
 
 .auth-button:active {
   background-color: #2563eb;
+}
+
+.auth-resend-text {
+  font-size: 1.1rem;
+  color: #3b82f6;
+  text-align: center;
+  margin-left: 0.5rem;
+}
+
+.auth-resend-text:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-resend-text:active {
+  color: #2563eb;
+}
+
+.auth-text {
+  font-size: 1.1rem;
+  color: #666;
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 2.5rem;
 }

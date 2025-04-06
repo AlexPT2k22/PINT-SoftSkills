@@ -94,6 +94,9 @@ function Login() {
         throw new Error(data.error || "Erro desconhecido");
       } else if (response.status === 200 || response.status === 201) {
         setError(<span style={{ color: "green" }}>{data.message}</span>); // Mensagem de sucesso
+        if (Login === 0) {
+          window.location.href = "/auth"; // Redireciona para a página auth após o registro
+        }
       }
     } catch (error) {
       setError(error.message || "Erro desconhecido");

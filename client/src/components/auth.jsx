@@ -52,8 +52,8 @@ function Auth() {
   return (
     <div className="auth-container">
       <div className="auth-border">
-        <h2>Verifique o seu email</h2>
-        <p>Intruduza o código que recebeu no email</p>
+        <h2>Verifique a sua conta</h2>
+        <p className="code-text">Intruduza o código que recebeu no email</p>
         <form className="auth-form">
           <div className="auth-form-group">
             {code.map((digit, index) => (
@@ -73,6 +73,10 @@ function Auth() {
               />
             ))}
           </div>
+          <p className="auth-text">
+            Não recebeu o código?
+            <a className="auth-resend-text">Reenviar código</a>
+          </p>
           <button className="auth-button" onClick={handleSubmit}>
             Verificar
           </button>
