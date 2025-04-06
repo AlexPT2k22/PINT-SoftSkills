@@ -113,6 +113,10 @@
   margin-top: 1rem;
 }
 
+.login-button:hover {
+  background-color: #2563eb;
+}
+
 .form-group-buttons-reset {
   display: flex;
   justify-content: space-between;

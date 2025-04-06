@@ -1,4 +1,4 @@
-import "../Login.css";
+import "../styles/Login.css";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Divider from "./Divider.jsx";

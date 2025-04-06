@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "../Slides.css";
+import "../styles/Slides.css";
 
 function Slides() {
   const [activeSlide, setActiveSlide] = useState(0);
