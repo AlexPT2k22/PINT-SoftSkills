@@ -13,6 +13,10 @@ function LinkedIn_associate() {
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
 
+  const isValidLinkedInUrl = (url) => {
+    return url.startsWith("https://www.linkedin.com/in/");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const email = searchParams.get("email");
@@ -21,6 +25,11 @@ function LinkedIn_associate() {
     setError(null);
     setLoader(false);
     let body = { url: url };
+    if (!isValidLinkedInUrl(url)) {
+      setError("URL tem de ser 'https://www.linkedin.com/in/{resto-do-url}'");
+      setisLoading(false);
+      return;
+    }
     try {
       const response = await fetch(
         `http://localhost:4000/api/auth/linkedin/associate?email=${email}`,
@@ -62,7 +71,11 @@ function LinkedIn_associate() {
             value={url}
           />
           {error && <ErrorMessage message={error} marginTop={"0px"} />}
-          <button className="linkedin-associate-button" type="submit">
+          <button
+            className="linkedin-associate-button"
+            type="submit"
+            disabled={isLoading}
+          >
             {isLoading ? (
               <ButtonWithLoader isLoading={isLoading} />
             ) : (
