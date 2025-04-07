@@ -1,0 +1,75 @@
+.linkedin-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.linkedin-form-container {
+  flex: 1;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.linkedin-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.linkedin-border {
+  width: 500px;
+  height: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  box-shadow: 0 0 20px #4f93ff69;
+  border-radius: 2vh;
+}
+
+.linkedin-associate-button {
+  width: 180px;
+  padding: 0.8rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.linkedin-associate-button:active {
+  background-color: #2563eb;
+}
+
+.linkedin-input {
+  width: 400px;
+  border: 1px solid #d9dee6;
+  text-align: center;
+  font-size: 1.1rem;
+  background-color: #e8edf5;
+  margin-bottom: 1.6rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-align: left;
+}
+
+p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+h2 {
+  color: #333;
+  font-size: 1.8rem;
+}

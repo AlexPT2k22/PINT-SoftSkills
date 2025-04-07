@@ -9,6 +9,7 @@ const {
   logout,
   forgotPassword,
   resetPassword,
+  linkedInAssociate,
 } = require("../controllers/auth.controller.js");
 
 // "/auth"
@@ -19,6 +20,7 @@ router.get("/", (_, res) => {
 // "/auth/*"
 router.get("/linkedin", linkedIN_url);
 router.get("/linkedin/callback", linkedINLogin);
+router.post("/linkedin/associate", linkedInAssociate);
 router.post("/register", register);
 router.post("/login", login);
 router.post("/verifyemail", verifyEmail);

@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import Inicio from "./inicio";
 import AuthPage from "./authpage";
+import LinkedIn_Page from "./linkedin.jsx";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Inicio />}></Route>
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/" element={<Navigate to={"/login"} />}></Route>
+        <Route path="/linkedin" element={<LinkedIn_Page />}></Route>
       </Routes>
     </Router>
   );

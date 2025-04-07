@@ -141,14 +141,12 @@ const linkedINLogin = async (req, res) => {
     //console.log(`Primeiro nome: ${firstName}`);
     //console.log(`Ultimo nome: ${lastName}`);
 
-    //res.redirect(`http://localhost:8080/dashboard?username=${username}`);
-
     // verificar se o user existe
     const userExist = await User.findOne({
       where: {
         [Op.and]: [
+          { username: LinkedinUsername },
           { email: email },
-          { linkedIn: LinkedinUsername },
           { firstName: firstName },
           { lastName: lastName },
         ],
@@ -166,21 +164,51 @@ const linkedINLogin = async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, 10);
       console.log(password);
       console.log(hashedPassword);
-      await User.create({
+      const user = await User.create({
         username: LinkedinUsername,
         email: email,
-        linkedIn: LinkedinUsername,
+        linkedIn: null,
         firstName: firstName,
         lastName: lastName,
         password: hashedPassword,
       });
-      await User.save();
+      await user.save();
       console.log("User criado com sucesso!");
       console.log(userProfile);
+      res.redirect(`http://localhost:5173/linkedin?email=${email}`);
     }
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Erro ao autenticar com o LinkedIn!" });
+  }
+};
+
+const linkedInAssociate = async (req, res) => {
+  const { email } = req.query;
+  const { url } = req.body;
+  console.log(email);
+  console.log(url);
+
+  try {
+    const user = await User.findOne({
+      where: { [Op.and]: [{ email: email }, { linkedIn: null }] },
+    });
+
+    if (!user) {
+      return res
+        .status(500)
+        .json({ error: `Não foi possivel encontrar o email: ${email}` });
+    }
+
+    //ver se existe a url TODO:
+
+    const update = await User.update(
+      { linkedIn: url },
+      { where: { email: email } }
+    );
+    await update.save();
+  } catch (error) {
+    console.log(error.response.data.error || "Erro no servidor");
   }
 };
 
@@ -296,4 +324,5 @@ module.exports = {
   logout,
   forgotPassword,
   resetPassword,
+  linkedInAssociate,
 };
