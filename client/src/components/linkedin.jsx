@@ -12,6 +12,7 @@ function LinkedIn_associate() {
   const [error, setError] = useState(null);
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   const isValidLinkedInUrl = (url) => {
     return url.startsWith("https://www.linkedin.com/in/");
@@ -45,6 +46,7 @@ function LinkedIn_associate() {
         setError(error.error);
       } else if (response.status === 200) {
         setLoader(true);
+        await sleep(2000);
         navigate("/dashboard");
       }
     } catch (error) {

@@ -200,7 +200,7 @@ const linkedInAssociate = async (req, res) => {
       });
     }
 
-    //ver se existe a url TODO:
+    //ver se existe a url (feito no frontend)
 
     await User.update({ linkedIn: url }, { where: { email: email } });
     res
@@ -233,6 +233,7 @@ const verifyEmail = async (req, res) => {
     user.verificationExpires = null; // remover a data de expiração do token
     await user.save();
 
+    await sendConfirmationEmail()
     res.status(200).json({ message: "Email verificado com sucesso!" });
   } catch (error) {
     console.error("Error:", error.response.data || error.message);
@@ -267,7 +268,7 @@ const forgotPassword = async (req, res) => {
     await sendResetEmail(
       user.username,
       user.email,
-      `${process.env.CLIENT_URL}/resetpassword?${resetToken}`
+      `${process.env.FRONTEND_URL}/resetpassword?${resetToken}`
     );
 
     res.status(200).json({ message: "Email de redefinição enviado!" });

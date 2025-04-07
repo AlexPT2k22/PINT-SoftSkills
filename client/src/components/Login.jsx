@@ -77,7 +77,7 @@ function Login() {
     }
     if (Login === 2) {
       // Reset Password logic
-      console.log("Reset Password:", { email });
+      body = { email: email };
       url += "/api/auth/forgotpassword";
     }
 
@@ -103,6 +103,23 @@ function Login() {
       if (Login === 0) {
         await signup(username, email, password, null); // Chama a função de registro
         window.location.href = "/auth";
+      }
+      if (Login === 2) {
+        try {
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+          });
+          if (!response.ok) {
+            const error = await response.json();
+            console.log(error);
+          }
+        } catch (error) {
+          console.log(error);
+        }
       }
     } catch (error) {
       console.log(error.response.data.error);
@@ -264,7 +281,11 @@ function Login() {
                 >
                   Cancelar
                 </button>
-                <button type="button" className="login-button">
+                <button
+                  type="submit"
+                  className="login-button"
+                  onSubmit={handleLogin}
+                >
                   Reset password
                 </button>
               </div>
