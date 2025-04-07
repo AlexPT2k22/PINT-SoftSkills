@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
-import dotenv from "dotenv";
+import "dotenv";
 
 let url =
   process.env.NODE_ENV === "production"
