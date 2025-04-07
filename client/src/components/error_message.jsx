@@ -8,11 +8,12 @@ const ErrorMessage = ({ message }) => {
       style={{
         color: "red",
         fontSize: "14px",
-        marginTop: "0.4rem",
+        //marginTop: "0.4rem",
         fontFamily: "'Roboto', sans-serif",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        textAlign: "center",
       }}
     >
       {message}

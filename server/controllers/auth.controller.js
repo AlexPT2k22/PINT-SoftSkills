@@ -195,18 +195,17 @@ const linkedInAssociate = async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(500)
-        .json({ error: `Não foi possivel encontrar o email: ${email}` });
+      return res.status(500).json({
+        error: `Não foi possivel encontrar o email: ${email} OU email já com LinkedIn associado`,
+      });
     }
 
     //ver se existe a url TODO:
 
-    const update = await User.update(
-      { linkedIn: url },
-      { where: { email: email } }
-    );
-    await update.save();
+    await User.update({ linkedIn: url }, { where: { email: email } });
+    res
+      .status(200)
+      .json({ message: `Adicionado LinkedIn com sucesso a ${email}` });
   } catch (error) {
     console.log(error.response.data.error || "Erro no servidor");
   }

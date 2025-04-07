@@ -1,21 +1,25 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import "../styles/linkedin.css";
 import ButtonWithLoader from "./butao_loader.jsx";
 import ErrorMessage from "./error_message.jsx";
+import Loader from "./loader.jsx";
 
 function LinkedIn_associate() {
   const [searchParams] = useSearchParams();
   const [isLoading, setisLoading] = useState(false);
   const [url, seturl] = useState("");
   const [error, setError] = useState(null);
+  const [loader, setLoader] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     const email = searchParams.get("email");
     console.log(email);
-    e.preventDefault();
     setisLoading(true);
     setError(null);
+    setLoader(false);
     let body = { url: url };
     try {
       const response = await fetch(
@@ -26,9 +30,17 @@ function LinkedIn_associate() {
           body: JSON.stringify(body),
         }
       );
+      if (!response.ok) {
+        const error = await response.json();
+        console.log(error.error);
+        setError(error.error);
+      } else if (response.status === 200) {
+        setLoader(true);
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.log(error);
-      setError(error.response.data.error);
+      setError("Erro inesperado com o servidor");
     } finally {
       setisLoading(false);
     }
@@ -36,6 +48,7 @@ function LinkedIn_associate() {
 
   return (
     <div className="linkedin-form-container">
+      {loader && <Loader />}
       <div className="linkedin-border">
         <h2>Associe o seu LinkedIn à sua conta</h2>
         <p>Introduza a url do seu perfil do LinkedIn</p>
@@ -48,7 +61,7 @@ function LinkedIn_associate() {
             onChange={(e) => seturl(e.target.value)}
             value={url}
           />
-          {error && <ErrorMessage message={error} />}
+          {error && <ErrorMessage message={error} marginTop={"0px"} />}
           <button className="linkedin-associate-button" type="submit">
             {isLoading ? (
               <ButtonWithLoader isLoading={isLoading} />
