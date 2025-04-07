@@ -133,23 +133,50 @@ const linkedINLogin = async (req, res) => {
     const userProfile = profileResponse.data;
     const LinkedinUsername = userProfile.name;
     const email = userProfile.email;
+    const firstName = userProfile.given_name;
+    const lastName = userProfile.family_name;
     //console.log("Username:", username);
     //console.log("Email:", email);
+    console.log(userProfile);
+    //console.log(`Primeiro nome: ${firstName}`);
+    //console.log(`Ultimo nome: ${lastName}`);
 
     //res.redirect(`http://localhost:8080/dashboard?username=${username}`);
 
     // verificar se o user existe
-    const userExist = users.find(
-      (u) => u.Email === email && u.Username === LinkedinUsername
-    );
+    const userExist = await User.findOne({
+      where: {
+        [Op.and]: [
+          { email: email },
+          { linkedIn: LinkedinUsername },
+          { firstName: firstName },
+          { lastName: lastName },
+        ],
+      },
+    });
     if (userExist) {
       console.log(`Sucesso`);
+      //console.log(userExist);
       return res.redirect(
-        `http://localhost:8080/dashboard?username=${LinkedinUsername}`
+        `http://localhost:4000/api/dashboard?username=${LinkedinUsername}`
       );
     } else {
-      return res.status(401).json({ error: "User não existe" });
-      // TODO: adicionar o user a db
+      //return res.status(401).json({ error: "User não existe" });
+      const password = crypto.randomBytes(16).toString("hex");
+      const hashedPassword = await bcrypt.hash(password, 10);
+      console.log(password);
+      console.log(hashedPassword);
+      await User.create({
+        username: LinkedinUsername,
+        email: email,
+        linkedIn: LinkedinUsername,
+        firstName: firstName,
+        lastName: lastName,
+        password: hashedPassword,
+      });
+      await User.save();
+      console.log("User criado com sucesso!");
+      console.log(userProfile);
     }
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
