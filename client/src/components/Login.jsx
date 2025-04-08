@@ -1,4 +1,3 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Login.css"; // Keep custom CSS file for additional styling
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -216,6 +215,7 @@ function Login() {
 
           {Login === 0 && (
             <>
+            {error && <ErrorMessage message={error} />}
               <button type="submit" className="btn signup-button">
                 {isLoading ? (
                   <ButtonWithLoader isLoading={isLoading} />
@@ -223,7 +223,6 @@ function Login() {
                   "Criar conta"
                 )}
               </button>
-              {error && <ErrorMessage message={error} />}
               <Divider text="Ou registe-se com" />
               <div className="enter-with">
                 <button className="enter-with-button" type="button">
@@ -235,14 +234,11 @@ function Login() {
 
           {Login === 1 && (
             <>
+            {error && <ErrorMessage message={error} />}
               <button type="submit" className="btn login-button">
                 Entrar
               </button>
-
-              {error && <ErrorMessage message={error} />}
-
               <Divider text="Ou entre com" />
-
               <div className="enter-with">
                 <button
                   className="enter-with-button"

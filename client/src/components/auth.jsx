@@ -1,9 +1,9 @@
-import "../styles/auth.css";
-import { useState, useRef, use } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore.js";
 import ErrorMessage from "./error_message.jsx";
 import ButtonWithLoader from "./butao_loader.jsx";
+import "../styles/auth.css";
 
 function Auth() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -12,7 +12,7 @@ function Auth() {
   const { error, isLoading, verify_email } = useAuthStore();
 
   const handleChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return; // só permite dígitos de 0-9
+    if (!/^\d?$/.test(value)) return;
 
     const newCode = [...code];
     newCode[index] = value;
@@ -55,40 +55,46 @@ function Auth() {
       await verify_email(codVerification);
       navigate("/login");
     } catch (error) {
-      console.log(error.response.data.error);
+      console.log(error.response?.data?.error);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-border">
-        <h2>Verifique a sua conta</h2>
-        <p className="code-text">Intruduza o código que recebeu no email</p>
-        <form className="auth-form">
-          <div className="auth-form-group">
+    <div className="container d-flex justify-content-center align-items-center auth-page-container w-50">
+      <div className="auth-container">
+        <h2 className="text-center mb-3">Verifique a sua conta</h2>
+        <p className="text-center text-muted mb-4 code-text">
+          Introduza o código que recebeu no email
+        </p>
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="d-flex justify-content-center gap-2 mb-3 auth-form-group">
             {code.map((digit, index) => (
               <input
                 key={index}
                 type="text"
                 ref={(el) => (reference.current[index] = el)}
                 value={digit}
-                max={6}
-                onChange={(e) => {
-                  handleChange(index, e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  handleKeyDown(index, e);
-                }}
-                className="auth-input"
+                maxLength={1}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="form-control text-center fs-4 auth-input"
               />
             ))}
           </div>
-          <p className="auth-text">
-            Não recebeu o código?
-            <a className="auth-resend-text">Reenviar código</a>
-          </p>
+
+          <div className="text-center mb-4 d-flex justify-content-center align-items-center auth-text"> 
+            <span className="text-muted p-0">Não recebeu o código?</span>
+            <span
+              className="btn btn-link p-0 ms-1 text-decoration-none auth-resend-text"
+              onClick={() => {
+                // Adiciona lógica para reenviar o código
+              }}
+            >
+              Reenviar código
+            </span>
+          </div>
           {error && <ErrorMessage message={error} />}
-          <button className="auth-button" onClick={handleSubmit}>
+          <button type="submit" className="btn btn-primary w-100 auth-button">
             {isLoading ? (
               <ButtonWithLoader isLoading={isLoading} />
             ) : (
