@@ -11,7 +11,7 @@ function Slides() {
   };
 
   return (
-    <div className="left-panel p-4 flex-column h-100 w-50">
+    <div className="left-panel pb-5 p-4 flex-column h-100 w-50">
       <div className="logo mb-5">
         <img src="/images/Logo.svg" alt="Logo" />
       </div>
@@ -22,7 +22,7 @@ function Slides() {
         interval={5000}
         indicators={false}
         controls={false}
-        className="flex-grow-1 d-flex flex-column"
+        className="d-flex flex-column flex-grow-1"
       >
         <Carousel.Item>
           <div className="illustration-container d-flex justify-content-center align-items-center">

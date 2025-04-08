@@ -48,8 +48,7 @@
 }
 
 .login-form {
-  width: 100%;
-  max-width: 350px;
+  width: 350px;
 }
 
 .form-group {
@@ -199,35 +198,17 @@
 
 @media (max-width: 768px) {
   .login-container {
-    width: 100%; /* Full width on small screens */
+    width: 100%;
     margin: 0 auto;
-  }
-
-  .right-panel {
-    margin: 1rem;
-    padding: 2rem;
-  }
-
-  .form-control {
-    font-size: 1rem;
-  }
-
-  .btn {
-    padding: 0.6rem;
   }
 }
 
-/* Additional styling for very small screens */
 @media (max-width: 480px) {
+  .reset-desc {
+    width: 375px;
+  }
+
   .right-panel {
-    padding: 1.5rem;
-  }
-
-  .welcome-text {
-    font-size: 1.5rem;
-  }
-
-  .reset-title {
-    font-size: 1.5rem;
+    width: 375px;
   }
 }
