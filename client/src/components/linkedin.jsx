@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import "../styles/linkedin.css";
 import ButtonWithLoader from "./butao_loader.jsx";
 import ErrorMessage from "./error_message.jsx";
 import Loader from "./loader.jsx";
@@ -58,34 +57,30 @@ function LinkedIn_associate() {
   };
 
   return (
-    <div className="linkedin-form-container">
+    <div className="container d-flex justify-content-center align-items-center flex-column w-50">
       {loader && <Loader />}
-      <div className="linkedin-border">
-        <h2>Associe o seu LinkedIn à sua conta</h2>
-        <p>Introduza a url do seu perfil do LinkedIn</p>
-        <form className="linkedin-form" onSubmit={handleSubmit}>
-          <input
-            className="linkedin-input"
-            type="text"
-            required
-            placeholder="URL do perfil do LinkedIn"
-            onChange={(e) => seturl(e.target.value)}
-            value={url}
-          />
-          {error && <ErrorMessage message={error} marginTop={"0px"} />}
-          <button
-            className="linkedin-associate-button"
-            type="submit"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ButtonWithLoader isLoading={isLoading} />
-            ) : (
-              "Associar"
-            )}
-          </button>
-        </form>
-      </div>
+      <h2 className="text-center mb-2">Associe o seu LinkedIn à sua conta</h2>
+      <p className="text-center text-muted mb-4">
+        Introduza a url do seu perfil do LinkedIn
+      </p>
+      <form className="linkedin-form w-50 d-flex flex-column align-items-center" onSubmit={handleSubmit}>
+        <input
+          className="form-control text-start mb-3 linkedin-input"
+          type="text"
+          required
+          placeholder="URL do perfil do LinkedIn"
+          onChange={(e) => seturl(e.target.value)}
+          value={url}
+        />
+        {error && <ErrorMessage message={error} marginTop={"0px"} />}
+        <button
+          className="btn btn-primary linkedin-associate-button"
+          type="submit"
+          disabled={isLoading}
+        >
+          {isLoading ? <ButtonWithLoader isLoading={isLoading} /> : "Associar"}
+        </button>
+      </form>
     </div>
   );
 }

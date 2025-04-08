@@ -216,7 +216,7 @@ function Login() {
           {Login === 0 && (
             <>
             {error && <ErrorMessage message={error} />}
-              <button type="submit" className="btn signup-button">
+              <button type="submit" className="btn btn-primary signup-button">
                 {isLoading ? (
                   <ButtonWithLoader isLoading={isLoading} />
                 ) : (
@@ -235,7 +235,7 @@ function Login() {
           {Login === 1 && (
             <>
             {error && <ErrorMessage message={error} />}
-              <button type="submit" className="btn login-button">
+              <button type="submit" className="btn btn-primary login-button">
                 Entrar
               </button>
               <Divider text="Ou entre com" />
@@ -255,12 +255,12 @@ function Login() {
             <div className="form-group-buttons-reset">
               <button
                 type="button"
-                className="btn cancel-button"
+                className="btn btn-secondary cancel-button"
                 onClick={changeToLogin}
               >
                 Cancelar
               </button>
-              <button type="submit" className="btn login-button">
+              <button type="submit" className="btn btn-primary login-button">
                 {isLoading ? (
                   <ButtonWithLoader isLoading={isLoading} />
                 ) : (

@@ -96,15 +96,16 @@
 }
 
 .form-group .form-control:focus {
-  outline: 2px solid #2c5282;
-  box-shadow: none;
+  outline: none;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
 }
 
 .signup-button,
 .login-button {
   width: 100%;
-  padding: 0.8rem;
-  background-color: #3b82f6;
+  padding: 0.8rem !important;
+  background-color: #3b82f6 !important;
   color: white;
   border: none;
   border-radius: 10px;
@@ -114,7 +115,7 @@
 }
 
 .login-button:hover {
-  background-color: #2563eb;
+  background-color: #2563eb !important; /* para o css não ser sobrescrito pelo bootstrap */
   color: white;
 }
 
@@ -136,12 +137,12 @@
 }
 
 .cancel-button {
-  background-color: #e6e6e6;
-  color: #373737;
+  background-color: #e6e6e6 !important;
+  color: #373737 !important;
 }
 
 .cancel-button:hover {
-  background-color: #dbdbdb;
+  background-color: #dbdbdb !important;
   color: #373737;
 }
 

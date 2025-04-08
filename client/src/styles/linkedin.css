@@ -4,42 +4,12 @@
   width: 100%;
 }
 
-.linkedin-form-container {
-  flex: 1;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.linkedin-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.linkedin-border {
-  width: 500px;
-  height: 260px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1rem;
-  box-shadow: 0 0 20px #4f93ff69;
-  border-radius: 2vh;
-}
-
 .linkedin-associate-button {
   width: 180px;
   padding: 0.8rem;
   background-color: #3b82f6;
   color: white;
   border: none;
-  border-radius: 10px;
   font-size: 1.2rem;
   cursor: pointer;
   margin-top: 0.2rem;
@@ -51,10 +21,8 @@
 }
 
 .linkedin-input {
-  width: 400px;
-  border: 1px solid #d9dee6;
+  border: none;
   text-align: center;
-  font-size: 1.1rem;
   background-color: #e8edf5;
   margin-bottom: 1rem;
   margin-top: 1rem;
@@ -63,7 +31,6 @@
   padding-bottom: 10px;
   padding-left: 10px;
   padding-right: 10px;
-  text-align: left;
 }
 
 p {
@@ -74,4 +41,10 @@ p {
 h2 {
   color: #333;
   font-size: 1.8rem;
+}
+
+.linkedin-input:focus {
+  outline: none;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
 }
