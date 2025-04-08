@@ -11,7 +11,7 @@ function Slides() {
   };
 
   return (
-    <div className="left-panel bg-light p-4 d-flex flex-column h-100 w-50">
+    <div className="left-panel p-4 flex-column h-100 w-50">
       <div className="logo mb-5">
         <img src="/images/Logo.svg" alt="Logo" />
       </div>

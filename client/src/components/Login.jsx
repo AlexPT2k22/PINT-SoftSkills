@@ -1,4 +1,5 @@
-import "../styles/Login.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/Login.css"; // Keep custom CSS file for additional styling
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Divider from "./Divider.jsx";
@@ -13,7 +14,6 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  //const [errorMsg, setError] = useState(null);
   const { signup, error, isLoading } = useAuthStore();
 
   useEffect(() => {
@@ -33,13 +33,12 @@ function Login() {
   }, [searchParams]);
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Evita que a página recarregue
-    //setError(null); // Limpa o erro antes de fazer a requisição
+    e.preventDefault();
 
     let url =
       process.env.NODE_ENV === "production"
         ? "https://pint-softskills-api.onrender.com"
-        : "http://localhost:4000"; // verifica se está em produção ou desenvolvimento
+        : "http://localhost:4000";
     let method = "POST";
     let body = {};
 
@@ -52,56 +51,25 @@ function Login() {
     }
 
     if (Login === 0) {
-      // Sign Up logic
-      //console.log("Sign Up:", { username, email, password });
       if (!username || !email || !password) {
         setError("O campo Username, Email e Password são obrigatórios!");
         return;
       }
-      /*body = {
-        username: username,
-        email: email,
-        password: password,
-        linkedIN: null,
-      };*/
-      //url += "/api/auth/register";
     }
     if (Login === 1) {
-      // Log In logic
-      //console.log("Log In:", { email, password });
       body = {
         email: email,
         password: password,
       };
-      //url += "/api/auth/login";
     }
     if (Login === 2) {
-      // Reset Password logic
       body = { email: email };
       url += "/api/auth/forgotpassword";
     }
 
     try {
-      /*const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro desconhecido");
-      } else if (response.status === 200 || response.status === 201) {
-        setError(<span style={{ color: "green" }}>{data.message}</span>); // Mensagem de sucesso
-        if (Login === 0) {
-          window.location.href = "/auth"; // Redireciona para a página auth após o registro
-        }
-      }*/
       if (Login === 0) {
-        await signup(username, email, password, null); // Chama a função de registro
+        await signup(username, email, password, null);
         window.location.href = "/auth";
       }
       if (Login === 2) {
@@ -127,8 +95,8 @@ function Login() {
   };
 
   const linked_in_login = async (e) => {
-    e.preventDefault(); // Evita que a página recarregue
-    const url = "http://localhost:4000/api/auth/linkedin"; // URL do backend
+    e.preventDefault();
+    const url = "http://localhost:4000/api/auth/linkedin";
     window.location.href = url;
   };
 
@@ -141,7 +109,7 @@ function Login() {
   };
 
   return (
-    <>
+    <div className="login-container w-50 justify-content-center align-items-center">
       <div className="right-panel">
         {Login !== 2 && (
           <>
@@ -154,7 +122,7 @@ function Login() {
                   viewBox="0 0 41 41"
                   fill="none"
                 >
-                  <g clip-path="url(#clip0_4_249)">
+                  <g clipPath="url(#clip0_4_249)">
                     <path
                       d="M20.5 20.4999C22.5273 20.4999 24.509 19.8987 26.1946 18.7724C27.8802 17.6462 29.194 16.0453 29.9698 14.1724C30.7456 12.2994 30.9485 10.2385 30.5531 8.25021C30.1576 6.2619 29.1813 4.43553 27.7478 3.00204C26.3144 1.56855 24.488 0.592332 22.4997 0.196833C20.5114 -0.198665 18.4504 0.00431911 16.5775 0.780117C14.7046 1.55592 13.1037 2.86968 11.9774 4.55529C10.8512 6.24089 10.25 8.22262 10.25 10.2499C10.2527 12.9675 11.3335 15.5731 13.2552 17.4947C15.1768 19.4164 17.7824 20.4972 20.5 20.4999ZM20.5 3.41655C21.8515 3.41655 23.1727 3.81732 24.2964 4.56817C25.4201 5.31903 26.296 6.38625 26.8132 7.63488C27.3304 8.88351 27.4657 10.2575 27.202 11.583C26.9384 12.9085 26.2876 14.1261 25.3319 15.0818C24.3762 16.0374 23.1587 16.6882 21.8331 16.9519C20.5076 17.2156 19.1336 17.0803 17.885 16.5631C16.6364 16.0459 15.5691 15.17 14.8183 14.0463C14.0674 12.9225 13.6667 11.6014 13.6667 10.2499C13.6667 8.43757 14.3866 6.69948 15.6681 5.41799C16.9496 4.13649 18.6877 3.41655 20.5 3.41655V3.41655Z"
                       fill="#F8F8F8"
@@ -175,42 +143,49 @@ function Login() {
             <h2 className="welcome-text">Bem-Vindo!</h2>
           </>
         )}
+
         {Login === 2 && (
           <>
             <div className="reset-title-div">
               <h2 className="reset-title">Reset password?</h2>
-              <i class="fi fi-ss-key"></i>
+              <i className="fi fi-ss-key"></i>
             </div>
             <p className="reset-desc">
-              Introduza o e-mail associado à sua conta para receber <br></br> um
-              link para repor a password
+              Introduza o e-mail associado à sua conta para receber <br />
+              um link para repor a password
             </p>
           </>
         )}
+
         <form onSubmit={handleLogin} className="login-form">
-          <div className="form-group">
-            {Login === 0 && (
+          {Login === 0 && (
+            <div className="form-group">
               <input
                 type="text"
+                className="form-control"
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
-            )}
-          </div>
+            </div>
+          )}
+
           <div className="form-group">
             <input
               type="email"
+              className="form-control"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
+
           {Login !== 2 && (
             <div className="form-group">
               <input
                 type="password"
+                className="form-control"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -218,11 +193,12 @@ function Login() {
               />
             </div>
           )}
+
           {Login === 1 && (
             <div className="form-extra">
               <div className="checkbox-itens">
                 <input
-                  className="checkbox"
+                  className="form-check-input checkbox"
                   type="checkbox"
                   id="remember-me"
                   checked={rememberMe}
@@ -232,12 +208,15 @@ function Login() {
                   Guardar log-in
                 </label>
               </div>
-              <a onClick={changeToReset}>Reset password</a>
+              <a onClick={changeToReset} className="reset-link">
+                Reset password
+              </a>
             </div>
           )}
+
           {Login === 0 && (
             <>
-              <button type="submit" className="signup-button">
+              <button type="submit" className="btn signup-button">
                 {isLoading ? (
                   <ButtonWithLoader isLoading={isLoading} />
                 ) : (
@@ -248,65 +227,80 @@ function Login() {
               <Divider text="Ou registe-se com" />
               <div className="enter-with">
                 <button className="enter-with-button" type="button">
-                  <img src="./images/linkedin.svg" alt="linkedin"></img>
+                  <img src="./images/linkedin.svg" alt="linkedin" />
                 </button>
               </div>
             </>
           )}
+
           {Login === 1 && (
             <>
-              <button type="submit" className="login-button">
+              <button type="submit" className="btn login-button">
                 Entrar
               </button>
+
               {error && <ErrorMessage message={error} />}
+
               <Divider text="Ou entre com" />
+
               <div className="enter-with">
                 <button
                   className="enter-with-button"
                   type="button"
                   onClick={linked_in_login}
                 >
-                  <img src="./images/linkedin.svg" alt="linkedin"></img>
+                  <img src="./images/linkedin.svg" alt="linkedin" />
                 </button>
               </div>
             </>
           )}
+
           {Login === 2 && (
-            <>
-              <div className="form-group-buttons-reset">
-                <button
-                  type="button"
-                  className="cancel-button"
-                  onClick={changeToLogin}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="login-button"
-                  onSubmit={handleLogin}
-                >
-                  Reset password
-                </button>
-              </div>
-            </>
+            <div className="form-group-buttons-reset">
+              <button
+                type="button"
+                className="btn cancel-button"
+                onClick={changeToLogin}
+              >
+                Cancelar
+              </button>
+              <button type="submit" className="btn login-button">
+                {isLoading ? (
+                  <ButtonWithLoader isLoading={isLoading} />
+                ) : (
+                  "Resetar password"
+                )}
+              </button>
+            </div>
           )}
         </form>
 
         <div className="login-link">
           {Login === 0 && (
             <p>
-              Já tem conta? <a onClick={changeToLogin}>Entrar</a>
+              Já tem conta?{" "}
+              <a
+                className="color-#3b82f6 text-decoration-none"
+                onClick={changeToLogin}
+              >
+                Entrar
+              </a>
             </p>
           )}
           {Login === 1 && (
             <p>
-              Não tem conta? <a onClick={changeToLogin}>Criar conta</a>
+              Não tem conta?{" "}
+              <a
+                className="color-#3b82f6 text-decoration-none"
+                onClick={changeToLogin}
+              >
+                Criar conta
+              </a>
             </p>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

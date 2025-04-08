@@ -15,7 +15,6 @@
   width: 100%;
 }
 
-/* Right panel styles */
 .right-panel {
   flex: 1;
   background-color: white;
@@ -23,6 +22,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .avatar {
@@ -56,7 +56,7 @@
   margin-bottom: 1rem;
 }
 
-.form-group input {
+.form-group .form-control {
   width: 100%;
   padding: 0.8rem;
   border: none;
@@ -96,8 +96,9 @@
   align-items: center;
 }
 
-.form-group input:focus {
+.form-group .form-control:focus {
   outline: 2px solid #2c5282;
+  box-shadow: none;
 }
 
 .signup-button,
@@ -115,6 +116,7 @@
 
 .login-button:hover {
   background-color: #2563eb;
+  color: white;
 }
 
 .form-group-buttons-reset {
@@ -135,12 +137,18 @@
 }
 
 .cancel-button {
-  background-color: #e1e1e1;
+  background-color: #e6e6e6;
+  color: #373737;
+}
+
+.cancel-button:hover {
+  background-color: #dbdbdb;
   color: #373737;
 }
 
 .signup-button:hover {
   background-color: #2563eb;
+  color: white;
 }
 
 .login-link {
@@ -175,4 +183,51 @@
   margin-left: 0.31rem;
   margin-top: 0.31rem;
   font-size: 24px;
+}
+
+.form-check-input.checkbox {
+  margin-top: 0;
+}
+
+.btn:focus {
+  box-shadow: none;
+}
+
+.form-control {
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    width: 100%; /* Full width on small screens */
+    margin: 0 auto;
+  }
+
+  .right-panel {
+    margin: 1rem;
+    padding: 2rem;
+  }
+
+  .form-control {
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 0.6rem;
+  }
+}
+
+/* Additional styling for very small screens */
+@media (max-width: 480px) {
+  .right-panel {
+    padding: 1.5rem;
+  }
+
+  .welcome-text {
+    font-size: 1.5rem;
+  }
+
+  .reset-title {
+    font-size: 1.5rem;
+  }
 }

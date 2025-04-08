@@ -1,7 +1,7 @@
-/* Custom styles to match the original design */
 .left-panel {
   background-color: #e8edf5;
   height: 100%;
+  display: flex;
 }
 
 .illustration {
