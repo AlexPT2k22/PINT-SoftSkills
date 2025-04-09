@@ -4,10 +4,6 @@
   display: flex;
 }
 
-.illustration {
-  max-height: 65%;
-}
-
 .illustration-img {
   max-height: 100%;
   width: auto;

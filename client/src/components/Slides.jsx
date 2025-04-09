@@ -49,9 +49,7 @@ function Slides() {
           </div>
           <Carousel.Caption className="position-static text-dark">
             <p className=" fw-normal fs-5">
-              Aprenda de forma interativa e visual! A nossa plataforma combina
-              tecnologia moderna com um ensino envolvente para que progrida ao
-              seu ritmo
+              Aprenda de forma interativa e visual!
             </p>
           </Carousel.Caption>
         </Carousel.Item>

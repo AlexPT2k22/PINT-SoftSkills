@@ -1,4 +1,4 @@
-import "../styles/Login.css"; // Keep custom CSS file for additional styling
+import "../styles/Login.css";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Divider from "./Divider.jsx";
@@ -215,7 +215,7 @@ function Login() {
 
           {Login === 0 && (
             <>
-            {error && <ErrorMessage message={error} />}
+              {error && <ErrorMessage message={error} />}
               <button type="submit" className="btn btn-primary signup-button">
                 {isLoading ? (
                   <ButtonWithLoader isLoading={isLoading} />
@@ -224,9 +224,19 @@ function Login() {
                 )}
               </button>
               <Divider text="Ou registe-se com" />
-              <div className="enter-with">
-                <button className="enter-with-button" type="button">
+              <div className="d-flex justify-content-center align-items-center gap-2 enter-with">
+                <button
+                  className="btn p-0 border-0"
+                  type="button"
+                  onClick={linked_in_login}
+                >
                   <img src="./images/linkedin.svg" alt="linkedin" />
+                </button>
+                <button className="btn p-0 border-0" type="button">
+                  <img src="./images/google.svg" alt="google" />
+                </button>
+                <button className="btn p-0 border-0" type="button">
+                  <img src="./images/facebook.svg" alt="facebook" />
                 </button>
               </div>
             </>
@@ -234,18 +244,24 @@ function Login() {
 
           {Login === 1 && (
             <>
-            {error && <ErrorMessage message={error} />}
+              {error && <ErrorMessage message={error} />}
               <button type="submit" className="btn btn-primary login-button">
                 Entrar
               </button>
               <Divider text="Ou entre com" />
-              <div className="enter-with">
+              <div className="d-flex justify-content-center align-items-center gap-2 enter-with">
                 <button
-                  className="enter-with-button"
+                  className="btn p-0 border-0"
                   type="button"
                   onClick={linked_in_login}
                 >
                   <img src="./images/linkedin.svg" alt="linkedin" />
+                </button>
+                <button className="btn p-0 border-0" type="button">
+                  <img src="./images/google.svg" alt="google" />
+                </button>
+                <button className="btn p-0 border-0" type="button">
+                  <img src="./images/facebook.svg" alt="facebook" />
                 </button>
               </div>
             </>

@@ -66,7 +66,7 @@ function LinkedIn_associate() {
       <form className="linkedin-form w-50 d-flex flex-column align-items-center" onSubmit={handleSubmit}>
         <input
           className="form-control text-start mb-3 linkedin-input"
-          type="text"
+          type="url"
           required
           placeholder="URL do perfil do LinkedIn"
           onChange={(e) => seturl(e.target.value)}
