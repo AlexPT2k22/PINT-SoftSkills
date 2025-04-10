@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore.js";
 import ErrorMessage from "./error_message.jsx";
@@ -10,6 +10,16 @@ function Auth() {
   const reference = useRef([]);
   const navigate = useNavigate();
   const { error, isLoading, verify_email } = useAuthStore();
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        navigate("/login");
+      }, 3000); // Redireciona após 2 segundos
+      return () => clearTimeout(timer); // Limpa o timer se o componente for desmontado
+    }
+  }, [showSuccess, navigate]);
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
@@ -53,7 +63,7 @@ function Auth() {
     console.log(`Código enviado: ${codVerification}`);
     try {
       await verify_email(codVerification);
-      navigate("/login");
+      setShowSuccess(true);
     } catch (error) {
       console.log(error.response?.data?.error);
     }
@@ -62,6 +72,36 @@ function Auth() {
   return (
     <div className="container d-flex justify-content-center align-items-center auth-page-container w-50">
       <div className="auth-container">
+        {showSuccess && (
+          <div
+            className="alert alert-success fade show position-absolute d-flex align-items-center sucess-alert-message"
+            role="alert"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x="0px"
+              y="0px"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              className="bi flex-shrink-0 me-2"
+            >
+              <path
+                fill="#198754"
+                d="M8,0C3.582,0,0,3.582,0,8s3.582,8,8,8s8-3.582,8-8S12.418,0,8,0z M7,12L3.48,8.48l1.414-1.414L7,9.172l4.71-4.71	l1.414,1.414L7,12z"
+              ></path>
+            </svg>
+            Email verificado com sucesso! A redirecionar...
+          </div>
+        )}
+        {error && (
+          <div
+            className="alert alert-danger fade show position-absolute d-flex align-items-center sucess-alert-message"
+            role="alert"
+          >
+            {error}
+          </div>
+        )}
         <h2 className="text-center mb-3">Verifique a sua conta</h2>
         <p className="text-center text-muted mb-4 code-text">
           Introduza o código que recebeu no email
@@ -81,8 +121,7 @@ function Auth() {
               />
             ))}
           </div>
-
-          <div className="text-center mb-4 d-flex justify-content-center align-items-center auth-text"> 
+          <div className="text-center mb-4 d-flex justify-content-center align-items-center auth-text">
             <span className="text-muted p-0">Não recebeu o código?</span>
             <span
               className="btn btn-link p-0 ms-1 text-decoration-none auth-resend-text"
@@ -93,7 +132,6 @@ function Auth() {
               Reenviar código
             </span>
           </div>
-          {error && <ErrorMessage message={error} />}
           <button type="submit" className="btn btn-primary w-100 auth-button">
             {isLoading ? (
               <ButtonWithLoader isLoading={isLoading} />

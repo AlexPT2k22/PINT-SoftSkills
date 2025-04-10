@@ -3,6 +3,11 @@
   height: 100vh;
 }
 
+.sucess-alert-message {
+  position: absolute;
+  top: 30px;
+}
+
 .auth-container {
   flex: 1;
   background-color: white;
@@ -112,6 +117,12 @@
 
   .auth-page-container {
     width: 100% !important;
+  }
+
+  .sucess-alert-message {
+    position: absolute;
+    top: 10px;
+    max-width: 300px;
   }
 
   h2 {
