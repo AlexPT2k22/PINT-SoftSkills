@@ -11,6 +11,15 @@ const {
   sendResetEmail,
   sendConfirmationEmail,
 } = require("../mail/emails.js");
+const backendURL =
+  process.env.PROD === "production"
+    ? `${process.env.BACKEND_URL}`
+    : "http://localhost:4000";
+
+const frontendURL =
+  process.env.PROD === "production"
+    ? `${process.env.FRONTEND_URL_PROD}`
+    : "http://localhost:5173";
 
 const register = async (req, res) => {
   const { username, password, email } = req.body;
@@ -155,9 +164,7 @@ const linkedINLogin = async (req, res) => {
     if (userExist) {
       console.log(`Sucesso`);
       //console.log(userExist);
-      return res.redirect(
-        `http://localhost:4000/api/dashboard?username=${LinkedinUsername}`
-      );
+      return res.redirect(`${URL}/api/dashboard?username=${LinkedinUsername}`);
     } else {
       //return res.status(401).json({ error: "User não existe" });
       const password = crypto.randomBytes(16).toString("hex");
@@ -175,7 +182,7 @@ const linkedINLogin = async (req, res) => {
       await user.save();
       console.log("User criado com sucesso!");
       console.log(userProfile);
-      res.redirect(`http://localhost:5173/linkedin?email=${email}`);
+      res.redirect(`${frontendURL}/linkedin?email=${email}`); //FIXME:
     }
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
@@ -233,7 +240,7 @@ const verifyEmail = async (req, res) => {
     user.verificationExpires = null; // remover a data de expiração do token
     await user.save();
 
-    await sendConfirmationEmail()
+    await sendConfirmationEmail();
     res.status(200).json({ message: "Email verificado com sucesso!" });
   } catch (error) {
     console.error("Error:", error.response.data || error.message);
@@ -268,7 +275,7 @@ const forgotPassword = async (req, res) => {
     await sendResetEmail(
       user.username,
       user.email,
-      `${process.env.FRONTEND_URL}/resetpassword?${resetToken}`
+      `${frontendURL}/resetpassword?${resetToken}`
     );
 
     res.status(200).json({ message: "Email de redefinição enviado!" });
@@ -303,7 +310,7 @@ const resetPassword = async (req, res) => {
     await sendConfirmationEmail(
       user.username,
       user.email,
-      `${process.env.CLIENT_URL}/login?login=2`
+      `${frontendURL}/login?login=2`
     );
 
     res.status(200).json({

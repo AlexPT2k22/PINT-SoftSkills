@@ -14,6 +14,10 @@ function Login() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const { signup, error, isLoading } = useAuthStore();
+  const redirectURL =
+    import.meta.env.PROD === "production"
+      ? "https://pint-softskills-api.onrender.com"
+      : "http://localhost:4000";
 
   useEffect(() => {
     const loginType = searchParams.get("login");
@@ -34,10 +38,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    let url =
-      process.env.NODE_ENV === "production"
-        ? "https://pint-softskills-api.onrender.com"
-        : "http://localhost:4000";
+    let url = redirectURL;
     let method = "POST";
     let body = {};
 
@@ -95,7 +96,7 @@ function Login() {
 
   const linked_in_login = async (e) => {
     e.preventDefault();
-    const url = "http://localhost:4000/api/auth/linkedin";
+    const url = `${redirectURL}/api/auth/linkedin`;
     window.location.href = url;
   };
 

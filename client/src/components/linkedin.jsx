@@ -5,6 +5,10 @@ import ErrorMessage from "./error_message.jsx";
 import Loader from "./loader.jsx";
 
 function LinkedIn_associate() {
+  const redirectURL =
+    import.meta.env.PROD === "production"
+      ? "https://pint-softskills-api.onrender.com"
+      : "http://localhost:4000";
   const [searchParams] = useSearchParams();
   const [isLoading, setisLoading] = useState(false);
   const [url, seturl] = useState("");
@@ -32,7 +36,7 @@ function LinkedIn_associate() {
     }
     try {
       const response = await fetch(
-        `http://localhost:4000/api/auth/linkedin/associate?email=${email}`,
+        `${redirectURL}/api/auth/linkedin/associate?email=${email}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -63,7 +67,10 @@ function LinkedIn_associate() {
       <p className="text-center text-muted mb-4">
         Introduza a url do seu perfil do LinkedIn
       </p>
-      <form className="linkedin-form w-50 d-flex flex-column align-items-center" onSubmit={handleSubmit}>
+      <form
+        className="linkedin-form w-50 d-flex flex-column align-items-center"
+        onSubmit={handleSubmit}
+      >
         <input
           className="form-control text-start mb-3 linkedin-input"
           type="url"
