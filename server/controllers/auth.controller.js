@@ -21,6 +21,31 @@ const frontendURL =
     ? `${process.env.FRONTEND_URL_PROD}`
     : "http://localhost:5173";
 
+const checkauth = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.user.id },
+    }); // não devolver a password
+    if (!user) {
+      return res.status(401).json({ error: "User não encontrado!" });
+    }
+    //console.log(user);
+    res.status(200).json({
+      message: "User autenticado com sucesso!",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        linkedIn: user.linkedIn,
+        isVerified: user.isVerified,
+      },
+    });
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Erro ao verificar o token!" });
+  }
+};
+
 const register = async (req, res) => {
   const { username, password, email } = req.body;
   if (!username || !password || !email) {
@@ -89,6 +114,7 @@ const login = async (req, res) => {
     }
 
     const token = generateJWTandsetCookie(res, user.id); // gerar o token
+    console.log(token);
     user.lastLogin = new Date(); // atualizar a data do ultimo login
     await user.save(); // guardar as alterações
 
@@ -240,10 +266,10 @@ const verifyEmail = async (req, res) => {
     user.verificationExpires = null; // remover a data de expiração do token
     await user.save();
 
-    await sendConfirmationEmail();
+    await sendConfirmationEmail(user.username, user.email);
     res.status(200).json({ message: "Email verificado com sucesso!" });
   } catch (error) {
-    console.error("Error:", error.response.data || error.message);
+    console.error("Error:", error?.response?.data || "Erro a verificar o email");
     res.status(500).json({ error: "Erro ao verificar o email!" });
   }
 };
@@ -332,4 +358,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   linkedInAssociate,
+  checkauth,
 };

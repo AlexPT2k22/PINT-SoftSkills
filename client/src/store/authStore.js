@@ -17,11 +17,15 @@ const useAuthStore = create((set) => ({
   signup: async (username, email, password, linkedIN) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${url}/api/auth/register`, {
-        username,
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${url}/api/auth/register`,
+        {
+          username,
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
       set({
         user: response.data.user,
         isAuthenticated: true,
@@ -59,14 +63,19 @@ const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${url}/api/auth/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${url}/api/auth/login`,
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
       set({
         user: response.data.user,
         isAuthenticated: true,
         isLoading: false,
+        error: null,
       });
     } catch (error) {
       set({
@@ -75,7 +84,27 @@ const useAuthStore = create((set) => ({
       });
       throw error;
     }
-  }
+  },
+
+  checkAuth: async () => {
+    set({ isCheckingAuth: true, error: null });
+    try {
+      const response = await axios.get(`${url}/api/auth/checkauth`, {
+        withCredentials: true,
+      });
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        isCheckingAuth: false,
+      });
+    } catch (error) {
+      set({
+        error: null,
+        isCheckingAuth: false,
+        isAuthenticated: false,
+      });
+    }
+  },
 }));
 
 export default useAuthStore;

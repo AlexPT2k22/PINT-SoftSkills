@@ -6,16 +6,67 @@ import {
 } from "react-router-dom";
 import Inicio from "./inicio";
 import AuthPage from "./authpage";
-import LinkedIn_Page from "./linkedin.jsx";
+import LinkedIn_Page from "./linkedinPage.jsx";
+import SelectRolePage from "./selectRolePage.jsx";
+import useAuthStore from "./store/authStore.js";
+import { use, useEffect } from "react";
+
+//rotas protegidas
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, user } = useAuthStore();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user.isVerified) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return children;
+};
+
+//redirecionar quem esta logado para a dashboard
+const RedirecionaADashboard = ({ children }) => {
+  const { isAuthenticated, user } = useAuthStore();
+  if (!isAuthenticated && !user.isVerified) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 function App() {
+  const { isCheckingAuth, checkAuth, isAuthenticated, user } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  console.log("isAuthenticated", isAuthenticated);
+  console.log("user", user);
+  console.log("isCheckingAuth", isCheckingAuth);
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Inicio />}></Route>
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/" element={<Navigate to={"/login"} />}></Route>
-        <Route path="/linkedin" element={<LinkedIn_Page />}></Route>
+        <Route
+          path="/linkedin"
+          element={
+            <ProtectedRoute>
+              <LinkedIn_Page />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/role"
+          element={
+            <ProtectedRoute>
+              <SelectRolePage />
+            </ProtectedRoute>
+          }
+        ></Route>
       </Routes>
     </Router>
   );

@@ -13,7 +13,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const { signup, error, isLoading } = useAuthStore();
+  const { signup, login, error, isLoading } = useAuthStore();
   const redirectURL =
     import.meta.env.PROD === "production"
       ? "https://pint-softskills-api.onrender.com"
@@ -71,6 +71,9 @@ function Login() {
       if (Login === 0) {
         await signup(username, email, password, null);
         window.location.href = "/auth";
+      }
+      if (Login === 1) {
+        await login(email, password);
       }
       if (Login === 2) {
         try {

@@ -10,7 +10,10 @@ const {
   forgotPassword,
   resetPassword,
   linkedInAssociate,
+  checkauth,
 } = require("../controllers/auth.controller.js");
+
+const authenticateToken = require("../middlewares/authmiddleware.js");
 
 // "/auth"
 router.get("/", (_, res) => {
@@ -18,6 +21,7 @@ router.get("/", (_, res) => {
 });
 
 // "/auth/*"
+router.get("/checkauth", authenticateToken, checkauth);
 router.get("/linkedin", linkedIN_url);
 router.get("/linkedin/callback", linkedINLogin);
 router.post("/linkedin/associate", linkedInAssociate);
