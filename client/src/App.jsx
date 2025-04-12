@@ -9,7 +9,8 @@ import AuthPage from "./authpage";
 import LinkedIn_Page from "./linkedinPage.jsx";
 import SelectRolePage from "./selectRolePage.jsx";
 import useAuthStore from "./store/authStore.js";
-import { use, useEffect } from "react";
+import Loader from "./components/loader.jsx";
+import { useEffect } from "react";
 
 //rotas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -40,6 +41,10 @@ function App() {
   useEffect(() => {
     useAuthStore.getState().checkAuth();
   }, []);
+
+  if (isCheckingAuth) {
+    return <Loader />;
+  }
 
   console.log("isAuthenticated", isAuthenticated);
   console.log("user", user);
