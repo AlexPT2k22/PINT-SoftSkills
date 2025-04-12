@@ -12,14 +12,13 @@ import useAuthStore from "./store/authStore.js";
 import { use, useEffect } from "react";
 
 //rotas protegidas
-
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!user.isVerified) {
+  if (!user || !user.isVerified) {
     return <Navigate to="/auth" replace />;
   }
 
@@ -29,18 +28,18 @@ const ProtectedRoute = ({ children }) => {
 //redirecionar quem esta logado para a dashboard
 const RedirecionaADashboard = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-  if (!isAuthenticated && !user.isVerified) {
+  if (!isAuthenticated && (!user || !user.isVerified)) {
     return <Navigate to="/" replace />;
   }
   return children;
 };
 
 function App() {
-  const { isCheckingAuth, checkAuth, isAuthenticated, user } = useAuthStore();
+  const { isCheckingAuth, isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    useAuthStore.getState().checkAuth();
+  }, []);
 
   console.log("isAuthenticated", isAuthenticated);
   console.log("user", user);

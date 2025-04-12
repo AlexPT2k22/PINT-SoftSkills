@@ -116,6 +116,7 @@ const login = async (req, res) => {
     const token = generateJWTandsetCookie(res, user.id); // gerar o token
     console.log(token);
     user.lastLogin = new Date(); // atualizar a data do ultimo login
+    //console.log(user);
     await user.save(); // guardar as alterações
 
     res.status(200).json({ message: "Login realizado com sucesso!" });
@@ -269,7 +270,10 @@ const verifyEmail = async (req, res) => {
     await sendConfirmationEmail(user.username, user.email);
     res.status(200).json({ message: "Email verificado com sucesso!" });
   } catch (error) {
-    console.error("Error:", error?.response?.data || "Erro a verificar o email");
+    console.error(
+      "Error:",
+      error?.response?.data || "Erro a verificar o email"
+    );
     res.status(500).json({ error: "Erro ao verificar o email!" });
   }
 };
