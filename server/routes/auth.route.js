@@ -11,6 +11,7 @@ const {
   resetPassword,
   linkedInAssociate,
   checkauth,
+  refresh
 } = require("../controllers/auth.controller.js");
 
 const authenticateToken = require("../middlewares/authmiddleware.js");
@@ -21,6 +22,7 @@ router.get("/", (_, res) => {
 });
 
 // "/auth/*"
+router.post("/refresh", authenticateToken, refresh)
 router.get("/checkauth", authenticateToken, checkauth);
 router.get("/linkedin", linkedIN_url);
 router.get("/linkedin/callback", linkedINLogin);

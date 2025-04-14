@@ -1,4 +1,5 @@
-const generateJWTandsetCookie = require("../utils/generateJWT");
+const generateJWT = require("../utils/generateJWT");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
@@ -25,11 +26,11 @@ const checkauth = async (req, res) => {
   try {
     const user = await User.findOne({
       where: { id: req.user.id },
-    }); // não devolver a password
+    });
     if (!user) {
       return res.status(401).json({ error: "User não encontrado!" });
     }
-    //console.log(user);
+
     res.status(200).json({
       message: "User autenticado com sucesso!",
       user: {
@@ -79,11 +80,20 @@ const register = async (req, res) => {
     });
 
     await user.save();
-    generateJWTandsetCookie(res, user.id); // gerar o token
+    const { accesstoken, refreshtoken } = generateJWT(user); // gerar o token
+    res.cookie("refreshtoken", refreshtoken, {
+      httpOnly: true,
+      secure: process.env.PROD === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+    }); // guardar o refreshtoken num cookie
+
     await sendVerificationEmail(user.username, user.email, verificationToken); // enviar o email de verificação
 
     res.status(201).json({
       message: `Registado com sucesso! Verifique o seu email para confirmar a conta!`,
+      data: user,
+      token: accesstoken,
     });
   } catch (error) {
     console.error("Error:", error.message || error);
@@ -113,13 +123,21 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Email ou password inválidos!" });
     }
 
-    const token = generateJWTandsetCookie(res, user.id); // gerar o token
-    console.log(token);
+    const { accesstoken, refreshtoken } = generateJWT(user); // gerar o token
+    res.cookie("refreshtoken", refreshtoken, {
+      httpOnly: true,
+      secure: process.env.PROD === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+    }); // guardar o refreshtoken num cookie
     user.lastLogin = new Date(); // atualizar a data do ultimo login
-    //console.log(user);
     await user.save(); // guardar as alterações
 
-    res.status(200).json({ message: "Login realizado com sucesso!" });
+    res.status(200).json({
+      message: "Login realizado com sucesso!",
+      data: user,
+      token: accesstoken,
+    });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Erro ao autenticar!" });
@@ -278,8 +296,43 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const refresh = async (req, res) => {
+  const refreshtoken = req.cookies.refreshtoken; // obter o refreshtoken do cookie
+  if (!refreshtoken) {
+    return res.status(401).json({ error: "Token em falta" });
+  }
+  // verificar se o refreshtoken é válido
+  jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      console.error("Error:", err.message);
+      return res.status(403).json({ error: "Token inválido" });
+    }
+
+    const user = User.findByPk(decoded.id);
+    if (!user) {
+      return res.status(401).json({ error: "User não encontrado!" });
+    }
+
+    const accesstoken = jwt.sign(
+      { id: user.id, isVerified: user.isVerified },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "15min",
+      }
+    );
+
+    res.json({
+      accesstoken,
+    });
+  });
+};
+
 const logout = async (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("refreshtoken", {
+    httpOnly: true,
+    secure: process.env.PROD === "production",
+    sameSite: "strict",
+  });
   res.status(200).json({ message: "Logout realizado com sucesso!" });
 };
 
@@ -363,4 +416,5 @@ module.exports = {
   resetPassword,
   linkedInAssociate,
   checkauth,
+  refresh,
 };
