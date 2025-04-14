@@ -135,7 +135,13 @@ const login = async (req, res) => {
 
     res.status(200).json({
       message: "Login realizado com sucesso!",
-      data: user,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        linkedIn: user.linkedIn,
+        isVerified: user.isVerified,
+      },
       token: accesstoken,
     });
   } catch (error) {
@@ -297,18 +303,14 @@ const verifyEmail = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-  const refreshtoken = req.cookies.refreshtoken; // obter o refreshtoken do cookie
+  const refreshtoken = req.cookies.refreshtoken;
   if (!refreshtoken) {
     return res.status(401).json({ error: "Token em falta" });
   }
-  // verificar se o refreshtoken é válido
-  jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      console.error("Error:", err.message);
-      return res.status(403).json({ error: "Token inválido" });
-    }
+  try {
+    const decoded = jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findByPk(decoded.id);
 
-    const user = User.findByPk(decoded.id);
     if (!user) {
       return res.status(401).json({ error: "User não encontrado!" });
     }
@@ -321,10 +323,11 @@ const refresh = async (req, res) => {
       }
     );
 
-    res.json({
-      accesstoken,
-    });
-  });
+    res.json({ accesstoken });
+  } catch (err) {
+    console.error("Error:", err.message);
+    return res.status(403).json({ error: "Token inválido" });
+  }
 };
 
 const logout = async (req, res) => {

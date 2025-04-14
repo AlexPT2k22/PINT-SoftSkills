@@ -2,8 +2,12 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 function authenticateToken(req, res, next) {
-  const token =
-    req.cookies.refreshtoken || req.headers["authorization"]?.split(" ")[1];
+  const authHeader = req.headers["authorization"];
+  const headerToken = authHeader && authHeader.split(" ")[1];
+
+  const cookieToken = req.cookies.refreshtoken;
+
+  const token = headerToken || cookieToken;
 
   if (!token) return res.status(401).json({ message: "Token em falta" });
 
