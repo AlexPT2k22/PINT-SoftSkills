@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Divider from "./Divider.jsx";
 import ErrorMessage from "./error_message.jsx";
+import SuccessMessage from "./sucess_message.jsx";
 import useAuthStore from "../store/authStore.js";
 import ButtonWithLoader from "./butao_loader.jsx";
 
@@ -13,6 +14,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const { signup, login, error, isLoading } = useAuthStore();
   const redirectURL =
     import.meta.env.PROD === "production"
@@ -86,13 +88,18 @@ function Login() {
           });
           if (!response.ok) {
             const error = await response.json();
-            console.log(error);
+            setError(error.error);
+            //console.log(error);
+          } else {
+            setShowSuccess(true);
           }
         } catch (error) {
-          console.log(error);
+          //console.log(error);
+          setError("Erro ao enviar o email de recuperação!");
         }
       }
     } catch (error) {
+      setError(error.response.data.error);
       console.log(error.response.data.error);
     }
   };
@@ -114,6 +121,18 @@ function Login() {
   return (
     <div className="login-container w-50 justify-content-center align-items-center">
       <div className="right-panel">
+        {showSuccess && (
+          <SuccessMessage
+            message="Email enviado com sucesso!"
+            onClose={() => setShowSuccess(false)}
+          />
+        )}
+        {error && (
+          <ErrorMessage
+            message={error}
+            onClose={() => useAuthStore.setState({ error: null })}
+          />
+        )}
         {Login !== 2 && (
           <>
             <div className="avatar">
@@ -219,7 +238,6 @@ function Login() {
 
           {Login === 0 && (
             <>
-              {error && <ErrorMessage message={error} />}
               <button type="submit" className="btn btn-primary signup-button">
                 {isLoading ? (
                   <ButtonWithLoader isLoading={isLoading} />
@@ -248,7 +266,6 @@ function Login() {
 
           {Login === 1 && (
             <>
-              {error && <ErrorMessage message={error} />}
               <button type="submit" className="btn btn-primary login-button">
                 Entrar
               </button>

@@ -3,6 +3,11 @@
   justify-content: center;
 }
 
+.sucess-alert-message {
+  position: absolute;
+  top: 30px;
+}
+
 .enter-with-button {
   border: none;
   background: none;

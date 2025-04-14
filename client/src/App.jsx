@@ -46,9 +46,7 @@ function App() {
     return <Loader />;
   }
 
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("user", user);
-  console.log("isCheckingAuth", isCheckingAuth);
+  console.log("Auth info:", isAuthenticated, user);
   return (
     <Router>
       <Routes>
