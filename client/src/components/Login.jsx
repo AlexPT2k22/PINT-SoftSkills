@@ -1,5 +1,5 @@
 import "../styles/Login.css";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Divider from "./Divider.jsx";
 import ErrorMessage from "./error_message.jsx";
@@ -78,6 +78,7 @@ function Login() {
         await login(email, password);
       }
       if (Login === 2) {
+        useAuthStore.setState({ isLoading: true });
         try {
           const response = await fetch(url, {
             method: method,
@@ -88,19 +89,21 @@ function Login() {
           });
           if (!response.ok) {
             const error = await response.json();
-            setError(error.error);
-            //console.log(error);
+            console.log(error);
+            useAuthStore.setState({ error: error.error });
           } else {
             setShowSuccess(true);
           }
+          useAuthStore.setState({ isLoading: false });
         } catch (error) {
-          //console.log(error);
-          setError("Erro ao enviar o email de recuperação!");
+          console.log(error);
+          useAuthStore.setState({ error: error.error });
+          useAuthStore.setState({ isLoading: false });
         }
       }
     } catch (error) {
-      setError(error.response.data.error);
       console.log(error.response.data.error);
+      useAuthStore.setState({ error: error.response.data.error });
     }
   };
 
