@@ -1,24 +1,19 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-function generateJWT(user) {
-  const accesstoken = jwt.sign(
-    { id: user.id, isVerified: user.isVerified },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "15min",
-    }
-  );
+function generateJWT(res, user) {
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
 
-  const refreshtoken = jwt.sign(
-    { id: user.id },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "7d",
-    }
-  );
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: 3600000, // 1 hour in milliseconds
+  });
 
-  return { accesstoken, refreshtoken };
+  return token;
 }
 
 module.exports = generateJWT;

@@ -80,20 +80,18 @@ const register = async (req, res) => {
     });
 
     await user.save();
-    const { accesstoken, refreshtoken } = generateJWT(user); // gerar o token
-    res.cookie("refreshtoken", refreshtoken, {
-      httpOnly: true,
-      secure: process.env.PROD === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    }); // guardar o refreshtoken num cookie
-
+    generateJWT(res, user); // gerar o token
     await sendVerificationEmail(user.username, user.email, verificationToken); // enviar o email de verificação
 
     res.status(201).json({
       message: `Registado com sucesso! Verifique o seu email para confirmar a conta!`,
-      data: user,
-      token: accesstoken,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        linkedIn: user.linkedIn,
+        isVerified: user.isVerified,
+      },
     });
   } catch (error) {
     console.error("Error:", error.message || error);
@@ -123,15 +121,9 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Email ou password inválidos!" });
     }
 
-    const { accesstoken, refreshtoken } = generateJWT(user); // gerar o token
-    res.cookie("refreshtoken", refreshtoken, {
-      httpOnly: true,
-      secure: process.env.PROD === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    }); // guardar o refreshtoken num cookie
-    user.lastLogin = new Date(); // atualizar a data do ultimo login
-    await user.save(); // guardar as alterações
+    generateJWT(res, user);
+    user.lastLogin = new Date();
+    await user.save();
 
     res.status(200).json({
       message: "Login realizado com sucesso!",
@@ -141,8 +133,7 @@ const login = async (req, res) => {
         email: user.email,
         linkedIn: user.linkedIn,
         isVerified: user.isVerified,
-      },
-      token: accesstoken,
+      }
     });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
@@ -302,40 +293,8 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-const refresh = async (req, res) => {
-  const refreshtoken = req.cookies.refreshtoken;
-  if (!refreshtoken) {
-    return res.status(401).json({ error: "Token em falta" });
-  }
-  try {
-    const decoded = jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET);
-    const user = await User.findByPk(decoded.id);
-
-    if (!user) {
-      return res.status(401).json({ error: "User não encontrado!" });
-    }
-
-    const accesstoken = jwt.sign(
-      { id: user.id, isVerified: user.isVerified },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "15min",
-      }
-    );
-
-    res.json({ accesstoken });
-  } catch (err) {
-    console.error("Error:", err.message);
-    return res.status(403).json({ error: "Token inválido" });
-  }
-};
-
 const logout = async (req, res) => {
-  res.clearCookie("refreshtoken", {
-    httpOnly: true,
-    secure: process.env.PROD === "production",
-    sameSite: "strict",
-  });
+  res.clearCookie("token");
   res.status(200).json({ message: "Logout realizado com sucesso!" });
 };
 
@@ -419,5 +378,4 @@ module.exports = {
   resetPassword,
   linkedInAssociate,
   checkauth,
-  refresh,
 };

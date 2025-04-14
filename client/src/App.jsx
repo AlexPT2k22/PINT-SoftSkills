@@ -11,39 +11,46 @@ import LinkedIn_Page from "./linkedinPage.jsx";
 import SelectRolePage from "./selectRolePage.jsx";
 import useAuthStore from "./store/authStore.js";
 import Loader from "./components/loader.jsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
-//rotas protegidas
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
   const location = useLocation();
+  const authCheckAttempted = useRef(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, user, checkAuth } = useAuthStore();
 
   useEffect(() => {
-    if (!isAuthenticated && !isCheckingAuth && !isAuthChecked) {
-      const checkAuth = async () => {
+    if (!authCheckAttempted.current) {
+      authCheckAttempted.current = true;
+      const verifyAuth = async () => {
         try {
-          await useAuthStore.getState().checkAuth();
-          setIsAuthChecked(true);
+          await checkAuth();
+          console.log("Auth check successful:", isAuthenticated, user);
         } catch (error) {
-          console.error("Error checking auth:", error);
-          setIsAuthChecked(true);
+          console.error("Auth check failed:", error);
+        } finally {
+          setIsLoading(false);
         }
       };
 
-      checkAuth();
+      verifyAuth();
+    } else {
+      setIsLoading(false);
     }
-  }, [isAuthenticated, isCheckingAuth, isAuthChecked]);
 
-  if (isCheckingAuth || (!isAuthenticated && !isAuthChecked)) {
+  }, []);
+
+  if (isLoading) {
     return <Loader />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    console.log("Not authenticated, redirecting to login");
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   if (!user?.isVerified) {
+    console.log("Not verified, redirecting to auth");
     return <Navigate to="/auth" replace />;
   }
 
@@ -51,21 +58,23 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  const { isCheckingAuth } = useAuthStore();
+  const { checkAuth } = useAuthStore();
+  const [appLoading, setAppLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuthStatus = async () => {
+    const initialCheck = async () => {
       try {
-        await useAuthStore.getState().checkAuth();
+        await checkAuth();
       } catch (error) {
-        console.error("Error checking authentication:", error);
+        console.error("Initial auth check failed:", error);
+      } finally {
+        setAppLoading(false);
       }
     };
-
-    checkAuthStatus();
+    initialCheck();
   }, []);
 
-  if (isCheckingAuth) {
+  if (appLoading) {
     return <Loader />;
   }
 
