@@ -17,6 +17,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.488.0",
     "mssql": "^11.0.1",
     "mysql2": "^3.13.0",
     "react": "^19.0.0",

@@ -11,6 +11,7 @@ import LinkedIn_Page from "./linkedinPage.jsx";
 import SelectRolePage from "./selectRolePage.jsx";
 import useAuthStore from "./store/authStore.js";
 import Loader from "./components/loader.jsx";
+import CouseCatalogue from "./course_cataloge.jsx";
 import { useEffect, useState, useRef } from "react";
 
 const ProtectedRoute = ({ children }) => {
@@ -37,7 +38,6 @@ const ProtectedRoute = ({ children }) => {
     } else {
       setIsLoading(false);
     }
-
   }, []);
 
   if (isLoading) {
@@ -83,7 +83,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<Inicio />}></Route>
         <Route path="/auth" element={<AuthPage />}></Route>
-        <Route path="/" element={<Navigate to={"/login"} />}></Route>
+        <Route path="/courses" element={<CouseCatalogue />}></Route>
+        <Route path="/" element={<Navigate to="/courses" />}></Route>
         <Route
           path="/linkedin"
           element={

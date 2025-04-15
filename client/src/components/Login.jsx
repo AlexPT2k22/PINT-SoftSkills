@@ -25,6 +25,10 @@ function Login() {
     const loginType = searchParams.get("login");
     if (loginType === "2") {
       setLogin(2);
+    } else if (loginType === "1") {
+      setLogin(1);
+    } else if (loginType === "0") {
+      setLogin(0);
     } else {
       setLogin(1);
     }
