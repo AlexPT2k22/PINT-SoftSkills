@@ -19,11 +19,17 @@ function SelectRole() {
           <br></br>seleciona como queres entrar
         </h1>
         <div className="buttons-container d-flex w-100 gap-4">
-          <button className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover" type="button">
+          <button
+            className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover button-select"
+            type="button"
+          >
             <PiStudent className="icon me-1" />
             Formando
           </button>
-          <button className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover" type="button">
+          <button
+            className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover button-select"
+            type="button"
+          >
             <LiaChalkboardTeacherSolid className="icon me-1" />
             Formador
           </button>
