@@ -7,7 +7,7 @@ import { Settings } from "lucide-react";
 import { CircleUserRound } from "lucide-react";
 
 function Navbar({ isAuthenticated }) {
-  //const isLogedin = false;
+  const isLogedin = false;
   const navigate = useNavigate();
   return (
     <nav className="navbar navbar-expand-lg">
