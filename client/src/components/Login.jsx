@@ -100,13 +100,13 @@ function Login() {
           }
           useAuthStore.setState({ isLoading: false });
         } catch (error) {
-          console.log(error);
+          //console.log(error);
           useAuthStore.setState({ error: error.error });
           useAuthStore.setState({ isLoading: false });
         }
       }
     } catch (error) {
-      console.log(error.response.data.error);
+      //console.log(error.response.data.error);
       useAuthStore.setState({ error: error.response.data.error });
     }
   };
