@@ -12,14 +12,12 @@ function Navbar({ isAuthenticated }) {
   return (
     <nav className="navbar navbar-expand-lg">
       <div className="container-fluid">
-        {/* Logo */}
         <a className="navbar-brand text ms-2" href="#">
           <div className="d-flex align-items-center">
             <img src="/images/Logo.svg" alt="Logo" className="logo" />
           </div>
         </a>
 
-        {/* Hamburger Menu */}
         <button
           className="navbar-toggler"
           type="button"
@@ -29,7 +27,6 @@ function Navbar({ isAuthenticated }) {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Collapsible content */}
         <div className="collapse navbar-collapse" id="navbarContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
@@ -39,7 +36,6 @@ function Navbar({ isAuthenticated }) {
             </li>
           </ul>
 
-          {/* Search Bar */}
           <form className="d-flex flex-grow-1 mx-4">
             <div className="input-group">
               <span className="input-group-text bg-white border-end-0 search-input">
@@ -54,7 +50,6 @@ function Navbar({ isAuthenticated }) {
             </div>
           </form>
 
-          {/* Right side links */}
           <ul className="navbar-nav">
             <li className="nav-item">
               <a
