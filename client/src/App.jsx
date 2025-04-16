@@ -14,6 +14,7 @@ import Loader from "./components/loader.jsx";
 import WelcomePage from "./welcomepage.jsx";
 import { useEffect, useState, useRef } from "react";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import "./styles/app.css";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();

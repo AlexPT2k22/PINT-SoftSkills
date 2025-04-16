@@ -10,7 +10,7 @@ function Navbar({ isAuthenticated }) {
   const isLogedin = false;
   const navigate = useNavigate();
   return (
-    <nav className="navbar navbar-expand-lg">
+    <nav className="navbar sticky-top navbar-expand-lg">
       <div className="container-fluid">
         <a className="navbar-brand text ms-2" href="#">
           <div className="d-flex align-items-center">

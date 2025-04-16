@@ -10,8 +10,8 @@ const courses = [
   {
     titulo: "Curso de Exemplo",
     imagem: "https://placehold.co/150",
-    tipo: "Tipo de Curso",
-    tempoTotal: "10 horas",
+    tipo: "Sincrono",
+    tempoTotal: "10h",
     id: "1",
     dataInicio: "2023-01-01",
     dataFim: "2023-12-31",
@@ -19,8 +19,8 @@ const courses = [
   {
     titulo: "Curso de Exemplo 2",
     imagem: "https://placehold.co/150",
-    tipo: "Tipo de Curso 2",
-    tempoTotal: "20 horas",
+    tipo: "Assincrono",
+    tempoTotal: "20h",
     id: "2",
     dataInicio: "2023-02-01",
     dataFim: "2023-11-30",
@@ -28,8 +28,8 @@ const courses = [
   {
     titulo: "Curso de Exemplo 3",
     imagem: "https://placehold.co/150",
-    tipo: "Tipo de Curso 3",
-    tempoTotal: "15 horas",
+    tipo: "Sincrono",
+    tempoTotal: "15h",
     id: "3",
     dataInicio: "2023-03-01",
     dataFim: "2023-10-31",
