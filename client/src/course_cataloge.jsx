@@ -12,6 +12,7 @@ function CouseCatalogue() {
     setIndex(selectedIndex);
   };
 
+  //FIXME: Não está a funcionar
   return (
     <>
       <Navbar />
