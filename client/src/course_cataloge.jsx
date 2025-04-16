@@ -1,6 +1,5 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { Carousel } from "react-bootstrap";
 import Navbar from "./components/navbar";
 import Loader from "./components/loader.jsx";
 import useAuthStore from "./store/authStore.js";
@@ -16,79 +15,97 @@ function CouseCatalogue() {
   return (
     <>
       <Navbar />
-      <div className="course-catalogue-container">
-        <h1 className="text-center mb-4">Course Catalogue</h1>
-        <Carousel
-          interval={5000}
-          indicators={true}
-          controls={true}
-          touch={true}
+      <div className="container mt-5">
+        <div
+          id="carouselExample"
+          className="carousel slide"
+          data-bs-ride="carousel"
+          data-bs-interval="3000"
         >
-          <Carousel.Item>
-            <div>
+          <div className="carousel-indicators">
+            <button
+              type="button"
+              data-bs-target="#carouselExample"
+              data-bs-slide-to="0"
+              className="active"
+              aria-current="true"
+              aria-label="Slide 1"
+            ></button>
+            <button
+              type="button"
+              data-bs-target="#carouselExample"
+              data-bs-slide-to="1"
+              aria-label="Slide 2"
+            ></button>
+            <button
+              type="button"
+              data-bs-target="#carouselExample"
+              data-bs-slide-to="2"
+              aria-label="Slide 3"
+            ></button>
+          </div>
+
+          <div className="carousel-inner">
+            <div className="carousel-item active">
               <img
-                src="https://placehold.co/600x400"
-                className="d-block"
+                src="https://via.placeholder.com/800x400?text=Slide+1"
+                className="d-block w-100"
+                alt="Slide 1"
               />
-              <Carousel.Caption
-                className="text-start"
-                style={{
-                  background:
-                    "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  padding: "3rem 2rem",
-                }}
-              >
-                <h3 className="fs-2 fw-bold mb-2">TITULO</h3>
-                <p className="fs-6">DESCRICAO</p>
-              </Carousel.Caption>
+              <div className="carousel-caption d-none d-md-block">
+                <h5>Título do Slide 1</h5>
+                <p>Descrição opcional para o primeiro slide.</p>
+              </div>
             </div>
-          </Carousel.Item>
-          <Carousel.Item>
-            <div>
+            <div className="carousel-item">
               <img
-                className="d-block"
+                src="https://via.placeholder.com/800x400?text=Slide+2"
+                className="d-block w-100"
+                alt="Slide 2"
               />
-              <Carousel.Caption
-                className="text-start"
-                style={{
-                  background:
-                    "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  padding: "3rem 2rem",
-                }}
-              >
-                <h3 className="fs-2 fw-bold mb-2">TITULO2</h3>
-                <p className="fs-6">DESCRICAO2</p>
-              </Carousel.Caption>
+              <div className="carousel-caption d-none d-md-block">
+                <h5>Título do Slide 2</h5>
+                <p>Descrição opcional para o segundo slide.</p>
+              </div>
             </div>
-          </Carousel.Item>
-          <Carousel.Item>
-            <div>
+            <div className="carousel-item">
               <img
-                className="d-block"
+                src="https://via.placeholder.com/800x400?text=Slide+3"
+                className="d-block w-100"
+                alt="Slide 3"
               />
-              <Carousel.Caption
-                className="text-start"
-                style={{
-                  background:
-                    "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  padding: "3rem 2rem",
-                }}
-              >
-                <h3 className="fs-2 fw-bold mb-2">TITULO3</h3>
-                <p className="fs-6">DESCRICAO3</p>
-              </Carousel.Caption>
+              <div className="carousel-caption d-none d-md-block">
+                <h5>Título do Slide 3</h5>
+                <p>Descrição opcional para o terceiro slide.</p>
+              </div>
             </div>
-          </Carousel.Item>
-        </Carousel>
+          </div>
+
+          <button
+            className="carousel-control-prev"
+            type="button"
+            data-bs-target="#carouselExample"
+            data-bs-slide="prev"
+          >
+            <span
+              className="carousel-control-prev-icon"
+              aria-hidden="true"
+            ></span>
+            <span className="visually-hidden">Anterior</span>
+          </button>
+          <button
+            className="carousel-control-next"
+            type="button"
+            data-bs-target="#carouselExample"
+            data-bs-slide="next"
+          >
+            <span
+              className="carousel-control-next-icon"
+              aria-hidden="true"
+            ></span>
+            <span className="visually-hidden">Próximo</span>
+          </button>
+        </div>
       </div>
     </>
   );

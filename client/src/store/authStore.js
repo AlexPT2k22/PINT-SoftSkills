@@ -99,7 +99,7 @@ const useAuthStore = create((set, get) => ({
         isCheckingAuth: false,
       });
     } catch (error) {
-      console.log("Erro ao verificar autenticação:", error);
+      //console.log("Erro ao verificar autenticação:", error);
       set({
         error: null,
         isCheckingAuth: false,

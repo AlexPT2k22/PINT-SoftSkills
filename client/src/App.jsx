@@ -13,6 +13,7 @@ import useAuthStore from "./store/authStore.js";
 import Loader from "./components/loader.jsx";
 import CouseCatalogue from "./course_cataloge.jsx";
 import { useEffect, useState, useRef } from "react";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -66,7 +67,7 @@ function App() {
       try {
         await checkAuth();
       } catch (error) {
-        console.error("Initial auth check failed:", error);
+        //console.log("Initial auth check failed:", error);
       } finally {
         setAppLoading(false);
       }
