@@ -76,10 +76,11 @@ function Login() {
     try {
       if (Login === 0) {
         await signup(username, email, password, null);
-        window.location.href = "/auth";
+        window.location.href = "/auth"; //TODO: mudar para useNavigate depois
       }
       if (Login === 1) {
         await login(email, password);
+        window.location.href = "/"; //TODO: mudar para useNavigate depois
       }
       if (Login === 2) {
         useAuthStore.setState({ isLoading: true });

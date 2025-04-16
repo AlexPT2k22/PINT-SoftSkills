@@ -15,6 +15,7 @@ const courses = [
     id: "1",
     dataInicio: "2023-01-01",
     dataFim: "2023-12-31",
+    vagasRestantes: "5",
   },
   {
     titulo: "Curso de Exemplo 2",
@@ -24,6 +25,7 @@ const courses = [
     id: "2",
     dataInicio: "2023-02-01",
     dataFim: "2023-11-30",
+    vagasRestantes: "10",
   },
   {
     titulo: "Curso de Exemplo 3",
@@ -33,11 +35,32 @@ const courses = [
     id: "3",
     dataInicio: "2023-03-01",
     dataFim: "2023-10-31",
+    vagasRestantes: "2",
+  },
+  {
+    titulo: "Curso de Exemplo 4",
+    imagem: "https://placehold.co/150",
+    tipo: "Assincrono",
+    tempoTotal: "25h",
+    id: "4",
+    dataInicio: "2023-04-01",
+    dataFim: "2023-09-30",
+    vagasRestantes: "0",
+  },
+  {
+    titulo: "Curso de Exemplo 5",
+    imagem: "https://placehold.co/150",
+    tipo: "Sincrono",
+    tempoTotal: "30h",
+    id: "5",
+    dataInicio: "2023-05-01",
+    dataFim: "2023-08-31",
+    vagasRestantes: "1",
   },
 ];
 
 function WelcomePage() {
-  //FIXME: Não está a funcionar
+  //TODO: Receber os cursos da API
   return (
     <>
       <Navbar />
@@ -56,15 +79,18 @@ function WelcomePage() {
       </div>
 
       <div className="container d-flex flex-column mt-5">
-        <div className="d-flex justify-content-start">
-          <h2>Os mais populares</h2>
+        <div className="d-flex flex-column justify-content-start mb-3">
+          <h1>Os mais populares</h1>
+          <p className="mb-0">Explore os nossos cursos mais populares e prepare-se para aprender novas habilidades </p>
         </div>
-        <div className="d-flex flex-row mt-2">
-          {courses.map((course) => (
-            <div className="me-3" key={course.id}>
-              <CourseCard course={course} />
-            </div>
-          ))}
+        <div className="container p-0">
+          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            {courses.map((course) => (
+              <div className="col" key={course.id}>
+                <CourseCard course={course} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </>
