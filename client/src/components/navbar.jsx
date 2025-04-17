@@ -43,7 +43,7 @@ function Navbar({ isAuthenticated }) {
               </span>
               <input
                 type="search"
-                className="form-control border-start-0 search-input"
+                className="form-control border-start-0 ps-0 search-input"
                 placeholder="Procure por um curso"
                 aria-label="Search"
               />
