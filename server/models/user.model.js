@@ -1,67 +1,83 @@
-const { Sequelize, DataTypes } = require("sequelize");
-const { sequelize } = require("../database/database.js"); // Importa a conexão com o banco de dados
+const { Sequelize } = require("sequelize");
+const { sequelize } = require("../database/database.js");
 
-const User = sequelize.define(
-  "users",
+const Utilizador = sequelize.define(
+  "Utilizador",
   {
-    id: {
+    ID_UTILIZADOR: {
       type: Sequelize.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
-    },
-    username: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    email: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        isEmail: true,
-      },
-    },
-    password: {
-      type: Sequelize.STRING,
       allowNull: false,
     },
-    firstName: {
-      type: Sequelize.STRING,
+    USERNAME: {
+      type: Sequelize.STRING(50),
+      allowNull: false,
+    },
+    PRIMEIRO_NOME: {
+      type: Sequelize.STRING(50),
       allowNull: true,
     },
-    lastName: {
-      type: Sequelize.STRING,
+    ULTIMO_NOME: {
+      type: Sequelize.STRING(50),
       allowNull: true,
     },
-    linkedIn: {
-      type: Sequelize.STRING,
+    EMAIL: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
+    PASSWORD: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
+    CC: {
+      type: Sequelize.STRING(8),
       allowNull: true,
-      validate: {
-        isUrl: true,
-      },
     },
-    role: {
-      type: Sequelize.ENUM("formando", "formador", "admin"),
-      defaultValue: "formando",
+    NIF: {
+      type: Sequelize.STRING(9),
+      allowNull: true,
     },
-    lastLogin: {
+    MORADA: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
+    ULTIMO_LOGIN: {
       type: Sequelize.DATE,
-      defaultValue: () => new Date(),
+      allowNull: true,
     },
-    isVerified: {
+    ESTA_VERIFICADO: {
       type: Sequelize.BOOLEAN,
-      defaultValue: false,
+      allowNull: true,
     },
-    resetPasswordToken: Sequelize.STRING,
-    resetPasswordExpires: Sequelize.DATE,
-    verificationToken: Sequelize.STRING,
-    verificationExpires: Sequelize.DATE,
+    ONLINE: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+    },
+    RESETPASSWORDTOKEN: {
+      type: Sequelize.STRING(255),
+      allowNull: true,
+    },
+    RESETPASSWORDEXPIRES: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
+    VERIFICATIONTOKEN: {
+      type: Sequelize.STRING(255),
+      allowNull: true,
+    },
+    VERIFICATIONTOKENEXPIRES: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
+    DATA_CRIACAO: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
   },
   {
-    timestamps: true,
-    underscored: true,
+    tableName: "UTILIZADOR",
+    timestamps: false,
   }
 );
 
-module.exports = User;
+module.exports = Utilizador;
