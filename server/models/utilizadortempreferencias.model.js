@@ -5,7 +5,7 @@ const UtilizadorTemPreferencias = sequelize.define(
   "UtilizadorTemPreferencias",
   {
     ID_UTILIZADOR: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
       references: {
@@ -14,7 +14,7 @@ const UtilizadorTemPreferencias = sequelize.define(
       },
     },
     ID_AREA: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
       references: {

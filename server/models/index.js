@@ -1,1 +1,316 @@
-// fazer os relacionamentos entre os models
+const { Sequelize } = require("sequelize");
+const sequelize = require("../database/database.js");
+const Utilizador = require("./user.model.js");
+const Area = require("./area.model.js");
+const AvaliacaoFinalAssincrona = require("./avaliacaofinalassincrona.model.js");
+const AvaliacaoFinalSincrona = require("./avaliacaofinalsincrona.model.js");
+const AvaliacaoSincrona = require("./avaliacaosincrona.model.js");
+const AvaliaConteudoResposta = require("./avaliaconteudoresposta.model.js");
+const Categoria = require("./categoria.model.js");
+const ConteudoAssincrono = require("./conteudoassincrono.model.js");
+const ConteudoSincrono = require("./conteudosincrono.model.js");
+const Curso = require("./curso.model.js");
+const CursoAssincrono = require("./cursoassincrono.model.js");
+const CursoSincrono = require("./cursosincrono.model.js");
+const EstadoCursoSincrono = require("./estadocursosincrono.model.js");
+const EstadoOcorrenciaAssincrona = require("./estadoocorrenciaassincrona.model.js");
+const FrequenciaAssincrono = require("./frequenciaassincrono.model.js");
+const FrequenciaSincrono = require("./frequenciasincrono.model.js");
+const InscricaoAssincrono = require("./inscricaoassincrono.model.js");
+const InscricaoSincrono = require("./inscricaosincrono.model.js");
+const LoginSocialMedia = require("./loginsocialmedia.model.js");
+const Notificacao = require("./notificacao.model.js");
+const OcorrenciaAssincrona = require("./ocorrenciaassincrona.model.js");
+const PedidoTopico = require("./pedidotopico.model.js");
+const Perfil = require("./perfil.model.js");
+const QuizzAssincrono = require("./quizzassincrono.model.js");
+const Resposta = require("./resposta.model.js");
+const Topico = require("./topico.model.js");
+const TrabalhoCursoSincrono = require("./trabalhocursosincrono.model.js");
+const UtilizadorTemPerfil = require("./utilizadortemperfil.model.js");
+const UtilizadorTemPreferencias = require("./utilizadortempreferencias.model.js");
+
+// Define associations
+
+// Utilizador associations
+Utilizador.hasMany(LoginSocialMedia, { foreignKey: "ID_UTILIZADOR" });
+LoginSocialMedia.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+Utilizador.hasMany(Notificacao, { foreignKey: "ID_UTILIZADOR" });
+Notificacao.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+Utilizador.belongsToMany(Perfil, {
+  through: UtilizadorTemPerfil,
+  foreignKey: "ID_UTILIZADOR",
+  otherKey: "ID_PERFIL",
+});
+Perfil.belongsToMany(Utilizador, {
+  through: UtilizadorTemPerfil,
+  foreignKey: "ID_PERFIL",
+  otherKey: "ID_UTILIZADOR",
+});
+
+Utilizador.belongsToMany(Area, {
+  through: UtilizadorTemPreferencias,
+  foreignKey: "ID_UTILIZADOR",
+  otherKey: "ID_AREA",
+});
+Area.belongsToMany(Utilizador, {
+  through: UtilizadorTemPreferencias,
+  foreignKey: "ID_AREA",
+  otherKey: "ID_UTILIZADOR",
+});
+
+// Category and Area associations
+Categoria.hasMany(Area, { foreignKey: "ID_CATEGORIA__PK___" });
+Area.belongsTo(Categoria, { foreignKey: "ID_CATEGORIA__PK___" });
+
+// Curso associations
+Area.hasMany(Curso, { foreignKey: "ID_AREA" });
+Curso.belongsTo(Area, { foreignKey: "ID_AREA" });
+
+Curso.hasOne(CursoAssincrono, { foreignKey: "ID_CURSO" });
+CursoAssincrono.belongsTo(Curso, { foreignKey: "ID_CURSO" });
+
+Curso.hasOne(CursoSincrono, { foreignKey: "ID_CURSO" });
+CursoSincrono.belongsTo(Curso, { foreignKey: "ID_CURSO" });
+
+// CursoSincrono associations
+Utilizador.hasMany(CursoSincrono, { foreignKey: "ID_UTILIZADOR" });
+CursoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+InscricaoSincrono.hasMany(CursoSincrono, {
+  foreignKey: "ID_INSCRICAO_SINCRONO",
+});
+CursoSincrono.belongsTo(InscricaoSincrono, {
+  foreignKey: "ID_INSCRICAO_SINCRONO",
+});
+
+EstadoCursoSincrono.hasMany(CursoSincrono, {
+  foreignKey: "ID_ESTADO_OCORRENCIA_ASSINCRONA2",
+});
+CursoSincrono.belongsTo(EstadoCursoSincrono, {
+  foreignKey: "ID_ESTADO_OCORRENCIA_ASSINCRONA2",
+});
+
+// OcorrenciaAssincrona associations
+EstadoOcorrenciaAssincrona.hasMany(OcorrenciaAssincrona, {
+  foreignKey: "ID_ESTADO_OCORRENCIA_ASSINCRONA",
+});
+OcorrenciaAssincrona.belongsTo(EstadoOcorrenciaAssincrona, {
+  foreignKey: "ID_ESTADO_OCORRENCIA_ASSINCRONA",
+});
+
+CursoAssincrono.hasMany(OcorrenciaAssincrona, { foreignKey: "ID_CURSO" });
+OcorrenciaAssincrona.belongsTo(CursoAssincrono, { foreignKey: "ID_CURSO" });
+
+Utilizador.hasMany(OcorrenciaAssincrona, { foreignKey: "ID_UTILIZADOR" });
+OcorrenciaAssincrona.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+// Topico and Resposta associations
+Topico.hasMany(Resposta, { foreignKey: "ID_TOPICO" });
+Resposta.belongsTo(Topico, { foreignKey: "ID_TOPICO" });
+
+Utilizador.hasMany(Resposta, { foreignKey: "ID_UTILIZADOR" });
+Resposta.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+// Self-referencing association for replies
+Resposta.hasMany(Resposta, { foreignKey: "RES_ID_RESPOSTA", as: "Replies" });
+Resposta.belongsTo(Resposta, {
+  foreignKey: "RES_ID_RESPOSTA",
+  as: "ParentResponse",
+});
+
+// PedidoTopico associations
+Utilizador.hasMany(PedidoTopico, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "SolicitedRequests",
+});
+PedidoTopico.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "RequestingUser",
+});
+
+Utilizador.hasMany(PedidoTopico, {
+  foreignKey: "UTI_ID_UTILIZADOR",
+  as: "AuthorizedRequests",
+});
+PedidoTopico.belongsTo(Utilizador, {
+  foreignKey: "UTI_ID_UTILIZADOR",
+  as: "AuthorizingUser",
+});
+
+Topico.hasMany(PedidoTopico, { foreignKey: "ID_TOPICO" });
+PedidoTopico.belongsTo(Topico, { foreignKey: "ID_TOPICO" });
+
+Area.hasMany(PedidoTopico, { foreignKey: "ID_AREA" });
+PedidoTopico.belongsTo(Area, { foreignKey: "ID_AREA" });
+
+// AvaliaConteudoResposta associations (for upvotes/ratings)
+Utilizador.belongsToMany(Resposta, {
+  through: AvaliaConteudoResposta,
+  foreignKey: "ID_UTILIZADOR",
+  otherKey: "ID_RESPOSTA",
+});
+Resposta.belongsToMany(Utilizador, {
+  through: AvaliaConteudoResposta,
+  foreignKey: "ID_RESPOSTA",
+  otherKey: "ID_UTILIZADOR",
+});
+
+// InscricaoSincrono associations
+Utilizador.hasMany(InscricaoSincrono, { foreignKey: "ID_UTILIZADOR" });
+InscricaoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+// InscricaoAssincrono associations
+Utilizador.hasMany(InscricaoAssincrono, { foreignKey: "ID_UTILIZADOR" });
+InscricaoAssincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+OcorrenciaAssincrona.hasMany(InscricaoAssincrono, {
+  foreignKey: "ID_OCORRENCIA",
+});
+InscricaoAssincrono.belongsTo(OcorrenciaAssincrona, {
+  foreignKey: "ID_OCORRENCIA",
+});
+
+// FrequenciaSincrono associations
+Utilizador.hasMany(FrequenciaSincrono, { foreignKey: "ID_UTILIZADOR" });
+FrequenciaSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+CursoSincrono.hasMany(FrequenciaSincrono, { foreignKey: "ID_CURSO" });
+FrequenciaSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
+
+// FrequenciaAssincrono associations
+OcorrenciaAssincrona.hasMany(FrequenciaAssincrono, {
+  foreignKey: "ID_OCORRENCIA",
+});
+FrequenciaAssincrono.belongsTo(OcorrenciaAssincrona, {
+  foreignKey: "ID_OCORRENCIA",
+});
+
+Utilizador.hasMany(FrequenciaAssincrono, { foreignKey: "ID_UTILIZADOR" });
+FrequenciaAssincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+// ConteudoSincrono associations
+Utilizador.hasMany(ConteudoSincrono, { foreignKey: "ID_UTILIZADOR" });
+ConteudoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+CursoSincrono.hasMany(ConteudoSincrono, { foreignKey: "ID_CURSO" });
+ConteudoSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
+
+// ConteudoAssincrono associations
+CursoAssincrono.hasMany(ConteudoAssincrono, { foreignKey: "ID_CURSO" });
+ConteudoAssincrono.belongsTo(CursoAssincrono, { foreignKey: "ID_CURSO" });
+
+// AvaliacaoSincrona associations
+CursoSincrono.hasMany(AvaliacaoSincrona, { foreignKey: "ID_CURSO" });
+AvaliacaoSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
+
+AvaliacaoFinalSincrona.hasMany(AvaliacaoSincrona, {
+  foreignKey: "ID_AVALIACAO_FINAL_SINCRONA",
+});
+AvaliacaoSincrona.belongsTo(AvaliacaoFinalSincrona, {
+  foreignKey: "ID_AVALIACAO_FINAL_SINCRONA",
+});
+
+// AvaliacaoFinalSincrona associations
+Utilizador.hasMany(AvaliacaoFinalSincrona, {
+  foreignKey: "UTI_ID_UTILIZADOR",
+  as: "TeacherEvaluations",
+});
+AvaliacaoFinalSincrona.belongsTo(Utilizador, {
+  foreignKey: "UTI_ID_UTILIZADOR",
+  as: "Teacher",
+});
+
+Utilizador.hasMany(AvaliacaoFinalSincrona, {
+  foreignKey: "UTI_ID_UTILIZADOR2",
+  as: "StudentEvaluations",
+});
+AvaliacaoFinalSincrona.belongsTo(Utilizador, {
+  foreignKey: "UTI_ID_UTILIZADOR2",
+  as: "Student",
+});
+
+// QuizzAssincrono associations
+Utilizador.hasMany(QuizzAssincrono, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "StudentQuizzes",
+});
+QuizzAssincrono.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "Student",
+});
+
+Utilizador.hasMany(QuizzAssincrono, {
+  foreignKey: "UTI_ID_UTILIZADOR",
+  as: "EvaluatedQuizzes",
+});
+QuizzAssincrono.belongsTo(Utilizador, {
+  foreignKey: "UTI_ID_UTILIZADOR",
+  as: "Evaluator",
+});
+
+Utilizador.hasMany(QuizzAssincrono, {
+  foreignKey: "UTI_ID_UTILIZADOR2",
+  as: "CreatedQuizzes",
+});
+QuizzAssincrono.belongsTo(Utilizador, {
+  foreignKey: "UTI_ID_UTILIZADOR2",
+  as: "Creator",
+});
+
+OcorrenciaAssincrona.hasMany(QuizzAssincrono, { foreignKey: "ID_OCORRENCIA" });
+QuizzAssincrono.belongsTo(OcorrenciaAssincrona, {
+  foreignKey: "ID_OCORRENCIA",
+});
+
+// AvaliacaoFinalAssincrona associations
+QuizzAssincrono.hasMany(AvaliacaoFinalAssincrona, {
+  foreignKey: "ID_QUIZZ_ASSINCRONO",
+});
+AvaliacaoFinalAssincrona.belongsTo(QuizzAssincrono, {
+  foreignKey: "ID_QUIZZ_ASSINCRONO",
+});
+
+// TrabalhoCursoSincrono associations
+Utilizador.hasMany(TrabalhoCursoSincrono, { foreignKey: "ID_UTILIZADOR" });
+TrabalhoCursoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+CursoSincrono.hasMany(TrabalhoCursoSincrono, { foreignKey: "ID_CURSO" });
+TrabalhoCursoSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
+
+// Export all models with their associations
+module.exports = {
+  sequelize,
+  Sequelize,
+  Utilizador,
+  Area,
+  AvaliacaoFinalAssincrona,
+  AvaliacaoFinalSincrona,
+  AvaliacaoSincrona,
+  AvaliaConteudoResposta,
+  Categoria,
+  ConteudoAssincrono,
+  ConteudoSincrono,
+  Curso,
+  CursoAssincrono,
+  CursoSincrono,
+  EstadoCursoSincrono,
+  EstadoOcorrenciaAssincrona,
+  FrequenciaAssincrono,
+  FrequenciaSincrono,
+  InscricaoAssincrono,
+  InscricaoSincrono,
+  LoginSocialMedia,
+  Notificacao,
+  OcorrenciaAssincrona,
+  PedidoTopico,
+  Perfil,
+  QuizzAssincrono,
+  Resposta,
+  Topico,
+  TrabalhoCursoSincrono,
+  UtilizadorTemPerfil,
+  UtilizadorTemPreferencias,
+};

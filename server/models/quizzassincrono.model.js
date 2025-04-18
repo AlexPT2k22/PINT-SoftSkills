@@ -1,4 +1,4 @@
-const Sequelize = require("sequelize");
+const { Sequelize } = require("sequelize");
 const sequelize = require("../database/database.js");
 
 const QuizzAssincrono = sequelize.define(
