@@ -37,7 +37,6 @@ const getCursos = async (_, res) => {
 };
 
 // para ir buscar um curso específico pelo id
-
 const getCursoById = async (req, res) => {
   const { id } = req.params;
 
@@ -75,4 +74,24 @@ const getCursoById = async (req, res) => {
   }
 };
 
-module.exports = { getCursos, getCursoById };
+//Criar um curso
+const createCurso = async (req, res) => {
+  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
+    req.body;
+  try {
+    const curso = await Curso.create({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      IMAGEM: null, // Placeholder for image
+      ID_AREA,
+      DATA_CRIACAO__: new Date(),
+    });
+    res.status(201).json(curso);
+  } catch (error) {
+    console.error("Erro ao criar curso:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getCursos, getCursoById, createCurso };

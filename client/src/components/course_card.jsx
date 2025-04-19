@@ -23,9 +23,13 @@ function CourseCard({ course }) {
 
   return (
     <div className="card h-100 course-card">
-      <span class="badge text-bg-info position-absolute top-0 start-100 translate-middle p-2 fs-6">
-        Mais Popular!
-      </span>
+      {LIMITE_VAGAS_INT__ < 5 && (
+        <div className="z-1 position-absolute p-2">
+          <span className="badge text-bg-info position-absolute p-2 fs-6">
+            Mais Popular!
+          </span>
+        </div>
+      )}
       <img
         src="./images/undraw_certificate.svg"
         className="card-img-top"
