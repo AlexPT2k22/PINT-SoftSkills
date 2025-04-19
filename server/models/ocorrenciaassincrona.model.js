@@ -8,6 +8,7 @@ const OcorrenciaAssincrona = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_ESTADO_OCORRENCIA_ASSINCRONA: {
       type: Sequelize.INTEGER,

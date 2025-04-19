@@ -2,7 +2,7 @@ const { sequelize } = require("../database/database.js");
 const { Sequelize } = require("sequelize");
 
 const UtilizadorTemPerfil = sequelize.define(
-  "UtilizadorTemPerfil",
+  "UTILIZADOR_TEM_PERFIL",
   {
     ID_UTILIZADOR: {
       type: Sequelize.INTEGER,

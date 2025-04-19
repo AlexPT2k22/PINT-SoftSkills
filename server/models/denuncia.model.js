@@ -12,6 +12,7 @@ const Denuncia = sequelize.define(
         key: "ID_UTILIZADOR",
       },
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_RESPOSTA: {
       type: Sequelize.INTEGER,

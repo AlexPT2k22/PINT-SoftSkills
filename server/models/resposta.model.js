@@ -8,6 +8,7 @@ const Resposta = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_TOPICO: {
       type: Sequelize.INTEGER,

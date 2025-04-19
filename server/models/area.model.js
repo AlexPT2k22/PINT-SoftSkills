@@ -2,12 +2,13 @@ const { Sequelize } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const Area = sequelize.define(
-  "Area",
+  "AREA",
   {
     ID_AREA: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
+      autoIncrement: true,
     },
     ID_CATEGORIA__PK___: {
       type: Sequelize.INTEGER,

@@ -8,6 +8,7 @@ const Topico = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     TITULO: {
       type: Sequelize.TEXT,

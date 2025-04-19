@@ -8,6 +8,7 @@ const AvaliacaoFinalAssincrona = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_QUIZZ_ASSINCRONO: {
       type: Sequelize.INTEGER,

@@ -8,6 +8,7 @@ const AvaliaConteudoResposta = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
       references: {
         model: "UTILIZADOR",
         key: "ID_UTILIZADOR",

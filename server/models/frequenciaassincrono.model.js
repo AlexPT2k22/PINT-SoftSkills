@@ -8,6 +8,7 @@ const FrequenciaAssincrono = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_OCORRENCIA: {
       type: Sequelize.INTEGER,

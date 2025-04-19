@@ -2,11 +2,12 @@ const { Sequelize } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const EstadoOcorrenciaAssincrona = sequelize.define(
-  "EstadoOcorrenciaAssincrona",
+  "ESTADO_OCORRENCIA_ASSINCRONA",
   {
     ID_ESTADO_OCORRENCIA_ASSINCRONA: {
       type: Sequelize.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
       allowNull: false,
     },
     ESTADO: {

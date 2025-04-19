@@ -8,6 +8,7 @@ const AvaliacaoSincrona = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_AVALIACAO_FINAL_SINCRONA: {
       type: Sequelize.INTEGER,

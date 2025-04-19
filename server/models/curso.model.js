@@ -2,12 +2,13 @@ const { Sequelize } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const Curso = sequelize.define(
-  "Curso",
+  "CURSO",
   {
     ID_CURSO: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
+      autoIncrement: true,
     },
     ID_AREA: {
       type: Sequelize.INTEGER,

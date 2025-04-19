@@ -8,6 +8,7 @@ const LoginSocialMedia = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_UTILIZADOR: {
       type: Sequelize.INTEGER,

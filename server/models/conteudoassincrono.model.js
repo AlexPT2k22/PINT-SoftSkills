@@ -8,6 +8,7 @@ const ConteudoAssincrono = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     ID_CURSO: {
       type: Sequelize.INTEGER,

@@ -2,12 +2,13 @@ const { Sequelize } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const Utilizador = sequelize.define(
-  "Utilizador",
+  "UTILIZADOR",
   {
     ID_UTILIZADOR: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
+      autoIncrement: true,
     },
     USERNAME: {
       type: Sequelize.STRING(50),

@@ -2,12 +2,13 @@ const { Sequelize } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const Categoria = sequelize.define(
-  "Categoria",
+  "CATEGORIA",
   {
     ID_CATEGORIA__PK___: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
+      autoIncrement: true,
     },
     NOME__: {
       type: Sequelize.TEXT,

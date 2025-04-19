@@ -8,6 +8,7 @@ const CursoAssincrono = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
       references: {
         model: "CURSO",
         key: "ID_CURSO",
