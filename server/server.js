@@ -22,7 +22,7 @@ app.use(cookieparser()); // Para ler cookies
 app.use("/api/user", userRoute);
 app.use("/api/dashboard", dashboardRoute);
 app.use("/api/auth", authRoutes);
-app.use("/api/curso", cursoRoute);
+app.use("/api/cursos", cursoRoute);
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");
 });
@@ -37,7 +37,7 @@ connectDB(); // Conectar ao banco de dados
 // Sincronizar os modelos com o banco de dados
 (async () => {
   try {
-    await sequelize.sync({ force: false }); // force false para não apagar os dados existentes
+    await sequelize.sync({ alter: true }); // force false para não apagar os dados existentes
     console.log("Database synchronized successfully");
   } catch (error) {
     console.error("Error synchronizing database:", error);

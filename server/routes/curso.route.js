@@ -6,7 +6,7 @@ const {
 } = require("../controllers/curso.controller.js");
 
 
-// /curso/*
+// /cursos/*
 router.get("/", getCursos);
 router.get("/:id", getCursoById);
 

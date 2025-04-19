@@ -11,7 +11,7 @@ const EstadoOcorrenciaAssincrona = sequelize.define(
       allowNull: false,
     },
     ESTADO: {
-      type: Sequelize.TEXT,
+      type: Sequelize.ENUM("Ativo", "Inativo"),
       allowNull: false,
     },
   },

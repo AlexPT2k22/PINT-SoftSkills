@@ -11,7 +11,7 @@ const EstadoCursoSincrono = sequelize.define(
       autoIncrement: true,
     },
     ESTADO: {
-      type: Sequelize.TEXT,
+      type: Sequelize.ENUM("Ativo", "Inativo", "Em curso", "Terminado"),
       allowNull: false,
     },
   },
