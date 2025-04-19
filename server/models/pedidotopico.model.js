@@ -1,5 +1,5 @@
 const { Sequelize } = require("sequelize");
-const sequelize = require("../database/database.js");
+const { sequelize } = require("../database/database.js");
 
 const PedidoTopico = sequelize.define(
   "PEDIDO_TOPICO",

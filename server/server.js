@@ -4,8 +4,8 @@ const cors = require("cors");
 const userRoute = require("./routes/user.js");
 const dashboardRoute = require("./routes/dashboard.js");
 const authRoutes = require("./routes/auth.route.js");
-const authenticateToken = require("./middlewares/authmiddleware.js");
 const { connectDB } = require("./database/database.js");
+require("./models/index.js"); // Importar todos os modelos para garantir que estão registados
 const cookieparser = require("cookie-parser");
 const port = process.env.PORT || 4000;
 

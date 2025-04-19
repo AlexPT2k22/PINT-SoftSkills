@@ -1,5 +1,5 @@
 const { Sequelize } = require("sequelize");
-const sequelize = require("../database/database.js");
+const { sequelize } = require("../database/database.js");
 
 const InscricaoAssincrono = sequelize.define(
   "INSCRICAO_ASSINCRONO",

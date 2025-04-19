@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import { sequelize } from "../database/database.js";
+const { Sequelize } = require("sequelize");
+const { sequelize } = require("../database/database.js");
 
 const Categoria = sequelize.define(
   "Categoria",
@@ -23,3 +23,5 @@ const Categoria = sequelize.define(
     timestamps: false,
   }
 );
+
+module.exports = Categoria;

@@ -1,5 +1,5 @@
 const { Sequelize } = require("sequelize");
-const sequelize = require("../database/database.js");
+const { sequelize } = require("../database/database.js");
 const Utilizador = require("./user.model.js");
 const Area = require("./area.model.js");
 const AvaliacaoFinalAssincrona = require("./avaliacaofinalassincrona.model.js");
