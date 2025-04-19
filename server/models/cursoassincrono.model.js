@@ -8,13 +8,12 @@ const CursoAssincrono = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true,
       references: {
         model: "CURSO",
         key: "ID_CURSO",
       },
     },
-    QUANTIDADE_CURSOS_ASSINCRONOS__: {
+    NUMERO_MODULOS_ASSINCRONOS: {
       type: Sequelize.INTEGER,
       allowNull: true,
     },

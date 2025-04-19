@@ -18,6 +18,10 @@ const Curso = sequelize.define(
         key: "ID_AREA",
       },
     },
+    IMAGEM: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
     NOME: {
       type: Sequelize.TEXT,
       allowNull: false,

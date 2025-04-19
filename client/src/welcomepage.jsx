@@ -21,6 +21,7 @@ function WelcomePage() {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(`${URL}/api/cursos`);
+        console.log("Cursos:", response.data);
         setCourses(response.data);
         setLoading(false);
       } catch (err) {
@@ -59,15 +60,15 @@ function WelcomePage() {
       <div className="container d-flex flex-column mt-5">
         <div className="d-flex flex-column justify-content-start mb-3">
           <h1>Os mais populares</h1>
-          <p className="mb-0">
+          <p className="mb-2">
             Explore os nossos cursos mais populares e prepare-se para aprender
-            novas habilidades{" "}
+            novas habilidades
           </p>
         </div>
         <div className="container p-0">
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
             {courses.map((course) => (
-              <div className="col" key={course.id}>
+              <div className="col" key={course.ID_CURSO}>
                 <CourseCard course={course} />
               </div>
             ))}

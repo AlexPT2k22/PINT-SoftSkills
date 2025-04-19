@@ -6,6 +6,7 @@ const {
   ConteudoSincrono,
   Categoria,
   Area,
+  InscricaoSincrono,
 } = require("../models/index.js");
 
 // para ir buscar todos os cursos
@@ -22,6 +23,9 @@ const getCursos = async (_, res) => {
         },
         {
           model: CursoSincrono,
+          include: [
+            { model: InscricaoSincrono, attributes: ["LIMITE_VAGAS_INT__"] },
+          ],
         },
       ],
     });
