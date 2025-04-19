@@ -63,7 +63,10 @@ Area.belongsToMany(Utilizador, {
 
 // Category and Area associations
 Categoria.hasMany(Area, { foreignKey: "ID_CATEGORIA__PK___" });
-Area.belongsTo(Categoria, { foreignKey: "ID_CATEGORIA__PK___" });
+Area.belongsTo(Categoria, {
+  foreignKey: "ID_CATEGORIA__PK___",
+  as: "Categoria",
+});
 
 // Curso associations
 Area.hasMany(Curso, { foreignKey: "ID_AREA" });
@@ -115,29 +118,29 @@ Utilizador.hasMany(Resposta, { foreignKey: "ID_UTILIZADOR" });
 Resposta.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 
 // Self-referencing association for replies
-Resposta.hasMany(Resposta, { foreignKey: "RES_ID_RESPOSTA", as: "Replies" });
+Resposta.hasMany(Resposta, { foreignKey: "RES_ID_RESPOSTA", as: "Respostas" });
 Resposta.belongsTo(Resposta, {
   foreignKey: "RES_ID_RESPOSTA",
-  as: "ParentResponse",
+  as: "RespostaPai",
 });
 
 // PedidoTopico associations
 Utilizador.hasMany(PedidoTopico, {
   foreignKey: "ID_UTILIZADOR",
-  as: "SolicitedRequests",
+  as: "PedidoTopicoSolicitante",
 });
 PedidoTopico.belongsTo(Utilizador, {
   foreignKey: "ID_UTILIZADOR",
-  as: "RequestingUser",
+  as: "Utilizador_Solicitante",
 });
 
 Utilizador.hasMany(PedidoTopico, {
   foreignKey: "UTI_ID_UTILIZADOR",
-  as: "AuthorizedRequests",
+  as: "PedidoTopicoAuthorizingUser",
 });
 PedidoTopico.belongsTo(Utilizador, {
   foreignKey: "UTI_ID_UTILIZADOR",
-  as: "AuthorizingUser",
+  as: "Utilizador_AuthorizingUser",
 });
 
 Topico.hasMany(PedidoTopico, { foreignKey: "ID_TOPICO" });
@@ -216,48 +219,48 @@ AvaliacaoSincrona.belongsTo(AvaliacaoFinalSincrona, {
 // AvaliacaoFinalSincrona associations
 Utilizador.hasMany(AvaliacaoFinalSincrona, {
   foreignKey: "UTI_ID_UTILIZADOR",
-  as: "TeacherEvaluations",
+  as: "Avaliacao_FinalSincrona",
 });
 AvaliacaoFinalSincrona.belongsTo(Utilizador, {
   foreignKey: "UTI_ID_UTILIZADOR",
-  as: "Teacher",
+  as: "Formador",
 });
 
 Utilizador.hasMany(AvaliacaoFinalSincrona, {
   foreignKey: "UTI_ID_UTILIZADOR2",
-  as: "StudentEvaluations",
+  as: "Avaliacao_Formando",
 });
 AvaliacaoFinalSincrona.belongsTo(Utilizador, {
   foreignKey: "UTI_ID_UTILIZADOR2",
-  as: "Student",
+  as: "Formando",
 });
 
 // QuizzAssincrono associations
 Utilizador.hasMany(QuizzAssincrono, {
   foreignKey: "ID_UTILIZADOR",
-  as: "StudentQuizzes",
+  as: "Quizzes_Formando",
 });
 QuizzAssincrono.belongsTo(Utilizador, {
   foreignKey: "ID_UTILIZADOR",
-  as: "Student",
+  as: "Formando",
 });
 
 Utilizador.hasMany(QuizzAssincrono, {
   foreignKey: "UTI_ID_UTILIZADOR",
-  as: "EvaluatedQuizzes",
+  as: "Quizzes_Formador",
 });
 QuizzAssincrono.belongsTo(Utilizador, {
   foreignKey: "UTI_ID_UTILIZADOR",
-  as: "Evaluator",
+  as: "Formador",
 });
 
 Utilizador.hasMany(QuizzAssincrono, {
   foreignKey: "UTI_ID_UTILIZADOR2",
-  as: "CreatedQuizzes",
+  as: "Quizzes_Criados",
 });
 QuizzAssincrono.belongsTo(Utilizador, {
   foreignKey: "UTI_ID_UTILIZADOR2",
-  as: "Creator",
+  as: "Criador",
 });
 
 OcorrenciaAssincrona.hasMany(QuizzAssincrono, { foreignKey: "ID_OCORRENCIA" });

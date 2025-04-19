@@ -37,24 +37,26 @@ const getCursos = async (_, res) => {
 const getCursoById = async (req, res) => {
   const { id } = req.params;
 
-  try { // procurar o curso pelo id, incluindo as áreas e categorias com um left join
+  try {
+    // procurar o curso pelo id, incluindo as áreas e categorias com um left join
     const curso = await Curso.findByPk(id, {
       include: [
-      { 
-        model: Area, 
-        attributes: ["NOME"],
-        include: [
-        { model: Categoria, attributes: ["NOME"] }
-        ]
-      },
-      {
-        model: CursoAssincrono,
-        include: [{ model: ConteudoAssincrono }],
-      },
-      {
-        model: CursoSincrono,
-        include: [{ model: ConteudoSincrono }],
-      },
+        {
+          model: Area,
+          as: "AREA",
+          attributes: ["NOME"],
+          include: [
+            { model: Categoria, as: "Categoria", attributes: ["NOME__"] },
+          ],
+        },
+        {
+          model: CursoAssincrono,
+          include: [{ model: ConteudoAssincrono }],
+        },
+        {
+          model: CursoSincrono,
+          include: [{ model: ConteudoSincrono }],
+        },
       ],
     });
 
