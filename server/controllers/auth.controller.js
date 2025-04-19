@@ -25,7 +25,7 @@ const frontendURL =
 const checkauth = async (req, res) => {
   try {
     const user = await User.findOne({
-      where: { id: req.user.id },
+      where: { ID_UTILIZADOR: req.user.ID_UTILIZADOR },
     });
     if (!user) {
       return res.status(401).json({ error: "User não encontrado!" });
@@ -34,11 +34,10 @@ const checkauth = async (req, res) => {
     res.status(200).json({
       message: "User autenticado com sucesso!",
       user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        linkedIn: user.linkedIn,
-        isVerified: user.isVerified,
+        id: user.ID_UTILIZADOR,
+        username: user.USERNAME,
+        email: user.EMAIL,
+        isVerified: user.ESTA_VERIFICADO,
       },
     });
   } catch (error) {
