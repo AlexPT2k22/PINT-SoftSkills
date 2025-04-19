@@ -2,6 +2,9 @@ const {
   Curso,
   CursoAssincrono,
   CursoSincrono,
+  ConteudoAssincrono,
+  ConteudoSincrono,
+  Categoria,
   Area,
 } = require("../models/index.js");
 
@@ -34,18 +37,24 @@ const getCursos = async (_, res) => {
 const getCursoById = async (req, res) => {
   const { id } = req.params;
 
-  try {
+  try { // procurar o curso pelo id, incluindo as áreas e categorias com um left join
     const curso = await Curso.findByPk(id, {
       include: [
-        { model: Area, attributes: ["NOME"] },
-        {
-          model: CursoAssincrono,
-          include: [{ model: ConteudoAssincrono }],
-        },
-        {
-          model: CursoSincrono,
-          include: [{ model: ConteudoSincrono }],
-        },
+      { 
+        model: Area, 
+        attributes: ["NOME"],
+        include: [
+        { model: Categoria, attributes: ["NOME"] }
+        ]
+      },
+      {
+        model: CursoAssincrono,
+        include: [{ model: ConteudoAssincrono }],
+      },
+      {
+        model: CursoSincrono,
+        include: [{ model: ConteudoSincrono }],
+      },
       ],
     });
 

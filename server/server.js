@@ -22,7 +22,7 @@ app.use(cookieparser()); // Para ler cookies
 app.use("/api/user", userRoute);
 app.use("/api/dashboard", dashboardRoute);
 app.use("/api/auth", authRoutes);
-app.use("/api/curso", )
+app.use("/api/curso", cursoRoute);
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");
 });
