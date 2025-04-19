@@ -3,16 +3,8 @@ import { Award } from "lucide-react";
 import "../styles/course_card.css";
 
 function CourseCard({ course }) {
-  const {
-    titulo,
-    imagem,
-    tipo,
-    tempoTotal,
-    id,
-    dataInicio,
-    dataFim,
-    vagasRestantes,
-  } = course;
+  const { NOME, DATA_CRIACAO__, ID_CURSO, tipo, tempoTotal, vagasRestantes } =
+    course;
 
   const formatDate = (dateString) => {
     const options = { month: "numeric", day: "numeric" };
@@ -21,21 +13,17 @@ function CourseCard({ course }) {
 
   return (
     <div className="card course-card">
-      <img src={imagem} className="card-img-top" alt={titulo} />
+      <img className="card-img-top" alt={NOME} />
       <div className="card-body">
         <div className="card-title d-flex justify-content-between align-items-center mb-1">
-          <h5 className="mb-0">{titulo}</h5>
+          <h5 className="mb-0">{NOME}</h5>
         </div>
         <div className="d-flex justify-content-between align-items-center">
-          <p className="card-text mb-0">
-            {tipo} - {tempoTotal}
-          </p>
-          <p className="card-text mb-0">
-            {formatDate(dataInicio)} - {formatDate(dataFim)}
-          </p>
+          <p className="card-text mb-0">tipo - tempoTotal</p>
+          <p className="card-text mb-0">DATA</p>
         </div>
         <div className="d-flex justify-content-between align-items-center">
-          <p className="card-text mb-0">Vagas restantes: {vagasRestantes}</p>
+          <p className="card-text mb-0">Vagas restantes: vagasRestantes</p>
         </div>
         <div className="d-flex justify-content-between align-items-center mt-4">
           <div className="card-text mb-0 d-flex align-items-center">
