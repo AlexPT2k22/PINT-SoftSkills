@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const QuizzAssincrono = sequelize.define(
   "QUIZZ_ASSINCRONO",
   {
     ID_QUIZZ_ASSINCRONO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -19,7 +19,7 @@ const QuizzAssincrono = sequelize.define(
       },
     },
     UTI_ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -27,7 +27,7 @@ const QuizzAssincrono = sequelize.define(
       },
     },
     UTI_ID_UTILIZADOR2: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -35,7 +35,7 @@ const QuizzAssincrono = sequelize.define(
       },
     },
     ID_OCORRENCIA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "OCORRENCIA_ASSINCRONA",
@@ -43,39 +43,39 @@ const QuizzAssincrono = sequelize.define(
       },
     },
     DATA_LIMITE_REALIZACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     DATA_REALIZACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     NOTA: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     OSERVACAO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     URL: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     FICHEIRO: {
-      type: Sequelize.BLOB("tiny"),
+      type: DataTypes.BLOB("tiny"),
       allowNull: true,
     },
     ESTADO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     TEMPO_REALIZACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     NUMERO_TENTATIVAS: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },

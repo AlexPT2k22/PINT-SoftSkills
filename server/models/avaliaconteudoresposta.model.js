@@ -1,11 +1,11 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const AvaliaConteudoResposta = sequelize.define(
   "AVALIA_CONTEUDO_RESPOSTA",
   {
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
@@ -15,7 +15,7 @@ const AvaliaConteudoResposta = sequelize.define(
       },
     },
     ID_RESPOSTA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       references: {

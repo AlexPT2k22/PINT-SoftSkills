@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const ConteudoSincrono = sequelize.define(
   "CONTEUDO_SINCRONO",
   {
     ID_CONTEUDO__PK___: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -19,7 +19,7 @@ const ConteudoSincrono = sequelize.define(
       },
     },
     ID_CURSO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "CURSO_SINCRONO",
@@ -27,23 +27,23 @@ const ConteudoSincrono = sequelize.define(
       },
     },
     DESCRICAO_TEXT___: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     DIFICULDADE_CONTEUDO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     URL: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     FICHEIRO: {
-      type: Sequelize.BLOB("tiny"), // binary(1) ≈ BLOB pequeno
+      type: DataTypes.BLOB("tiny"), // binary(1) ≈ BLOB pequeno
       allowNull: true,
     },
     DATA_CRIACAO_DATETIME__: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

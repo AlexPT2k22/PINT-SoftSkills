@@ -1,33 +1,33 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const Topico = sequelize.define(
   "TOPICO",
   {
     ID_TOPICO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     TITULO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     DESCRICAO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     URL: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     FICHEIRO: {
-      type: Sequelize.BLOB("tiny"), // binary(1) mapeado para BLOB pequeno
+      type: DataTypes.BLOB("tiny"), // binary(1) mapeado para BLOB pequeno
       allowNull: true,
     },
     DATA_CRIACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
   },

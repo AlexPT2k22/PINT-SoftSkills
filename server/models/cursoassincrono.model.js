@@ -1,11 +1,11 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const CursoAssincrono = sequelize.define(
   "CURSO_ASSINCRONO",
   {
     ID_CURSO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       references: {
@@ -14,7 +14,7 @@ const CursoAssincrono = sequelize.define(
       },
     },
     NUMERO_MODULOS_ASSINCRONOS: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },

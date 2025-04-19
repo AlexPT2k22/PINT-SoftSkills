@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const TrabalhoCursoSincrono = sequelize.define(
   "TRABALHO_CURSO_SINCRONO",
   {
     ID_TRABALHO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -19,7 +19,7 @@ const TrabalhoCursoSincrono = sequelize.define(
       },
     },
     ID_CURSO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "CURSO_SINCRONO",
@@ -27,27 +27,27 @@ const TrabalhoCursoSincrono = sequelize.define(
       },
     },
     TITULO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     DESCRICAO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     ARQUIVO_CAMINHO: {
-      type: Sequelize.STRING(255),
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
     DATA_ENVIO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     NOTA: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: true,
     },
     COMENTARIO_AVALIACAO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
   },

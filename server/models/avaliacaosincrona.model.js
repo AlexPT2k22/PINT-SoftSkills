@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const AvaliacaoSincrona = sequelize.define(
   "AVALIACAO_SINCRONA",
   {
     ID_AVALIACAO_SINCRONA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_AVALIACAO_FINAL_SINCRONA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "AVALIACAO_FINAL_SINCRONA",
@@ -19,7 +19,7 @@ const AvaliacaoSincrona = sequelize.define(
       },
     },
     ID_CURSO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "CURSO_SINCRONO",
@@ -27,31 +27,31 @@ const AvaliacaoSincrona = sequelize.define(
       },
     },
     DATA_LIMITE_REALIZACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     DATA_REALIZACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     NOTA: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     OSERVACAO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     URL: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     FICHEIRO: {
-      type: Sequelize.BLOB("tiny"),
+      type: DataTypes.BLOB("tiny"),
       allowNull: true,
     },
     ESTADO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   },

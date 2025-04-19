@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const EstadoOcorrenciaAssincrona = sequelize.define(
   "ESTADO_OCORRENCIA_ASSINCRONA",
   {
     ID_ESTADO_OCORRENCIA_ASSINCRONA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
     ESTADO: {
-      type: Sequelize.ENUM("Ativo", "Inativo"),
+      type: DataTypes.ENUM("Ativo", "Inativo"),
       allowNull: false,
     },
   },

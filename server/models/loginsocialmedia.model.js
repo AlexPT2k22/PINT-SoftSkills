@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const LoginSocialMedia = sequelize.define(
   "LOGIN_SOCIALMEDIA",
   {
     ID_AUTENTICACAO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -19,19 +19,19 @@ const LoginSocialMedia = sequelize.define(
       },
     },
     SOCIAL: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     SOCIAL_ID: {
-      type: Sequelize.STRING(100),
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
     SOCIAL_TOKEN: {
-      type: Sequelize.STRING(255),
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
     DATA_VINCULO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

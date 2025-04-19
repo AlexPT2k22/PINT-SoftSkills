@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const AvaliacaoFinalSincrona = sequelize.define(
   "AVALIACAO_FINAL_SINCRONA",
   {
     ID_AVALIACAO_FINAL_SINCRONA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     UTI_ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -19,7 +19,7 @@ const AvaliacaoFinalSincrona = sequelize.define(
       },
     },
     UTI_ID_UTILIZADOR2: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -27,23 +27,23 @@ const AvaliacaoFinalSincrona = sequelize.define(
       },
     },
     NOTA_FINAL: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     DATA_AVALIACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     OBSERVACAO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     CERTIFICADO_SINCRONO: {
-      type: Sequelize.BLOB("tiny"),
+      type: DataTypes.BLOB("tiny"),
       allowNull: true,
     },
     DATA_EMISSAO_CERTIFICADO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const InscricaoAssincrono = sequelize.define(
   "INSCRICAO_ASSINCRONO",
   {
     ID_INSCRICAO_SINCRONO2: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: "UTILIZADOR",
@@ -19,7 +19,7 @@ const InscricaoAssincrono = sequelize.define(
       },
     },
     ID_OCORRENCIA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "OCORRENCIA_ASSINCRONA",
@@ -27,15 +27,15 @@ const InscricaoAssincrono = sequelize.define(
       },
     },
     FORMULARIO_INSCRICAO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     DATA_INSCRICAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     DATA_LIMITE_INSCRICAO_AS: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

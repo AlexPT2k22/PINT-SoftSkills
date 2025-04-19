@@ -1,11 +1,11 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const Denuncia = sequelize.define(
   "DENUNCIA",
   {
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "UTILIZADOR",
@@ -15,7 +15,7 @@ const Denuncia = sequelize.define(
       autoIncrement: true,
     },
     ID_RESPOSTA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "RESPOSTA",

@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const Resposta = sequelize.define(
   "RESPOSTA",
   {
     ID_RESPOSTA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_TOPICO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "TOPICO",
@@ -19,7 +19,7 @@ const Resposta = sequelize.define(
       },
     },
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "UTILIZADOR",
@@ -27,7 +27,7 @@ const Resposta = sequelize.define(
       },
     },
     RES_ID_RESPOSTA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       // Caso queiras, podes definir isto como uma foreign key para a própria tabela para respostas a respostas
       references: {
@@ -36,19 +36,19 @@ const Resposta = sequelize.define(
       },
     },
     CONTEUDO: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     URL: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     FICHEIRO: {
-      type: Sequelize.BLOB("tiny"),
+      type: DataTypes.BLOB("tiny"),
       allowNull: true,
     },
     DATA_CRIACAO: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
   },

@@ -1,17 +1,17 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
 const OcorrenciaAssincrona = sequelize.define(
   "OCORRENCIA_ASSINCRONA",
   {
     ID_OCORRENCIA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     ID_ESTADO_OCORRENCIA_ASSINCRONA: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "ESTADO_OCORRENCIA_ASSINCRONA",
@@ -19,7 +19,7 @@ const OcorrenciaAssincrona = sequelize.define(
       },
     },
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "UTILIZADOR",
@@ -27,7 +27,7 @@ const OcorrenciaAssincrona = sequelize.define(
       },
     },
     ID_CURSO: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "CURSO_ASSINCRONO",
@@ -35,11 +35,11 @@ const OcorrenciaAssincrona = sequelize.define(
       },
     },
     DATA_INICIO_DATETIME__: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     DATA_FIM_DATETIME__: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
   },

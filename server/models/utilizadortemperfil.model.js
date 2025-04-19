@@ -1,11 +1,11 @@
 const { sequelize } = require("../database/database.js");
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 
 const UtilizadorTemPerfil = sequelize.define(
   "UTILIZADOR_TEM_PERFIL",
   {
     ID_UTILIZADOR: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       primaryKey: true,
       allowNull: false,
       references: {
@@ -14,7 +14,7 @@ const UtilizadorTemPerfil = sequelize.define(
       },
     },
     ID_PERFIL: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       primaryKey: true,
       allowNull: false,
       references: {
