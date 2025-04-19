@@ -65,7 +65,7 @@ function WelcomePage() {
             novas habilidades
           </p>
         </div>
-        <div className="container p-0">
+        <div className="container p-0 mb-3">
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
             {courses.map((course) => (
               <div className="col" key={course.ID_CURSO}>
