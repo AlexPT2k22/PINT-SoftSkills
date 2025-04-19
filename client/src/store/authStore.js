@@ -14,15 +14,15 @@ const useAuthStore = create((set, get) => ({
   isLoading: false,
   isCheckingAuth: false,
 
-  signup: async (username, email, password, linkedIN) => {
+  signup: async (USERNAME, EMAIL, PASSWORD) => {
     set({ isLoading: true, error: null });
     try {
       const response = await axios.post(
         `${url}/api/auth/register`,
         {
-          username,
-          email,
-          password,
+          USERNAME,
+          EMAIL,
+          PASSWORD,
         },
         { withCredentials: true }
       );
@@ -60,14 +60,14 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  login: async (email, password) => {
+  login: async (EMAIL, PASSWORD) => {
     set({ isLoading: true, error: null });
     try {
       const response = await axios.post(
         `${url}/api/auth/login`,
         {
-          email,
-          password,
+          EMAIL,
+          PASSWORD,
         },
         { withCredentials: true }
       );

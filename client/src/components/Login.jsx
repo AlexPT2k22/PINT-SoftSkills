@@ -11,9 +11,9 @@ function Login() {
   const [searchParams] = useSearchParams();
   const [Login, setLogin] = useState(null); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
   const [rememberMe, setRememberMe] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
+  const [EMAIL, setEMAIL] = useState("");
+  const [PASSWORD, setPASSWORD] = useState("");
+  const [USERNAME, setUSERNAME] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const { signup, login, error, isLoading } = useAuthStore();
   const redirectURL =
@@ -32,11 +32,11 @@ function Login() {
     } else {
       setLogin(1);
     }
-    const storedEmail = localStorage.getItem("email");
-    const storedPassword = localStorage.getItem("password");
+    const storedEmail = localStorage.getItem("EMAIL");
+    const storedPassword = localStorage.getItem("PASSWORD");
     if (storedEmail && storedPassword) {
-      setEmail(storedEmail);
-      setPassword(storedPassword);
+      setEMAIL(storedEmail);
+      setPASSWORD(storedPassword);
       setRememberMe(true);
     }
   }, [searchParams]);
@@ -49,37 +49,37 @@ function Login() {
     let body = {};
 
     if (rememberMe) {
-      localStorage.setItem("email", email);
-      localStorage.setItem("password", password);
+      localStorage.setItem("EMAIL", EMAIL);
+      localStorage.setItem("PASSWORD", PASSWORD);
     } else {
-      localStorage.removeItem("email");
-      localStorage.removeItem("password");
+      localStorage.removeItem("EMAIL");
+      localStorage.removeItem("PASSWORD");
     }
 
     if (Login === 0) {
-      if (!username || !email || !password) {
+      if (!USERNAME || !EMAIL || !PASSWORD) {
         setError("O campo Username, Email e Password são obrigatórios!");
         return;
       }
     }
     if (Login === 1) {
       body = {
-        email: email,
-        password: password,
+        EMAIL: EMAIL,
+        PASSWORD: PASSWORD,
       };
     }
     if (Login === 2) {
-      body = { email: email };
+      body = { EMAIL: EMAIL };
       url += "/api/auth/forgotpassword";
     }
 
     try {
       if (Login === 0) {
-        await signup(username, email, password, null);
+        await signup(USERNAME, EMAIL, PASSWORD);
         window.location.href = "/auth"; //TODO: mudar para useNavigate depois
       }
       if (Login === 1) {
-        await login(email, password);
+        await login(EMAIL, PASSWORD);
         window.location.href = "/"; //TODO: mudar para useNavigate depois
       }
       if (Login === 2) {
@@ -194,8 +194,8 @@ function Login() {
                 type="text"
                 className="form-control"
                 placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={USERNAME}
+                onChange={(e) => setUSERNAME(e.target.value)}
               />
             </div>
           )}
@@ -205,8 +205,8 @@ function Login() {
               type="email"
               className="form-control"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={EMAIL}
+              onChange={(e) => setEMAIL(e.target.value)}
               required
             />
           </div>
@@ -217,8 +217,8 @@ function Login() {
                 type="password"
                 className="form-control"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={PASSWORD}
+                onChange={(e) => setPASSWORD(e.target.value)}
                 required
               />
             </div>

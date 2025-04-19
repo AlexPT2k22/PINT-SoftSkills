@@ -48,8 +48,8 @@ const checkauth = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { username, password, email } = req.body;
-  if (!username || !password || !email) {
+  const { USERNAME, EMAIL, PASSWORD } = req.body;
+  if (!USERNAME || !PASSWORD || !EMAIL) {
     return res
       .status(400)
       .json({ error: "Todos os campos devem estar preenchidos" });
@@ -57,40 +57,38 @@ const register = async (req, res) => {
 
   try {
     const userExist = await User.findOne({
-      where: { [Op.or]: [{ email: email }, { username: username }] },
+      where: { [Op.or]: [{ EMAIL: EMAIL }, { USERNAME: USERNAME }] },
     });
     if (userExist) {
-      if (userExist.dataValues.email === email) {
+      if (userExist.dataValues.EMAIL === EMAIL) {
         return res.status(400).json({ error: "Email já em uso!" });
-      } else if (userExist.dataValues.username === username) {
+      } else if (userExist.dataValues.USERNAME === USERNAME) {
         return res.status(400).json({ error: "Username já em uso!" });
       }
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // hash da password
+    const hashedPassword = await bcrypt.hash(PASSWORD, 10); // hash da password
     const verificationToken = Math.floor(100000 + Math.random() * 900000); // gerar um token de verificação radom
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // expira em 24 horas
     const user = await User.create({
-      username: username,
-      password: hashedPassword,
-      email: email,
-      linkedIn: null,
-      verificationToken,
-      verificationExpires,
+      USERNAME: USERNAME,
+      PASSWORD: hashedPassword,
+      EMAIL: EMAIL,
+      VERIFICATIONTOKEN: verificationToken,
+      VERIFICATIONTOKENEXPIRES: verificationExpires,
     });
 
     await user.save();
     generateJWT(res, user); // gerar o token
-    await sendVerificationEmail(user.username, user.email, verificationToken); // enviar o email de verificação
+    await sendVerificationEmail(user.USERNAME, user.EMAIL, verificationToken); // enviar o email de verificação
 
     res.status(201).json({
       message: `Registado com sucesso! Verifique o seu email para confirmar a conta!`,
       user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        linkedIn: user.linkedIn,
-        isVerified: user.isVerified,
+        id: user.ID_UTILIZADOR,
+        username: user.USERNAME,
+        email: user.EMAIL,
+        isVerified: user.ESTA_VERIFICADO,
       },
     });
   } catch (error) {
@@ -100,10 +98,10 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { EMAIL, PASSWORD } = req.body;
   // verificar os campos obrigatorios
 
-  if (!email || !password) {
+  if (!EMAIL || !PASSWORD) {
     return res
       .status(401)
       .json({ error: "O campo Email e password são obrigatórios!" });
@@ -111,29 +109,28 @@ const login = async (req, res) => {
   // verificar se o user existe
   try {
     const user = await User.findOne({
-      where: { email: email },
+      where: { EMAIL: EMAIL },
     });
     if (!user) {
       return res.status(401).json({ error: "Email ou password inválidos!" });
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password); // comparar a password
+    const isPasswordValid = await bcrypt.compare(PASSWORD, user.PASSWORD); // comparar a password
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Email ou password inválidos!" });
     }
 
     generateJWT(res, user);
-    user.lastLogin = new Date();
+    user.ULTIMO_LOGIN = new Date();
     await user.save();
 
     res.status(200).json({
       message: "Login realizado com sucesso!",
       user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        linkedIn: user.linkedIn,
-        isVerified: user.isVerified,
-      }
+        id: user.ID_UTILIZADOR,
+        username: user.USERNAME,
+        email: user.EMAIL,
+        isVerified: user.ESTA_VERIFICADO,
+      },
     });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
@@ -145,6 +142,7 @@ const linkedIN_url = (_, res) => {
   res.redirect(linkedin_url);
 };
 
+//FIXME:
 const linkedINLogin = async (req, res) => {
   const { code } = req.query;
   //console.log("Code:", code);
@@ -233,6 +231,7 @@ const linkedINLogin = async (req, res) => {
 };
 
 const linkedInAssociate = async (req, res) => {
+  //FIXME:
   const { email } = req.query;
   const { url } = req.body;
   console.log(email);
@@ -266,8 +265,8 @@ const verifyEmail = async (req, res) => {
   try {
     const user = await User.findOne({
       where: {
-        verificationToken: code,
-        verificationExpires: {
+        VERIFICATIONTOKEN: code,
+        VERIFICATIONTOKENEXPIRES: {
           [Op.gt]: new Date(), // verifica se o token ainda é válido
         },
       },
@@ -277,12 +276,11 @@ const verifyEmail = async (req, res) => {
       return res.status(400).json({ error: "Código inválido ou expirado!" });
     }
 
-    user.isVerified = true; // marcar o user como verificado
-    user.verificationToken = null; // remover o token de verificação
-    user.verificationExpires = null; // remover a data de expiração do token
+    user.ESTA_VERIFICADO = true; // marcar o user como verificado
+    user.VERIFICATIONTOKEN = null; // remover o token de verificação
+    user.VERIFICATIONTOKENEXPIRES = null; // remover a data de expiração do token
     await user.save();
 
-    await sendConfirmationEmail(user.username, user.email);
     res.status(200).json({ message: "Email verificado com sucesso!" });
   } catch (error) {
     console.error(
@@ -299,13 +297,13 @@ const logout = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
+  const { EMAIL } = req.body;
+  if (!EMAIL) {
     return res.status(400).json({ error: "Email é obrigatório!" });
   }
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { EMAIL: EMAIL } });
 
     if (!user) {
       return res.status(404).json({ error: "Email não encontrado!" });
@@ -313,13 +311,13 @@ const forgotPassword = async (req, res) => {
 
     const resetToken = crypto.randomBytes(32).toString("hex"); // gerar um token de redefinição
     const resetExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // expira em 24 horas
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = resetExpires;
+    user.RESETPASSWORDTOKEN = resetToken;
+    user.RESETPASSWORDEXPIRES = resetExpires;
     await user.save();
 
     await sendResetEmail(
-      user.username,
-      user.email,
+      user.USERNAME,
+      user.EMAIL,
       `${frontendURL}/resetpassword?${resetToken}`
     );
 
@@ -331,30 +329,30 @@ const forgotPassword = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  const { password } = req.body;
-  const { resetToken } = req.query;
+  const { PASSWORD } = req.body;
+  const { RESETPASSWORDTOKEN } = req.query;
 
-  if (!password) {
+  if (!PASSWORD) {
     return res.status(400).json({ error: "Password é obrigatória!" });
   }
 
   try {
     const user = await User.findOne({
-      where: { resetPasswordToken: resetToken },
+      where: { RESETPASSWORDTOKEN: RESETPASSWORDTOKEN },
     });
     if (!user) {
       return res.status(404).json({ error: "Token inválido ou expirado!" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // hash da password
-    user.password = hashedPassword; // atualizar a password
-    user.resetPasswordToken = null; // remover o token de redefinição
-    user.resetPasswordExpires = null; // remover a data de expiração do token
+    const hashedPassword = await bcrypt.hash(PASSWORD, 10); // hash da password
+    user.PASSWORD = hashedPassword; // atualizar a password
+    user.RESETPASSWORDTOKEN = null; // remover o token de redefinição
+    user.RESETPASSWORDEXPIRES = null; // remover a data de expiração do token
     await user.save(); // guardar as alterações
 
     await sendConfirmationEmail(
-      user.username,
-      user.email,
+      user.USERNAME,
+      user.EMAIL,
       `${frontendURL}/login?login=2`
     );
 
