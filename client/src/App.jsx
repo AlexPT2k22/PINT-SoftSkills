@@ -15,6 +15,7 @@ import WelcomePage from "./welcomepage.jsx";
 import { useEffect, useState, useRef } from "react";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "./styles/app.css";
+import ResetPage from "./resetpage.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -85,6 +86,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Inicio />}></Route>
         <Route path="/auth" element={<AuthPage />}></Route>
+        <Route path="/resetpassword" element={<ResetPage />}></Route>
         <Route path="/" element={<WelcomePage />}></Route>
         <Route
           path="/linkedin"
