@@ -7,7 +7,7 @@ function Footer() {
         <div className="container">
           <div className="row">
             <div className="col-lg-4 col-md-6 mb-4 mb-md-0">
-              <h5 className="mb-3">PINT SoftSkills</h5>
+              <h5 className="mb-3">SoftSkills</h5>
               <p className="text-muted">
                 Plataforma de aprendizagem online para desenvolvimento de
                 competências transversais.
@@ -161,7 +161,7 @@ function Footer() {
           <div className="row mt-4 pt-3 border-top">
             <div className="col-md-6 text-center text-md-start">
               <p className="text-muted small mb-0">
-                © 2023 PINT SoftSkills. Todos os direitos reservados.
+                © 2025 SoftSkills. Todos os direitos reservados.
               </p>
             </div>
             <div className="col-md-6 text-center text-md-end">
