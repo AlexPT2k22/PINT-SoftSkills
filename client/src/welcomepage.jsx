@@ -50,7 +50,7 @@ function WelcomePage() {
     <>
       <Navbar />
       <div className="container-fluid banner-container">
-        <div className="container d-flex justify</p>-content-start banner">
+        <div className="container d-flex justify-content-start banner">
           <div className="p-4 d-flex flex-column justify-content-center ms-5">
             <div className="d-flex flex-column text-start">
               <div className="d-flex flex-column justify-content-start shadow border-2 rounded-3 p-4 message-box">
@@ -65,7 +65,7 @@ function WelcomePage() {
         </div>
       </div>
 
-      <div className="container d-flex flex-column mt-5">
+      <div className="container d-flex flex-column mt-5 p-0">
         <div className="d-flex flex-column justify-content-start mb-3">
           <h1>Os mais populares</h1>
           <p className="mb-2">
@@ -86,9 +86,9 @@ function WelcomePage() {
           <button className="btn btn-primary fs-5">Ver todos os cursos</button>
         </div>
 
-        <div className="container mt-3 p-0">
-          <div className="row">
-            <div className="col-12 col-lg-6 mb-4">
+        <div className="container mt-5 p-0">
+          <div className="row align-items-center">
+            <div className="col-12 col-md-6 mb-4">
               <h1 className="mb-3">Aprenda de forma intuitiva</h1>
 
               <div className="card card-objectives mb-3">
@@ -148,121 +148,124 @@ function WelcomePage() {
                 </div>
               </div>
             </div>
+            <div className="col-12 col-md-6 d-flex align-items-center justify-content-center p-5">
+              <img src="./images/undraw_post.svg" className="img-fluid"></img>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="container p-0 mb-3">
-          <h1 className="mb-3">O que os formandos dizem</h1>
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-            <div className="col">
-              <div className="card h-100 testimonial-card">
-                <div className="card-body">
-                  <p className="card-text">
-                    "A plataforma da SoftSkills transformou a minha forma de
-                    aprender. Os cursos são interativos e os formadores são
-                    excelentes!"
-                  </p>
+      <div className="container p-0 mt-5">
+        <h1 className="mb-3">O que os formandos dizem</h1>
+        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+          <div className="col">
+            <div className="card h-100 testimonial-card">
+              <div className="card-body">
+                <p className="card-text">
+                  "A plataforma da SoftSkills transformou a minha forma de
+                  aprender. Os cursos são interativos e os formadores são
+                  excelentes!"
+                </p>
+              </div>
+              <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                <div className="card-text mb-0 d-flex align-items-center">
+                  <User size={20} color="#39639C" className="me-2" />
+                  <p className="mb-0">João Silva</p>
                 </div>
-                <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                  <div className="card-text mb-0 d-flex align-items-center">
-                    <User size={20} color="#39639C" className="me-2" />
-                    <p className="mb-0">João Silva</p>
-                  </div>
-                  <div className="card-rating d-flex align-items-center">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Star
-                        fill="#FFD700"
-                        key={index}
-                        size={18}
-                        color="#FFD700"
-                        className="me-1"
-                      />
-                    ))}
-                  </div>
+                <div className="card-rating d-flex align-items-center">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <Star
+                      fill="#FFD700"
+                      key={index}
+                      size={18}
+                      color="#FFD700"
+                      className="me-1"
+                    />
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="col">
-              <div className="card h-100 testimonial-card">
-                <div className="card-body">
-                  <p className="card-text">
-                    "Os cursos são muito bem estruturados e os conteúdos são
-                    relevantes. Recomendo a todos que queiram desenvolver novas
-                    habilidades!"
-                  </p>
+          </div>
+          <div className="col">
+            <div className="card h-100 testimonial-card">
+              <div className="card-body">
+                <p className="card-text">
+                  "Os cursos são muito bem estruturados e os conteúdos são
+                  relevantes. Recomendo a todos que queiram desenvolver novas
+                  habilidades!"
+                </p>
+              </div>
+              <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                <div className="card-text mb-0 d-flex align-items-center">
+                  <User size={20} color="#39639C" className="me-2" />
+                  <p className="mb-0">Mariana</p>
                 </div>
-                <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                  <div className="card-text mb-0 d-flex align-items-center">
-                    <User size={20} color="#39639C" className="me-2" />
-                    <p className="mb-0">Mariana</p>
-                  </div>
-                  <div className="card-rating d-flex align-items-center">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Star
-                        fill="#FFD700"
-                        key={index}
-                        size={18}
-                        color="#FFD700"
-                        className="me-1"
-                      />
-                    ))}
-                  </div>
+                <div className="card-rating d-flex align-items-center">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <Star
+                      fill="#FFD700"
+                      key={index}
+                      size={18}
+                      color="#FFD700"
+                      className="me-1"
+                    />
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="col">
-              <div className="card h-100 testimonial-card">
-                <div className="card-body">
-                  <p className="card-text">
-                    "A SoftSkills é uma plataforma incrível! Os cursos são muito
-                    úteis e os formadores são super atenciosos. Estou a aprender
-                    muito"
-                  </p>
+          </div>
+          <div className="col">
+            <div className="card h-100 testimonial-card">
+              <div className="card-body">
+                <p className="card-text">
+                  "A SoftSkills é uma plataforma incrível! Os cursos são muito
+                  úteis e os formadores são super atenciosos. Estou a aprender
+                  muito"
+                </p>
+              </div>
+              <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                <div className="card-text mb-0 d-flex align-items-center">
+                  <User size={20} color="#39639C" className="me-2" />
+                  <p className="mb-0">Rodrigo Silva</p>
                 </div>
-                <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                  <div className="card-text mb-0 d-flex align-items-center">
-                    <User size={20} color="#39639C" className="me-2" />
-                    <p className="mb-0">Rodrigo Silva</p>
-                  </div>
-                  <div className="card-rating d-flex align-items-center">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Star
-                        fill="#FFD700"
-                        key={index}
-                        size={18}
-                        color="#FFD700"
-                        className="me-1"
-                      />
-                    ))}
-                  </div>
+                <div className="card-rating d-flex align-items-center">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <Star
+                      fill="#FFD700"
+                      key={index}
+                      size={18}
+                      color="#FFD700"
+                      className="me-1"
+                    />
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="col">
-              <div className="card h-100 testimonial-card">
-                <div className="card-body">
-                  <p className="card-text">
-                    "A plataforma é super intuitiva! Consegui aprender ao meu
-                    ritmo e adorei receber o certificado no final. Já comecei
-                    outro curso!"
-                  </p>
+          </div>
+          <div className="col">
+            <div className="card h-100 testimonial-card">
+              <div className="card-body">
+                <p className="card-text">
+                  "A plataforma é super intuitiva! Consegui aprender ao meu
+                  ritmo e adorei receber o certificado no final. Já comecei
+                  outro curso!"
+                </p>
+              </div>
+              <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                <div className="card-text mb-0 d-flex align-items-center">
+                  <User size={20} color="#39639C" className="me-2" />
+                  <p className="mb-0">Ana Rita</p>
                 </div>
-                <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                  <div className="card-text mb-0 d-flex align-items-center">
-                    <User size={20} color="#39639C" className="me-2" />
-                    <p className="mb-0">Ana Rita</p>
-                  </div>
-                  <div className="card-rating d-flex align-items-center">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Star
-                        fill="#FFD700"
-                        key={index}
-                        size={18}
-                        color="#FFD700"
-                        className="me-1"
-                      />
-                    ))}
-                  </div>
+                <div className="card-rating d-flex align-items-center">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <Star
+                      fill="#FFD700"
+                      key={index}
+                      size={18}
+                      color="#FFD700"
+                      className="me-1"
+                    />
+                  ))}
                 </div>
               </div>
             </div>
