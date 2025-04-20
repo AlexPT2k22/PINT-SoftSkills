@@ -1,14 +1,56 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/navbar.css";
-import { Search } from "lucide-react";
-import { Bell } from "lucide-react";
-import { Settings } from "lucide-react";
-import { CircleUserRound } from "lucide-react";
+import {
+  Search,
+  Bell,
+  Settings,
+  CircleUserRound,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
+
+const URL =
+  import.meta.env.PROD === "production"
+    ? "https://pint-softskills-api.onrender.com"
+    : "http://localhost:4000";
 
 function Navbar({ isAuthenticated }) {
   const isLogedin = false;
   const navigate = useNavigate();
+  const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    const getCategorias = async () => {
+      try {
+        const response = await axios.get(`${URL}/api/categorias/com-areas`);
+        setCategorias(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar categorias:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getCategorias();
+
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".mega-dropdown-wrapper")) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   return (
     <nav className="navbar sticky-top navbar-expand-lg">
       <div className="container-fluid">
@@ -28,11 +70,78 @@ function Navbar({ isAuthenticated }) {
         </button>
 
         <div className="collapse navbar-collapse" id="navbarContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <a className="nav-link text-primary text-descobrir text" href="#">
-                Descobrir
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+            {/* Mega Dropdown */}
+            <li className="nav-item mega-dropdown-wrapper">
+              <a
+                className="nav-link d-flex align-items-center"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowMenu(!showMenu);
+                }}
+                onMouseEnter={() => setShowMenu(true)}
+              >
+                <span className="text-primary">Descobrir</span>
+                <ChevronDown className="ms-1" size={18} color="#39639c" />
               </a>
+
+              {/* Mega Dropdown Content */}
+              {showMenu && (
+                <div
+                  className="mega-dropdown"
+                  onMouseLeave={() => setShowMenu(false)}
+                >
+                  {/* Left Panel - Categories */}
+                  <div className="categories-panel">
+                    {loading ? (
+                      <div className="loading-item">A carregar...</div>
+                    ) : (
+                      categorias.map((categoria) => (
+                        <div
+                          key={categoria.ID_CATEGORIA__PK___}
+                          className={`category-item ${
+                            activeCategory === categoria.ID_CATEGORIA__PK___
+                              ? "active"
+                              : ""
+                          }`}
+                          onMouseEnter={() =>
+                            setActiveCategory(categoria.ID_CATEGORIA__PK___)
+                          }
+                        >
+                          <div className="d-flex justify-content-between align-items-center w-100">
+                            <span>{categoria.NOME__}</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Right Panel - Areas */}
+                  <div className="areas-panel">
+                    {activeCategory && !loading && (
+                      <>
+                        {categorias
+                          .find(
+                            (cat) => cat.ID_CATEGORIA__PK___ === activeCategory
+                          )
+                          ?.AREAs?.map((area) => (
+                            <div
+                              key={area.ID_AREA}
+                              className="area-item"
+                              onClick={() => {
+                                navigate(`/areas/${area.ID_AREA}`);
+                                setShowMenu(false);
+                              }}
+                            >
+                              {area.NOME}
+                            </div>
+                          ))}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </li>
           </ul>
 
