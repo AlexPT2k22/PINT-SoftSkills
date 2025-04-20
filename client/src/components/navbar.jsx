@@ -74,7 +74,7 @@ function Navbar({ isAuthenticated }) {
             {/* Mega Dropdown */}
             <li className="nav-item mega-dropdown-wrapper">
               <a
-                className="nav-link d-flex align-items-center"
+                className="nav-link d-flex align-items-center text descobrir-link"
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
@@ -82,7 +82,7 @@ function Navbar({ isAuthenticated }) {
                 }}
                 onMouseEnter={() => setShowMenu(true)}
               >
-                <span className="text-primary">Descobrir</span>
+                Descobrir
                 <ChevronDown className="ms-1" size={18} color="#39639c" />
               </a>
 
@@ -109,8 +109,16 @@ function Navbar({ isAuthenticated }) {
                             setActiveCategory(categoria.ID_CATEGORIA__PK___)
                           }
                         >
-                          <div className="d-flex justify-content-between align-items-center w-100">
-                            <span>{categoria.NOME__}</span>
+                          <div
+                            className="d-flex justify-content-between align-items-center w-100"
+                            onClick={() => {
+                              navigate(
+                                `/categorias/${categoria.ID_CATEGORIA__PK___}`
+                              );
+                              setShowMenu(false);
+                            }}
+                          >
+                            {categoria.NOME__}
                           </div>
                         </div>
                       ))
@@ -161,10 +169,7 @@ function Navbar({ isAuthenticated }) {
 
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a
-                className="nav-link text-primary text-decoration-underline text"
-                href="#"
-              >
+              <a className="nav-link text-decoration-underline text" href="#">
                 Torne-se Formador
               </a>
             </li>

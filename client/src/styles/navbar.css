@@ -55,6 +55,14 @@
   font-size: 1.1rem;
 }
 
+.descobrir-link {
+  color: #39639c !important;
+}
+
+.descobrir-link:hover {
+  background-color: #00b7e00e;
+}
+
 .mega-dropdown-wrapper {
   position: relative;
 }
@@ -64,7 +72,7 @@
   top: 100%;
   left: 0;
   display: flex;
-  width: 350px;
+  width: 350px; /* ajustar */
   background-color: #f8f9fd;
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -73,7 +81,6 @@
   overflow: hidden;
 }
 
-/* Categories Panel (Left Side) */
 .categories-panel {
   width: 170px;
   border-right: 1px solid rgba(57, 99, 156, 0.1);
@@ -83,12 +90,15 @@
 .category-item {
   padding: 10px 16px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(57, 99, 156, 0.05);
   color: #39639c;
   transition: background-color 0.2s;
 }
 
-.category-item:hover,
+.category-item:hover {
+  color: #00b8e0;
+  background-color: #00b7e00e;
+}
+
 .category-item.active {
   color: #00b8e0;
 }
@@ -102,9 +112,7 @@
   transition: transform 0.2s;
 }
 
-/* Areas Panel (Right Side) */
 .areas-panel {
-
   background-color: #f8f9fd;
 }
 
@@ -117,6 +125,7 @@
 
 .area-item:hover {
   color: #00b8e0;
+  background-color: #00b7e00e;
 }
 
 /* Mobile Styles */
