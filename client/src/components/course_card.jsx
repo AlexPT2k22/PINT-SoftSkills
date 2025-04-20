@@ -32,11 +32,7 @@ function CourseCard({ course }) {
           </span>
         </div>
       )}
-      <img
-        src="./images/undraw_certificate.svg"
-        className="card-img-top"
-        alt={NOME}
-      />
+      <img src="https://placehold.co/200" className="card-img-top img-fluid" alt={NOME} />
       <div className="card-body">
         <div className="card-title d-flex justify-content-between align-items-center mb-1">
           <h5 className="mb-0">{NOME}</h5>
