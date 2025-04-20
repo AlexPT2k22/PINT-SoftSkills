@@ -25,7 +25,7 @@ function CourseCard({ course }) {
 
   return (
     <div className="card h-100 course-card">
-      {CURSO_SINCRONO && LIMITE_VAGAS < 5 && (
+      {CURSO_SINCRONO && LIMITE_VAGAS <= 10 && (
         <div className="z-1 position-absolute p-2">
           <span className="badge text-bg-info position-absolute p-2 fs-6">
             Mais Popular!
@@ -57,7 +57,7 @@ function CourseCard({ course }) {
           </p>
         </div>
       </div>
-      <div className="card-footer bg-white">
+      <div className="coursecard-footer d-flex justify-content-between align-items-center p-2 m-2 mt-0">
         <div className="card-text mb-0 d-flex align-items-center">
           <Award size={21} color="#39639C" />
           <p className="card-certificado ms-1 mb-0">Certificado disponivel</p>

@@ -7,7 +7,9 @@ const {
   Categoria,
   Area,
   InscricaoSincrono,
+  FrequenciaSincrono,
 } = require("../models/index.js");
+const sequelize = require("sequelize");
 
 // para ir buscar todos os cursos
 const getCursos = async (_, res) => {
@@ -74,6 +76,46 @@ const getCursoById = async (req, res) => {
   }
 };
 
+const getCursosPopulares = async (req, res) => {
+  try {
+    const cursos = await Curso.findAll({
+      include: [
+        {
+          model: Area,
+          attributes: ["NOME"],
+        },
+        {
+          model: CursoAssincrono,
+        },
+        {
+          model: CursoSincrono,
+          include: [
+            {
+              model: InscricaoSincrono,
+              attributes: ["LIMITE_VAGAS_INT__"],
+            },
+          ],
+          required: false, // Use LEFT JOIN
+        },
+      ],
+      order: [
+        [
+          { model: CursoSincrono },
+          { model: InscricaoSincrono },
+          "LIMITE_VAGAS_INT__",
+          "ASC",
+        ],
+      ],
+      limit: 4,
+    });
+
+    res.status(200).json(cursos);
+  } catch (error) {
+    console.error("Erro ao buscar os cursos populares:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 //Criar um curso
 const createCurso = async (req, res) => {
   const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
@@ -94,4 +136,4 @@ const createCurso = async (req, res) => {
   }
 };
 
-module.exports = { getCursos, getCursoById, createCurso };
+module.exports = { getCursos, getCursoById, createCurso, getCursosPopulares };

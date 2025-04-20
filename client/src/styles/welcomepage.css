@@ -6,6 +6,29 @@
   background-color: rgb(238, 238, 238);
 }
 
+.banner-container {
+  background-color: rgb(238, 238, 238);
+}
+
 .message-box {
   background-color: rgb(255, 255, 255);
+}
+
+.card-objectives:hover {
+  cursor: pointer;
+  border-color: rgb(0, 123, 255);
+}
+
+.card-objectives:active {
+  background-color: rgb(240, 240, 240);
+}
+
+footer {
+  background-color: rgb(238, 238, 238);
+}
+
+.form-control:focus {
+  outline: none;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
 }
