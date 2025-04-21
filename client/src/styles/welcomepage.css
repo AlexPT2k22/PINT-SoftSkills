@@ -46,7 +46,7 @@ footer {
 }
 
 .feature-image-container {
-  height: 400px; /* Fixed height for all images */
+  height: 400px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -54,15 +54,13 @@ footer {
   overflow: hidden;
 }
 
-/* Feature image styling with consistent sizing */
 .feature-image {
   max-height: 100%;
   max-width: 100%;
-  object-fit: contain; /* Maintains aspect ratio without cropping */
+  object-fit: contain;
   transition: opacity 0.3s ease-in-out;
 }
 
-/* Animation for image transitions */
 .feature-image-enter {
   opacity: 0;
 }
