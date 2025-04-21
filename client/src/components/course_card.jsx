@@ -1,9 +1,11 @@
 import React from "react";
 import { Award } from "lucide-react";
 import "../styles/course_card.css";
+import { useNavigate } from "react-router-dom";
 
 function CourseCard({ course }) {
-  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO } = course;
+  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, ID_CURSO } = course;
+  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     const options = { month: "numeric", day: "numeric" };
@@ -23,8 +25,12 @@ function CourseCard({ course }) {
     ? "Sincrono"
     : "Não especificado";
 
+  const handleClick = () => {
+    navigate(`/course/${course.ID_CURSO}`);
+  };
+
   return (
-    <div className="card h-100 course-card">
+    <div className="card h-100 course-card" onClick={handleClick}>
       {CURSO_SINCRONO && LIMITE_VAGAS <= 10 && (
         <div className="z-1 position-absolute p-2">
           <span className="badge text-bg-info position-absolute p-2 fs-6">
@@ -32,7 +38,11 @@ function CourseCard({ course }) {
           </span>
         </div>
       )}
-      <img src="https://placehold.co/200" className="card-img-top img-fluid" alt={NOME} />
+      <img
+        src="https://placehold.co/200"
+        className="card-img-top img-fluid"
+        alt={NOME}
+      />
       <div className="card-body">
         <div className="card-title d-flex justify-content-between align-items-center mb-1">
           <h5 className="mb-0">{NOME}</h5>
