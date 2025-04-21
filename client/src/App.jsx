@@ -86,7 +86,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Inicio />}></Route>
         <Route path="/auth" element={<AuthPage />}></Route>
-        <Route path="/resetpassword" element={<ResetPage />}></Route>
+        <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/" element={<WelcomePage />}></Route>
         <Route
           path="/linkedin"

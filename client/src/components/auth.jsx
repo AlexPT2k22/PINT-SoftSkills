@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore.js";
 import ErrorMessage from "./error_message.jsx";
+import SuccessMessage from "./sucess_message.jsx";
 import ButtonWithLoader from "./butao_loader.jsx";
 import "../styles/auth.css";
 
@@ -73,34 +74,16 @@ function Auth() {
     <div className="container d-flex justify-content-center align-items-center auth-page-container w-50">
       <div className="auth-container">
         {showSuccess && (
-          <div
-            className="alert alert-success fade show position-absolute d-flex align-items-center sucess-alert-message"
-            role="alert"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              x="0px"
-              y="0px"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              className="bi flex-shrink-0 me-2"
-            >
-              <path
-                fill="#198754"
-                d="M8,0C3.582,0,0,3.582,0,8s3.582,8,8,8s8-3.582,8-8S12.418,0,8,0z M7,12L3.48,8.48l1.414-1.414L7,9.172l4.71-4.71	l1.414,1.414L7,12z"
-              ></path>
-            </svg>
-            Email verificado com sucesso! A redirecionar...
-          </div>
+          <SuccessMessage
+            message="Email verificado com sucesso! A redirecionar..."
+            onClose={() => setShowSuccess(false)}
+          />
         )}
         {error && (
-          <div
-            className="alert alert-danger fade show position-absolute d-flex align-items-center sucess-alert-message"
-            role="alert"
-          >
-            {error}
-          </div>
+          <ErrorMessage
+            message={error}
+            onClose={() => useAuthStore.setState({ error: null })}
+          />
         )}
         <h2 className="text-center mb-3">Verifique a sua conta</h2>
         <p className="text-center text-muted mb-4 code-text">

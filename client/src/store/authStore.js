@@ -108,6 +108,29 @@ const useAuthStore = create((set, get) => ({
       throw error;
     }
   },
+
+  resetPassword: async (token, PASSWORD) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.post(
+        `${url}/api/auth/resetpassword/${token}`,
+        {
+          PASSWORD,
+        }
+      );
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({
+        error: error.response.data.error || "Erro ao redefinir a password",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
 }));
 
 export default useAuthStore;

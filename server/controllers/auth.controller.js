@@ -317,7 +317,7 @@ const forgotPassword = async (req, res) => {
     await sendResetEmail(
       user.USERNAME,
       user.EMAIL,
-      `${frontendURL}/resetpassword?${resetToken}`
+      `${frontendURL}/resetpassword/${resetToken}`
     );
 
     res.status(200).json({ message: "Email de redefinição enviado!" });
@@ -329,7 +329,8 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   const { PASSWORD } = req.body;
-  const { RESETPASSWORDTOKEN } = req.query;
+  const { token } = req.params;
+  console.log(token, PASSWORD);
 
   if (!PASSWORD) {
     return res.status(400).json({ error: "Password é obrigatória!" });
@@ -337,7 +338,7 @@ const resetPassword = async (req, res) => {
 
   try {
     const user = await User.findOne({
-      where: { RESETPASSWORDTOKEN: RESETPASSWORDTOKEN },
+      where: { RESETPASSWORDTOKEN: token },
     });
     if (!user) {
       return res.status(404).json({ error: "Token inválido ou expirado!" });

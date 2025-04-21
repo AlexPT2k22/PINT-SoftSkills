@@ -28,8 +28,8 @@ router.get("/checkauth", authenticateToken, checkauth);
 router.post("/register", register);
 router.post("/login", login);
 router.post("/verifyemail", verifyEmail);
-router.post("/logout", logout);
+router.post("/logout",authenticateToken, logout);
 router.post("/forgotpassword", forgotPassword);
-router.post("/resetpassword", resetPassword);
+router.post("/resetpassword/:token", resetPassword);
 
 module.exports = router;
