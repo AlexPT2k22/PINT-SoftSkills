@@ -22,6 +22,13 @@ function WelcomePage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeFeature, setActiveFeature] = useState("certification");
+
+  const featureImages = {
+    certification: "./images/undraw_certificate.svg",
+    knowledge: "./images/undraw_learning.svg",
+    learning: "./images/undraw_post.svg",
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -91,7 +98,13 @@ function WelcomePage() {
             <div className="col-12 col-md-6 mb-4">
               <h1 className="mb-3">Aprenda de forma intuitiva</h1>
 
-              <div className="card card-objectives mb-3">
+              <div
+                className={`card card-objectives mb-3 ${
+                  activeFeature === "certification" ? "card-active" : ""
+                }`}
+                onClick={() => setActiveFeature("certification")}
+                role="button"
+              >
                 <div className="d-flex align-items-center">
                   <span className="p-3">
                     <FileBadge
@@ -110,7 +123,13 @@ function WelcomePage() {
                 </div>
               </div>
 
-              <div className="card card-objectives mb-3">
+              <div
+                className={`card card-objectives mb-3 ${
+                  activeFeature === "knowledge" ? "card-active" : ""
+                }`}
+                onClick={() => setActiveFeature("knowledge")}
+                role="button"
+              >
                 <div className="d-flex align-items-center">
                   <span className="p-3">
                     <MessagesSquare
@@ -129,7 +148,13 @@ function WelcomePage() {
                 </div>
               </div>
 
-              <div className="card card-objectives mb-3">
+              <div
+                className={`card card-objectives mb-3 ${
+                  activeFeature === "learning" ? "card-active" : ""
+                }`}
+                onClick={() => setActiveFeature("learning")}
+                role="button"
+              >
                 <div className="d-flex align-items-center">
                   <span className="p-3">
                     <BookOpenCheck
@@ -148,8 +173,18 @@ function WelcomePage() {
                 </div>
               </div>
             </div>
-            <div className="col-12 col-md-6 d-flex align-items-center justify-content-center p-5">
-              <img src="./images/undraw_post.svg" className="img-fluid"></img>
+            <div className="col-12 col-md-6 d-flex align-items-center justify-content-center p-3">
+              <img
+                src={featureImages[activeFeature]}
+                className="feature-image-container"
+                alt={`Ilustração de ${
+                  activeFeature === "certification"
+                    ? "certificação"
+                    : activeFeature === "knowledge"
+                    ? "partilha de conhecimento"
+                    : "aprendizagem flexível"
+                }`}
+              ></img>
             </div>
           </div>
         </div>
