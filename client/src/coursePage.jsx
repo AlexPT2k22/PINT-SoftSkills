@@ -2,7 +2,7 @@ import React from "react";
 import Navbar from "./components/navbar.jsx";
 import Footer from "./components/footer.jsx";
 import { Star } from "lucide-react";
-import Divider from "./components/Divider.jsx";
+import { Check } from "lucide-react";
 
 function CoursePage() {
   return (
@@ -10,7 +10,7 @@ function CoursePage() {
       <Navbar />
       <div
         className="container-fluid banner-curso"
-        style={{ height: "60vh", backgroundColor: "#D6DEE880" }} // passar para css TODO:
+        style={{ height: "500px", backgroundColor: "#D6DEE880" }} // passar para css TODO:
       >
         <div className="container d-flex flex-column justify-content-start">
           <div className="container d-flex justify-content-start mt-3">
@@ -124,34 +124,40 @@ function CoursePage() {
           <ul class="list-group list-group-horizontal">
             <a
               href="#"
-              class="list-group-item list-group-item-action horizontal-list-item"
+              class="list-group-item list-group-item-action horizontal-list-item pb-0"
               style={{
                 border: "none",
                 borderRadius: "0",
                 borderBottom: "3px solid #00B8E0",
                 backgroundColor: "rgba(0, 0, 0, 0)",
+                fontWeight: "500",
+                color: "#373737",
               }}
             >
               Info
             </a>
             <a
               href="#"
-              class="list-group-item list-group-item-action horizontal-list-item"
+              class="list-group-item list-group-item-action horizontal-list-item pb-0"
               style={{
                 border: "none",
                 borderRadius: "0",
                 backgroundColor: "rgba(0, 0, 0, 0)",
+                fontWeight: "500",
+                color: "#37373780",
               }}
             >
-              Capítulos
+              Módulos
             </a>
             <a
               href="#"
-              class="list-group-item list-group-item-action horizontal-list-item"
+              class="list-group-item list-group-item-action horizontal-list-item pb-0"
               style={{
                 border: "none",
                 borderRadius: "0",
                 backgroundColor: "rgba(0, 0, 0, 0)",
+                fontWeight: "500",
+                color: "#37373780",
               }}
             >
               Reviews
@@ -167,6 +173,82 @@ function CoursePage() {
               marginTop: "-2px",
             }}
           ></div>
+        </div>
+      </div>
+
+      <div className="container d-flex flex-column p-0 mt-1 border">
+        <div className="d-flex flex-row">
+          <div className="d-flex flex-column w-50">
+            <h1 className="fs-4 m-0 p-2">O que vai aprender</h1>
+            <div className="d-flex flex-column">
+              <div className="row">
+                <div className="col">
+                  <div className="d-flex flex-row objectives align-items-center m-3">
+                    <Check
+                      className="me-2"
+                      size={50}
+                      strokeWidth={1}
+                      color="#373737"
+                    />
+                    <p
+                      className="m-0"
+                      style={{ maxWidth: "320px", fontSize: "16px" }}
+                    >
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Aenean facilisis ligula
+                    </p>
+                  </div>
+                </div>
+                <div className="col">
+                  <div className="d-flex flex-row align-items-center objectives m-3">
+                    <Check
+                      className="me-2"
+                      size={50}
+                      strokeWidth={1}
+                      color="#373737"
+                    />
+                    <p className="m-0">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Aenean facilisis ligula
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col">
+                  <div className="d-flex flex-row align-items-center objectives m-3">
+                    <Check
+                      className="me-2"
+                      size={50}
+                      strokeWidth={1}
+                      color="#373737"
+                    />
+                    <p className="m-0">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Aenean facilisis ligula
+                    </p>
+                  </div>
+                </div>
+                <div className="col">
+                  <div className="d-flex flex-row align-items-center objectives m-3">
+                    <Check
+                      className="me-2"
+                      size={50}
+                      strokeWidth={1}
+                      color="#373737"
+                    />
+                    <p className="m-0">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Aenean facilisis ligula
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="d-flex flex-column">
+            <h1 className="fs-4 m-0 p-2">Habilidades que desenvolverá</h1>
+          </div>
         </div>
       </div>
       <Footer />
