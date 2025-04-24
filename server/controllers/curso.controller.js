@@ -8,6 +8,7 @@ const {
   Area,
   InscricaoSincrono,
   FrequenciaSincrono,
+  Utilizador,
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 
@@ -60,7 +61,17 @@ const getCursoById = async (req, res) => {
         },
         {
           model: CursoSincrono,
-          include: [{ model: ConteudoSincrono }],
+          include: [
+            { model: ConteudoSincrono },
+            {
+              model: InscricaoSincrono,
+              attributes: ["LIMITE_VAGAS_INT__"],
+            },
+            {
+              model: Utilizador,
+              attributes: ["USERNAME"],
+            },
+          ],
         },
       ],
     });

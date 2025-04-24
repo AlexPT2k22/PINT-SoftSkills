@@ -54,7 +54,7 @@ function Navbar({ isAuthenticated }) {
   return (
     <nav className="navbar sticky-top navbar-expand-lg">
       <div className="container-fluid">
-        <a className="navbar-brand text ms-2" href="#">
+        <a className="navbar-brand text ms-2" href="/">
           <div className="d-flex align-items-center">
             <img src="/images/Logo.svg" alt="Logo" className="logo" />
           </div>
