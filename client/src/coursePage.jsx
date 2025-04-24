@@ -3,15 +3,20 @@ import Navbar from "./components/navbar.jsx";
 import Footer from "./components/footer.jsx";
 import { Star } from "lucide-react";
 import { Check } from "lucide-react";
+import "./styles/coursePage.css";
 
 function CoursePage() {
+  const [index, setIndex] = React.useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
+
+  const handleIndexChange = (newIndex) => {
+    setIndex(newIndex);
+    //console.log(newIndex);
+  };
+
   return (
     <>
       <Navbar />
-      <div
-        className="container-fluid banner-curso"
-        style={{ height: "500px", backgroundColor: "#D6DEE880" }} // passar para css TODO:
-      >
+      <div className="container-fluid banner-curso">
         <div className="container d-flex flex-column justify-content-start">
           <div className="container d-flex justify-content-start mt-3">
             <nav aria-label="breadcrumb mt-2">
@@ -48,10 +53,8 @@ function CoursePage() {
                 elementum.
               </p>
               <div className="d-flex flex-row justify-content-between">
-                <h1 style={{ fontSize: "1rem" }}>
-                  Lecionado por: NOMEFORMADOR
-                </h1>
-                <h1 style={{ fontSize: "1rem" }}>X vagas restantes</h1>
+                <h1 className="course-text-h1">Lecionado por: NOMEFORMADOR</h1>
+                <h1 className="course-text-h1">X vagas restantes</h1>
               </div>
               <div className="d-flex justify-content-start mt-3">
                 <button className="btn btn-primary fs-5 ps-5 pe-5">
@@ -64,24 +67,14 @@ function CoursePage() {
               <img
                 src="https://placehold.co/530x300"
                 alt="CursoImage"
-                className="rounded"
-                style={{ width: "530px", height: "300px" }}
+                className="rounded course-image"
               />
             </div>
           </div>
         </div>
       </div>
 
-      <div
-        className="container d-flex flex-row justify-content-around p-3 shadow border"
-        style={{
-          borderRadius: "10px",
-          margin: "-60px auto 0",
-          zIndex: "1",
-          position: "relative",
-          backgroundColor: "#fff",
-        }}
-      >
+      <div className="container d-flex flex-row justify-content-around p-3 shadow border course-info-banner">
         <div
           className="container d-flex flex-column align-items-center justify-content-center"
           style={{ height: "90px" }}
@@ -123,42 +116,26 @@ function CoursePage() {
         <div className="container justify-content-start d-flex align-items-center">
           <ul className="list-group list-group-horizontal">
             <a
-              href="#"
-              className="list-group-item list-group-item-action horizontal-list-item pb-0"
-              style={{
-                border: "none",
-                borderRadius: "0",
-                borderBottom: "3px solid #00B8E0",
-                backgroundColor: "rgba(0, 0, 0, 0)",
-                fontWeight: "500",
-                color: "#373737",
-              }}
+              onClick={() => handleIndexChange(0)}
+              className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                index === 0 ? "active" : ""
+              }`}
             >
               Info
             </a>
             <a
-              href="#"
-              className="list-group-item list-group-item-action horizontal-list-item pb-0"
-              style={{
-                border: "none",
-                borderRadius: "0",
-                backgroundColor: "rgba(0, 0, 0, 0)",
-                fontWeight: "500",
-                color: "#37373780",
-              }}
+              onClick={() => handleIndexChange(1)}
+              className={`list-group-item list-group-item-action horizontal-list-item pb-0 course-tab ${
+                index === 1 ? "active" : ""
+              }`}
             >
               Módulos
             </a>
             <a
-              href="#"
-              className="list-group-item list-group-item-action horizontal-list-item pb-0"
-              style={{
-                border: "none",
-                borderRadius: "0",
-                backgroundColor: "rgba(0, 0, 0, 0)",
-                fontWeight: "500",
-                color: "#37373780",
-              }}
+              onClick={() => handleIndexChange(2)}
+              className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                index === 2 ? "active" : ""
+              }`}
             >
               Reviews
             </a>
@@ -177,116 +154,199 @@ function CoursePage() {
       </div>
 
       <div className="container d-flex flex-column p-0 mt-2">
-        <div className="d-flex flex-row">
-          <div className="d-flex flex-column">
-            <h1 className="fs-4 m-0 p-2">O que vai aprender</h1>
-            <div className="d-flex flex-column">
-              <div className="row">
-                <div className="col">
-                  <div className="d-flex flex-row objectives align-items-center m-3">
-                    <Check
-                      className="me-2"
-                      size={35}
-                      strokeWidth={1}
-                      color="#373737"
-                    />
-                    <p className="m-0" style={{ maxWidth: "320px" }}>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Aenean facilisis ligula
-                    </p>
+        {index === 0 && (
+          <>
+            <div className="d-flex flex-row">
+              <div className="d-flex flex-column">
+                <h1 className="fs-4 m-0 p-2">O que vai aprender</h1>
+                <div className="d-flex flex-column">
+                  <div className="row">
+                    <div className="col">
+                      <div className="d-flex flex-row objectives align-items-center m-3">
+                        <Check
+                          className="me-2"
+                          size={35}
+                          strokeWidth={1}
+                          color="#373737"
+                        />
+                        <p className="m-0" style={{ maxWidth: "320px" }}>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Aenean facilisis ligula
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col">
+                      <div className="d-flex flex-row align-items-center objectives m-3">
+                        <Check
+                          className="me-2"
+                          size={35}
+                          strokeWidth={1}
+                          color="#373737"
+                        />
+                        <p className="m-0" style={{ maxWidth: "320px" }}>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Aenean facilisis ligula
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="col">
-                  <div className="d-flex flex-row align-items-center objectives m-3">
-                    <Check
-                      className="me-2"
-                      size={35}
-                      strokeWidth={1}
-                      color="#373737"
-                    />
-                    <p className="m-0" style={{ maxWidth: "320px" }}>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Aenean facilisis ligula
-                    </p>
+                  <div className="row">
+                    <div className="col">
+                      <div className="d-flex flex-row align-items-center objectives m-3">
+                        <Check
+                          className="me-2"
+                          size={35}
+                          strokeWidth={1}
+                          color="#373737"
+                        />
+                        <p className="m-0" style={{ maxWidth: "320px" }}>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Aenean facilisis ligula
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col">
+                      <div className="d-flex flex-row align-items-center objectives m-3">
+                        <Check
+                          className="me-2"
+                          size={35}
+                          strokeWidth={1}
+                          color="#373737"
+                        />
+                        <p className="m-0" style={{ maxWidth: "320px" }}>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Aenean facilisis ligula
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="row">
-                <div className="col">
-                  <div className="d-flex flex-row align-items-center objectives m-3">
-                    <Check
-                      className="me-2"
-                      size={35}
-                      strokeWidth={1}
-                      color="#373737"
-                    />
-                    <p className="m-0" style={{ maxWidth: "320px" }}>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Aenean facilisis ligula
-                    </p>
-                  </div>
-                </div>
-                <div className="col">
-                  <div className="d-flex flex-row align-items-center objectives m-3">
-                    <Check
-                      className="me-2"
-                      size={35}
-                      strokeWidth={1}
-                      color="#373737"
-                    />
-                    <p className="m-0" style={{ maxWidth: "320px" }}>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Aenean facilisis ligula
-                    </p>
+              <div className="d-flex flex-column ps-3 border-start">
+                <h1 className="fs-4 m-0 p-2">Habilidades que desenvolverá</h1>
+                <div className="d-flex flex-column p-2">
+                  <div className="row">
+                    <div className="col">
+                      <p
+                        className="m-0 p-1 text-center"
+                        style={{
+                          backgroundColor: "#D6DEE880",
+                          borderRadius: "5px",
+                          fontSize: "16px",
+                        }}
+                      >
+                        Habilidade
+                      </p>
+                    </div>
+                    <div className="col">
+                      <p
+                        className="m-0 p-1 text-center"
+                        style={{
+                          backgroundColor: "#D6DEE880",
+                          borderRadius: "5px",
+                          fontSize: "16px",
+                        }}
+                      >
+                        Habilidade
+                      </p>
+                    </div>
+                    <div className="col">
+                      <p
+                        className="m-0 p-1 text-center"
+                        style={{
+                          backgroundColor: "#D6DEE880",
+                          borderRadius: "5px",
+                          fontSize: "16px",
+                        }}
+                      >
+                        Habilidade
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="d-flex flex-column ps-3 border-start">
-            <h1 className="fs-4 m-0 p-2">Habilidades que desenvolverá</h1>
-            <div className="d-flex flex-column p-2">
-              <div className="row">
-                <div className="col">
-                  <p
-                    className="m-0 p-1 text-center"
-                    style={{
-                      backgroundColor: "#D6DEE880",
-                      borderRadius: "5px",
-                      fontSize: "16px",
-                    }}
-                  >
-                    Habilidade
-                  </p>
-                </div>
-                <div className="col">
-                  <p
-                    className="m-0 p-1 text-center"
-                    style={{
-                      backgroundColor: "#D6DEE880",
-                      borderRadius: "5px",
-                      fontSize: "16px",
-                    }}
-                  >
-                    Habilidade
-                  </p>
-                </div>
-                <div className="col">
-                  <p
-                    className="m-0 p-1 text-center"
-                    style={{
-                      backgroundColor: "#D6DEE880",
-                      borderRadius: "5px",
-                      fontSize: "16px",
-                    }}
-                  >
-                    Habilidade
-                  </p>
+          </>
+        )}
+
+        {index === 1 && (
+          <>
+            <div className="d-flex flex-row">
+              <div className="d-flex flex-column w-100">
+                <h1 className="fs-4 m-0 p-2">Módulos ao longo do curso</h1>
+                <div className="d-flex flex-column mt-3">
+                  <div className="row row-cols-1 row-cols-md-2 g-4">
+                    {/* Module 1 */}
+                    <div className="col">
+                      <div className="card h-100">
+                        <div className="card-body d-flex flex-column">
+                          <h5 className="card-title">Módulo 1</h5>
+                          <p className="card-text flex-grow-1">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing
+                            elit. Aenean facilisis ligula sollicitudin viverra
+                            pharetra. Ut ultricies sollicitudin augue sit amet
+                            ultricies.
+                          </p>
+                          <div className="mt-auto">
+                            <div className="d-flex justify-content-between align-items-center">
+                              <small className="text-muted">
+                                Duração: Xh Ymin
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Module 2 */}
+                    <div className="col">
+                      <div className="card h-100">
+                        <div className="card-body d-flex flex-column">
+                          <h5 className="card-title">Módulo 2</h5>
+                          <p className="card-text flex-grow-1">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing
+                            elit. Aenean facilisis ligula sollicitudin viverra
+                            pharetra. Ut ultricies sollicitudin augue sit amet
+                            ultricies.
+                          </p>
+                          <div className="mt-auto">
+                            <div className="d-flex justify-content-between align-items-center">
+                              <small className="text-muted">
+                                Duração: Xh Ymin
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Module 3 */}
+                    <div className="col">
+                      <div className="card h-100">
+                        <div className="card-body d-flex flex-column">
+                          <h5 className="card-title">Módulo 3</h5>
+                          <p className="card-text flex-grow-1">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing
+                            elit. Aenean facilisis ligula sollicitudin viverra
+                            pharetra. Ut ultricies sollicitudin augue sit amet
+                            ultricies.
+                          </p>
+                          <div className="mt-auto">
+                            <div className="d-flex justify-content-between align-items-center">
+                              <small className="text-muted">
+                                Duração: Xh Ymin
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
       <Footer />
     </>

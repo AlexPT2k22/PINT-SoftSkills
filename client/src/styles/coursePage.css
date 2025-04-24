@@ -1,0 +1,44 @@
+.banner-curso {
+  height: 500px;
+  background-color: #d6dee880;
+}
+
+.course-text-h1 {
+  font-size: 1rem;
+}
+
+.course-image {
+  width: 530px;
+  height: 300px;
+}
+
+.course-info-banner {
+  border-radius: 10px;
+  margin: -60px auto 0;
+  z-index: 1;
+  position: relative;
+  background-color: #fff;
+}
+
+.course-tab {
+  border: none;
+  border-radius: 0;
+  background-color: rgba(0, 0, 0, 0);
+  font-weight: 500;
+  color: #37373780;
+}
+
+.course-tab:hover {
+  cursor: pointer;
+  background-color: #ffffff00 !important;
+  color: #373737 !important;
+}
+
+.course-tab.active {
+  border: none;
+  border-radius: 0;
+  border-bottom: 3px solid #00b8e0;
+  background-color: rgba(0, 0, 0, 0);
+  font-weight: 500;
+  color: #373737;
+}
