@@ -4,6 +4,9 @@ import Footer from "./components/footer.jsx";
 import { Star, User, Check } from "lucide-react";
 import "./styles/coursePage.css";
 
+//TODO: Add a loading screen while the data is being fetched
+//TODO: Buscar os dados do curso na API e preencher os dados do curso
+
 function CoursePage() {
   const [index, setIndex] = React.useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
 
