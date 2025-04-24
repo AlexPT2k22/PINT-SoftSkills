@@ -15,18 +15,18 @@ function CoursePage() {
         <div className="container d-flex flex-column justify-content-start">
           <div className="container d-flex justify-content-start mt-3">
             <nav aria-label="breadcrumb mt-2">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item">
+              <ol className="breadcrumb">
+                <li className="breadcrumb-item">
                   <a href="#" className="text-decoration-none">
                     CATEGORIA
                   </a>
                 </li>
-                <li class="breadcrumb-item">
+                <li className="breadcrumb-item">
                   <a href="#" className="text-decoration-none">
                     AREA
                   </a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">
+                <li className="breadcrumb-item active" aria-current="page">
                   TOPICO
                 </li>
               </ol>
@@ -121,10 +121,10 @@ function CoursePage() {
 
       <div className="container d-flex flex-column mt-5 p-0">
         <div className="container justify-content-start d-flex align-items-center">
-          <ul class="list-group list-group-horizontal">
+          <ul className="list-group list-group-horizontal">
             <a
               href="#"
-              class="list-group-item list-group-item-action horizontal-list-item pb-0"
+              className="list-group-item list-group-item-action horizontal-list-item pb-0"
               style={{
                 border: "none",
                 borderRadius: "0",
@@ -138,7 +138,7 @@ function CoursePage() {
             </a>
             <a
               href="#"
-              class="list-group-item list-group-item-action horizontal-list-item pb-0"
+              className="list-group-item list-group-item-action horizontal-list-item pb-0"
               style={{
                 border: "none",
                 borderRadius: "0",
@@ -151,7 +151,7 @@ function CoursePage() {
             </a>
             <a
               href="#"
-              class="list-group-item list-group-item-action horizontal-list-item pb-0"
+              className="list-group-item list-group-item-action horizontal-list-item pb-0"
               style={{
                 border: "none",
                 borderRadius: "0",
@@ -176,9 +176,9 @@ function CoursePage() {
         </div>
       </div>
 
-      <div className="container d-flex flex-column p-0 mt-1 border">
+      <div className="container d-flex flex-column p-0 mt-2">
         <div className="d-flex flex-row">
-          <div className="d-flex flex-column w-50">
+          <div className="d-flex flex-column">
             <h1 className="fs-4 m-0 p-2">O que vai aprender</h1>
             <div className="d-flex flex-column">
               <div className="row">
@@ -186,14 +186,11 @@ function CoursePage() {
                   <div className="d-flex flex-row objectives align-items-center m-3">
                     <Check
                       className="me-2"
-                      size={50}
+                      size={35}
                       strokeWidth={1}
                       color="#373737"
                     />
-                    <p
-                      className="m-0"
-                      style={{ maxWidth: "320px", fontSize: "16px" }}
-                    >
+                    <p className="m-0" style={{ maxWidth: "320px" }}>
                       Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                       Aenean facilisis ligula
                     </p>
@@ -203,11 +200,11 @@ function CoursePage() {
                   <div className="d-flex flex-row align-items-center objectives m-3">
                     <Check
                       className="me-2"
-                      size={50}
+                      size={35}
                       strokeWidth={1}
                       color="#373737"
                     />
-                    <p className="m-0">
+                    <p className="m-0" style={{ maxWidth: "320px" }}>
                       Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                       Aenean facilisis ligula
                     </p>
@@ -219,11 +216,11 @@ function CoursePage() {
                   <div className="d-flex flex-row align-items-center objectives m-3">
                     <Check
                       className="me-2"
-                      size={50}
+                      size={35}
                       strokeWidth={1}
                       color="#373737"
                     />
-                    <p className="m-0">
+                    <p className="m-0" style={{ maxWidth: "320px" }}>
                       Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                       Aenean facilisis ligula
                     </p>
@@ -233,11 +230,11 @@ function CoursePage() {
                   <div className="d-flex flex-row align-items-center objectives m-3">
                     <Check
                       className="me-2"
-                      size={50}
+                      size={35}
                       strokeWidth={1}
                       color="#373737"
                     />
-                    <p className="m-0">
+                    <p className="m-0" style={{ maxWidth: "320px" }}>
                       Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                       Aenean facilisis ligula
                     </p>
@@ -246,8 +243,48 @@ function CoursePage() {
               </div>
             </div>
           </div>
-          <div className="d-flex flex-column">
+          <div className="d-flex flex-column ps-3 border-start">
             <h1 className="fs-4 m-0 p-2">Habilidades que desenvolverá</h1>
+            <div className="d-flex flex-column p-2">
+              <div className="row">
+                <div className="col">
+                  <p
+                    className="m-0 p-1 text-center"
+                    style={{
+                      backgroundColor: "#D6DEE880",
+                      borderRadius: "5px",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Habilidade
+                  </p>
+                </div>
+                <div className="col">
+                  <p
+                    className="m-0 p-1 text-center"
+                    style={{
+                      backgroundColor: "#D6DEE880",
+                      borderRadius: "5px",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Habilidade
+                  </p>
+                </div>
+                <div className="col">
+                  <p
+                    className="m-0 p-1 text-center"
+                    style={{
+                      backgroundColor: "#D6DEE880",
+                      borderRadius: "5px",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Habilidade
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
