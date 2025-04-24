@@ -115,7 +115,7 @@ function CoursePage() {
               className="container d-flex flex-column align-items-center justify-content-center"
               style={{ height: "90px" }}
             >
-              <h1 className="fs-5 m-0">X módulos</h1>
+              <h1 className="fs-4 m-0">X módulos</h1>
             </div>
             <div className="container d-flex flex-column align-items-center justify-content-center border-start">
               <h1 className="fs-5 m-0">Aprenda ao seu ritmo</h1>
@@ -133,7 +133,7 @@ function CoursePage() {
               </div>
             </div>
             <div className="container d-flex flex-column align-items-center justify-content-center border-start">
-              <h1 className="fs-5 m-0">{course.DIFICULDADE_CURSO__}</h1>
+              <h1 className="fs-4 m-0">{course.DIFICULDADE_CURSO__}</h1>
               <div className="d-flex align-items-center justify-content-center">
                 <p className="m-0 fs-6">Nível de dificuldade</p>
               </div>
@@ -197,64 +197,21 @@ function CoursePage() {
                     <h1 className="fs-4 m-0 p-2">O que vai aprender</h1>
                     <div className="d-flex flex-column">
                       <div className="row">
-                        <div className="col">
-                          <div className="d-flex flex-row objectives align-items-center m-3">
-                            <Check
-                              className="me-2"
-                              size={35}
-                              strokeWidth={1}
-                              color="#373737"
-                            />
-                            <p className="m-0" style={{ maxWidth: "320px" }}>
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Aenean facilisis ligula
-                            </p>
+                        {course.OBJETIVOS.map((obj, index) => (
+                          <div className="col" key={index}>
+                            <div className="d-flex flex-row objectives align-items-center m-3">
+                              <Check
+                                className="me-2"
+                                size={35}
+                                strokeWidth={1}
+                                color="#373737"
+                              />
+                              <p className="m-0" style={{ maxWidth: "320px" }}>
+                                {obj.DESCRICAO}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="col">
-                          <div className="d-flex flex-row align-items-center objectives m-3">
-                            <Check
-                              className="me-2"
-                              size={35}
-                              strokeWidth={1}
-                              color="#373737"
-                            />
-                            <p className="m-0" style={{ maxWidth: "320px" }}>
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Aenean facilisis ligula
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col">
-                          <div className="d-flex flex-row align-items-center objectives m-3">
-                            <Check
-                              className="me-2"
-                              size={35}
-                              strokeWidth={1}
-                              color="#373737"
-                            />
-                            <p className="m-0" style={{ maxWidth: "320px" }}>
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Aenean facilisis ligula
-                            </p>
-                          </div>
-                        </div>
-                        <div className="col">
-                          <div className="d-flex flex-row align-items-center objectives m-3">
-                            <Check
-                              className="me-2"
-                              size={35}
-                              strokeWidth={1}
-                              color="#373737"
-                            />
-                            <p className="m-0" style={{ maxWidth: "320px" }}>
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Aenean facilisis ligula
-                            </p>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   </div>

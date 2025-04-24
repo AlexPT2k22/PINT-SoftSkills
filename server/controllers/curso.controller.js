@@ -9,6 +9,7 @@ const {
   InscricaoSincrono,
   FrequenciaSincrono,
   Utilizador,
+  Objetivos,
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 
@@ -72,6 +73,11 @@ const getCursoById = async (req, res) => {
               attributes: ["USERNAME"],
             },
           ],
+        },
+        {
+          model: Objetivos,
+          attributes: ["DESCRICAO"],
+          as: "OBJETIVOS",
         },
       ],
     });

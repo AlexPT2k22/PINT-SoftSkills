@@ -29,6 +29,7 @@ const Topico = require("./topico.model.js");
 const TrabalhoCursoSincrono = require("./trabalhocursosincrono.model.js");
 const UtilizadorTemPerfil = require("./utilizadortemperfil.model.js");
 const UtilizadorTemPreferencias = require("./utilizadortempreferencias.model.js");
+const Objetivos = require("./objetivos.model.js");
 
 // Define associations
 
@@ -77,6 +78,9 @@ CursoAssincrono.belongsTo(Curso, { foreignKey: "ID_CURSO" });
 
 Curso.hasOne(CursoSincrono, { foreignKey: "ID_CURSO" });
 CursoSincrono.belongsTo(Curso, { foreignKey: "ID_CURSO" });
+
+Curso.hasMany(Objetivos, { foreignKey: "ID_CURSO", as: "OBJETIVOS" });
+Objetivos.belongsTo(Curso, { foreignKey: "ID_CURSO", as: "CURSO" });
 
 // CursoSincrono associations
 Utilizador.hasMany(CursoSincrono, { foreignKey: "ID_UTILIZADOR" });
@@ -316,4 +320,5 @@ module.exports = {
   TrabalhoCursoSincrono,
   UtilizadorTemPerfil,
   UtilizadorTemPreferencias,
+  Objetivos,
 };
