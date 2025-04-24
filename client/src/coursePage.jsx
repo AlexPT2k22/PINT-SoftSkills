@@ -1,8 +1,7 @@
 import React from "react";
 import Navbar from "./components/navbar.jsx";
 import Footer from "./components/footer.jsx";
-import { Star } from "lucide-react";
-import { Check } from "lucide-react";
+import { Star, User, Check } from "lucide-react";
 import "./styles/coursePage.css";
 
 function CoursePage() {
@@ -338,6 +337,130 @@ function CoursePage() {
                               </small>
                             </div>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {index === 2 && (
+          <>
+            <div className="d-flex flex-row">
+              <div className="d-flex flex-column">
+                <h1 className="fs-4 m-0 mb-3 p-2">O que vai aprender</h1>
+                <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                  <div className="col">
+                    <div className="card h-100 testimonial-card">
+                      <div className="card-body">
+                        <p className="card-text">
+                          "A plataforma da SoftSkills transformou a minha forma
+                          de aprender. Os cursos são interativos e os formadores
+                          são excelentes!"
+                        </p>
+                      </div>
+                      <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                        <div className="card-text mb-0 d-flex align-items-center">
+                          <User size={20} color="#39639C" className="me-2" />
+                          <p className="mb-0">João Silva</p>
+                        </div>
+                        <div className="card-rating d-flex align-items-center">
+                          {Array.from({ length: 5 }, (_, index) => (
+                            <Star
+                              fill="#FFD700"
+                              key={index}
+                              size={18}
+                              color="#FFD700"
+                              className="me-1"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col">
+                    <div className="card h-100 testimonial-card">
+                      <div className="card-body">
+                        <p className="card-text">
+                          "Os cursos são muito bem estruturados e os conteúdos
+                          são relevantes. Recomendo a todos que queiram
+                          desenvolver novas habilidades!"
+                        </p>
+                      </div>
+                      <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                        <div className="card-text mb-0 d-flex align-items-center">
+                          <User size={20} color="#39639C" className="me-2" />
+                          <p className="mb-0">Mariana</p>
+                        </div>
+                        <div className="card-rating d-flex align-items-center">
+                          {Array.from({ length: 5 }, (_, index) => (
+                            <Star
+                              fill="#FFD700"
+                              key={index}
+                              size={18}
+                              color="#FFD700"
+                              className="me-1"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col">
+                    <div className="card h-100 testimonial-card">
+                      <div className="card-body">
+                        <p className="card-text">
+                          "A SoftSkills é uma plataforma incrível! Os cursos são
+                          muito úteis e os formadores são super atenciosos.
+                          Estou a aprender muito"
+                        </p>
+                      </div>
+                      <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                        <div className="card-text mb-0 d-flex align-items-center">
+                          <User size={20} color="#39639C" className="me-2" />
+                          <p className="mb-0">Rodrigo Silva</p>
+                        </div>
+                        <div className="card-rating d-flex align-items-center">
+                          {Array.from({ length: 5 }, (_, index) => (
+                            <Star
+                              fill="#FFD700"
+                              key={index}
+                              size={18}
+                              color="#FFD700"
+                              className="me-1"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col">
+                    <div className="card h-100 testimonial-card">
+                      <div className="card-body">
+                        <p className="card-text">
+                          "A plataforma é super intuitiva! Consegui aprender ao
+                          meu ritmo e adorei receber o certificado no final. Já
+                          comecei outro curso!"
+                        </p>
+                      </div>
+                      <div className="card-footer d-flex justify-content-between align-items-center bg-white">
+                        <div className="card-text mb-0 d-flex align-items-center">
+                          <User size={20} color="#39639C" className="me-2" />
+                          <p className="mb-0">Ana Rita</p>
+                        </div>
+                        <div className="card-rating d-flex align-items-center">
+                          {Array.from({ length: 5 }, (_, index) => (
+                            <Star
+                              fill="#FFD700"
+                              key={index}
+                              size={18}
+                              color="#FFD700"
+                              className="me-1"
+                            />
+                          ))}
                         </div>
                       </div>
                     </div>
