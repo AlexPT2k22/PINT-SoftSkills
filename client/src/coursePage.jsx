@@ -138,7 +138,7 @@ function CoursePage() {
               className="container d-flex flex-column align-items-center justify-content-center"
               style={{ height: "90px" }}
             >
-              <h1 className="fs-4 m-0">{course.MODULOS.length} módulos</h1>
+              <h1 className="fs-4 m-0">{course.MODULOS.length} Módulos</h1>
             </div>
             <div className="container d-flex flex-column align-items-center justify-content-center border-start">
               <h1 className="fs-5 m-0">Aprenda ao seu ritmo</h1>
