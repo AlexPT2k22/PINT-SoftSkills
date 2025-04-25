@@ -13,6 +13,7 @@ function CoursePage() {
   const [index, setIndex] = useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
   const [course, setCourse] = useState({});
   const [loading, setLoading] = useState(true);
+  const [totalTime, setTotalTime] = useState(0);
   const { courseId } = useParams();
 
   const handleIndexChange = (newIndex) => {
@@ -35,6 +36,11 @@ function CoursePage() {
         const data = response.data;
         console.log(data);
         setCourse(data);
+        setTotalTime(
+          data.MODULOS.reduce((total, modulo) => {
+            return total + modulo.TEMPO_ESTIMADO_MIN;
+          }, 0)
+        );
       } catch (error) {
         console.error("Error fetching course data:", error);
       } finally {
@@ -132,11 +138,13 @@ function CoursePage() {
               className="container d-flex flex-column align-items-center justify-content-center"
               style={{ height: "90px" }}
             >
-              <h1 className="fs-4 m-0">X módulos</h1>
+              <h1 className="fs-4 m-0">{course.MODULOS.length} módulos</h1>
             </div>
             <div className="container d-flex flex-column align-items-center justify-content-center border-start">
               <h1 className="fs-5 m-0">Aprenda ao seu ritmo</h1>
-              <p className="m-0 fs-6">X horas no total</p>
+              <p className="m-0 fs-6">
+                {convertMinutesToHours(totalTime)} no total
+              </p>
             </div>
             <div className="container d-flex flex-column justify-content-center align-items-center border-start">
               <div className="d-flex align-items-center flex-column">
@@ -190,7 +198,7 @@ function CoursePage() {
                     index === 2 ? "active" : ""
                   }`}
                 >
-                  Reviews
+                  Testemunhas
                 </a>
               </ul>
             </div>
@@ -273,7 +281,9 @@ function CoursePage() {
                           <div className="col" key={index}>
                             <div className="card h-100">
                               <div className="card-body d-flex flex-column">
-                                <h5 className="card-title mb-3">{modulo.NOME}</h5>
+                                <h5 className="card-title mb-3">
+                                  {modulo.NOME}
+                                </h5>
                                 <p className="card-text flex-grow-1">
                                   {modulo.DESCRICAO}
                                 </p>
@@ -302,7 +312,9 @@ function CoursePage() {
               <>
                 <div className="d-flex flex-row">
                   <div className="d-flex flex-column">
-                    <h1 className="fs-4 m-0 mb-3 p-2">O que vai aprender</h1>
+                    <h1 className="fs-4 m-0 mb-3 p-2">
+                      O porquê das pessoas escolherem a SoftSkills
+                    </h1>
                     <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                       <div className="col">
                         <div className="card h-100 testimonial-card">
