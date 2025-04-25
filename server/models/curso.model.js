@@ -22,6 +22,10 @@ const Curso = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    IMAGEM_PUBLIC_ID: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     NOME: {
       type: DataTypes.TEXT,
       allowNull: false,

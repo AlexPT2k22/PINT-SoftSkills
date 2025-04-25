@@ -6,11 +6,14 @@ const {
   createCurso,
   getCursosPopulares,
 } = require("../controllers/curso.controller.js");
+const multer = require("multer");
+const storage = multer.memoryStorage(); // guarda em buffer
+const upload = multer({ storage });
 
 // /cursos/*
 router.get("/", getCursos);
 router.get("/popular", getCursosPopulares);
-router.post("/create", createCurso);
+router.post("/create", upload.single("imagem"), createCurso);
 router.get("/:id", getCursoById);
 
 module.exports = router;

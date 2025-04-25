@@ -124,8 +124,11 @@ function CoursePage() {
 
                 <div className="d-flex align-itens-center justify-content-center p-3">
                   <img
-                    src="https://placehold.co/530x300"
-                    alt="CursoImage"
+                    src={course.IMAGEM.replace(
+                      "upload/",
+                      "upload/w_530,h_300,c_fill/f_auto/q_auto/"
+                    )}
+                    alt={`Imagem do curso ${course.NOME}`}
                     className="rounded course-image"
                   />
                 </div>

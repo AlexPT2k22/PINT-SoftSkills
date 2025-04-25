@@ -9,6 +9,8 @@ const { connectDB, sequelize } = require("./database/database.js");
 require("./models/index.js"); // Importar todos os modelos para garantir que estão registados
 const categoriaRoutes = require("./routes/categoria.route.js");
 const cookieparser = require("cookie-parser");
+require("dotenv");
+const { connectCloudinary } = require("./database/cloudinary.js");
 const port = process.env.PORT || 4000;
 
 app.use(express.json()); // Para ler JSON no corpo da requisição
@@ -35,14 +37,15 @@ app.get("/api", (_, res) => {
 });
 
 connectDB(); // Conectar ao banco de dados
+connectCloudinary(); // Conectar ao Cloudinary
 
 // Sincronizar os modelos com o banco de dados
 (async () => {
   try {
     await sequelize.sync({ alter: true }); // force false para não apagar os dados existentes
-    console.log("Database synchronized successfully");
+    console.log("Database configurada com sucesso!");
   } catch (error) {
-    console.error("Error synchronizing database:", error);
+    console.error("Erro a sincronizar base de dados:", error);
   }
 })();
 

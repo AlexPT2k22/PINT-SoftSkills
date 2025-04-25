@@ -14,6 +14,7 @@ const {
   Modulos,
 } = require("../models/index.js");
 const sequelize = require("sequelize");
+const cloudinary = require("cloudinary").v2;
 
 // para ir buscar todos os cursos
 const getCursos = async (_, res) => {
@@ -150,14 +151,46 @@ const createCurso = async (req, res) => {
   const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
     req.body;
   try {
+    let imagemUrl = null;
+    let imagemPublicId = null;
+
+    if (req.file) {
+      const bufferToStream = (buffer) => {
+        const { Readable } = require("stream");
+        const readable = new Readable();
+        readable.push(buffer);
+        readable.push(null);
+        return readable;
+      };
+
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "cursos" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          bufferToStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      imagemUrl = result.secure_url;
+      imagemPublicId = result.public_id;
+    }
+
     const curso = await Curso.create({
       NOME,
       DESCRICAO_OBJETIVOS__,
       DIFICULDADE_CURSO__,
-      IMAGEM: null, // Placeholder for image
+      IMAGEM: imagemUrl,
+      IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
       DATA_CRIACAO__: new Date(),
     });
+
     res.status(201).json(curso);
   } catch (error) {
     console.error("Erro ao criar curso:", error);
