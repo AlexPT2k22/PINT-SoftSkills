@@ -10,19 +10,20 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
+import useAuthStore from "../store/authStore.js";
 
 const URL =
   import.meta.env.PROD === "production"
     ? "https://pint-softskills-api.onrender.com"
     : "http://localhost:4000";
 
-function Navbar({ isAuthenticated }) {
-  const isLogedin = false;
+function Navbar() {
   const navigate = useNavigate();
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
+  const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
     const getCategorias = async () => {
@@ -173,7 +174,7 @@ function Navbar({ isAuthenticated }) {
                 Torne-se Formador
               </a>
             </li>
-            {isLogedin ? (
+            {isAuthenticated ? (
               <>
                 <li className="nav-item">
                   <a className="nav-link text-primary me-2 text" href="#">
@@ -190,14 +191,47 @@ function Navbar({ isAuthenticated }) {
                     <Settings strokeWidth={1.5} color="#39639C" size={22} />
                   </a>
                 </li>
-                <li className="nav-item">
-                  <a className="nav-link me-5" href="#">
+                <li className="nav-item dropdown">
+                  <a
+                    className="nav-link dropdown-toggle d-flex align-items-center"
+                    href="#"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                  >
                     <CircleUserRound
                       strokeWidth={1.5}
                       color="#39639C"
                       size={22}
                     />
+                    <span className="ms-2">{user?.username}</span>
                   </a>
+                  <ul className="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a className="dropdown-item" href="/profile">
+                        Perfil
+                      </a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item" href="/meus-cursos">
+                        Meus Cursos
+                      </a>
+                    </li>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                    <li>
+                      <a
+                        className="dropdown-item"
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          useAuthStore.getState().logout();
+                        }}
+                      >
+                        Sair
+                      </a>
+                    </li>
+                  </ul>
                 </li>
               </>
             ) : (
