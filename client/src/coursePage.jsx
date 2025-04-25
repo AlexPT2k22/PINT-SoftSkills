@@ -7,19 +7,16 @@ import "./styles/coursePage.css";
 import axios from "axios";
 import Loader from "./components/loader.jsx";
 
-//TODO: Add a loading screen while the data is being fetched
 //TODO: Buscar os dados do curso na API e preencher os dados do curso
 
 function CoursePage() {
   const [index, setIndex] = useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
-  const [course, setCourse] = useState({}); // Course data
+  const [course, setCourse] = useState({});
   const [loading, setLoading] = useState(true);
-  const { courseId } = useParams(); // Get the course ID from the URL
-  //console.log(courseId); // Log the course ID to the console
+  const { courseId } = useParams();
 
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
-    //console.log(newIndex);
   };
 
   useEffect(() => {
@@ -193,7 +190,7 @@ function CoursePage() {
             {index === 0 && (
               <>
                 <div className="d-flex flex-row">
-                  <div className="d-flex flex-column">
+                  <div className="d-flex flex-column w-50">
                     <h1 className="fs-4 m-0 p-2">O que vai aprender</h1>
                     <div className="d-flex flex-column">
                       <div className="row">
@@ -215,48 +212,28 @@ function CoursePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="d-flex flex-column ps-3 border-start">
+                  <div className="d-flex flex-column ps-3 border-start w-50">
                     <h1 className="fs-4 m-0 p-2">
                       Habilidades que desenvolverá
                     </h1>
                     <div className="d-flex flex-column p-2">
-                      <div className="row">
-                        <div className="col">
-                          <p
-                            className="m-0 p-1 text-center"
+                      <div className="d-flex flex-wrap justify-content-between">
+                        {course.HABILIDADES.map((habilidade, index) => (
+                          <div
+                            key={index}
                             style={{
                               backgroundColor: "#D6DEE880",
                               borderRadius: "5px",
-                              fontSize: "16px",
+                              padding: "6px 12px",
+                              margin: "4px",
+                              display: "inline-block",
                             }}
                           >
-                            Habilidade
-                          </p>
-                        </div>
-                        <div className="col">
-                          <p
-                            className="m-0 p-1 text-center"
-                            style={{
-                              backgroundColor: "#D6DEE880",
-                              borderRadius: "5px",
-                              fontSize: "16px",
-                            }}
-                          >
-                            Habilidade
-                          </p>
-                        </div>
-                        <div className="col">
-                          <p
-                            className="m-0 p-1 text-center"
-                            style={{
-                              backgroundColor: "#D6DEE880",
-                              borderRadius: "5px",
-                              fontSize: "16px",
-                            }}
-                          >
-                            Habilidade
-                          </p>
-                        </div>
+                            <span className="m-0" style={{ fontSize: "1rem" }}>
+                              {habilidade.DESCRICAO}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
