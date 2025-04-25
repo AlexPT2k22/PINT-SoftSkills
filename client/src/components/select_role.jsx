@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
-import Divider from "./Divider.jsx";
 import ButtonWithLoader from "./butao_loader.jsx";
 import "../styles/select_role.css";
 import useAuthStore from "../store/authStore.js";
 import { PiStudent } from "react-icons/pi";
 import { LiaChalkboardTeacherSolid } from "react-icons/lia";
+import { useNavigate } from "react-router-dom";
 
 function SelectRole() {
-  //const [isLoading, setisLoading] = useState(false);
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const username = user.username;
 
@@ -22,6 +21,9 @@ function SelectRole() {
           <button
             className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover button-select"
             type="button"
+            onClick={() => {
+              navigate("/");
+            }}
           >
             <PiStudent className="icon me-1" />
             Formando
@@ -29,6 +31,9 @@ function SelectRole() {
           <button
             className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover button-select"
             type="button"
+            onClick={() => {
+              navigate("/dashboard");
+            }}
           >
             <LiaChalkboardTeacherSolid className="icon me-1" />
             Formador

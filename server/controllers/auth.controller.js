@@ -1,6 +1,7 @@
 const generateJWT = require("../utils/generateJWT");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
+const UtilizadorTemPerfil = require("../models/utilizadortemperfil.model");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const axios = require("axios");
@@ -78,6 +79,11 @@ const register = async (req, res) => {
     });
 
     await user.save();
+    // associar formando a user
+    await UtilizadorTemPerfil.create({
+      ID_UTILIZADOR: user.ID_UTILIZADOR,
+      ID_PERFIL: 1,
+    });
     generateJWT(res, user); // gerar o token
     await sendVerificationEmail(user.USERNAME, user.EMAIL, verificationToken); // enviar o email de verificação
 
@@ -120,15 +126,20 @@ const login = async (req, res) => {
 
     generateJWT(res, user);
     user.ULTIMO_LOGIN = new Date();
+    // ver o tipo de perfil do user
+    const perfil = await UtilizadorTemPerfil.findOne({
+      where: { ID_UTILIZADOR: user.ID_UTILIZADOR },
+      attributes: ["ID_PERFIL"], // 0 - formando, 1 - formador, 2 - admin
+    });
     await user.save();
 
     res.status(200).json({
       message: "Login realizado com sucesso!",
       user: {
-        id: user.ID_UTILIZADOR,
         username: user.USERNAME,
         email: user.EMAIL,
         isVerified: user.ESTA_VERIFICADO,
+        perfil: perfil.ID_PERFIL,
       },
     });
   } catch (error) {

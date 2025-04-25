@@ -10,6 +10,7 @@ let url =
 const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
+  userType: null,
   error: null,
   isLoading: false,
   isCheckingAuth: false,
@@ -73,6 +74,7 @@ const useAuthStore = create((set, get) => ({
       );
       set({
         user: response.data.user,
+        userType: response.data.user.perfil,
         isAuthenticated: true,
         isLoading: false,
         error: null,

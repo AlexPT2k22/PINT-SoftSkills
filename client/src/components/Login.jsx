@@ -1,6 +1,6 @@
 import "../styles/Login.css";
 import { use, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Divider from "./Divider.jsx";
 import ErrorMessage from "./error_message.jsx";
 import SuccessMessage from "./sucess_message.jsx";
@@ -8,6 +8,7 @@ import useAuthStore from "../store/authStore.js";
 import ButtonWithLoader from "./butao_loader.jsx";
 
 function Login() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [Login, setLogin] = useState(null); // 0 para Sign Up e 1 para Log In e 2 para Reset Password
   const [rememberMe, setRememberMe] = useState(false);
@@ -76,11 +77,16 @@ function Login() {
     try {
       if (Login === 0) {
         await signup(USERNAME, EMAIL, PASSWORD);
-        window.location.href = "/auth"; //TODO: mudar para useNavigate depois
+        navigate("/auth");
       }
       if (Login === 1) {
         await login(EMAIL, PASSWORD);
-        window.location.href = "/"; //TODO: mudar para useNavigate depois
+        const userType = useAuthStore.getState().userType;
+        if (userType === 2) {
+          navigate("/role");
+        } else {
+          navigate("/");
+        }
       }
       if (Login === 2) {
         useAuthStore.setState({ isLoading: true });
