@@ -4,7 +4,7 @@ import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
 
 function CourseCard({ course }) {
-  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, ID_CURSO } = course;
+  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
 
   const formatDate = (dateString) => {
@@ -39,9 +39,16 @@ function CourseCard({ course }) {
         </div>
       )}
       <img
-        src="https://placehold.co/200"
+        src={
+          IMAGEM
+            ? IMAGEM.replace(
+                "upload/",
+                "upload/w_530,h_300,c_fill/f_auto/q_auto/"
+              )
+            : "https://placehold.co/530x300"
+        }
         className="card-img-top img-fluid"
-        alt={NOME}
+        alt={`Imagem do curso ${NOME}`}
       />
       <div className="card-body">
         <div className="card-title d-flex justify-content-between align-items-center mb-1">

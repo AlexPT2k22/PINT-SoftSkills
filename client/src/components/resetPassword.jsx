@@ -8,7 +8,6 @@ import SuccessMessage from "./sucess_message.jsx";
 import ErrorMessage from "./error_message.jsx";
 
 function ResetPassword() {
-  const reference = useRef([]);
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,12 +25,15 @@ function ResetPassword() {
     try {
       await resetPassword(token, password);
       setShowSuccess(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000); // Redireciona após 3 segundos
     } catch (error) {
       console.error("Erro ao redefinir a password:", error);
     }
   };
 
-  console.log(token);
+  //console.log(token);
 
   return (
     <>

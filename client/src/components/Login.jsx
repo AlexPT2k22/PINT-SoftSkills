@@ -275,7 +275,11 @@ function Login() {
           {Login === 1 && (
             <>
               <button type="submit" className="btn btn-primary login-button">
-                Entrar
+                {isLoading ? (
+                  <ButtonWithLoader isLoading={isLoading} />
+                ) : (
+                  "Entrar"
+                )}
               </button>
               <Divider text="Ou entre com" />
               <div className="d-flex justify-content-center align-items-center gap-2 enter-with">
