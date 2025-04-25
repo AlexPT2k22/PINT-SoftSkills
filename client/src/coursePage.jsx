@@ -19,6 +19,12 @@ function CoursePage() {
     setIndex(newIndex);
   };
 
+  const convertMinutesToHours = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}min`;
+  };
+
   useEffect(() => {
     const getCourseData = async () => {
       setLoading(true);
@@ -52,17 +58,31 @@ function CoursePage() {
                 <nav aria-label="breadcrumb mt-2">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="#" className="text-decoration-none">
+                      <a
+                        href="#"
+                        className="text-decoration-none"
+                        style={{ color: "#39639C", fontWeight: "500" }}
+                      >
                         {course.AREA.Categoria.NOME__}
                       </a>
                     </li>
                     <li className="breadcrumb-item">
-                      <a href="#" className="text-decoration-none">
+                      <a
+                        href="#"
+                        className="text-decoration-none"
+                        style={{ color: "#39639C", fontWeight: "500" }}
+                      >
                         {course.AREA.NOME}
                       </a>
                     </li>
-                    <li className="breadcrumb-item active" aria-current="page">
-                      TOPICO
+                    <li className="breadcrumb-item" aria-current="page">
+                      <a
+                        href="#"
+                        className="text-decoration-none"
+                        style={{ color: "#39639C", fontWeight: "500" }}
+                      >
+                        TOPICO
+                      </a>
                     </li>
                   </ol>
                 </nav>
@@ -248,71 +268,29 @@ function CoursePage() {
                     <h1 className="fs-4 m-0 p-2">Módulos ao longo do curso</h1>
                     <div className="d-flex flex-column mt-3">
                       <div className="row row-cols-1 row-cols-md-2 g-4">
-                        {/* Module 1 */}
-                        <div className="col">
-                          <div className="card h-100">
-                            <div className="card-body d-flex flex-column">
-                              <h5 className="card-title">Módulo 1</h5>
-                              <p className="card-text flex-grow-1">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. Aenean facilisis ligula
-                                sollicitudin viverra pharetra. Ut ultricies
-                                sollicitudin augue sit amet ultricies.
-                              </p>
-                              <div className="mt-auto">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <small className="text-muted">
-                                    Duração: Xh Ymin
-                                  </small>
+                        {/* Modulos */}
+                        {course.MODULOS.map((modulo, index) => (
+                          <div className="col" key={index}>
+                            <div className="card h-100">
+                              <div className="card-body d-flex flex-column">
+                                <h5 className="card-title mb-3">{modulo.NOME}</h5>
+                                <p className="card-text flex-grow-1">
+                                  {modulo.DESCRICAO}
+                                </p>
+                                <div className="mt-auto">
+                                  <div className="d-flex justify-content-between align-items-center">
+                                    <small className="text-muted">
+                                      Duração:{" "}
+                                      {convertMinutesToHours(
+                                        modulo.TEMPO_ESTIMADO_MIN
+                                      )}
+                                    </small>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-
-                        {/* Module 2 */}
-                        <div className="col">
-                          <div className="card h-100">
-                            <div className="card-body d-flex flex-column">
-                              <h5 className="card-title">Módulo 2</h5>
-                              <p className="card-text flex-grow-1">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. Aenean facilisis ligula
-                                sollicitudin viverra pharetra. Ut ultricies
-                                sollicitudin augue sit amet ultricies.
-                              </p>
-                              <div className="mt-auto">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <small className="text-muted">
-                                    Duração: Xh Ymin
-                                  </small>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Module 3 */}
-                        <div className="col">
-                          <div className="card h-100">
-                            <div className="card-body d-flex flex-column">
-                              <h5 className="card-title">Módulo 3</h5>
-                              <p className="card-text flex-grow-1">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. Aenean facilisis ligula
-                                sollicitudin viverra pharetra. Ut ultricies
-                                sollicitudin augue sit amet ultricies.
-                              </p>
-                              <div className="mt-auto">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <small className="text-muted">
-                                    Duração: Xh Ymin
-                                  </small>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   </div>

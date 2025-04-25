@@ -11,6 +11,7 @@ const {
   Utilizador,
   Objetivos,
   Habilidades,
+  Modulos,
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 
@@ -84,6 +85,11 @@ const getCursoById = async (req, res) => {
           model: Habilidades,
           attributes: ["DESCRICAO"],
           as: "HABILIDADES",
+        },
+        {
+          model: Modulos,
+          attributes: ["NOME", "DESCRICAO", "TEMPO_ESTIMADO_MIN"],
+          as: "MODULOS",
         },
       ],
     });
