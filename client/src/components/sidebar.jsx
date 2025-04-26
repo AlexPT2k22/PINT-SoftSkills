@@ -24,9 +24,9 @@ function Sidebar({ onToggle }) {
   const [mobileView, setMobileView] = useState(false);
   const location = useLocation();
   const { userType } = useAuthStore();
-  const isFormador = userType === 2; // Check if user is a formador (trainer)
+  const isFormador = userType === 2; // verifica se o userType é 2 (formador)
 
-  // Check if current path matches the menu item path
+  // funcao para verificar se o link está ativo
   const isActive = (path) => {
     return location.pathname === path;
   };
