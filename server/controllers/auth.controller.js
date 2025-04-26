@@ -32,6 +32,11 @@ const checkauth = async (req, res) => {
       return res.status(401).json({ error: "User não encontrado!" });
     }
 
+    const perfil = await UtilizadorTemPerfil.findOne({
+      where: { ID_UTILIZADOR: user.ID_UTILIZADOR },
+      attributes: ["ID_PERFIL"], // 0 - formando, 1 - formador, 2 - admin
+    });
+
     res.status(200).json({
       message: "User autenticado com sucesso!",
       user: {
@@ -39,6 +44,7 @@ const checkauth = async (req, res) => {
         username: user.USERNAME,
         email: user.EMAIL,
         isVerified: user.ESTA_VERIFICADO,
+        perfil: perfil.ID_PERFIL,
       },
     });
   } catch (error) {

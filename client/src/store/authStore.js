@@ -97,6 +97,7 @@ const useAuthStore = create((set, get) => ({
       });
       set({
         user: response.data.user,
+        userType: response.data.user.perfil,
         isAuthenticated: true,
         isCheckingAuth: false,
       });

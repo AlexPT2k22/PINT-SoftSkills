@@ -15,12 +15,16 @@ import {
   Menu,
   X,
   ChevronRight,
+  UserRoundCheck,
 } from "lucide-react";
+import useAuthStore from "../store/authStore.js";
 
 function Sidebar({ onToggle }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileView, setMobileView] = useState(false);
   const location = useLocation();
+  const { userType } = useAuthStore();
+  const isFormador = userType === 2; // Check if user is a formador (trainer)
 
   // Check if current path matches the menu item path
   const isActive = (path) => {
@@ -109,18 +113,33 @@ function Sidebar({ onToggle }) {
               </Link>
             </li>
 
-            <li className="nav-item">
-              <Link
-                to="/formadores"
-                className={`nav-link ${
-                  isActive("/formadores") ? "active" : ""
-                }`}
-                onClick={() => mobileView && setCollapsed(true)}
-              >
-                <NotebookPen size={20} className="me-3" />
-                {!collapsed && <span>Criar curso</span>}
-              </Link>
-            </li>
+            {isFormador && (
+              <li className="nav-item">
+                <Link
+                  to="/cursos" // FIXME: Change to "/cursos" for formadores
+                  className={`nav-link ${isActive("/cursos") ? "active" : ""}`}
+                  onClick={() => mobileView && setCollapsed(true)}
+                >
+                  <UserRoundCheck size={20} className="me-3" />
+                  {!collapsed && <span>Cursos atribuidos</span>}
+                </Link>
+              </li>
+            )}
+
+            {isFormador && (
+              <li className="nav-item">
+                <Link
+                  to="/formadores"
+                  className={`nav-link ${
+                    isActive("/formadores") ? "active" : ""
+                  }`}
+                  onClick={() => mobileView && setCollapsed(true)}
+                >
+                  <NotebookPen size={20} className="me-3" />
+                  {!collapsed && <span>Criar curso</span>}
+                </Link>
+              </li>
+            )}
 
             <li className="nav-item">
               <Link
@@ -168,7 +187,9 @@ function Sidebar({ onToggle }) {
         {!collapsed && (
           <div className="sidebar-footer">
             <div className="text-center">
-              <p className="mb-0 small sidebar-footer-text">© 2025 SoftSkills</p>
+              <p className="mb-0 small sidebar-footer-text">
+                © 2025 SoftSkills
+              </p>
             </div>
           </div>
         )}
