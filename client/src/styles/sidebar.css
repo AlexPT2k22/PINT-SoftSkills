@@ -1,0 +1,142 @@
+/* Sidebar Container */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 250px;
+  background-color: #d0d8e2;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Collapsed state */
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  margin-top: 70px;
+  padding: 15px;
+}
+
+/* Sidebar Body - takes most of the space */
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 10px;
+  overflow-x: hidden;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  padding: 15px;
+  border-top: 1px solid #39639c;
+}
+
+.sidebar-footer-text {
+  color: #39639c;
+}
+
+/* Navigation Links */
+.sidebar .nav-link {
+  color: #39639c;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  margin: 2px 8px;
+  transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+  background-color: #e9ecef;
+  color: #39639c;
+}
+
+.sidebar .nav-link.active {
+  background-color: #39639c;
+  color: white;
+}
+
+.sidebar .nav-link.active svg {
+  color: #00b8e0 !important;
+}
+
+/* Divider line */
+.sidebar-divider {
+  height: 1px;
+  background-color: #dee2e6;
+  margin: 10px 15px;
+}
+
+/* Toggle button for mobile */
+.sidebar-toggle-btn {
+  position: fixed;
+  top: 80px;
+  left: 15px;
+  z-index: 999;
+  background-color: #39639c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  display: none;
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle-btn.visible {
+  display: block;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #2d4d7a;
+}
+
+/* Mobile Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Responsive behavior */
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+}
+
+/* Content area adjustment */
+.content-with-sidebar {
+  margin-left: 250px;
+  transition: margin 0.3s ease;
+}
+
+.content-with-sidebar.sidebar-collapsed {
+  margin-left: 60px;
+}
+
+@media (max-width: 991.98px) {
+  .content-with-sidebar,
+  .content-with-sidebar.sidebar-collapsed {
+    margin-left: 0;
+  }
+}

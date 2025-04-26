@@ -17,6 +17,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import "./styles/app.css";
 import ResetPage from "./resetpage.jsx";
 import CoursePage from "./coursePage.jsx";
+import CreateCourse from "./createCourse.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -89,6 +90,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
+        <Route path="/createcourse" element={<CreateCourse />}></Route>
         <Route path="/" element={<WelcomePage />}></Route>
         <Route
           path="/linkedin"
