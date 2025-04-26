@@ -31,12 +31,14 @@ const Curso = sequelize.define(
       allowNull: false,
     },
     DESCRICAO_OBJETIVOS__: {
+      // descrição do curso
       type: DataTypes.TEXT,
       allowNull: false,
     },
     DIFICULDADE_CURSO__: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+      // dificuldade do curso
+      type: DataTypes.ENUM("Iniciante", "Intermédio", "Difícil"),
+      allowNull: false,
     },
     DATA_CRIACAO__: {
       type: DataTypes.DATE,

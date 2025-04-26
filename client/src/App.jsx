@@ -90,7 +90,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
-        <Route path="/createcourse" element={<CreateCourse />}></Route>
+        <Route path="/dashboard/createcourse" element={<CreateCourse />}></Route>
         <Route path="/" element={<WelcomePage />}></Route>
         <Route
           path="/linkedin"
