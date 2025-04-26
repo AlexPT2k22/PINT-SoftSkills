@@ -5,6 +5,7 @@ const userRoute = require("./routes/user.js");
 const dashboardRoute = require("./routes/dashboard.js");
 const authRoutes = require("./routes/auth.route.js");
 const cursoRoute = require("./routes/curso.route.js");
+const areaRoute = require("./routes/area.route.js");
 const { connectDB, sequelize } = require("./database/database.js");
 require("./models/index.js"); // Importar todos os modelos para garantir que estão registados
 const categoriaRoutes = require("./routes/categoria.route.js");
@@ -22,10 +23,11 @@ app.use(
 ); // Permitir cookies e credenciais
 app.use(cookieparser()); // Para ler cookies
 
-app.use("/api/user", userRoute);
-app.use("/api/dashboard", dashboardRoute);
-app.use("/api/auth", authRoutes);
-app.use("/api/cursos", cursoRoute);
+app.use("/api/areas", areaRoute); // Rota para áreas
+app.use("/api/user", userRoute); // Rota para usuários
+app.use("/api/dashboard", dashboardRoute); // Rota para o dashboard
+app.use("/api/auth", authRoutes); // Rota para autenticação
+app.use("/api/cursos", cursoRoute); // Rota para cursos
 app.use("/api/categorias", categoriaRoutes); // Rota para categorias
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");

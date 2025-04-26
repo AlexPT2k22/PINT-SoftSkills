@@ -1,22 +1,50 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
 import ButtonWithLoader from "./components/butao_loader";
+import axios from "axios";
+import Loader from "./components/loader";
+import SuccessMessage from "./components/sucess_message";
 
 function CreateCourse() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingAreas, setIsLoadingAreas] = useState(false);
   const [courseName, setCourseName] = useState("");
   const [error, setError] = useState(null);
   const [courseDescription, setCourseDescription] = useState("");
+  const [areas, setAreas] = useState([]);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
   };
+
+  useEffect(() => {
+    const getAreas = async () => {
+      try {
+        setIsLoadingAreas(true);
+        const response = await axios.get("http://localhost:4000/api/areas"); // Adjust the endpoint as needed
+        if (response.status === 200) {
+          //console.log("Areas fetched successfully:", response.data);
+          setAreas(response.data);
+        } else {
+          //console.error("Error fetching areas:", response.statusText);
+          setError("Erro ao buscar áreas. Tente novamente mais tarde.");
+        }
+      } catch (error) {
+        //console.error("Error fetching areas:", error);
+        setError("Erro ao buscar áreas. Tente novamente mais tarde.");
+      } finally {
+        setIsLoadingAreas(false);
+      }
+    };
+    getAreas();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -24,20 +52,29 @@ function CreateCourse() {
       NOME: courseName,
       DESCRICAO_OBJETIVOS__: courseDescription,
       DIFICULDADE_CURSO__: e.target.radioDefault.value,
-      ID_AREA: 1, // TODO: Get the area ID from the selected area
+      ID_AREA: e.target.courseArea.value,
       IMAGEM: e.target.courseImage.files[0], // TODO: Handle image upload
     };
     setIsLoading(true);
-    console.log("Curso criado:", data);
+    //console.log("Curso criado:", data);
     // Simular uma chamada de API
+    setShowSuccess(true);
     setIsLoading(false);
   };
 
   return (
     <>
+      {isLoadingAreas && <Loader />}
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
+
       <div className="container h-100 d-flex justify-content-center align-items-center p-4">
+        {showSuccess && (
+          <SuccessMessage
+            message="Curso criado com sucesso!"
+            onClose={() => setShowSuccess(false)}
+          />
+        )}
         <div className="">
           <h1>Nome do Curso</h1>
           <p className="mb-4">
@@ -130,13 +167,20 @@ function CreateCourse() {
               <label htmlFor="courseImage" className="form-label">
                 Área do Curso:
               </label>
-              <select className="form-select mb-3" id="courseArea" required>
-                <option value="" disabled selected>
+              <select
+                className="form-select mb-3"
+                id="courseArea"
+                defaultValue={"0"}
+                required
+              >
+                <option value="0" disabled>
                   Selecione a área do curso
                 </option>
-                <option value="1">Programação</option>
-                <option value="2">Design</option>
-                <option value="3">Marketing</option>
+                {areas.map((area) => (
+                  <option key={area.ID_AREA} value={area.ID_AREA}>
+                    {area.NOME}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="d-flex flex-row align-items-center gap-4">
