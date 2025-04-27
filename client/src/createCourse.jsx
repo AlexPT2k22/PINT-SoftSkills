@@ -12,11 +12,11 @@ function CreateCourse() {
   const [collapsed, setCollapsed] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingAreas, setIsLoadingAreas] = useState(false);
+  const [isLoadingAttributes, setIsLoadingAttributes] = useState(false);
   const [courseName, setCourseName] = useState("");
   const [error, setError] = useState(null);
   const [courseDescription, setCourseDescription] = useState("");
-  const [areas, setAreas] = useState([]);
+  const [category, setCategory] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSidebarToggle = (newCollapsedState) => {
@@ -26,20 +26,22 @@ function CreateCourse() {
   useEffect(() => {
     const getAreas = async () => {
       try {
-        setIsLoadingAreas(true);
-        const response = await axios.get("http://localhost:4000/api/areas"); // Adjust the endpoint as needed
+        setIsLoadingAttributes(true);
+        const response = await axios.get(
+          "http://localhost:4000/api/categorias/com-areas"
+        ); // Adjust the endpoint as needed
         if (response.status === 200) {
           //console.log("Areas fetched successfully:", response.data);
-          setAreas(response.data);
+          setCategory(response.data);
         } else {
-          //console.error("Error fetching areas:", response.statusText);
+          //console.error("Error fetching category:", response.statusText);
           setError("Erro ao buscar áreas. Tente novamente mais tarde.");
         }
       } catch (error) {
-        //console.error("Error fetching areas:", error);
+        //console.error("Error fetching category:", error);
         setError("Erro ao buscar áreas. Tente novamente mais tarde.");
       } finally {
-        setIsLoadingAreas(false);
+        setIsLoadingAttributes(false);
       }
     };
     getAreas();
@@ -52,10 +54,11 @@ function CreateCourse() {
       DESCRICAO_OBJETIVOS__: courseDescription,
       DIFICULDADE_CURSO__: e.target.radioDefault.value,
       ID_AREA: e.target.courseArea.value,
+      ID_CATEGORIA: e.target.courseCategory.value,
       IMAGEM: e.target.courseImage.files[0], // TODO: Handle image upload
     };
     setIsLoading(true);
-    //console.log("Curso criado:", data);
+    console.log("Curso criado:", data);
     // Simular uma chamada de API
     setShowSuccess(true);
     setIsLoading(false);
@@ -161,10 +164,10 @@ function CreateCourse() {
                   </label>
                 </div>
               </div>
-              <label htmlFor="courseImage" className="form-label">
+              <label htmlFor="courseArea" className="form-label">
                 Área do Curso:
               </label>
-              {isLoadingAreas ? (
+              {isLoadingAttributes ? (
                 <div className="spinner-border text-primary" role="status">
                   <span className="visually-hidden">Loading...</span>
                 </div>
@@ -178,9 +181,38 @@ function CreateCourse() {
                   <option value="0" disabled>
                     Selecione uma área
                   </option>
-                  {areas.map((area) => (
-                    <option key={area.ID_AREA} value={area.ID_AREA}>
-                      {area.NOME}
+                  {category.map((category) =>
+                    category.AREAs.map((area) => (
+                      <option key={area.ID_AREA} value={area.ID_AREA}>
+                        {area.NOME}
+                      </option>
+                    ))
+                  )}
+                </select>
+              )}
+              <label htmlFor="courseCategory" className="form-label">
+                Categoria do Curso:
+              </label>
+              {isLoadingAttributes ? (
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              ) : (
+                <select
+                  className="form-select mb-3"
+                  id="courseCategory"
+                  required
+                  defaultValue={0}
+                >
+                  <option value="0" disabled>
+                    Selecione uma categoria
+                  </option>
+                  {category.map((category) => (
+                    <option
+                      key={category.ID_CATEGORIA__PK___}
+                      value={category.ID_CATEGORIA__PK___}
+                    >
+                      {category.NOME__}
                     </option>
                   ))}
                 </select>
