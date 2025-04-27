@@ -169,8 +169,13 @@ function CreateCourse() {
                   <span className="visually-hidden">Loading...</span>
                 </div>
               ) : (
-                <select className="form-select mb-3" id="courseArea" required>
-                  <option value="" disabled selected>
+                <select
+                  className="form-select mb-3"
+                  id="courseArea"
+                  required
+                  defaultValue={0}
+                >
+                  <option value="0" disabled>
                     Selecione uma área
                   </option>
                   {areas.map((area) => (

@@ -117,14 +117,14 @@ function CoursePage() {
                   </div>
                   <div className="d-flex justify-content-start mt-3">
                     <button className="btn btn-primary fs-5 ps-5 pe-5">
-                      {course.CURSO_SINCRONO ? `Inscrever` : `Começar`}
+                      Inscrever
                     </button>
                   </div>
                 </div>
 
                 <div className="d-flex align-itens-center justify-content-center p-3">
                   <img
-                    src={course.IMAGEM.replace(
+                    src={course.IMAGEM?.replace(
                       "upload/",
                       "upload/w_530,h_300,c_fill/f_auto/q_auto/"
                     )}
