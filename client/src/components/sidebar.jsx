@@ -28,7 +28,7 @@ function Sidebar({ onToggle }) {
 
   // funcao para verificar se o link está ativo
   const isActive = (path) => {
-    return location.pathname === path;
+    return location.pathname === path; // Verifica se o caminho atual é igual ao caminho do link
   };
 
   // Handle screen resize to detect mobile view
@@ -93,8 +93,8 @@ function Sidebar({ onToggle }) {
           <ul className="nav flex-column">
             <li className="nav-item">
               <Link
-                to="/"
-                className={`nav-link ${isActive("/") ? "active" : ""}`}
+                to="/dashboard"
+                className={`nav-link ${isActive("/dashboard") ? "active" : ""}`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
                 <Home size={20} className="me-3" />
@@ -129,9 +129,9 @@ function Sidebar({ onToggle }) {
             {isFormador && (
               <li className="nav-item">
                 <Link
-                  to="/formadores"
+                  to="/dashboard/create-course"
                   className={`nav-link ${
-                    isActive("/formadores") ? "active" : ""
+                    isActive("/dashboard/create-course") ? "active" : ""
                   }`}
                   onClick={() => mobileView && setCollapsed(true)}
                 >

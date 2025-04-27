@@ -63,10 +63,6 @@
   color: white;
 }
 
-.sidebar .nav-link.active svg {
-  color: #00b8e0 !important;
-}
-
 /* Divider line */
 .sidebar-divider {
   height: 1px;

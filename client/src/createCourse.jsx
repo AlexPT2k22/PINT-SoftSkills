@@ -5,7 +5,6 @@ import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
 import ButtonWithLoader from "./components/butao_loader";
 import axios from "axios";
-import Loader from "./components/loader";
 import SuccessMessage from "./components/sucess_message";
 
 function CreateCourse() {
@@ -64,7 +63,6 @@ function CreateCourse() {
 
   return (
     <>
-      {isLoadingAreas && <Loader />}
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
 
@@ -76,10 +74,9 @@ function CreateCourse() {
           />
         )}
         <div className="">
-          <h1>Nome do Curso</h1>
+          <h1>Criar curso</h1>
           <p className="mb-4">
-            Preencha o nome do curso que deseja criar. Pode alterar a qualquer
-            momento
+            Pode alterar toda a informação a qualquer momento
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-3 d-flex flex-column">
@@ -167,21 +164,22 @@ function CreateCourse() {
               <label htmlFor="courseImage" className="form-label">
                 Área do Curso:
               </label>
-              <select
-                className="form-select mb-3"
-                id="courseArea"
-                defaultValue={"0"}
-                required
-              >
-                <option value="0" disabled>
-                  Selecione a área do curso
-                </option>
-                {areas.map((area) => (
-                  <option key={area.ID_AREA} value={area.ID_AREA}>
-                    {area.NOME}
+              {isLoadingAreas ? (
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              ) : (
+                <select className="form-select mb-3" id="courseArea" required>
+                  <option value="" disabled selected>
+                    Selecione uma área
                   </option>
-                ))}
-              </select>
+                  {areas.map((area) => (
+                    <option key={area.ID_AREA} value={area.ID_AREA}>
+                      {area.NOME}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
             <div className="d-flex flex-row align-items-center gap-4">
               <button

@@ -168,7 +168,7 @@ function Navbar() {
             </div>
           </form>
 
-          <ul className="navbar-nav">
+          <ul className="navbar-nav me-5">
             <li className="nav-item">
               <a className="nav-link text-decoration-underline text" href="#">
                 Torne-se Formador
@@ -176,11 +176,6 @@ function Navbar() {
             </li>
             {isAuthenticated ? (
               <>
-                <li className="nav-item">
-                  <a className="nav-link text-primary me-2 text" href="#">
-                    Dashboard
-                  </a>
-                </li>
                 <li className="nav-item">
                   <a className="nav-link" href="#">
                     <Bell strokeWidth={1.5} color="#39639C" size={22} />
@@ -207,12 +202,12 @@ function Navbar() {
                   </a>
                   <ul className="dropdown-menu dropdown-menu-end">
                     <li>
-                      <a className="dropdown-item" href="/profile">
-                        Perfil
+                      <a className="dropdown-item" href="/dashboard">
+                        Dashboard
                       </a>
                     </li>
                     <li>
-                      <a className="dropdown-item" href="/meus-cursos">
+                      <a className="dropdown-item" href="/dashboard/my-courses">
                         Meus Cursos
                       </a>
                     </li>
