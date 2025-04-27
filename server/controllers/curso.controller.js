@@ -198,4 +198,58 @@ const createCurso = async (req, res) => {
   }
 };
 
-module.exports = { getCursos, getCursoById, createCurso, getCursosPopulares };
+const updateCurso = async (req, res) => {
+  const { id } = req.params;
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    ID_CATEGORIA__PK___,
+  } = req.body;
+
+  try {
+    const curso = await Curso.findByPk(id);
+
+    if (!curso) {
+      return res.status(404).json({ error: "Curso não encontrado" });
+    }
+
+    let imagemUrl = curso.IMAGEM;
+    let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
+
+    if (req.file) {
+      const result = cloudinary.uploader.upload_stream(
+        { folder: "cursos" },
+        (error, result) => {
+          if (error) throw error;
+          return result;
+        }
+      );
+      imagemUrl = result.secure_url;
+      imagemPublicId = result.public_id;
+    }
+
+    await curso.update({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      IMAGEM: imagemUrl,
+      IMAGEM_PUBLIC_ID: imagemPublicId,
+      ID_AREA,
+    });
+
+    res.status(200).json(curso);
+  } catch (error) {
+    console.error("Erro ao atualizar curso:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  getCursos,
+  getCursoById,
+  createCurso,
+  getCursosPopulares,
+  updateCurso,
+};

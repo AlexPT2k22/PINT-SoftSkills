@@ -19,6 +19,7 @@ import ResetPage from "./resetpage.jsx";
 import CoursePage from "./coursePage.jsx";
 import CreateCourse from "./createCourse.jsx";
 import Dashboard from "./dashboard.jsx";
+import EditCourse from "./editCourse.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -91,6 +92,14 @@ function App() {
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
+        <Route
+          path="/dashboard/course/edit/:courseId"
+          element={
+            <ProtectedRoute>
+              <EditCourse />
+            </ProtectedRoute>
+          }
+        ></Route>
         <Route
           path="/dashboard"
           element={
