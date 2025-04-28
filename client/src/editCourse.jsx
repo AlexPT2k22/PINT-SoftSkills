@@ -189,38 +189,6 @@ function EditCourse() {
                     </label>
                   </div>
                 </div>
-                <label htmlFor="courseArea" className="form-label">
-                  Área do Curso:
-                </label>
-                {isLoadingAttributes ? (
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                ) : (
-                  <select
-                    className="form-select mb-3"
-                    id="courseArea"
-                    required
-                    defaultValue={0}
-                    onChange={(e) => {
-                      setAreaId(e.target.value);
-                      setIsValid(true);
-                    }}
-                  >
-                    <option value="0" disabled>
-                      {`Área atribuida: ${
-                        courseData?.AREA?.NOME || "Selecione uma área"
-                      }`}
-                    </option>
-                    {category.map((category) =>
-                      category.AREAs.map((area) => (
-                        <option key={area.ID_AREA} value={area.ID_AREA}>
-                          {area.NOME}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                )}
                 <label htmlFor="courseCategory" className="form-label">
                   Categoria do Curso:
                 </label>
@@ -253,6 +221,38 @@ function EditCourse() {
                         {category.NOME__}
                       </option>
                     ))}
+                  </select>
+                )}
+                <label htmlFor="courseArea" className="form-label">
+                  Área do Curso:
+                </label>
+                {isLoadingAttributes ? (
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                ) : (
+                  <select
+                    className="form-select mb-3"
+                    id="courseArea"
+                    required
+                    defaultValue={0}
+                    onChange={(e) => {
+                      setAreaId(e.target.value);
+                      setIsValid(true);
+                    }}
+                  >
+                    <option value="0" disabled>
+                      {`Área atribuida: ${
+                        courseData?.AREA?.NOME || "Selecione uma área"
+                      }`}
+                    </option>
+                    {category.map((category) =>
+                      category.AREAs.map((area) => (
+                        <option key={area.ID_AREA} value={area.ID_AREA}>
+                          {area.NOME}
+                        </option>
+                      ))
+                    )}
                   </select>
                 )}
                 <div className="d-flex flex-row align-items-center gap-4">

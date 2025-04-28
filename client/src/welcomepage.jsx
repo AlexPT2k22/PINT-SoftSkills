@@ -20,7 +20,8 @@ const URL =
 
 function WelcomePage() {
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isloadingCourses, setIsLoadingCourses] = useState(false);
   const [error, setError] = useState(null);
   const [activeFeature, setActiveFeature] = useState("certification");
 
@@ -33,6 +34,7 @@ function WelcomePage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        setIsLoadingCourses(true);
         const response = await axios.get(`${URL}/api/cursos/popular`);
         console.log("Cursos Populares:", response.data);
         setCourses(response.data);
@@ -41,6 +43,8 @@ function WelcomePage() {
         console.error("Erro a encontrar os cursos populares:", err);
         setError(err.message);
         setLoading(false);
+      } finally {
+        setIsLoadingCourses(false);
       }
     };
 
@@ -82,11 +86,17 @@ function WelcomePage() {
         </div>
         <div className="container p-0 mb-3">
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-            {courses.map((course) => (
-              <div className="col" key={course.ID_CURSO}>
-                <CourseCard course={course} />
+            {isloadingCourses ? (
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
               </div>
-            ))}
+            ) : (
+              courses.map((course) => (
+                <div className="col" key={course.ID_CURSO}>
+                  <CourseCard course={course} />
+                </div>
+              ))
+            )}
           </div>
         </div>
         <div className="d-flex justify-content-start mb-3 mt-3">

@@ -18,9 +18,14 @@ function CreateCourse() {
   const [courseDescription, setCourseDescription] = useState("");
   const [category, setCategory] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedRadio, setSelectedRadio] = useState(null);
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
+  };
+
+  const handleRadioChange = (e) => {
+    setSelectedRadio(e.target.value);
   };
 
   useEffect(() => {
@@ -177,33 +182,59 @@ function CreateCourse() {
                         Difícil
                       </label>
                     </div>
-                  </div>
-                  <label htmlFor="courseArea" className="form-label">
-                    Área do Curso:
-                  </label>
-                  {isLoadingAttributes ? (
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  ) : (
-                    <select
-                      className="form-select mb-3"
-                      id="courseArea"
-                      required
-                      defaultValue={0}
-                    >
-                      <option value="0" disabled>
-                        Selecione uma área
-                      </option>
-                      {category.map((category) =>
-                        category.AREAs.map((area) => (
-                          <option key={area.ID_AREA} value={area.ID_AREA}>
-                            {area.NOME}
+                    <div className="d-flex flex-row align-items-center mb-2" style={{height: "40px"}}>
+                      <label
+                        htmlFor="courseType"
+                        className="form-label me-3 mb-0"
+                      >
+                        Tipo do Curso:
+                      </label>
+                      <div className="form-check form-check-inline">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="radioType"
+                          id="Tipo1"
+                          value={"Assíncrono"}
+                          onChange={handleRadioChange}
+                          checked={selectedRadio === "Assíncrono"}
+                        />
+                        <label className="form-check-label" htmlFor="Tipo1">
+                          Assíncrono
+                        </label>
+                      </div>
+                      <div className="form-check form-check-inline">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="radioType"
+                          id="Tipo2"
+                          value={"Síncrono"}
+                          onChange={handleRadioChange}
+                          checked={selectedRadio === "Síncrono"}
+                        />
+                        <label className="form-check-label" htmlFor="Tipo2">
+                          Síncrono
+                        </label>
+                      </div>
+                      {selectedRadio === "Síncrono" && (
+                        <select
+                          className="form-select ms-3"
+                          id="courseTeacher"
+                          required
+                          defaultValue={0}
+                          style={{ maxWidth: "250px" }}
+                        >
+                          <option value="0" disabled>
+                            Selecione um formador
                           </option>
-                        ))
+                          <option value="1">Professor 1</option>
+                          <option value="2">Professor 2</option>
+                          <option value="3">Professor 3</option>
+                        </select>
                       )}
-                    </select>
-                  )}
+                    </div>
+                  </div>
                   <label htmlFor="courseCategory" className="form-label">
                     Categoria do Curso:
                   </label>
@@ -229,6 +260,32 @@ function CreateCourse() {
                           {category.NOME__}
                         </option>
                       ))}
+                    </select>
+                  )}
+                  <label htmlFor="courseArea" className="form-label">
+                    Área do Curso:
+                  </label>
+                  {isLoadingAttributes ? (
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  ) : (
+                    <select
+                      className="form-select mb-3"
+                      id="courseArea"
+                      required
+                      defaultValue={0}
+                    >
+                      <option value="0" disabled>
+                        Selecione uma área
+                      </option>
+                      {category.map((category) =>
+                        category.AREAs.map((area) => (
+                          <option key={area.ID_AREA} value={area.ID_AREA}>
+                            {area.NOME}
+                          </option>
+                        ))
+                      )}
                     </select>
                   )}
                 </div>
