@@ -7,6 +7,7 @@ const {
   getCursosPopulares,
   updateCurso,
   createSincrono,
+  createAssincrono,
 } = require("../controllers/curso.controller.js");
 const multer = require("multer");
 const storage = multer.memoryStorage(); // guarda em buffer
@@ -17,6 +18,7 @@ router.get("/", getCursos);
 router.get("/popular", getCursosPopulares);
 router.post("/create", upload.single("imagem"), createCurso);
 router.post("/create-sincrono", upload.single("imagem"), createSincrono); // criar curso sincrono
+router.post("/create-assincrono", upload.single("imagem"), createAssincrono); // criar curso assincrono
 router.get("/:id", getCursoById);
 router.put("/:id", upload.single("imagem"), updateCurso);
 

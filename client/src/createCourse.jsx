@@ -21,6 +21,8 @@ function CreateCourse() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedRadio, setSelectedRadio] = useState(null);
   const [Formador, setFormador] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedArea, setSelectedArea] = useState(null);
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
@@ -77,28 +79,40 @@ function CreateCourse() {
     getAreas();
   }, []);
 
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setSelectedArea(""); // Limpa a área quando a categoria é alterada
+  };
+
+  const selectedCategoryData = category.find(
+    (cat) => cat.ID_CATEGORIA__PK___ === parseInt(selectedCategory)
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // validar a data
+    setIsLoading(true);
+
     const startDate = new Date(e.target.startDate.value);
     const endDate = new Date(e.target.endDate.value);
     if (startDate >= endDate) {
       setError("A data de início deve ser anterior à data de fim.");
+      setIsLoading(false);
       return;
     }
+
     const ID_FORMADOR =
       selectedRadio === "Síncrono" ? e.target.courseTeacher.value : null;
-    const data = {
-      NOME: courseName,
-      DESCRICAO_OBJETIVOS__: courseDescription,
-      DIFICULDADE_CURSO__: e.target.difficulty.value,
-      ID_FORMADOR: ID_FORMADOR, // null se Assíncrono
-      ID_AREA: e.target.courseArea.value,
-      ID_CATEGORIA: e.target.courseCategory.value,
-      IMAGEM: e.target.courseImage.files[0], // TODO: Handle image upload
-      DATA_INICIO: e.target.startDate.value,
-      DATA_FIM: e.target.endDate.value,
-    };
+
+    const formData = new FormData();
+    formData.append("NOME", courseName);
+    formData.append("DESCRICAO_OBJETIVOS__", courseDescription);
+    formData.append("DIFICULDADE_CURSO__", e.target.difficulty.value);
+    formData.append("ID_FORMADOR", ID_FORMADOR);
+    formData.append("ID_AREA", e.target.courseArea.value);
+    formData.append("ID_CATEGORIA", e.target.courseCategory.value);
+    formData.append("imagem", e.target.courseImage.files[0]);
+    formData.append("DATA_INICIO", e.target.startDate.value);
+    formData.append("DATA_FIM", e.target.endDate.value);
 
     const URL =
       ID_FORMADOR === null
@@ -106,14 +120,18 @@ function CreateCourse() {
         : "http://localhost:4000/api/cursos/create-sincrono";
 
     try {
-      const response = await axios.post(URL, data);
+      const response = await axios.post(URL, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if (response.status === 201) {
         setShowSuccess(true);
         setCourseName("");
         setCourseDescription("");
         setSelectedRadio(null);
         setIsValid(false);
-        e.target.reset(); // Reset the form fields
+        e.target.reset(); // Limpar os campos do formulário
       }
     } catch (error) {
       console.error("Error creating course:", error);
@@ -190,8 +208,9 @@ function CreateCourse() {
                         type="file"
                         className="form-control mb-3"
                         id="courseImage"
-                        accept="image/png, image/jpeg, image/jpg" // TODO: Add a file upload handler
+                        // TODO: Add a file upload handler
                         required
+                        accept="image/png, image/jpeg, image/jpg"
                       />
                       <small className="form-text text-muted">
                         Formatos suportados: PNG, JPEG, JPG.
@@ -337,13 +356,16 @@ function CreateCourse() {
                           </label>
                           {isLoadingAttributes ? (
                             <p aria-hidden="true">
-                              <span class="placeholder col-6"></span>
+                              <span className="placeholder col-6"></span>
                             </p>
                           ) : (
                             <select
                               className="form-select"
                               id="courseCategory"
                               required
+                              onChange={(e) => {
+                                handleCategoryChange(e);
+                              }}
                             >
                               <option value="" disabled selected>
                                 Selecione uma categoria
@@ -365,27 +387,26 @@ function CreateCourse() {
                           <label className="form-label">Área do curso</label>
                           {isLoadingAttributes ? (
                             <p aria-hidden="true">
-                              <span class="placeholder col-6"></span>
+                              <span className="placeholder col-6"></span>
                             </p>
                           ) : (
                             <select
                               className="form-select"
                               id="courseArea"
+                              value={selectedArea}
+                              onChange={(e) => {
+                                setSelectedArea(e.target.value);
+                              }}
                               required
                             >
                               <option value="" disabled selected>
                                 Selecione uma área
                               </option>
-                              {category.map((category) =>
-                                category.AREAs.map((area) => (
-                                  <option
-                                    key={area.ID_AREA}
-                                    value={area.ID_AREA}
-                                  >
-                                    {area.NOME}
-                                  </option>
-                                ))
-                              )}
+                              {selectedCategoryData?.AREAs?.map((area) => (
+                                <option key={area.ID_AREA} value={area.ID_AREA}>
+                                  {area.NOME}
+                                </option>
+                              )) || []}
                             </select>
                           )}
                         </div>

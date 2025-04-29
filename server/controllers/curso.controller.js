@@ -331,6 +331,65 @@ const createSincrono = async (req, res) => {
   }
 };
 
+const createAssincrono = async (req, res) => {
+  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
+    req.body;
+  try {
+    let imagemUrl = null;
+    let imagemPublicId = null;
+
+    if (req.file) {
+      const bufferToStream = (buffer) => {
+        const { Readable } = require("stream");
+        const readable = new Readable();
+        readable.push(buffer);
+        readable.push(null);
+        return readable;
+      };
+
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "cursos" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          bufferToStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      imagemUrl = result.secure_url;
+      imagemPublicId = result.public_id;
+    }
+
+    const curso = await Curso.create({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      IMAGEM: imagemUrl,
+      IMAGEM_PUBLIC_ID: imagemPublicId,
+      ID_AREA,
+      DATA_CRIACAO__: new Date(),
+    });
+
+    const cursoAssincrono = await CursoAssincrono.create({
+      ID_CURSO: curso.ID_CURSO,
+      //ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo" //FIXME: fazer a associação com a tabela de estados
+    });
+
+    res.status(201).json({
+      "Curso: ": curso,
+      "Curso Assincrono: ": cursoAssincrono,
+    });
+  } catch (error) {
+    console.error("Erro ao criar curso:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCursos,
   getCursoById,
@@ -338,4 +397,5 @@ module.exports = {
   getCursosPopulares,
   updateCurso,
   createSincrono,
+  createAssincrono,
 };
