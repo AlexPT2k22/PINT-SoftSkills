@@ -46,6 +46,10 @@ const CursoSincrono = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
+    VAGAS: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: "CURSO_SINCRONO",

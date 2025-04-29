@@ -111,7 +111,7 @@ function CoursePage() {
                     </h1>
                     <h1 className="course-text-h1">
                       {course.CURSO_SINCRONO
-                        ? `${course.CURSO_SINCRONO.INSCRICAO_SINCRONO.LIMITE_VAGAS_INT__} vagas restantes`
+                        ? `${course.CURSO_SINCRONO.VAGAS} vagas restantes`
                         : ``}
                     </h1>
                   </div>

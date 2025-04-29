@@ -27,12 +27,11 @@ const getCursos = async (_, res) => {
         },
         {
           model: CursoAssincrono,
+          attributes: ["VAGAS"],
         },
         {
           model: CursoSincrono,
-          include: [
-            { model: InscricaoSincrono, attributes: ["LIMITE_VAGAS_INT__"] },
-          ],
+          attributes: ["VAGAS"],
         },
       ],
     });
@@ -72,10 +71,6 @@ const getCursoById = async (req, res) => {
           include: [
             { model: ConteudoSincrono },
             {
-              model: InscricaoSincrono,
-              attributes: ["LIMITE_VAGAS_INT__"],
-            },
-            {
               model: Utilizador,
               attributes: ["USERNAME"],
             },
@@ -112,6 +107,7 @@ const getCursoById = async (req, res) => {
 
 const getCursosPopulares = async (req, res) => {
   try {
+    // Get popular courses ordered by number of vacancies (VAGAS)
     const cursos = await Curso.findAll({
       include: [
         {
@@ -120,27 +116,24 @@ const getCursosPopulares = async (req, res) => {
         },
         {
           model: CursoAssincrono,
+          attributes: ["VAGAS"],
+          required: false, // Use LEFT JOIN
         },
         {
           model: CursoSincrono,
-          include: [
-            {
-              model: InscricaoSincrono,
-              attributes: ["LIMITE_VAGAS_INT__"],
-            },
-          ],
+          attributes: ["VAGAS"],
           required: false, // Use LEFT JOIN
         },
       ],
       order: [
         [
-          { model: CursoSincrono },
-          { model: InscricaoSincrono },
-          "LIMITE_VAGAS_INT__",
+          sequelize.literal(
+            'COALESCE("CURSO_ASSINCRONO"."VAGAS", "CURSO_SINCRONO"."VAGAS", 0)'
+          ),
           "ASC",
         ],
       ],
-      limit: 4,
+      limit: 8, // Changed from 4 to 8 to get more popular courses
     });
 
     res.status(200).json(cursos);
@@ -204,18 +197,8 @@ const createCurso = async (req, res) => {
 
 const updateCurso = async (req, res) => {
   const { id } = req.params;
-  const {
-    NOME,
-    DESCRICAO_OBJETIVOS__,
-    DIFICULDADE_CURSO__,
-    ID_AREA,
-    ID_CATEGORIA__PK___, // TODO: ver se o curso é sincrono ou assincrono e fazer a associação com a tabela de categorias
-    ID_FORMADOR,
-    TIPO_CURSO,
-    LUGARES,
-    DATA_INICIO,
-    DATA_FIM,
-  } = req.body;
+  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
+    req.body;
 
   try {
     const curso = await Curso.findByPk(id);
@@ -265,7 +248,8 @@ const updateCurso = async (req, res) => {
   }
 };
 
-const createSincrono = async (req, res) => {
+const updateCursoSincrono = async (req, res) => {
+  const { id } = req.params;
   const {
     NOME,
     DESCRICAO_OBJETIVOS__,
@@ -275,6 +259,91 @@ const createSincrono = async (req, res) => {
     ID_CATEGORIA,
     DATA_INICIO,
     DATA_FIM,
+    VAGAS,
+  } = req.body;
+  try {
+    const curso = await Curso.findByPk(id);
+    if (!curso) {
+      return res.status(404).json({ error: "Curso não encontrado" });
+    }
+
+    let imagemUrl = curso.IMAGEM;
+    let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
+    if (req.file) {
+      const bufferToStream = (buffer) => {
+        const { Readable } = require("stream");
+        const readable = new Readable();
+        readable.push(buffer);
+        readable.push(null);
+        return readable;
+      };
+
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "cursos" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          bufferToStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      imagemUrl = result.secure_url;
+      imagemPublicId = result.public_id;
+    }
+    await curso.update({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      IMAGEM: imagemUrl,
+      IMAGEM_PUBLIC_ID: imagemPublicId,
+      ID_AREA,
+      DATA_CRIACAO__: new Date(),
+    });
+    const cursoSincrono = await CursoSincrono.findOne({
+      where: {
+        ID_CURSO: id,
+      },
+    });
+    if (!cursoSincrono) {
+      return res.status(404).json({ error: "Curso Sincrono não encontrado" });
+    }
+
+    await cursoSincrono.update({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      ID_AREA,
+      ID_FORMADOR,
+      DATA_INICIO,
+      DATA_FIM,
+      VAGAS,
+      ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
+    });
+    res.status(200).json({
+      "Curso: ": curso,
+      "Curso Sincrono: ": cursoSincrono,
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar curso:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const createSincrono = async (req, res) => {
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    ID_FORMADOR,
+    DATA_INICIO,
+    DATA_FIM,
+    VAGAS,
   } = req.body;
 
   const ID_ESTADO_OCORRENCIA_ASSINCRONA2 = 1; // ID do estado "Inativo"
@@ -334,7 +403,7 @@ const createSincrono = async (req, res) => {
     const cursoSincrono = await CursoSincrono.create({
       ID_CURSO: curso.ID_CURSO,
       ID_UTILIZADOR: ID_FORMADOR,
-      ID_INSCRICAO_SINCRONO: null, // Defina o valor apropriado para ID_INSCRICAO_SINCRONO
+      VAGAS,
       ID_ESTADO_OCORRENCIA_ASSINCRONA2,
       DATA_INICIO,
       DATA_FIM,
@@ -351,7 +420,7 @@ const createSincrono = async (req, res) => {
 };
 
 const createAssincrono = async (req, res) => {
-  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
+  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA, VAGAS } =
     req.body;
   try {
     let imagemUrl = null;
@@ -394,8 +463,12 @@ const createAssincrono = async (req, res) => {
       DATA_CRIACAO__: new Date(),
     });
 
+    const NUMERO_CURSOS_ASSINCRONOS = await CursoAssincrono.count();
+    const ADD_COURSE = NUMERO_CURSOS_ASSINCRONOS + 1;
+
     const cursoAssincrono = await CursoAssincrono.create({
       ID_CURSO: curso.ID_CURSO,
+      NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
       //ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo" //FIXME: fazer a associação com a tabela de estados
     });
 
@@ -417,4 +490,5 @@ module.exports = {
   updateCurso,
   createSincrono,
   createAssincrono,
+  updateCursoSincrono,
 };

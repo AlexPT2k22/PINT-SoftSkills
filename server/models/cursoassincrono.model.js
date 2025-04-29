@@ -16,7 +16,10 @@ const CursoAssincrono = sequelize.define(
     NUMERO_CURSOS_ASSINCRONOS: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      autoIncrement: true, // conta automaticamente os cursos assincronos
+    },
+    VAGAS: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
   },
   {

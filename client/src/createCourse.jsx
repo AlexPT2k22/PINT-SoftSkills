@@ -102,7 +102,7 @@ function CreateCourse() {
 
     const ID_FORMADOR =
       selectedRadio === "Síncrono" ? e.target.courseTeacher.value : null;
-
+    const vagas = selectedRadio === "Síncrono" ? e.target.seats.value : null;
     const formData = new FormData();
     formData.append("NOME", courseName);
     formData.append("DESCRICAO_OBJETIVOS__", courseDescription);
@@ -113,6 +113,7 @@ function CreateCourse() {
     formData.append("imagem", e.target.courseImage.files[0]);
     formData.append("DATA_INICIO", e.target.startDate.value);
     formData.append("DATA_FIM", e.target.endDate.value);
+    formData.append("VAGAS", vagas);
 
     const URL =
       ID_FORMADOR === null
@@ -209,7 +210,6 @@ function CreateCourse() {
                         type="file"
                         className="form-control mb-3"
                         id="courseImage"
-                        // TODO: Add a file upload handler
                         required
                         accept="image/png, image/jpeg, image/jpg"
                       />

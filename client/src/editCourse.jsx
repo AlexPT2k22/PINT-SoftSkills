@@ -65,13 +65,6 @@ function EditCourse() {
     setSelectedArea("");
   };
 
-  // Handle file upload
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setCourseImage(e.target.files[0]);
-    }
-  };
-
   // Fetch teachers for synchronous courses
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -179,11 +172,11 @@ function EditCourse() {
       const categoryIdFromAPI = Number(
         courseData.AREA.Categoria.ID_CATEGORIA__PK___
       );
-      const areaIdFromAPI = Number(courseData.AREA.ID_AREA); // Changed from courseData.ID_AREA to courseData.AREA.ID_AREA
+      const areaIdFromAPI = Number(courseData.ID_AREA); // Changed from courseData.ID_AREA to courseData.AREA.ID_AREA
 
       // Convert to strings for form values which require strings
-      setSelectedCategory(categoryIdFromAPI.toString());
-      setSelectedArea(areaIdFromAPI.toString());
+      setSelectedCategory(categoryIdFromAPI);
+      setSelectedArea(areaIdFromAPI);
 
       console.log(
         "Set category to:",
@@ -199,6 +192,10 @@ function EditCourse() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const URL =
+      selectedRadio === "Síncrono"
+        ? `http://localhost:4000/api/cursos/sincrono/${courseId}`
+        : "assincrono";
 
     if (!isValid) return;
 
@@ -209,42 +206,37 @@ function EditCourse() {
       formData.append("NOME", courseName);
       formData.append("DESCRICAO_OBJETIVOS__", courseDescription);
       formData.append("DIFICULDADE_CURSO__", courseDifficulty);
-      formData.append("ID_AREA_FK", selectedArea);
+      formData.append("ID_AREA", selectedArea);
+      formData.append("DATA_INICIO", startDate);
+      formData.append("DATA_FIM", endDate);
+      formData.append("ID_CATEGORIA", selectedCategory);
+      formData.append("imagem", e.target.courseImage.files[0]);
 
       // Add synchronous course specific data
       if (selectedRadio === "Síncrono") {
-        formData.append("isSynchronous", true);
-        formData.append("LIMITE_VAGAS_INT__", availableSeats);
-        formData.append("DATA_INICIO", startDate);
-        formData.append("DATA_FIM", endDate);
-        formData.append("ID_UTILIZADOR_FK", selectedTeacher);
-      } else {
-        formData.append("isSynchronous", false);
+        formData.append("ID_UTILIZADOR", selectedTeacher);
+        formData.append("VAGAS", availableSeats);
       }
-
       // Add image if selected
       if (courseImage) {
-        formData.append("image", courseImage);
+        formData.append("imagem", courseImage);
       }
 
+      console.log("Form data:", formData);
       // Update the course
-      const response = await axios.put(
-        `http://localhost:4000/api/cursos/${courseId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.put(URL, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200) {
         setShowSuccess(true);
       }
     } catch (error) {
-      console.error("Error updating course:", error);
+      console.error("Error updating course:", error.response.data.message);
       setError(
-        error.response?.data?.error ||
+        error.response?.data?.message ||
           "Erro ao atualizar o curso. Tente novamente mais tarde."
       );
     } finally {
@@ -319,23 +311,11 @@ function EditCourse() {
                         type="file"
                         className="form-control mb-3"
                         id="courseImage"
-                        onChange={handleFileChange}
                         accept="image/png, image/jpeg, image/jpg"
                       />
                       <small className="form-text text-muted">
                         Formatos suportados: PNG, JPEG, JPG.
                       </small>
-                      {courseData?.IMAGEM && (
-                        <div className="mt-2">
-                          <p>Imagem atual:</p>
-                          <img
-                            src={courseData.IMAGEM}
-                            alt="Imagem atual do curso"
-                            className="img-thumbnail"
-                            style={{ maxWidth: "200px" }}
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

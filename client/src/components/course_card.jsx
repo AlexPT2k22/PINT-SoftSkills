@@ -4,7 +4,7 @@ import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
 
 function CourseCard({ course }) {
-  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
+  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM, VAGAS } = course;
   const navigate = useNavigate();
 
   const formatDate = (dateString) => {
@@ -12,8 +12,6 @@ function CourseCard({ course }) {
     return new Date(dateString).toLocaleDateString("pt-PT", options);
   };
 
-  const LIMITE_VAGAS =
-    CURSO_SINCRONO?.INSCRICAO_SINCRONO?.LIMITE_VAGAS_INT__ || 0;
 
   const DATA_INICIO = CURSO_SINCRONO?.DATA_INICIO || "NA";
   const DATA_FIM = CURSO_SINCRONO?.DATA_FIM || "NA";
@@ -31,7 +29,7 @@ function CourseCard({ course }) {
 
   return (
     <div className="card h-100 course-card" onClick={handleClick}>
-      {CURSO_SINCRONO && LIMITE_VAGAS <= 10 && (
+      {CURSO_SINCRONO && VAGAS <= 10 && (
         <div className="z-1 position-absolute p-2">
           <span className="badge text-bg-info position-absolute p-2 fs-6">
             Mais Popular!
@@ -66,7 +64,7 @@ function CourseCard({ course }) {
         </div>
         <div className="d-flex justify-content-between align-items-center">
           <p className="card-text mb-0">
-            {tipo === "Sincrono" ? "Vagas restantes: " + LIMITE_VAGAS : ""}
+            {tipo === "Sincrono" ? "Vagas restantes: " + VAGAS : ""}
           </p>
         </div>
       </div>
