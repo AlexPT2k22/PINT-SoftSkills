@@ -9,6 +9,7 @@ const {
   createSincrono,
   createAssincrono,
   updateCursoSincrono,
+  deleteCurso,
 } = require("../controllers/curso.controller.js");
 const multer = require("multer");
 const storage = multer.memoryStorage(); // guarda em buffer
@@ -24,5 +25,6 @@ router.get("/:id", getCursoById);
 router.put("/:id", upload.single("imagem"), updateCurso);
 //router.put("/assincrono/:id", upload.single("imagem"), updateCurso); // atualizar curso assincrono
 router.put("/sincrono/:id", upload.single("imagem"), updateCursoSincrono); // atualizar curso sincrono
+router.delete("/:id", deleteCurso); // deletar curso
 
 module.exports = router;

@@ -482,6 +482,27 @@ const createAssincrono = async (req, res) => {
   }
 };
 
+const deleteCurso = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const curso = await Curso.findByPk(id);
+    if (!curso) {
+      return res.status(404).json({ error: "Curso não encontrado" });
+    }
+
+    // Delete the course from Cloudinary
+    if (curso.IMAGEM_PUBLIC_ID) {
+      await cloudinary.uploader.destroy(curso.IMAGEM_PUBLIC_ID);
+    }
+
+    await curso.destroy();
+    res.status(200).json({ message: "Curso apagado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao deletar curso:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCursos,
   getCursoById,
@@ -491,4 +512,5 @@ module.exports = {
   createSincrono,
   createAssincrono,
   updateCursoSincrono,
+  deleteCurso
 };

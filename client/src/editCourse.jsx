@@ -35,6 +35,7 @@ function EditCourse() {
   const [error, setError] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isValid, setIsValid] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Data fetched from API
   const [category, setCategory] = useState([]);
@@ -188,6 +189,30 @@ function EditCourse() {
       );
     }
   }, [category, courseData]);
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    const URL = `http://localhost:4000/api/cursos/${courseId}`;
+    setIsDeleting(true);
+    try {
+      const response = await axios.delete(URL, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.status === 200) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000); // Redirect after 2 seconds
+      }
+    } catch (error) {
+      console.log(error);
+      setError(error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -602,9 +627,21 @@ function EditCourse() {
                 Cancelar
               </button>
               <button
+                type="button"
+                className="btn btn-danger me-2"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <ButtonWithLoader isLoading={isDeleting} />
+                ) : (
+                  "Apagar curso"
+                )}
+              </button>
+              <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={isSubmitting || !isValid}
+                disabled={isSubmitting || !isValid || isDeleting}
               >
                 {isSubmitting ? (
                   <ButtonWithLoader isLoading={isSubmitting} />
