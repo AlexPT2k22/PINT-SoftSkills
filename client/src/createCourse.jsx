@@ -39,7 +39,7 @@ function CreateCourse() {
         setIsLoadingAttributes(true);
         const response = await axios.get(
           "http://localhost:4000/api/categorias/com-areas"
-        ); // Adjust the endpoint as needed
+        );
         if (response.status === 200) {
           //console.log("Areas fetched successfully:", response.data);
           setCategory(response.data);
@@ -180,6 +180,7 @@ function CreateCourse() {
                         type="text"
                         className="form-control"
                         placeholder="Ex. Curso de Programação"
+                        required
                       />
                     </div>
 

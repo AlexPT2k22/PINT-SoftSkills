@@ -56,7 +56,11 @@ const getCursoById = async (req, res) => {
           as: "AREA",
           attributes: ["NOME"],
           include: [
-            { model: Categoria, as: "Categoria", attributes: ["NOME__"] },
+            {
+              model: Categoria,
+              as: "Categoria",
+              attributes: ["ID_CATEGORIA__PK___", "NOME__"],
+            },
           ],
         },
         {
