@@ -13,9 +13,10 @@ const CursoAssincrono = sequelize.define(
         key: "ID_CURSO",
       },
     },
-    NUMERO_MODULOS_ASSINCRONOS: {
+    NUMERO_CURSOS_ASSINCRONOS: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
+      autoIncrement: true, // conta automaticamente os cursos assincronos
     },
   },
   {
