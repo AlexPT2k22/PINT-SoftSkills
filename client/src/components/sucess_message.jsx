@@ -17,7 +17,7 @@ function SuccessMessage({ message, onClose, duration = 4000 }) {
   return (
     <>
       <div
-        className="alert alert-success alert-dismissible fade show position-absolute d-flex align-items-center sucess-alert-message"
+        className="alert alert-success alert-dismissible fade show position-fixed d-flex align-items-center sucess-alert-message"
         role="alert"
         style={{
           zIndex: 9999,

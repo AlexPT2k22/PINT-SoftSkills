@@ -16,8 +16,11 @@ function ErrorMessage({ message, onClose, duration = 4000 }) {
 
   return (
     <div
-      className="alert alert-danger alert-dismissible fade show position-absolute d-flex align-items-center sucess-alert-message"
+      className="alert alert-danger alert-dismissible fade show position-fixed d-flex align-items-center sucess-alert-message"
       role="alert"
+      style={{
+        zIndex: 9999,
+      }}
     >
       {message}
       <button

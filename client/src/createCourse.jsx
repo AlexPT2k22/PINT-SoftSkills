@@ -6,6 +6,7 @@ import NavbarDashboard from "./components/navbarDashboard";
 import ButtonWithLoader from "./components/butao_loader";
 import axios from "axios";
 import SuccessMessage from "./components/sucess_message";
+import ErrorMessage from "./components/error_message";
 
 function CreateCourse() {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ function CreateCourse() {
 
   const handleRadioChange = (e) => {
     setSelectedRadio(e.target.value);
+    setIsValid(true);
   };
 
   useEffect(() => {
@@ -54,10 +56,22 @@ function CreateCourse() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // validar a data
+    const startDate = new Date(e.target.startDate.value);
+    const endDate = new Date(e.target.endDate.value);
+    if (startDate >= endDate) {
+      setError("A data de início deve ser anterior à data de fim.");
+      return;
+    }
+    const ID_FORMADOR =
+      selectedRadio === "Síncrono" ? e.target.courseTeacher.value : null;
     const data = {
       NOME: courseName,
       DESCRICAO_OBJETIVOS__: courseDescription,
-      DIFICULDADE_CURSO__: e.target.radioDefault.value,
+      DIFICULDADE_CURSO__: e.target.difficulty.value,
+      TIPO_CURSO__: selectedRadio,
+      ID_FORMADOR: ID_FORMADOR,
+      ID_TIPO_CURSO: selectedRadio === "Assíncrono" ? 1 : 2,
       ID_AREA: e.target.courseArea.value,
       ID_CATEGORIA: e.target.courseCategory.value,
       IMAGEM: e.target.courseImage.files[0], // TODO: Handle image upload
@@ -74,13 +88,18 @@ function CreateCourse() {
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
 
-      <div className="container h-100 d-flex justify-content-center align-items-center p-4">
+      <div className="container-fluid h-100 d-flex justify-content-center align-items-center p-4">
         {showSuccess && (
           <SuccessMessage
             message="Curso criado com sucesso!"
             onClose={() => setShowSuccess(false)}
           />
         )}
+        {error && (
+          <ErrorMessage message={error} onClose={() => setError(null)} />
+        )}
+
+        {/*
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-12 col-md-8 col-lg-6">
@@ -307,13 +326,358 @@ function CreateCourse() {
                     {isLoading ? (
                       <ButtonWithLoader isLoading={isLoading} />
                     ) : (
-                      "Criar Curso"
+                      "Criar curso"
+                    )}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading || !isValid}
+                    className="btn btn-primary"
+                    style={{ width: "200px" }}
+                  >
+                    {isLoading ? (
+                      <ButtonWithLoader isLoading={isLoading} />
+                    ) : (
+                      "Criar e editar curso"
                     )}
                   </button>
                 </div>
               </form>
             </div>
           </div>
+        </div>
+        */}
+
+        <div className="container">
+          <form onSubmit={handleSubmit}>
+            <div className="row">
+              <div className="col-md-6 mb-4">
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Informação do curso</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="mb-3">
+                      <label htmlFor="title" className="form-label">
+                        Titulo do curso
+                      </label>
+                      <input
+                        id="courseName"
+                        value={courseName}
+                        onChange={(e) => {
+                          setCourseName(e.target.value);
+                          setIsValid(e.target.value.length > 0);
+                        }}
+                        type="text"
+                        className="form-control"
+                        placeholder="Ex. Curso de Programação"
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="description" className="form-label">
+                        Descrição do curso
+                      </label>
+                      <textarea
+                        id="courseDescription"
+                        value={courseDescription}
+                        onChange={(e) => {
+                          setCourseDescription(e.target.value);
+                          setIsValid(e.target.value.length > 0);
+                        }}
+                        className="form-control"
+                        placeholder="Ex. Aprenda a programar do zero com este curso de programação."
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="courseImage" className="form-label">
+                        Imagem do Curso:
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control mb-3"
+                        id="courseImage"
+                        accept="image/png, image/jpeg, image/jpg" // TODO: Add a file upload handler
+                        required
+                      />
+                      <small className="form-text text-muted">
+                        Formatos suportados: PNG, JPEG, JPG.
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-md-6 mb-4">
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Detalhes do curso</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="row g-4">
+                      <div className="col-md-6">
+                        <label className="form-label">
+                          Dificuldade do curso
+                        </label>
+                        <div>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="radio"
+                              name="difficulty"
+                              id="difficulty1"
+                              value={"Iniciante"}
+                              required
+                              onChange={handleRadioChange}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="difficulty1"
+                            >
+                              Iniciante
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="radio"
+                              name="difficulty"
+                              id="difficulty2"
+                              value={"Intermédio"}
+                              onChange={handleRadioChange}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="difficulty2"
+                            >
+                              Intermédio
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="radio"
+                              name="difficulty"
+                              id="difficulty3"
+                              value={"Difícil"}
+                              onChange={handleRadioChange}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="difficulty3"
+                            >
+                              Difícil
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Tipo de curso</label>
+                          <div>
+                            <div className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="radio"
+                                name="courseType"
+                                id="courseType1"
+                                value={"Assíncrono"}
+                                onChange={handleRadioChange}
+                                checked={selectedRadio === "Assíncrono"}
+                                required
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="courseType1"
+                              >
+                                Assíncrono
+                              </label>
+                            </div>
+                            <div className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="radio"
+                                name="courseType"
+                                id="courseType2"
+                                value={"Síncrono"}
+                                onChange={handleRadioChange}
+                                checked={selectedRadio === "Síncrono"}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="courseType2"
+                              >
+                                Síncrono
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {selectedRadio === "Síncrono" && (
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Formador</label>
+                            <select
+                              className="form-select"
+                              id="courseTeacher"
+                              required
+                            >
+                              <option value="" disabled selected>
+                                Selecione um formador
+                              </option>
+                              <option value="1">Professor 1</option>
+                              <option value="2">Professor 2</option>
+                              <option value="3">Professor 3</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            Categoria do curso
+                          </label>
+                          {isLoadingAttributes ? (
+                            <p aria-hidden="true">
+                              <span class="placeholder col-6"></span>
+                            </p>
+                          ) : (
+                            <select
+                              className="form-select"
+                              id="courseCategory"
+                              required
+                            >
+                              <option value="" disabled selected>
+                                Selecione uma categoria
+                              </option>
+                              {category.map((category) => (
+                                <option
+                                  key={category.ID_CATEGORIA__PK___}
+                                  value={category.ID_CATEGORIA__PK___}
+                                >
+                                  {category.NOME__}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Área do curso</label>
+                          {isLoadingAttributes ? (
+                            <p aria-hidden="true">
+                              <span class="placeholder col-6"></span>
+                            </p>
+                          ) : (
+                            <select
+                              className="form-select"
+                              id="courseArea"
+                              required
+                            >
+                              <option value="" disabled selected>
+                                Selecione uma área
+                              </option>
+                              {category.map((category) =>
+                                category.AREAs.map((area) => (
+                                  <option
+                                    key={area.ID_AREA}
+                                    value={area.ID_AREA}
+                                  >
+                                    {area.NOME}
+                                  </option>
+                                ))
+                              )}
+                            </select>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label" htmlFor="seats">
+                            Lugares disponiveis:
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="seats"
+                            placeholder="Ex. 20"
+                            min={1}
+                            max={100}
+                            required
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value < 1 || value > 100) {
+                                setIsValid(false);
+                              } else {
+                                setIsValid(true);
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <div className="card mb-4">
+                <div className="card-header">
+                  <h5 className="card-title mb-0">Datas do curso</h5>
+                </div>
+                <div className="card-body">
+                  <div className="row g-4">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Data de início</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          id="startDate"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Data de fim</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          id="endDate"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="d-flex justify-content-end mt-4">
+              <button
+                type="button"
+                className="btn btn-secondary me-2"
+                onClick={() => navigate("/dashboard")}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isLoading || !isValid}
+              >
+                {isLoading ? (
+                  <ButtonWithLoader isLoading={isLoading} />
+                ) : (
+                  "Criar curso"
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </>
