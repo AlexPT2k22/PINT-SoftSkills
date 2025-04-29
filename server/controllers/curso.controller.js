@@ -209,7 +209,12 @@ const updateCurso = async (req, res) => {
     DESCRICAO_OBJETIVOS__,
     DIFICULDADE_CURSO__,
     ID_AREA,
-    ID_CATEGORIA__PK___,
+    ID_CATEGORIA__PK___, // TODO: ver se o curso é sincrono ou assincrono e fazer a associação com a tabela de categorias
+    ID_FORMADOR,
+    TIPO_CURSO,
+    LUGARES,
+    DATA_INICIO,
+    DATA_FIM,
   } = req.body;
 
   try {
@@ -218,6 +223,16 @@ const updateCurso = async (req, res) => {
     if (!curso) {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
+
+    // verifica se é exatamente o mesmo curso com os mesmos dados
+    const cursoExistente = await Curso.findOne({
+      where: {
+        NOME,
+        DESCRICAO_OBJETIVOS__,
+        DIFICULDADE_CURSO__,
+        ID_AREA,
+      },
+    });
 
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;

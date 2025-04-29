@@ -160,7 +160,7 @@ function CreateCourse() {
         <div className="container">
           <form onSubmit={handleSubmit}>
             <div className="row">
-              <div className="col-md-6 mb-4">
+              <div className="col-md-6 mb-4" style={{ height: "405px" }}>
                 <div className="card h-100">
                   <div className="card-header">
                     <h5 className="card-title mb-0">Informação do curso</h5>
@@ -221,7 +221,7 @@ function CreateCourse() {
                 </div>
               </div>
 
-              <div className="col-md-6 mb-4">
+              <div className="col-md-6 mb-4" style={{ height: "405px" }}>
                 <div className="card h-100">
                   <div className="card-header">
                     <h5 className="card-title mb-0">Detalhes do curso</h5>
@@ -327,29 +327,56 @@ function CreateCourse() {
                         </div>
                       </div>
                       {selectedRadio === "Síncrono" && (
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label">Formador</label>
-                            <select
-                              className="form-select"
-                              id="courseTeacher"
-                              required
-                            >
-                              <option value="" disabled selected>
-                                Selecione um formador
-                              </option>
-                              {Formador.map((formador) => (
-                                <option
-                                  key={formador.ID_UTILIZADOR}
-                                  value={formador.ID_UTILIZADOR}
-                                >
-                                  {formador.USERNAME}
+                        <>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">Formador</label>
+                              <select
+                                className="form-select"
+                                id="courseTeacher"
+                                required
+                              >
+                                <option value="" disabled selected>
+                                  Selecione um formador
                                 </option>
-                              ))}
-                            </select>
+                                {Formador.map((formador) => (
+                                  <option
+                                    key={formador.ID_UTILIZADOR}
+                                    value={formador.ID_UTILIZADOR}
+                                  >
+                                    {formador.USERNAME}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
-                        </div>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label" htmlFor="seats">
+                                Lugares disponiveis:
+                              </label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                id="seats"
+                                placeholder="Ex. 20"
+                                min={1}
+                                max={100}
+                                required
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value < 1 || value > 100) {
+                                    setIsValid(false);
+                                  } else {
+                                    setIsValid(true);
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </>
                       )}
+
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label className="form-label">
@@ -410,30 +437,6 @@ function CreateCourse() {
                               )) || []}
                             </select>
                           )}
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label" htmlFor="seats">
-                            Lugares disponiveis:
-                          </label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            id="seats"
-                            placeholder="Ex. 20"
-                            min={1}
-                            max={100}
-                            required
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (value < 1 || value > 100) {
-                                setIsValid(false);
-                              } else {
-                                setIsValid(true);
-                              }
-                            }}
-                          />
                         </div>
                       </div>
                     </div>

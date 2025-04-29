@@ -61,19 +61,8 @@ function EditCourse() {
   const handleCategoryChange = (e) => {
     const categoryId = e.target.value;
     setSelectedCategory(categoryId);
-
-    // Find the selected category
-    const selectedCat = category.find(
-      (cat) => cat.ID_CATEGORIA__PK___ === categoryId
-    );
-
     // Reset area selection when category changes
     setSelectedArea("");
-
-    // Set the available areas for the selected category
-    if (selectedCat) {
-      setSelectedCategory(selectedCat);
-    }
   };
 
   // Handle file upload
@@ -123,32 +112,33 @@ function EditCourse() {
         setCourseType(isSynchronous ? "Síncrono" : "Assíncrono");
         setSelectedRadio(isSynchronous ? "Síncrono" : "Assíncrono");
 
-        // Set teacher if it's a synchronous course
-        if (
-          response.data.CURSO_SINCRONO &&
-          response.data.CURSO_SINCRONO.UTILIZADOR
-        ) {
-          setSelectedTeacher(response.data.CURSO_SINCRONO.UTILIZADOR);
+        // Set teacher if available - note we need to get ID separately
+        if (response.data.CURSO_SINCRONO) {
+          // Since your API response doesn't include ID_UTILIZADOR in the UTILIZADOR object
+          // Use the ID_UTILIZADOR from CURSO_SINCRONO instead
+          setSelectedTeacher(response.data.CURSO_SINCRONO.ID_UTILIZADOR);
         }
 
-        // Set available seats if it's a synchronous course
-        if (
-          response.data.CURSO_SINCRONO &&
-          response.data.CURSO_SINCRONO.INSCRICAO_SINCRONO
-        ) {
+        // Set available seats
+        if (response.data.CURSO_SINCRONO?.INSCRICAO_SINCRONO) {
           setAvailableSeats(
             response.data.CURSO_SINCRONO.INSCRICAO_SINCRONO.LIMITE_VAGAS_INT__
           );
         }
 
-        // Set dates if available
+        // Set dates
         if (response.data.CURSO_SINCRONO) {
-          setStartDate(
-            response.data.CURSO_SINCRONO.DATA_INICIO?.split("T")[0] || ""
-          );
-          setEndDate(
-            response.data.CURSO_SINCRONO.DATA_FIM?.split("T")[0] || ""
-          );
+          // Format dates properly from ISO string to YYYY-MM-DD for input type="date"
+          const startDateISO = response.data.CURSO_SINCRONO.DATA_INICIO;
+          const endDateISO = response.data.CURSO_SINCRONO.DATA_FIM;
+
+          if (startDateISO) {
+            setStartDate(startDateISO.split("T")[0]);
+          }
+
+          if (endDateISO) {
+            setEndDate(endDateISO.split("T")[0]);
+          }
         }
 
         setIsLoading(false);
@@ -184,19 +174,25 @@ function EditCourse() {
 
   // Segundo useEffect para definir a categoria e área selecionadas
   useEffect(() => {
-    // Se 
-    if (category.length > 0 && courseData?.AREA) {
-      // Find the matching category
-      const matchingCategory = category.find(
-        (cat) =>
-          cat.ID_CATEGORIA__PK___ ===
-          courseData.AREA.Categoria.ID_CATEGORIA__PK___
+    if (category.length > 0 && courseData?.AREA?.Categoria) {
+      // Convert to numbers for consistent comparison
+      const categoryIdFromAPI = Number(
+        courseData.AREA.Categoria.ID_CATEGORIA__PK___
       );
+      const areaIdFromAPI = Number(courseData.AREA.ID_AREA); // Changed from courseData.ID_AREA to courseData.AREA.ID_AREA
 
-      if (matchingCategory) {
-        setSelectedCategory(matchingCategory.ID_CATEGORIA__PK___);
-        setSelectedArea(courseData.AREA.ID_AREA);
-      }
+      // Convert to strings for form values which require strings
+      setSelectedCategory(categoryIdFromAPI.toString());
+      setSelectedArea(areaIdFromAPI.toString());
+
+      console.log(
+        "Set category to:",
+        categoryIdFromAPI,
+        "and area to:",
+        areaIdFromAPI,
+        "Categories available:",
+        category.map((c) => c.ID_CATEGORIA__PK___)
+      );
     }
   }, [category, courseData]);
 
@@ -209,7 +205,6 @@ function EditCourse() {
     setIsSubmitting(true);
 
     try {
-      // Create form data object to handle file upload
       const formData = new FormData();
       formData.append("NOME", courseName);
       formData.append("DESCRICAO_OBJETIVOS__", courseDescription);
@@ -245,9 +240,6 @@ function EditCourse() {
 
       if (response.status === 200) {
         setShowSuccess(true);
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 2000);
       }
     } catch (error) {
       console.error("Error updating course:", error);
@@ -315,7 +307,6 @@ function EditCourse() {
                         }}
                         className="form-control"
                         placeholder="Descrição do curso"
-                        rows="4"
                         required
                       />
                     </div>
@@ -539,9 +530,10 @@ function EditCourse() {
                               {category
                                 .find(
                                   (cat) =>
-                                    cat.ID_CATEGORIA__PK___ === selectedCategory
+                                    Number(cat.ID_CATEGORIA__PK___) ===
+                                    Number(selectedCategory)
                                 )
-                                ?.AREAS?.map((area) => (
+                                ?.AREAs?.map((area) => (
                                   <option
                                     key={area.ID_AREA}
                                     value={area.ID_AREA}
@@ -583,45 +575,44 @@ function EditCourse() {
               </div>
             </div>
 
-            {selectedRadio === "Síncrono" && (
-              <div className="mb-4">
-                <div className="card mb-4">
-                  <div className="card-header">
-                    <h5 className="card-title mb-0">Datas do curso</h5>
-                  </div>
-                  <div className="card-body">
-                    <div className="row g-4">
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Data de início</label>
-                          <input
-                            type="date"
-                            className="form-control"
-                            id="startDate"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            required={selectedRadio === "Síncrono"}
-                          />
-                        </div>
+            <div className="mb-4">
+              <div className="card mb-4">
+                <div className="card-header">
+                  <h5 className="card-title mb-0">Datas do curso</h5>
+                </div>
+                <div className="card-body">
+                  <div className="row g-4">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Data de início</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          id="startDate"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          required={selectedRadio === "Síncrono"}
+                        />
                       </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Data de fim</label>
-                          <input
-                            type="date"
-                            className="form-control"
-                            id="endDate"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            required={selectedRadio === "Síncrono"}
-                          />
-                        </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Data de fim</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          id="endDate"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          required={selectedRadio === "Síncrono"}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+
             <div className="d-flex justify-content-end mt-4">
               <button
                 type="button"
