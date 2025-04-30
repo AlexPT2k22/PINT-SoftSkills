@@ -6,6 +6,7 @@ import { Pen, Trash } from "lucide-react";
 import { useState, useEffect } from "react";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
+import ButtonWithLoader from "./components/butao_loader";
 
 function ListCoursesDashboard() {
   const handleSidebarToggle = (newCollapsedState) => {
@@ -14,6 +15,11 @@ function ListCoursesDashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -37,11 +43,100 @@ function ListCoursesDashboard() {
     fetchCourses();
   }, []);
 
+  const handleDelete = async () => {
+    if (!selectedCourse) return;
+    try {
+      setIsDeleting(true);
+      const response = await fetch(
+        `http://localhost:4000/api/cursos/${selectedCourse.ID_CURSO}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        setShowErrorMessage(true);
+        setErrorMessage("Erro ao apagar o curso. Tente novamente mais tarde.");
+        return;
+      }
+      setCourses(
+        courses.filter((course) => course.ID_CURSO !== selectedCourse.ID_CURSO)
+      );
+      setShowSuccessMessage(true);
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      setShowErrorMessage(true);
+      setErrorMessage("Erro ao apagar o curso. Tente novamente mais tarde.");
+    } finally {
+      setIsDeleting(false);
+      setSelectedCourse(null); // Reset selected course after deletion
+    }
+  };
+
   return (
     <>
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
       <div className="container-fluid h-100 d-flex justify-content-center align-items-center p-4">
+        {showSuccessMessage && (
+          <SuccessMessage
+            message={"Curso apagado com sucesso!"}
+            onClose={() => setShowSuccessMessage(false)}
+          />
+        )}
+        {showErrorMessage && (
+          <ErrorMessage
+            message={errorMessage}
+            onClose={() => setShowErrorMessage(false)}
+          />
+        )}
+        <div
+          className="modal fade"
+          id="deleteModal"
+          tabIndex="-1"
+          aria-labelledby="deleteModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1 className="modal-title fs-5" id="exampleModalLabel">
+                  Apagar curso "{selectedCourse?.NOME}"
+                </h1>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">Esta ação é irreversível!</div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  disabled={isDeleting}
+                  onClick={handleDelete}
+                >
+                  {isDeleting ? (
+                    <ButtonWithLoader isLoading={isDeleting} />
+                  ) : (
+                    "Apagar"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-10 col-lg-12 mb-4">
@@ -66,7 +161,7 @@ function ListCoursesDashboard() {
                     </thead>
                     <tbody className="text-center">
                       {courses.map((course) => (
-                        <tr key={course.id}>
+                        <tr key={course.ID_CURSO}>
                           <td>{course.NOME}</td>
                           <td>
                             {course.AREA.NOME}/{course.AREA.Categoria.NOME__}
@@ -124,6 +219,7 @@ function ListCoursesDashboard() {
                           <td className="text-center">
                             <button
                               className="btn btn-primary me-2"
+                              disabled={isDeleting}
                               onClick={() =>
                                 navigate(
                                   `/dashboard/course/edit/${course.ID_CURSO}`
@@ -132,7 +228,16 @@ function ListCoursesDashboard() {
                             >
                               <Pen size={16} />
                             </button>
-                            <button className="btn btn-danger">
+                            <button
+                              className="btn btn-danger"
+                              disabled={isDeleting}
+                              type="button"
+                              data-bs-toggle="modal"
+                              data-bs-target="#deleteModal"
+                              onClick={() => {
+                                setSelectedCourse(course);
+                              }}
+                            >
                               <Trash size={16} />
                             </button>
                           </td>

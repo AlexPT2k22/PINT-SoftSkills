@@ -459,32 +459,56 @@ function EditCourse() {
                         </div>
                       </div>
                       {selectedRadio === "Síncrono" && (
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label">Formador</label>
-                            <select
-                              className="form-select"
-                              id="courseTeacher"
-                              value={selectedTeacher}
-                              onChange={(e) =>
-                                setSelectedTeacher(e.target.value)
-                              }
-                              required={selectedRadio === "Síncrono"}
-                            >
-                              <option value="" disabled>
-                                Selecione um formador
-                              </option>
-                              {Formador.map((formador) => (
-                                <option
-                                  key={formador.ID_UTILIZADOR}
-                                  value={formador.ID_UTILIZADOR}
-                                >
-                                  {formador.USERNAME}
+                        <>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">Formador</label>
+                              <select
+                                className="form-select"
+                                id="courseTeacher"
+                                value={selectedTeacher}
+                                onChange={(e) =>
+                                  setSelectedTeacher(e.target.value)
+                                }
+                                required={selectedRadio === "Síncrono"}
+                              >
+                                <option value="" disabled>
+                                  Selecione um formador
                                 </option>
-                              ))}
-                            </select>
+                                {Formador.map((formador) => (
+                                  <option
+                                    key={formador.ID_UTILIZADOR}
+                                    value={formador.ID_UTILIZADOR}
+                                  >
+                                    {formador.USERNAME}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
-                        </div>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label" htmlFor="seats">
+                                Lugares disponíveis:
+                              </label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                id="seats"
+                                placeholder="Ex. 20"
+                                min={1}
+                                max={100}
+                                value={availableSeats}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  setAvailableSeats(value);
+                                  setIsValid(value >= 1 && value <= 100);
+                                }}
+                                required={selectedRadio === "Síncrono"}
+                              />
+                            </div>
+                          </div>
+                        </>
                       )}
                       <div className="col-md-6">
                         <div className="mb-3">
@@ -493,7 +517,7 @@ function EditCourse() {
                           </label>
                           {isLoadingAttributes ? (
                             <p aria-hidden="true">
-                              <span className="placeholder col-6"></span>
+                              <span className="placeholder-glow col-6"></span>
                             </p>
                           ) : (
                             <select
@@ -523,7 +547,7 @@ function EditCourse() {
                           <label className="form-label">Área do curso</label>
                           {isLoadingAttributes ? (
                             <p aria-hidden="true">
-                              <span className="placeholder col-6"></span>
+                              <span className="placeholder-glow col-6"></span>
                             </p>
                           ) : (
                             <select
@@ -554,30 +578,6 @@ function EditCourse() {
                           )}
                         </div>
                       </div>
-                      {selectedRadio === "Síncrono" && (
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label" htmlFor="seats">
-                              Lugares disponíveis:
-                            </label>
-                            <input
-                              type="number"
-                              className="form-control"
-                              id="seats"
-                              placeholder="Ex. 20"
-                              min={1}
-                              max={100}
-                              value={availableSeats}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                setAvailableSeats(value);
-                                setIsValid(value >= 1 && value <= 100);
-                              }}
-                              required={selectedRadio === "Síncrono"}
-                            />
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

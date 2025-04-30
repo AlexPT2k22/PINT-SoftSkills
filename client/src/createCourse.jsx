@@ -384,7 +384,7 @@ function CreateCourse() {
                           </label>
                           {isLoadingAttributes ? (
                             <p aria-hidden="true">
-                              <span className="placeholder col-6"></span>
+                              <span className="placeholder-glow col-6"></span>
                             </p>
                           ) : (
                             <select
@@ -415,7 +415,7 @@ function CreateCourse() {
                           <label className="form-label">Área do curso</label>
                           {isLoadingAttributes ? (
                             <p aria-hidden="true">
-                              <span className="placeholder col-6"></span>
+                              <span className="placeholder-glow col-6"></span>
                             </p>
                           ) : (
                             <select
