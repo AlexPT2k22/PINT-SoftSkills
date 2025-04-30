@@ -4,7 +4,7 @@ import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
 
 function CourseCard({ course }) {
-  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM, VAGAS } = course;
+  const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
 
   const formatDate = (dateString) => {
@@ -12,15 +12,15 @@ function CourseCard({ course }) {
     return new Date(dateString).toLocaleDateString("pt-PT", options);
   };
 
-
-  const DATA_INICIO = CURSO_SINCRONO?.DATA_INICIO || "NA";
-  const DATA_FIM = CURSO_SINCRONO?.DATA_FIM || "NA";
-  const tempoTotal = CURSO_SINCRONO?.TEMPO_TOTAL || "N/A";
+  const DATA_INICIO = CURSO_SINCRONO?.DATA_INICIO || "N/A";
+  const DATA_FIM = CURSO_SINCRONO?.DATA_FIM || "N/A";
+  const VAGAS = CURSO_SINCRONO?.VAGAS || "N/A";
+  //const tempoTotal = CURSO_SINCRONO?.TEMPO_TOTAL || "N/A";
 
   const tipo = CURSO_ASSINCRONO
     ? "Assíncrono"
     : CURSO_SINCRONO
-    ? "Sincrono"
+    ? "Síncrono"
     : "Não especificado";
 
   const handleClick = () => {
@@ -53,18 +53,16 @@ function CourseCard({ course }) {
           <h5 className="mb-0">{NOME}</h5>
         </div>
         <div className="d-flex justify-content-between align-items-center">
+          <p className="card-text mb-0">{tipo}</p>
           <p className="card-text mb-0">
-            {tipo} {tipo === "Sincrono" ? " - " + tempoTotal : ""}
-          </p>
-          <p className="card-text mb-0">
-            {tipo === "Sincrono"
+            {tipo === "Síncrono"
               ? formatDate(DATA_INICIO) + " - " + formatDate(DATA_FIM)
               : ""}
           </p>
         </div>
         <div className="d-flex justify-content-between align-items-center">
           <p className="card-text mb-0">
-            {tipo === "Sincrono" ? "Vagas restantes: " + VAGAS : ""}
+            {tipo === "Síncrono" ? "Vagas restantes: " + VAGAS : ""}
           </p>
         </div>
       </div>

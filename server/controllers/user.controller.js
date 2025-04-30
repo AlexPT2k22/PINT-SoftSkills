@@ -47,7 +47,7 @@ const getCursosAssociados = async (req, res) => {
           model: CursoSincrono,
           where: { ID_UTILIZADOR: id },
           required: true,
-          attributes: ["ESTADO"],
+          attributes: ["ESTADO", "DATA_INICIO", "DATA_FIM", "VAGAS"],
         },
         {
           model: Area,
