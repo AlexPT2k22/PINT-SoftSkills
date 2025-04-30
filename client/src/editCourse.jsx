@@ -297,55 +297,66 @@ function EditCourse() {
                     <h5 className="card-title mb-0">Informação do curso</h5>
                   </div>
                   <div className="card-body">
-                    <div className="mb-3">
-                      <label htmlFor="courseName" className="form-label">
-                        Titulo do curso
-                      </label>
-                      <input
-                        id="courseName"
-                        value={courseName}
-                        onChange={(e) => {
-                          setCourseName(e.target.value);
-                          setIsValid(e.target.value.length > 0);
-                        }}
-                        type="text"
-                        className="form-control"
-                        placeholder="Título do curso"
-                        required
-                      />
-                    </div>
+                    {isLoadingAttributes || isLoading ? (
+                      <div className="spinner-border">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="mb-3">
+                          <label htmlFor="courseName" className="form-label">
+                            Titulo do curso
+                          </label>
+                          <input
+                            id="courseName"
+                            value={courseName}
+                            onChange={(e) => {
+                              setCourseName(e.target.value);
+                              setIsValid(e.target.value.length > 0);
+                            }}
+                            type="text"
+                            className="form-control"
+                            placeholder="Título do curso"
+                            required
+                          />
+                        </div>
 
-                    <div className="mb-3">
-                      <label htmlFor="courseDescription" className="form-label">
-                        Descrição do curso
-                      </label>
-                      <textarea
-                        id="courseDescription"
-                        value={courseDescription}
-                        onChange={(e) => {
-                          setCourseDescription(e.target.value);
-                          setIsValid(e.target.value.length > 0);
-                        }}
-                        className="form-control"
-                        placeholder="Descrição do curso"
-                        required
-                      />
-                    </div>
+                        <div className="mb-3">
+                          <label
+                            htmlFor="courseDescription"
+                            className="form-label"
+                          >
+                            Descrição do curso
+                          </label>
+                          <textarea
+                            id="courseDescription"
+                            value={courseDescription}
+                            onChange={(e) => {
+                              setCourseDescription(e.target.value);
+                              setIsValid(e.target.value.length > 0);
+                            }}
+                            className="form-control"
+                            placeholder="Descrição do curso"
+                            required
+                          />
+                        </div>
 
-                    <div className="mb-3">
-                      <label htmlFor="courseImage" className="form-label">
-                        Imagem do Curso:
-                      </label>
-                      <input
-                        type="file"
-                        className="form-control mb-3"
-                        id="courseImage"
-                        accept="image/png, image/jpeg, image/jpg"
-                      />
-                      <small className="form-text text-muted">
-                        Formatos suportados: PNG, JPEG, JPG.
-                      </small>
-                    </div>
+                        <div className="mb-3">
+                          <label htmlFor="courseImage" className="form-label">
+                            Imagem do Curso:
+                          </label>
+                          <input
+                            type="file"
+                            className="form-control mb-3"
+                            id="courseImage"
+                            accept="image/png, image/jpeg, image/jpg"
+                          />
+                          <small className="form-text text-muted">
+                            Formatos suportados: PNG, JPEG, JPG.
+                          </small>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -356,229 +367,243 @@ function EditCourse() {
                     <h5 className="card-title mb-0">Detalhes do curso</h5>
                   </div>
                   <div className="card-body">
-                    <div className="row g-4">
-                      <div className="col-md-6">
-                        <label className="form-label">
-                          Dificuldade do curso
-                        </label>
-                        <div>
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="difficulty"
-                              id="difficulty1"
-                              value="Iniciante"
-                              checked={courseDifficulty === "Iniciante"}
-                              onChange={handleRadioChange}
-                              required
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="difficulty1"
-                            >
-                              Iniciante
-                            </label>
-                          </div>
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="difficulty"
-                              id="difficulty2"
-                              value="Intermédio"
-                              checked={courseDifficulty === "Intermédio"}
-                              onChange={handleRadioChange}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="difficulty2"
-                            >
-                              Intermédio
-                            </label>
-                          </div>
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="difficulty"
-                              id="difficulty3"
-                              value="Difícil"
-                              checked={courseDifficulty === "Difícil"}
-                              onChange={handleRadioChange}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="difficulty3"
-                            >
-                              Difícil
-                            </label>
-                          </div>
-                        </div>
+                    {isLoadingAttributes || isLoading ? (
+                      <div className="spinner-border">
+                        <span className="visually-hidden">Loading...</span>
                       </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Tipo de curso</label>
-                          <div>
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="courseType"
-                                id="courseType1"
-                                value="Assíncrono"
-                                onChange={handleRadioChange}
-                                checked={selectedRadio === "Assíncrono"}
-                                required
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="courseType1"
-                              >
-                                Assíncrono
-                              </label>
-                            </div>
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="courseType"
-                                id="courseType2"
-                                value="Síncrono"
-                                onChange={handleRadioChange}
-                                checked={selectedRadio === "Síncrono"}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="courseType2"
-                              >
-                                Síncrono
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      {selectedRadio === "Síncrono" && (
-                        <>
+                    ) : (
+                      <>
+                        <div className="row g-4">
                           <div className="col-md-6">
-                            <div className="mb-3">
-                              <label className="form-label">Formador</label>
-                              <select
-                                className="form-select"
-                                id="courseTeacher"
-                                value={selectedTeacher}
-                                onChange={(e) =>
-                                  setSelectedTeacher(e.target.value)
-                                }
-                                required={selectedRadio === "Síncrono"}
-                              >
-                                <option value="" disabled>
-                                  Selecione um formador
-                                </option>
-                                {Formador.map((formador) => (
-                                  <option
-                                    key={formador.ID_UTILIZADOR}
-                                    value={formador.ID_UTILIZADOR}
-                                  >
-                                    {formador.USERNAME}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-                          <div className="col-md-6">
-                            <div className="mb-3">
-                              <label className="form-label" htmlFor="seats">
-                                Lugares disponíveis:
-                              </label>
-                              <input
-                                type="number"
-                                className="form-control"
-                                id="seats"
-                                placeholder="Ex. 20"
-                                min={1}
-                                max={100}
-                                value={availableSeats}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  setAvailableSeats(value);
-                                  setIsValid(value >= 1 && value <= 100);
-                                }}
-                                required={selectedRadio === "Síncrono"}
-                              />
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Categoria do curso
-                          </label>
-                          {isLoadingAttributes ? (
-                            <p aria-hidden="true">
-                              <span className="placeholder-glow col-6"></span>
-                            </p>
-                          ) : (
-                            <select
-                              className="form-select"
-                              id="courseCategory"
-                              value={selectedCategory}
-                              onChange={handleCategoryChange}
-                              required
-                            >
-                              <option value="" disabled>
-                                Selecione uma categoria
-                              </option>
-                              {category.map((cat) => (
-                                <option
-                                  key={cat.ID_CATEGORIA__PK___}
-                                  value={cat.ID_CATEGORIA__PK___}
+                            <label className="form-label">
+                              Dificuldade do curso
+                            </label>
+                            <div>
+                              <div className="form-check">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="difficulty"
+                                  id="difficulty1"
+                                  value="Iniciante"
+                                  checked={courseDifficulty === "Iniciante"}
+                                  onChange={handleRadioChange}
+                                  required
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor="difficulty1"
                                 >
-                                  {cat.NOME__}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Área do curso</label>
-                          {isLoadingAttributes ? (
-                            <p aria-hidden="true">
-                              <span className="placeholder-glow col-6"></span>
-                            </p>
-                          ) : (
-                            <select
-                              className="form-select"
-                              id="courseArea"
-                              value={selectedArea}
-                              onChange={(e) => setSelectedArea(e.target.value)}
-                              required
-                            >
-                              <option value="" disabled>
-                                Selecione uma área
-                              </option>
-                              {category
-                                .find(
-                                  (cat) =>
-                                    Number(cat.ID_CATEGORIA__PK___) ===
-                                    Number(selectedCategory)
-                                )
-                                ?.AREAs?.map((area) => (
-                                  <option
-                                    key={area.ID_AREA}
-                                    value={area.ID_AREA}
+                                  Iniciante
+                                </label>
+                              </div>
+                              <div className="form-check">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="difficulty"
+                                  id="difficulty2"
+                                  value="Intermédio"
+                                  checked={courseDifficulty === "Intermédio"}
+                                  onChange={handleRadioChange}
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor="difficulty2"
+                                >
+                                  Intermédio
+                                </label>
+                              </div>
+                              <div className="form-check">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="difficulty"
+                                  id="difficulty3"
+                                  value="Difícil"
+                                  checked={courseDifficulty === "Difícil"}
+                                  onChange={handleRadioChange}
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor="difficulty3"
+                                >
+                                  Difícil
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                Tipo de curso
+                              </label>
+                              <div>
+                                <div className="form-check">
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="courseType"
+                                    id="courseType1"
+                                    value="Assíncrono"
+                                    onChange={handleRadioChange}
+                                    checked={selectedRadio === "Assíncrono"}
+                                    required
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor="courseType1"
                                   >
-                                    {area.NOME}
-                                  </option>
-                                )) || []}
-                            </select>
+                                    Assíncrono
+                                  </label>
+                                </div>
+                                <div className="form-check">
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="courseType"
+                                    id="courseType2"
+                                    value="Síncrono"
+                                    onChange={handleRadioChange}
+                                    checked={selectedRadio === "Síncrono"}
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor="courseType2"
+                                  >
+                                    Síncrono
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {selectedRadio === "Síncrono" && (
+                            <>
+                              <div className="col-md-6">
+                                <div className="mb-3">
+                                  <label className="form-label">Formador</label>
+                                  <select
+                                    className="form-select"
+                                    id="courseTeacher"
+                                    value={selectedTeacher}
+                                    onChange={(e) =>
+                                      setSelectedTeacher(e.target.value)
+                                    }
+                                    required={selectedRadio === "Síncrono"}
+                                  >
+                                    <option value="" disabled>
+                                      Selecione um formador
+                                    </option>
+                                    {Formador.map((formador) => (
+                                      <option
+                                        key={formador.ID_UTILIZADOR}
+                                        value={formador.ID_UTILIZADOR}
+                                      >
+                                        {formador.USERNAME}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="mb-3">
+                                  <label className="form-label" htmlFor="seats">
+                                    Lugares disponíveis:
+                                  </label>
+                                  <input
+                                    type="number"
+                                    className="form-control"
+                                    id="seats"
+                                    placeholder="Ex. 20"
+                                    min={1}
+                                    max={100}
+                                    value={availableSeats}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      setAvailableSeats(value);
+                                      setIsValid(value >= 1 && value <= 100);
+                                    }}
+                                    required={selectedRadio === "Síncrono"}
+                                  />
+                                </div>
+                              </div>
+                            </>
                           )}
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                Categoria do curso
+                              </label>
+                              {isLoadingAttributes ? (
+                                <p aria-hidden="true">
+                                  <span className="placeholder-glow col-6"></span>
+                                </p>
+                              ) : (
+                                <select
+                                  className="form-select"
+                                  id="courseCategory"
+                                  value={selectedCategory}
+                                  onChange={handleCategoryChange}
+                                  required
+                                >
+                                  <option value="" disabled>
+                                    Selecione uma categoria
+                                  </option>
+                                  {category.map((cat) => (
+                                    <option
+                                      key={cat.ID_CATEGORIA__PK___}
+                                      value={cat.ID_CATEGORIA__PK___}
+                                    >
+                                      {cat.NOME__}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                Área do curso
+                              </label>
+                              {isLoadingAttributes ? (
+                                <p aria-hidden="true">
+                                  <span className="placeholder-glow col-6"></span>
+                                </p>
+                              ) : (
+                                <select
+                                  className="form-select"
+                                  id="courseArea"
+                                  value={selectedArea}
+                                  onChange={(e) =>
+                                    setSelectedArea(e.target.value)
+                                  }
+                                  required
+                                >
+                                  <option value="" disabled>
+                                    Selecione uma área
+                                  </option>
+                                  {category
+                                    .find(
+                                      (cat) =>
+                                        Number(cat.ID_CATEGORIA__PK___) ===
+                                        Number(selectedCategory)
+                                    )
+                                    ?.AREAs?.map((area) => (
+                                      <option
+                                        key={area.ID_AREA}
+                                        value={area.ID_AREA}
+                                      >
+                                        {area.NOME}
+                                      </option>
+                                    )) || []}
+                                </select>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -590,34 +615,42 @@ function EditCourse() {
                   <h5 className="card-title mb-0">Datas do curso</h5>
                 </div>
                 <div className="card-body">
-                  <div className="row g-4">
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">Data de início</label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          id="startDate"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          required={selectedRadio === "Síncrono"}
-                        />
-                      </div>
+                  {isLoadingAttributes || isLoading ? (
+                    <div className="spinner-border">
+                      <span className="visually-hidden">Loading...</span>
                     </div>
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">Data de fim</label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          id="endDate"
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          required={selectedRadio === "Síncrono"}
-                        />
+                  ) : (
+                    <>
+                      <div className="row g-4">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Data de início</label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              id="startDate"
+                              value={startDate}
+                              onChange={(e) => setStartDate(e.target.value)}
+                              required={selectedRadio === "Síncrono"}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Data de fim</label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              id="endDate"
+                              value={endDate}
+                              onChange={(e) => setEndDate(e.target.value)}
+                              required={selectedRadio === "Síncrono"}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

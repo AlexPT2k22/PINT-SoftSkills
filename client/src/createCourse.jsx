@@ -214,7 +214,8 @@ function CreateCourse() {
                         accept="image/png, image/jpeg, image/jpg"
                       />
                       <small className="form-text text-muted">
-                        Formatos suportados: PNG, JPEG, JPG.
+                        Formatos suportados: PNG, JPEG, JPG. Tamanho recomendado:
+                        530x300px.
                       </small>
                     </div>
                   </div>

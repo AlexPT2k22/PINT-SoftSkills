@@ -130,14 +130,14 @@ function Sidebar({ onToggle }) {
 
           <div className="sidebar-divider"></div>
 
-          {isGestor && (
+          {(isGestor || isFormador) && (
             <>
               <ul className="nav flex-column mb-0">
                 <li className="nav-item">
                   <Link
-                    to="/linked-courses" // TODO: Criar rota para gestão de cursos
+                    to="/dashboard/linked-courses"
                     className={`nav-link ${
-                      isActive("/linked-courses") ? "active" : ""
+                      isActive("/dashboard/linked-courses") ? "active" : ""
                     }`}
                     onClick={() => mobileView && setCollapsed(true)}
                   >
@@ -162,7 +162,6 @@ function Sidebar({ onToggle }) {
                   <Link
                     to="/dashboard/course-managemnent"
                     className={`nav-link ${
-                      // TODO: Criar rota para gestão de cursos
                       isActive("/dashboard/course-managemnent") ? "active" : ""
                     }`}
                     onClick={() => mobileView && setCollapsed(true)}

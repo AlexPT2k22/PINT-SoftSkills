@@ -20,10 +20,12 @@ function ListCoursesDashboard() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoadingAssets, setIsLoadingAssets] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        setIsLoadingAssets(true);
         const response = await fetch("http://localhost:4000/api/cursos", {
           method: "GET",
           headers: {
@@ -37,6 +39,8 @@ function ListCoursesDashboard() {
         setCourses(data);
       } catch (error) {
         console.error("Error fetching courses:", error);
+      } finally {
+        setIsLoadingAssets(false);
       }
     };
 
@@ -159,90 +163,108 @@ function ListCoursesDashboard() {
                         <th>Ações</th>
                       </tr>
                     </thead>
-                    <tbody className="text-center">
-                      {courses.map((course) => (
-                        <tr key={course.ID_CURSO}>
-                          <td>{course.NOME}</td>
-                          <td>
-                            {course.AREA.NOME}/{course.AREA.Categoria.NOME__}
-                          </td>
-                          <td>
-                            {course.CURSO_SINCRONO === null
-                              ? "Assíncrono"
-                              : "Síncrono"}
-                          </td>
-                          <td>
-                            {course.CURSO_SINCRONO === null
-                              ? "N/A"
-                              : course.CURSO_SINCRONO.UTILIZADOR.USERNAME}
-                          </td>
-                          <td>{`${
-                            (course.CURSO_SINCRONO &&
-                              course.CURSO_SINCRONO.DATA_INICIO) ||
-                            (course.CURSO_ASSINCRONO &&
-                              course.CURSO_ASSINCRONO.DATA_INICIO)
-                              ? new Date(
-                                  (course.CURSO_SINCRONO &&
-                                    course.CURSO_SINCRONO.DATA_INICIO) ||
-                                    (course.CURSO_ASSINCRONO &&
-                                      course.CURSO_ASSINCRONO.DATA_INICIO)
-                                ).toLocaleDateString()
-                              : "N/A"
-                          } - ${
-                            (course.CURSO_SINCRONO &&
-                              course.CURSO_SINCRONO.DATA_FIM) ||
-                            (course.CURSO_ASSINCRONO &&
-                              course.CURSO_ASSINCRONO.DATA_FIM)
-                              ? new Date(
-                                  (course.CURSO_SINCRONO &&
-                                    course.CURSO_SINCRONO.DATA_FIM) ||
-                                    (course.CURSO_ASSINCRONO &&
-                                      course.CURSO_ASSINCRONO.DATA_FIM)
-                                ).toLocaleDateString()
-                              : "N/A"
-                          }`}</td>
-                          <td>
-                            {course.CURSO_SINCRONO === null
-                              ? "N/A"
-                              : course.CURSO_SINCRONO.VAGAS}
-                          </td>
-                          <td>
-                            {course.CURSO_SINCRONO === null
-                              ? course.CURSO_ASSINCRONO.ESTADO
-                              : course.CURSO_SINCRONO.ESTADO}
-                          </td>
-                          <td>
-                            {new Date(
-                              course.DATA_CRIACAO__
-                            ).toLocaleDateString()}
-                          </td>
+                    <tbody className="text-center align-middle">
+                      {isLoadingAssets ? (
+                        <tr>
                           <td className="text-center">
-                            <button
-                              className="btn btn-primary me-2"
-                              disabled={isDeleting}
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/course/edit/${course.ID_CURSO}`
-                                )
-                              }
+                            <div
+                              className="spinner-border text-primary"
+                              role="status"
                             >
-                              <Pen size={16} />
-                            </button>
-                            <button
-                              className="btn btn-danger"
-                              disabled={isDeleting}
-                              type="button"
-                              data-bs-toggle="modal"
-                              data-bs-target="#deleteModal"
-                              onClick={() => {
-                                setSelectedCourse(course);
-                              }}
-                            >
-                              <Trash size={16} />
-                            </button>
+                              <span className="visually-hidden">
+                                Loading...
+                              </span>
+                            </div>
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        <>
+                          {courses.map((course) => (
+                            <tr key={course.ID_CURSO}>
+                              <td>{course.NOME}</td>
+                              <td>
+                                {course.AREA.NOME}/
+                                {course.AREA.Categoria.NOME__}
+                              </td>
+                              <td>
+                                {course.CURSO_SINCRONO === null
+                                  ? "Assíncrono"
+                                  : "Síncrono"}
+                              </td>
+                              <td>
+                                {course.CURSO_SINCRONO === null
+                                  ? "N/A"
+                                  : course.CURSO_SINCRONO.UTILIZADOR.USERNAME}
+                              </td>
+                              <td>{`${
+                                (course.CURSO_SINCRONO &&
+                                  course.CURSO_SINCRONO.DATA_INICIO) ||
+                                (course.CURSO_ASSINCRONO &&
+                                  course.CURSO_ASSINCRONO.DATA_INICIO)
+                                  ? new Date(
+                                      (course.CURSO_SINCRONO &&
+                                        course.CURSO_SINCRONO.DATA_INICIO) ||
+                                        (course.CURSO_ASSINCRONO &&
+                                          course.CURSO_ASSINCRONO.DATA_INICIO)
+                                    ).toLocaleDateString()
+                                  : "N/A"
+                              } - ${
+                                (course.CURSO_SINCRONO &&
+                                  course.CURSO_SINCRONO.DATA_FIM) ||
+                                (course.CURSO_ASSINCRONO &&
+                                  course.CURSO_ASSINCRONO.DATA_FIM)
+                                  ? new Date(
+                                      (course.CURSO_SINCRONO &&
+                                        course.CURSO_SINCRONO.DATA_FIM) ||
+                                        (course.CURSO_ASSINCRONO &&
+                                          course.CURSO_ASSINCRONO.DATA_FIM)
+                                    ).toLocaleDateString()
+                                  : "N/A"
+                              }`}</td>
+                              <td>
+                                {course.CURSO_SINCRONO === null
+                                  ? "N/A"
+                                  : course.CURSO_SINCRONO.VAGAS}
+                              </td>
+                              <td>
+                                {course.CURSO_SINCRONO === null
+                                  ? course.CURSO_ASSINCRONO.ESTADO
+                                  : course.CURSO_SINCRONO.ESTADO}
+                              </td>
+                              <td>
+                                {new Date(
+                                  course.DATA_CRIACAO__
+                                ).toLocaleDateString()}
+                              </td>
+                              <td className="text-center">
+                                <button
+                                  className="btn btn-primary me-2"
+                                  disabled={isDeleting}
+                                  onClick={() =>
+                                    navigate(
+                                      `/dashboard/course/edit/${course.ID_CURSO}`
+                                    )
+                                  }
+                                >
+                                  <Pen size={16} />
+                                </button>
+                                <button
+                                  className="btn btn-danger"
+                                  disabled={isDeleting}
+                                  type="button"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#deleteModal"
+                                  onClick={() => {
+                                    setSelectedCourse(course);
+                                  }}
+                                >
+                                  <Trash size={16} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </>
+                      )}
                     </tbody>
                   </table>
                 </div>
