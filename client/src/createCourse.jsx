@@ -23,6 +23,7 @@ function CreateCourse() {
   const [Formador, setFormador] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
+  const [message, setMessage] = useState(null);
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
@@ -45,11 +46,13 @@ function CreateCourse() {
           setCategory(response.data);
         } else {
           //console.error("Error fetching category:", response.statusText);
-          setError("Erro ao buscar áreas. Tente novamente mais tarde.");
+          setError(true);
+          setMessage("Erro ao buscar áreas. Tente novamente mais tarde.");
         }
       } catch (error) {
         //console.error("Error fetching category:", error);
-        setError("Erro ao buscar áreas. Tente novamente mais tarde.");
+        setError(true);
+        setMessage("Erro ao buscar áreas. ERRO: " + error.response.data.message);
       } finally {
         setIsLoadingAttributes(false);
       }
@@ -65,11 +68,13 @@ function CreateCourse() {
           setFormador(response.data);
         } else {
           //console.error("Error fetching formadores:", response.statusText);
-          setError("Erro ao buscar formadores. Tente novamente mais tarde.");
+          setError(true);
+          setMessage("Erro ao buscar formadores. Tente novamente mais tarde.");
         }
       } catch (error) {
         //console.error("Error fetching formadores:", error);
-        setError("Erro ao buscar formadores. Tente novamente mais tarde.");
+        setError(true);
+        setMessage("Erro ao buscar formadores. ERRO: " + error.response.data.message);
       } finally {
         setIsLoadingAttributes(false);
       }
@@ -95,7 +100,8 @@ function CreateCourse() {
     const startDate = new Date(e.target.startDate.value);
     const endDate = new Date(e.target.endDate.value);
     if (startDate >= endDate) {
-      setError("A data de início deve ser anterior à data de fim.");
+      setError(true);
+      setMessage("A data de início deve ser anterior à data de fim.");
       setIsLoading(false);
       return;
     }
@@ -136,7 +142,8 @@ function CreateCourse() {
       }
     } catch (error) {
       console.error("Error creating course:", error);
-      setError("Erro ao criar curso. Tente novamente mais tarde.");
+      setError(true);
+      setMessage("Erro ao criar curso. ERRO: " + error.response.data.message);
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +162,7 @@ function CreateCourse() {
           />
         )}
         {error && (
-          <ErrorMessage message={error} onClose={() => setError(null)} />
+          <ErrorMessage message={message} onClose={() => setError(null)} />
         )}
 
         <div className="container">
@@ -214,8 +221,8 @@ function CreateCourse() {
                         accept="image/png, image/jpeg, image/jpg"
                       />
                       <small className="form-text text-muted">
-                        Formatos suportados: PNG, JPEG, JPG. Tamanho recomendado:
-                        530x300px.
+                        Formatos suportados: PNG, JPEG, JPG. Tamanho
+                        recomendado: 530x300px.
                       </small>
                     </div>
                   </div>

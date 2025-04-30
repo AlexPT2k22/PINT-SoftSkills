@@ -20,7 +20,7 @@ function authenticateToken(req, res, next) {
     //console.log("Decoded Token:", decoded);
     if (!decoded) return res.status(401).json({ message: "Token inválido" });
     req.user = decoded;
-    //console.log("User from Token:", req.user);
+    console.log("User from Token:", req.user);
     next();
   } catch (error) {
     console.error("Erro ao verificar o token:", error);

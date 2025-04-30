@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 require("dotenv").config();
-const { getTeachers } = require("../controllers/user.controller.js");
+const {
+  getTeachers,
+  getCursosAssociados,
+} = require("../controllers/user.controller.js");
+const authenticateToken = require("../middlewares/authmiddleware.js");
 
 // rota para /user/*
 router.get("/", async (req, res) => {
@@ -9,5 +13,6 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/teachers", getTeachers);
+router.get("/teacher-courses", authenticateToken, getCursosAssociados);
 
 module.exports = router;
