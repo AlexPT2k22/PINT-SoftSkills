@@ -3,11 +3,13 @@ import "../styles/select_role.css";
 import useAuthStore from "../store/authStore.js";
 import { PiStudent } from "react-icons/pi";
 import { LiaChalkboardTeacherSolid } from "react-icons/lia";
+import { ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function SelectRole() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const userType = useAuthStore((state) => state.userType);
   const username = user.username;
 
   return (
@@ -19,7 +21,7 @@ function SelectRole() {
         </h1>
         <div className="buttons-container d-flex w-100 gap-4">
           <button
-            className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover button-select"
+            className="btn btn-primary w-50 py-3 shadow-sm btn-hover button-select"
             type="button"
             onClick={() => {
               navigate("/");
@@ -29,7 +31,7 @@ function SelectRole() {
             Formando
           </button>
           <button
-            className="btn btn-primary btn-lg w-50 py-3 shadow-sm btn-hover button-select"
+            className="btn btn-primary w-50 py-3 shadow-sm btn-hover button-select"
             type="button"
             onClick={() => {
               navigate("/dashboard");
@@ -38,6 +40,18 @@ function SelectRole() {
             <LiaChalkboardTeacherSolid className="icon me-1" />
             Formador
           </button>
+          {userType === 3 && (
+            <button
+              className="btn btn-primary w-50 py-3 shadow-sm btn-hover button-select"
+              type="button"
+              onClick={() => {
+                navigate("/dashboard");
+              }}
+            >
+              <ShieldAlert className="icon me-1" />
+              Gestor
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -12,6 +12,8 @@ const {
   Objetivos,
   Habilidades,
   Modulos,
+  EstadoOcorrenciaAssincrona,
+  EstadoCursoSincrono,
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 const cloudinary = require("cloudinary").v2;
@@ -24,14 +26,29 @@ const getCursos = async (_, res) => {
         {
           model: Area,
           attributes: ["NOME"],
+          include: [
+            {
+              model: Categoria,
+              as: "Categoria",
+              attributes: ["ID_CATEGORIA__PK___", "NOME__"],
+            },
+          ],
         },
         {
           model: CursoAssincrono,
-          attributes: ["VAGAS"],
         },
         {
           model: CursoSincrono,
-          attributes: ["VAGAS"],
+          include: [
+            {
+              model: Utilizador,
+              attributes: ["USERNAME"],
+            },
+            {
+              model: EstadoCursoSincrono,
+              attributes: ["ESTADO"],
+            },
+          ],
         },
       ],
     });
@@ -116,7 +133,6 @@ const getCursosPopulares = async (req, res) => {
         },
         {
           model: CursoAssincrono,
-          attributes: ["VAGAS"],
           required: false, // Use LEFT JOIN
         },
         {
@@ -125,15 +141,7 @@ const getCursosPopulares = async (req, res) => {
           required: false, // Use LEFT JOIN
         },
       ],
-      order: [
-        [
-          sequelize.literal(
-            'COALESCE("CURSO_ASSINCRONO"."VAGAS", "CURSO_SINCRONO"."VAGAS", 0)'
-          ),
-          "ASC",
-        ],
-      ],
-      limit: 8, // Changed from 4 to 8 to get more popular courses
+      limit: 8,
     });
 
     res.status(200).json(cursos);
@@ -334,6 +342,79 @@ const updateCursoSincrono = async (req, res) => {
   }
 };
 
+const updateCursoAssincrono = async (req, res) => {
+  const { id } = req.params;
+  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
+    req.body;
+  try {
+    const curso = await Curso.findByPk(id);
+    if (!curso) {
+      return res.status(404).json({ error: "Curso não encontrado" });
+    }
+    let imagemUrl = curso.IMAGEM;
+    let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
+    if (req.file) {
+      const bufferToStream = (buffer) => {
+        const { Readable } = require("stream");
+        const readable = new Readable();
+        readable.push(buffer);
+        readable.push(null);
+        return readable;
+      };
+
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "cursos" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          bufferToStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      imagemUrl = result.secure_url;
+      imagemPublicId = result.public_id;
+    }
+    await curso.update({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      IMAGEM: imagemUrl,
+      IMAGEM_PUBLIC_ID: imagemPublicId,
+      ID_AREA,
+      DATA_CRIACAO__: new Date(),
+    });
+    const cursoAssincrono = await CursoAssincrono.findOne({
+      where: {
+        ID_CURSO: id,
+      },
+    });
+    if (!cursoAssincrono) {
+      return res.status(404).json({ error: "Curso Assincrono não encontrado" });
+    }
+    await cursoAssincrono.update({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      ID_AREA,
+      DATA_INICIO,
+      DATA_FIM,
+      ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
+    });
+    res.status(200).json({
+      "Curso: ": curso,
+      "Curso Assincrono: ": cursoAssincrono,
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar curso:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const createSincrono = async (req, res) => {
   const {
     NOME,
@@ -420,8 +501,14 @@ const createSincrono = async (req, res) => {
 };
 
 const createAssincrono = async (req, res) => {
-  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA, VAGAS } =
-    req.body;
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    DATA_FIM,
+    DATA_INICIO,
+  } = req.body;
   try {
     let imagemUrl = null;
     let imagemPublicId = null;
@@ -469,6 +556,8 @@ const createAssincrono = async (req, res) => {
     const cursoAssincrono = await CursoAssincrono.create({
       ID_CURSO: curso.ID_CURSO,
       NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
+      DATA_INICIO,
+      DATA_FIM,
       //ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo" //FIXME: fazer a associação com a tabela de estados
     });
 
@@ -478,6 +567,126 @@ const createAssincrono = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao criar curso:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const convertCursoType = async (req, res) => {
+  const { id } = req.params;
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    ID_UTILIZADOR, // Teacher for synchronous
+    DATA_INICIO,
+    DATA_FIM,
+    VAGAS,
+  } = req.body;
+
+  try {
+    // Find the course
+    const curso = await Curso.findByPk(id);
+    if (!curso) {
+      return res.status(404).json({ error: "Curso não encontrado" });
+    }
+
+    // Handle image update if needed (similar to your other update functions)
+    let imagemUrl = curso.IMAGEM;
+    let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
+    if (req.file) {
+      const bufferToStream = (buffer) => {
+        const { Readable } = require("stream");
+        const readable = new Readable();
+        readable.push(buffer);
+        readable.push(null);
+        return readable;
+      };
+
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "cursos" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          bufferToStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      imagemUrl = result.secure_url;
+      imagemPublicId = result.public_id;
+    }
+
+    // Update the base course
+    await curso.update({
+      NOME,
+      DESCRICAO_OBJETIVOS__,
+      DIFICULDADE_CURSO__,
+      IMAGEM: imagemUrl,
+      IMAGEM_PUBLIC_ID: imagemPublicId,
+      ID_AREA,
+    });
+
+    // Check if we already have async or sync version
+    const existingAsync = await CursoAssincrono.findOne({
+      where: { ID_CURSO: id },
+    });
+    const existingSync = await CursoSincrono.findOne({
+      where: { ID_CURSO: id },
+    });
+
+    // Converting to synchronous
+    if (!existingSync && ID_UTILIZADOR) {
+      // Create synchronous course
+      const cursoSincrono = await CursoSincrono.create({
+        ID_CURSO: curso.ID_CURSO,
+        ID_UTILIZADOR,
+        VAGAS,
+        DATA_INICIO,
+        DATA_FIM,
+        ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // Inactive state
+      });
+
+      // Remove asynchronous if it exists
+      if (existingAsync) {
+        await existingAsync.destroy();
+      }
+
+      return res.status(200).json({
+        message: "Curso convertido para síncrono com sucesso",
+        curso,
+      });
+    }
+
+    // Converting to asynchronous
+    if (!existingAsync) {
+      const NUMERO_CURSOS_ASSINCRONOS = await CursoAssincrono.count();
+      const ADD_COURSE = NUMERO_CURSOS_ASSINCRONOS + 1;
+
+      // Create asynchronous course
+      const cursoAssincrono = await CursoAssincrono.create({
+        ID_CURSO: curso.ID_CURSO,
+        NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
+      });
+
+      // Remove synchronous if it exists
+      if (existingSync) {
+        await existingSync.destroy();
+      }
+
+      return res.status(200).json({
+        message: "Curso convertido para assíncrono com sucesso",
+        curso,
+      });
+    }
+
+    res.status(400).json({ error: "Erro na conversão do curso" });
+  } catch (error) {
+    console.error("Erro ao converter curso:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -512,5 +721,7 @@ module.exports = {
   createSincrono,
   createAssincrono,
   updateCursoSincrono,
-  deleteCurso
+  deleteCurso,
+  convertCursoType,
+  updateCursoAssincrono,
 };

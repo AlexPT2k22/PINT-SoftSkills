@@ -5,10 +5,7 @@ import "../styles/sidebar.css";
 import {
   Home,
   BookOpen,
-  Users,
   FileText,
-  Calendar,
-  MessageSquare,
   NotebookPen,
   Settings,
   HelpCircle,
@@ -16,6 +13,7 @@ import {
   X,
   ChevronRight,
   UserRoundCheck,
+  ShieldAlert,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 
@@ -24,7 +22,8 @@ function Sidebar({ onToggle }) {
   const [mobileView, setMobileView] = useState(false);
   const location = useLocation();
   const { userType } = useAuthStore();
-  const isFormador = userType === 2; // verifica se o userType é 2 (formador)
+  const isFormador = userType === 2;
+  const isGestor = userType === 3;
 
   // funcao para verificar se o link está ativo
   const isActive = (path) => {
@@ -104,8 +103,10 @@ function Sidebar({ onToggle }) {
 
             <li className="nav-item">
               <Link
-                to="/cursos"
-                className={`nav-link ${isActive("/cursos") ? "active" : ""}`}
+                to="/my-courses"
+                className={`nav-link ${
+                  isActive("/my-courses") ? "active" : ""
+                }`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
                 <BookOpen size={20} className="me-3" />
@@ -113,39 +114,11 @@ function Sidebar({ onToggle }) {
               </Link>
             </li>
 
-            {isFormador && (
-              <li className="nav-item">
-                <Link
-                  to="/cursos" // FIXME: Change to "/cursos" for formadores
-                  className={`nav-link ${isActive("/cursos") ? "active" : ""}`}
-                  onClick={() => mobileView && setCollapsed(true)}
-                >
-                  <UserRoundCheck size={20} className="me-3" />
-                  {!collapsed && <span>Cursos atribuidos</span>}
-                </Link>
-              </li>
-            )}
-
-            {isFormador && (
-              <li className="nav-item">
-                <Link
-                  to="/dashboard/create-course"
-                  className={`nav-link ${
-                    isActive("/dashboard/create-course") ? "active" : ""
-                  }`}
-                  onClick={() => mobileView && setCollapsed(true)}
-                >
-                  <NotebookPen size={20} className="me-3" />
-                  {!collapsed && <span>Criar curso</span>}
-                </Link>
-              </li>
-            )}
-
             <li className="nav-item">
               <Link
-                to="/certificados"
+                to="/certifications"
                 className={`nav-link ${
-                  isActive("/certificados") ? "active" : ""
+                  isActive("/certifications") ? "active" : ""
                 }`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
@@ -156,6 +129,52 @@ function Sidebar({ onToggle }) {
           </ul>
 
           <div className="sidebar-divider"></div>
+
+          {isGestor && (
+            <>
+              <ul className="nav flex-column mb-0">
+                <li className="nav-item">
+                  <Link
+                    to="/linked-courses" // TODO: Criar rota para gestão de cursos
+                    className={`nav-link ${
+                      isActive("/linked-courses") ? "active" : ""
+                    }`}
+                    onClick={() => mobileView && setCollapsed(true)}
+                  >
+                    <UserRoundCheck size={20} className="me-3" />
+                    {!collapsed && <span>Cursos atribuidos</span>}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    to="/dashboard/create-course"
+                    className={`nav-link ${
+                      isActive("/dashboard/create-course") ? "active" : ""
+                    }`}
+                    onClick={() => mobileView && setCollapsed(true)}
+                  >
+                    <NotebookPen size={20} className="me-3" />
+                    {!collapsed && <span>Criar curso</span>}
+                  </Link>
+                </li>
+
+                <li className="nav-item">
+                  <Link
+                    to="/dashboard/course-managemnent"
+                    className={`nav-link ${
+                      // TODO: Criar rota para gestão de cursos
+                      isActive("/dashboard/course-managemnent") ? "active" : ""
+                    }`}
+                    onClick={() => mobileView && setCollapsed(true)}
+                  >
+                    <ShieldAlert size={20} className="me-3" />
+                    {!collapsed && <span>Gerir cursos</span>}
+                  </Link>
+                </li>
+              </ul>
+              <div className="sidebar-divider"></div>
+            </>
+          )}
 
           <ul className="nav flex-column mb-0">
             <li className="nav-item">

@@ -13,13 +13,22 @@ const CursoAssincrono = sequelize.define(
         key: "ID_CURSO",
       },
     },
+    ESTADO: {
+      type: DataTypes.ENUM("Ativo", "Inativo"),
+      defaultValue: "Ativo",
+      allowNull: false,
+    },
     NUMERO_CURSOS_ASSINCRONOS: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    VAGAS: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
+    DATA_INICIO: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    DATA_FIM: {
+      type: DataTypes.DATE,
+      allowNull: false,
     },
   },
   {

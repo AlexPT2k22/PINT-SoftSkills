@@ -82,7 +82,7 @@ function Login() {
       if (Login === 1) {
         await login(EMAIL, PASSWORD);
         const userType = useAuthStore.getState().userType;
-        if (userType === 2) {
+        if (userType === 2 || userType === 3) {
           navigate("/role");
         } else {
           navigate("/");

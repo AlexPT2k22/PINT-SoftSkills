@@ -217,10 +217,14 @@ function EditCourse() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const URL =
-      selectedRadio === "Síncrono"
-        ? `http://localhost:4000/api/cursos/sincrono/${courseId}`
-        : "assincrono";
+    const originalType = courseData.CURSO_SINCRONO ? "Síncrono" : "Assíncrono";
+    const isTypeChanged = originalType !== selectedRadio;
+
+    const URL = isTypeChanged
+      ? `http://localhost:4000/api/cursos/convert/${courseId}`
+      : selectedRadio === "Síncrono"
+      ? `http://localhost:4000/api/cursos/sincrono/${courseId}`
+      : `http://localhost:4000/api/cursos/assincrono/${courseId}`;
 
     if (!isValid) return;
 

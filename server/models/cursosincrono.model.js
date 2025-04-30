@@ -38,6 +38,11 @@ const CursoSincrono = sequelize.define(
         key: "ID_ESTADO_OCORRENCIA_ASSINCRONA2",
       },
     },
+    ESTADO: {
+      type: DataTypes.ENUM("Ativo", "Inativo", "Em curso", "Terminado"),
+      defaultValue: "Ativo",
+      allowNull: false,
+    },
     DATA_INICIO: {
       type: DataTypes.DATE,
       allowNull: false,
