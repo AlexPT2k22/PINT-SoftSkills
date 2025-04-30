@@ -263,7 +263,7 @@ const updateCursoSincrono = async (req, res) => {
     DESCRICAO_OBJETIVOS__,
     DIFICULDADE_CURSO__,
     ID_AREA,
-    ID_FORMADOR,
+    ID_UTILIZADOR,
     ID_CATEGORIA,
     DATA_INICIO,
     DATA_FIM,
@@ -326,12 +326,13 @@ const updateCursoSincrono = async (req, res) => {
       DESCRICAO_OBJETIVOS__,
       DIFICULDADE_CURSO__,
       ID_AREA,
-      ID_FORMADOR,
+      ID_UTILIZADOR,
       DATA_INICIO,
       DATA_FIM,
       VAGAS,
       ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
     });
+
     res.status(200).json({
       "Curso: ": curso,
       "Curso Sincrono: ": cursoSincrono,

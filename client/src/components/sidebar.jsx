@@ -14,6 +14,7 @@ import {
   ChevronRight,
   UserRoundCheck,
   ShieldAlert,
+  LogOut,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 
@@ -145,31 +146,37 @@ function Sidebar({ onToggle }) {
                     {!collapsed && <span>Cursos atribuidos</span>}
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link
-                    to="/dashboard/create-course"
-                    className={`nav-link ${
-                      isActive("/dashboard/create-course") ? "active" : ""
-                    }`}
-                    onClick={() => mobileView && setCollapsed(true)}
-                  >
-                    <NotebookPen size={20} className="me-3" />
-                    {!collapsed && <span>Criar curso</span>}
-                  </Link>
-                </li>
+                {isGestor && (
+                  <>
+                    <li className="nav-item">
+                      <Link
+                        to="/dashboard/create-course"
+                        className={`nav-link ${
+                          isActive("/dashboard/create-course") ? "active" : ""
+                        }`}
+                        onClick={() => mobileView && setCollapsed(true)}
+                      >
+                        <NotebookPen size={20} className="me-3" />
+                        {!collapsed && <span>Criar curso</span>}
+                      </Link>
+                    </li>
 
-                <li className="nav-item">
-                  <Link
-                    to="/dashboard/course-managemnent"
-                    className={`nav-link ${
-                      isActive("/dashboard/course-managemnent") ? "active" : ""
-                    }`}
-                    onClick={() => mobileView && setCollapsed(true)}
-                  >
-                    <ShieldAlert size={20} className="me-3" />
-                    {!collapsed && <span>Gerir cursos</span>}
-                  </Link>
-                </li>
+                    <li className="nav-item">
+                      <Link
+                        to="/dashboard/course-managemnent"
+                        className={`nav-link ${
+                          isActive("/dashboard/course-managemnent")
+                            ? "active"
+                            : ""
+                        }`}
+                        onClick={() => mobileView && setCollapsed(true)}
+                      >
+                        <ShieldAlert size={20} className="me-3" />
+                        {!collapsed && <span>Gerir cursos</span>}
+                      </Link>
+                    </li>
+                  </>
+                )}
               </ul>
               <div className="sidebar-divider"></div>
             </>
@@ -197,6 +204,20 @@ function Sidebar({ onToggle }) {
               >
                 <HelpCircle size={20} className="me-3" />
                 {!collapsed && <span>Ajuda</span>}
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link
+                to="/"
+                className={`nav-link ${isActive("/logout") ? "active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  useAuthStore.getState().logout();
+                }}
+              >
+                <LogOut size={20} className="me-3" />
+                {!collapsed && <span>Sair</span>}
               </Link>
             </li>
           </ul>

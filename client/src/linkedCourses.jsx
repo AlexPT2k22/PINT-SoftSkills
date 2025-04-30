@@ -3,7 +3,7 @@ import Sidebar from "./components/sidebar.jsx";
 import NavbarDashboard from "./components/navbarDashboard.jsx";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import CourseCard from "./components/course_card.jsx";
+import CourseCardDashboard from "./components/courseCardDashboard.jsx";
 
 const LinkedCourses = () => {
   const handleSidebarToggle = (newCollapsedState) => {
@@ -58,7 +58,7 @@ const LinkedCourses = () => {
                       <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                         {courses.map((course) => (
                           <div className="col" key={course.ID_CURSO}>
-                            <CourseCard course={course} />
+                            <CourseCardDashboard course={course} />
                           </div>
                         ))}
                       </div>
