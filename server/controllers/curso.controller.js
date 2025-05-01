@@ -137,7 +137,7 @@ const getCursosPopulares = async (req, res) => {
         },
         {
           model: CursoSincrono,
-          attributes: ["VAGAS"],
+          attributes: ["VAGAS", "DATA_INICIO", "DATA_FIM"],
           required: false, // Use LEFT JOIN
         },
       ],
