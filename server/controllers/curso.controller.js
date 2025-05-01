@@ -380,8 +380,14 @@ const updateCursoSincrono = async (req, res) => {
 
 const updateCursoAssincrono = async (req, res) => {
   const { id } = req.params;
-  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
-    req.body;
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    DATA_INICIO,
+    DATA_FIM,
+  } = req.body;
   try {
     const curso = await Curso.findByPk(id);
     if (!curso) {

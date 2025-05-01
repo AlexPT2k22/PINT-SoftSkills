@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
-import { Pen, Trash } from "lucide-react";
+import { Pen, Trash, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
@@ -247,6 +247,15 @@ function ListCoursesDashboard() {
                                   }
                                 >
                                   <Pen size={16} />
+                                </button>
+                                <button
+                                  className="btn btn-secondary me-2"
+                                  disabled={isDeleting}
+                                  onClick={() =>
+                                    navigate(`/course/${course.ID_CURSO}`)
+                                  }
+                                >
+                                  <Eye size={16} />
                                 </button>
                                 <button
                                   className="btn btn-danger"

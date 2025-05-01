@@ -135,6 +135,21 @@ function EditCourse() {
           }
         }
 
+        // Set dates
+        if (response.data.CURSO_ASSINCRONO) {
+          // Format dates properly from ISO string to YYYY-MM-DD for input type="date"
+          const startDateISO = response.data.CURSO_ASSINCRONO.DATA_INICIO;
+          const endDateISO = response.data.CURSO_ASSINCRONO.DATA_FIM;
+
+          if (startDateISO) {
+            setStartDate(startDateISO.split("T")[0]);
+          }
+
+          if (endDateISO) {
+            setEndDate(endDateISO.split("T")[0]);
+          }
+        }
+
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching course data:", error);
