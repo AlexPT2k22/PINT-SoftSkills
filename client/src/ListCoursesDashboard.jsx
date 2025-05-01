@@ -237,38 +237,40 @@ function ListCoursesDashboard() {
                                 ).toLocaleDateString()}
                               </td>
                               <td className="text-center">
-                                <button
-                                  className="btn btn-primary me-2"
-                                  disabled={isDeleting}
-                                  onClick={() =>
-                                    navigate(
-                                      `/dashboard/course/edit/${course.ID_CURSO}`
-                                    )
-                                  }
-                                >
-                                  <Pen size={16} />
-                                </button>
-                                <button
-                                  className="btn btn-secondary me-2"
-                                  disabled={isDeleting}
-                                  onClick={() =>
-                                    navigate(`/course/${course.ID_CURSO}`)
-                                  }
-                                >
-                                  <Eye size={16} />
-                                </button>
-                                <button
-                                  className="btn btn-danger"
-                                  disabled={isDeleting}
-                                  type="button"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#deleteModal"
-                                  onClick={() => {
-                                    setSelectedCourse(course);
-                                  }}
-                                >
-                                  <Trash size={16} />
-                                </button>
+                                <div className="d-flex flex-row">
+                                  <button
+                                    className="btn btn-primary me-2"
+                                    disabled={isDeleting}
+                                    onClick={() =>
+                                      navigate(
+                                        `/dashboard/course/edit/${course.ID_CURSO}`
+                                      )
+                                    }
+                                  >
+                                    <Pen size={16} />
+                                  </button>
+                                  <button
+                                    className="btn btn-secondary me-2"
+                                    disabled={isDeleting}
+                                    onClick={() =>
+                                      navigate(`/course/${course.ID_CURSO}`)
+                                    }
+                                  >
+                                    <Eye size={16} />
+                                  </button>
+                                  <button
+                                    className="btn btn-danger"
+                                    disabled={isDeleting}
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    onClick={() => {
+                                      setSelectedCourse(course);
+                                    }}
+                                  >
+                                    <Trash size={16} />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}

@@ -626,7 +626,6 @@ function CreateCourse() {
                       </div>
                     </div>
 
-                    {/* Display added Habilities */}
                     <div className="Habilities-list mt-3">
                       {courseHabilities.slice(1).map(
                         (ability, index) =>

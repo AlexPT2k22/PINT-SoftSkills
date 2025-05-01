@@ -303,6 +303,8 @@ const updateCursoSincrono = async (req, res) => {
     DATA_INICIO,
     DATA_FIM,
     VAGAS,
+    HABILIDADES,
+    OBJETIVOS,
   } = req.body;
   try {
     const curso = await Curso.findByPk(id);
@@ -356,6 +358,40 @@ const updateCursoSincrono = async (req, res) => {
       return res.status(404).json({ error: "Curso Sincrono não encontrado" });
     }
 
+    // Adicionar habilidades e objetivos ao curso
+    const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
+      return { DESCRICAO: habilidade.trim() };
+    });
+
+    const objetivosArray = OBJETIVOS.split(",").map((objetivo) => {
+      return { DESCRICAO: objetivo.trim() };
+    });
+
+    // Remover as habilidades existentes do curso
+    await Habilidades.destroy({
+      where: { ID_CURSO: curso.ID_CURSO },
+    });
+
+    // Remover os objetivos existentes do curso
+    await Objetivos.destroy({
+      where: { ID_CURSO: curso.ID_CURSO },
+    });
+
+    await Promise.all([
+      Habilidades.bulkCreate(
+        habilidadesArray.map((habilidade) => ({
+          ...habilidade,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+      Objetivos.bulkCreate(
+        objetivosArray.map((objetivo) => ({
+          ...objetivo,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+    ]);
+
     await cursoSincrono.update({
       NOME,
       DESCRICAO_OBJETIVOS__,
@@ -387,6 +423,8 @@ const updateCursoAssincrono = async (req, res) => {
     ID_AREA,
     DATA_INICIO,
     DATA_FIM,
+    HABILIDADES,
+    OBJETIVOS,
   } = req.body;
   try {
     const curso = await Curso.findByPk(id);
@@ -438,6 +476,41 @@ const updateCursoAssincrono = async (req, res) => {
     if (!cursoAssincrono) {
       return res.status(404).json({ error: "Curso Assincrono não encontrado" });
     }
+
+    // Adicionar habilidades e objetivos ao curso
+    const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
+      return { DESCRICAO: habilidade.trim() };
+    });
+
+    const objetivosArray = OBJETIVOS.split(",").map((objetivo) => {
+      return { DESCRICAO: objetivo.trim() };
+    });
+
+    // Remover as habilidades existentes do curso
+    await Habilidades.destroy({
+      where: { ID_CURSO: curso.ID_CURSO },
+    });
+
+    // Remover os objetivos existentes do curso
+    await Objetivos.destroy({
+      where: { ID_CURSO: curso.ID_CURSO },
+    });
+
+    await Promise.all([
+      Habilidades.bulkCreate(
+        habilidadesArray.map((habilidade) => ({
+          ...habilidade,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+      Objetivos.bulkCreate(
+        objetivosArray.map((objetivo) => ({
+          ...objetivo,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+    ]);
+
     await cursoAssincrono.update({
       NOME,
       DESCRICAO_OBJETIVOS__,

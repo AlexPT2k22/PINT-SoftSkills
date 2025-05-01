@@ -7,6 +7,7 @@ import axios from "axios";
 import ButtonWithLoader from "./components/butao_loader";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
+import { XCircle } from "lucide-react";
 
 function EditCourse() {
   const { courseId } = useParams();
@@ -27,6 +28,8 @@ function EditCourse() {
   const [endDate, setEndDate] = useState("");
   const [selectedTeacher, setSelectedTeacher] = useState("");
   const [courseImage, setCourseImage] = useState(null);
+  const [courseObjectives, setCourseObjectives] = useState([""]);
+  const [courseHabilities, setCourseHabilities] = useState([""]);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
@@ -64,6 +67,20 @@ function EditCourse() {
     setSelectedCategory(categoryId);
     // Reset area selection when category changes
     setSelectedArea("");
+  };
+
+  // Atualizar o campo de habilidades e objetivos
+  const atualizarCampo = (setState, state, index, value) => {
+    const copia = [...state];
+    copia[index] = value;
+    setState(copia);
+  };
+
+  // Remover o campo de habilidades e objetivos
+  const removerCampo = (setState, state, index) => {
+    const copia = [...state];
+    copia.splice(index, 1);
+    setState(copia);
   };
 
   // Fetch teachers for synchronous courses
@@ -148,6 +165,31 @@ function EditCourse() {
           if (endDateISO) {
             setEndDate(endDateISO.split("T")[0]);
           }
+        }
+
+        // set course objectives and habilities
+        if (response.data.OBJETIVOS && response.data.OBJETIVOS.length > 0) {
+          // First extract the objectives array
+          const extractedObjectives = response.data.OBJETIVOS.map((obj) =>
+            obj.DESCRICAO?.trim()
+          ).filter(Boolean);
+
+          // Set state once with an empty string at position 0 for the input field
+          setCourseObjectives(["", ...extractedObjectives]);
+        } else {
+          setCourseObjectives([""]);
+        }
+
+        if (response.data.HABILIDADES && response.data.HABILIDADES.length > 0) {
+          // First extract the abilities array
+          const extractedAbilities = response.data.HABILIDADES.map((hab) =>
+            hab.DESCRICAO?.trim()
+          ).filter(Boolean);
+
+          // Set state once with an empty string at position 0 for the input field
+          setCourseHabilities(["", ...extractedAbilities]);
+        } else {
+          setCourseHabilities([""]);
         }
 
         setIsLoading(false);
@@ -241,6 +283,24 @@ function EditCourse() {
       ? `http://localhost:4000/api/cursos/sincrono/${courseId}`
       : `http://localhost:4000/api/cursos/assincrono/${courseId}`;
 
+    if (
+      courseObjectives.length <= 1 ||
+      courseObjectives.every((obj) => obj.trim() === "")
+    ) {
+      setError("Adicione pelo menos um objetivo.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (
+      courseHabilities.length <= 1 ||
+      courseHabilities.every((ability) => ability.trim() === "")
+    ) {
+      setError("Adicione pelo menos uma habilidade.");
+      setIsLoading(false);
+      return;
+    }
+
     if (!isValid) return;
 
     setIsSubmitting(true);
@@ -255,6 +315,17 @@ function EditCourse() {
       formData.append("DATA_FIM", endDate);
       formData.append("ID_CATEGORIA", selectedCategory);
       formData.append("imagem", e.target.courseImage.files[0]);
+      // Add objectives (filtering out the first empty input and empty strings)
+      const filteredObjectives = courseObjectives
+        .slice(1)
+        .filter((obj) => obj.trim() !== "");
+      formData.append("OBJETIVOS", filteredObjectives);
+
+      // Add abilities (filtering out the first empty input and empty strings)
+      const filteredHabilities = courseHabilities
+        .slice(1)
+        .filter((ability) => ability.trim() !== "");
+      formData.append("HABILIDADES", filteredHabilities);
 
       // Add synchronous course specific data
       if (selectedRadio === "Síncrono") {
@@ -624,48 +695,214 @@ function EditCourse() {
               </div>
             </div>
 
-            <div className="mb-4">
-              <div className="card mb-4">
-                <div className="card-header">
-                  <h5 className="card-title mb-0">Datas do curso</h5>
-                </div>
-                <div className="card-body">
-                  {isLoadingAttributes || isLoading ? (
-                    <div className="spinner-border">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="row g-4">
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label">Data de início</label>
-                            <input
-                              type="date"
-                              className="form-control"
-                              id="startDate"
-                              value={startDate}
-                              onChange={(e) => setStartDate(e.target.value)}
-                              required={selectedRadio === "Síncrono"}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label">Data de fim</label>
-                            <input
-                              type="date"
-                              className="form-control"
-                              id="endDate"
-                              value={endDate}
-                              onChange={(e) => setEndDate(e.target.value)}
-                              required={selectedRadio === "Síncrono"}
-                            />
-                          </div>
-                        </div>
+            <div className="row">
+              <div className="col-md-6 mb-4" style={{ height: "270px" }}>
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Objetivos</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="courseObjectives">
+                        Objetivos que o formando irá alcançar
+                      </label>
+                      <div className="d-flex flex-row gap-2">
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="courseObjectives"
+                          placeholder="Ex. Aprender a programar em JavaScript"
+                          value={courseObjectives[0] || ""}
+                          onChange={(e) =>
+                            atualizarCampo(
+                              setCourseObjectives,
+                              courseObjectives,
+                              0,
+                              e.target.value
+                            )
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            if (courseObjectives[0].trim() !== "") {
+                              const newObjectives = [...courseObjectives];
+                              newObjectives.push(courseObjectives[0]); // Add current value to array
+                              newObjectives[0] = ""; // Clear input
+                              setCourseObjectives(newObjectives);
+                            }
+                          }}
+                        >
+                          Adicionar
+                        </button>
                       </div>
-                    </>
-                  )}
+                    </div>
+                    <div className="objectives-list mt-3">
+                      {courseObjectives.slice(1).map(
+                        (objetivo, index) =>
+                          objetivo.trim() !== "" && (
+                            <div
+                              key={index}
+                              className="objective-item d-inline-flex align-items-center bg-light rounded-pill px-3 py-2 me-2 mb-2"
+                            >
+                              <span>{objetivo}</span>
+                              <button
+                                type="button"
+                                className="btn btn-sm text-danger ms-2 p-0 border-0"
+                                onClick={() =>
+                                  removerCampo(
+                                    setCourseObjectives,
+                                    courseObjectives,
+                                    index + 1
+                                  )
+                                }
+                                aria-label="Remover objetivo"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            </div>
+                          )
+                      )}
+                    </div>
+                    {courseObjectives.length <= 1 && (
+                      <div className="text-muted small mt-2">
+                        Nenhum objetivo adicionado ainda. Adicione até 6
+                        objetivos para o curso.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-md-6 mb-4" style={{ height: "270px" }}>
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Habilidades</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="courseHabilities">
+                        Habilidades que o formando irá desenvolver
+                      </label>
+                      <div className="d-flex flex-row gap-2">
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="courseHabilities"
+                          placeholder="Ex. React"
+                          value={courseHabilities[0] || ""}
+                          onChange={(e) =>
+                            atualizarCampo(
+                              setCourseHabilities,
+                              courseHabilities,
+                              0,
+                              e.target.value
+                            )
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            if (courseHabilities[0].trim() !== "") {
+                              const newHabilities = [...courseHabilities];
+                              newHabilities.push(courseHabilities[0]); // Add current value to array
+                              newHabilities[0] = ""; // Clear input
+                              setCourseHabilities(newHabilities);
+                            }
+                          }}
+                        >
+                          Adicionar
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="Habilities-list mt-3">
+                      {courseHabilities.slice(1).map(
+                        (ability, index) =>
+                          ability.trim() !== "" && (
+                            <div
+                              key={index}
+                              className="ability-item d-inline-flex align-items-center bg-light rounded-pill px-3 py-2 me-2 mb-2"
+                              style={{ backgroundColor: "#f8f9fa" }}
+                            >
+                              <span>{ability}</span>
+                              <button
+                                type="button"
+                                className="btn btn-sm text-danger ms-2 p-0 border-0"
+                                onClick={() =>
+                                  removerCampo(
+                                    setCourseHabilities,
+                                    courseHabilities,
+                                    index + 1
+                                  )
+                                }
+                                aria-label="Remover habilidade"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            </div>
+                          )
+                      )}
+                    </div>
+                    {courseHabilities.length <= 1 && (
+                      <div className="text-muted small mt-2">
+                        Nenhuma habilidade adicionada ainda. Adicione até 9
+                        habilidades para o curso.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col-md-6 mb-4">
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Datas do curso</h5>
+                  </div>
+                  <div className="card-body">
+                    {isLoadingAttributes || isLoading ? (
+                      <div className="spinner-border">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="row g-4">
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                Data de início
+                              </label>
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="startDate"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                required={selectedRadio === "Síncrono"}
+                              />
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">Data de fim</label>
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="endDate"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                required={selectedRadio === "Síncrono"}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
