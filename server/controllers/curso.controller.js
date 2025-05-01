@@ -153,8 +153,14 @@ const getCursosPopulares = async (req, res) => {
 
 //Criar um curso
 const createCurso = async (req, res) => {
-  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
-    req.body;
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    HABILIDADES,
+    OBJETIVOS,
+  } = req.body;
   try {
     let imagemUrl = null;
     let imagemPublicId = null;
@@ -196,7 +202,36 @@ const createCurso = async (req, res) => {
       DATA_CRIACAO__: new Date(),
     });
 
-    res.status(201).json(curso);
+    // Adicionar habilidades e objetivos ao curso
+    const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
+      return { DESCRICAO: habilidade.trim() };
+    });
+
+    const objetivosArray = OBJETIVOS.split(",").map((objetivo) => {
+      return { DESCRICAO: objetivo.trim() };
+    });
+
+    await Promise.all([
+      Habilidades.bulkCreate(
+        habilidadesArray.map((habilidade) => ({
+          ...habilidade,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+      Objetivos.bulkCreate(
+        objetivosArray.map((objetivo) => ({
+          ...objetivo,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+    ]);
+
+    res.status(201).json(curso, {
+      message: "Curso criado com sucesso",
+      CursoCompleto: curso,
+      HABILIDADES: habilidadesArray,
+      OBJETIVOS: objetivosArray,
+    });
   } catch (error) {
     console.error("Erro ao criar curso:", error);
     res.status(500).json({ message: error.message });
@@ -426,6 +461,8 @@ const createSincrono = async (req, res) => {
     DATA_INICIO,
     DATA_FIM,
     VAGAS,
+    HABILIDADES,
+    OBJETIVOS,
   } = req.body;
 
   const ID_ESTADO_OCORRENCIA_ASSINCRONA2 = 1; // ID do estado "Inativo"
@@ -482,6 +519,30 @@ const createSincrono = async (req, res) => {
       DATA_CRIACAO__: new Date(),
     });
 
+    // Adicionar habilidades e objetivos ao curso
+    const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
+      return { DESCRICAO: habilidade.trim() };
+    });
+
+    const objetivosArray = OBJETIVOS.split(",").map((objetivo) => {
+      return { DESCRICAO: objetivo.trim() };
+    });
+
+    await Promise.all([
+      Habilidades.bulkCreate(
+        habilidadesArray.map((habilidade) => ({
+          ...habilidade,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+      Objetivos.bulkCreate(
+        objetivosArray.map((objetivo) => ({
+          ...objetivo,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+    ]);
+
     const cursoSincrono = await CursoSincrono.create({
       ID_CURSO: curso.ID_CURSO,
       ID_UTILIZADOR: ID_FORMADOR,
@@ -509,6 +570,8 @@ const createAssincrono = async (req, res) => {
     ID_AREA,
     DATA_FIM,
     DATA_INICIO,
+    HABILIDADES,
+    OBJETIVOS,
   } = req.body;
   try {
     let imagemUrl = null;
@@ -553,6 +616,30 @@ const createAssincrono = async (req, res) => {
 
     const NUMERO_CURSOS_ASSINCRONOS = await CursoAssincrono.count();
     const ADD_COURSE = NUMERO_CURSOS_ASSINCRONOS + 1;
+
+    // Adicionar habilidades e objetivos ao curso
+    const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
+      return { DESCRICAO: habilidade.trim() };
+    });
+
+    const objetivosArray = OBJETIVOS.split(",").map((objetivo) => {
+      return { DESCRICAO: objetivo.trim() };
+    });
+
+    await Promise.all([
+      Habilidades.bulkCreate(
+        habilidadesArray.map((habilidade) => ({
+          ...habilidade,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+      Objetivos.bulkCreate(
+        objetivosArray.map((objetivo) => ({
+          ...objetivo,
+          ID_CURSO: curso.ID_CURSO,
+        }))
+      ),
+    ]);
 
     const cursoAssincrono = await CursoAssincrono.create({
       ID_CURSO: curso.ID_CURSO,

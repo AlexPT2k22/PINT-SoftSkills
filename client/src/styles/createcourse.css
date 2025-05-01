@@ -1,0 +1,6 @@
+.objective-item,
+.ability-item {
+  background-color: #f0f6ff !important;
+  border: 1px solid #dae7ff;
+  transition: all 0.2s ease;
+}
