@@ -424,6 +424,7 @@ function EditCourse() {
                             className="form-control"
                             placeholder="Descrição do curso"
                             required
+                            rows={4}
                           />
                         </div>
 

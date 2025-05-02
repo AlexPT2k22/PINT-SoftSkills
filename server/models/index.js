@@ -214,8 +214,13 @@ CursoSincrono.hasMany(ConteudoSincrono, { foreignKey: "ID_CURSO" });
 ConteudoSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
 
 // ConteudoAssincrono associations
-CursoAssincrono.hasMany(ConteudoAssincrono, { foreignKey: "ID_CURSO" });
-ConteudoAssincrono.belongsTo(CursoAssincrono, { foreignKey: "ID_CURSO" });
+Modulos.hasMany(ConteudoAssincrono, {
+  foreignKey: "ID_MODULO",
+});
+
+ConteudoAssincrono.belongsTo(Modulos, {
+  foreignKey: "ID_MODULO",
+});
 
 // AvaliacaoSincrona associations
 CursoSincrono.hasMany(AvaliacaoSincrona, { foreignKey: "ID_CURSO" });

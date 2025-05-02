@@ -81,7 +81,6 @@ const getCursoById = async (req, res) => {
         },
         {
           model: CursoAssincrono,
-          include: [{ model: ConteudoAssincrono }],
         },
         {
           model: CursoSincrono,

@@ -10,12 +10,12 @@ const ConteudoAssincrono = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    ID_CURSO: {
+    ID_MODULO: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "CURSO_ASSINCRONO",
-        key: "ID_CURSO",
+        model: "MODULOS",
+        key: "ID_MODULO",
       },
     },
     DESCRICAO__: {

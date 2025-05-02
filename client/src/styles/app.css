@@ -6,8 +6,16 @@
 }
 
 h2 {
-  color: #373737;
   font-size: 1.8rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #373737;
 }
 
 p {

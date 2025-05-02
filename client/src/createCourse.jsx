@@ -256,6 +256,7 @@ function CreateCourse() {
                         className="form-control"
                         placeholder="Ex. Aprenda a programar do zero com este curso de programação."
                         required
+                        rows={4}
                       />
                     </div>
 
