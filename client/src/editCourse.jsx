@@ -905,6 +905,19 @@ function EditCourse() {
                   </div>
                 </div>
               </div>
+
+              <div className="col-md-6 mb-4">
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
+                  </div>
+                  <div className="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h6>
+                      Carregue aqui para editar os módulos e conteúdo dos mesmos
+                    </h6>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="d-flex justify-content-end mt-4">

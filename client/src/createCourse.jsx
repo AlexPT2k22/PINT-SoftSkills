@@ -705,8 +705,10 @@ function CreateCourse() {
                   <div className="card-header">
                     <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
                   </div>
-                  <div className="card-body">
-                    <h6></h6>
+                  <div className="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h6>
+                      Carregue aqui para criar os módulos e conteúdo dos mesmos
+                    </h6>
                   </div>
                 </div>
               </div>
