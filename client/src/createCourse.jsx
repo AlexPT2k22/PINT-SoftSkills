@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
@@ -7,10 +7,14 @@ import ButtonWithLoader from "./components/butao_loader";
 import axios from "axios";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
-import { XCircle } from "lucide-react";
+import { XCircle, Pen } from "lucide-react";
+import * as bootstrap from "bootstrap";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { Modal } from "bootstrap";
 
 function CreateCourse() {
   const navigate = useNavigate();
+  const modalRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +31,79 @@ function CreateCourse() {
   const [message, setMessage] = useState(null);
   const [courseObjectives, setCourseObjectives] = useState([""]);
   const [courseHabilities, setCourseHabilities] = useState([""]);
+  const [courseModules, setCourseModules] = useState([""]);
+  const [selectedModule, setSelectedModule] = useState(null);
+  const [currentModuleData, setCurrentModuleData] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  // Add this to your component or create a new CSS file and import it
+
+  const modalStyles = {
+    modalOverlay: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 2000,
+    },
+    modalContent: {
+      backgroundColor: "white",
+      borderRadius: "8px",
+      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
+      width: "100%",
+      maxWidth: "500px",
+      maxHeight: "90vh",
+      overflowY: "auto",
+      animation: "modalFadeIn 0.3s ease",
+    },
+    modalHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "16px 20px",
+      borderBottom: "1px solid #dee2e6",
+    },
+    modalTitle: {
+      fontSize: "1.25rem",
+      margin: 0,
+      fontWeight: 500,
+    },
+    closeButton: {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      fontSize: "1.5rem",
+      padding: "0",
+      color: "#6c757d",
+      transition: "color 0.2s",
+    },
+    modalBody: {
+      padding: "20px",
+    },
+    modalFooter: {
+      borderTop: "1px solid #dee2e6",
+      paddingTop: "20px",
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "8px",
+    },
+  };
+
+  const handleShow = () => {
+    setShowModal(true);
+    document.body.style.overflow = "hidden"; // Prevent scrolling behind modal
+  };
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedModule(null);
+    setCurrentModuleData(null);
+    document.body.style.overflow = "";
+  };
 
   const atualizarCampo = (setState, state, index, value) => {
     const copia = [...state];
@@ -47,6 +124,99 @@ function CreateCourse() {
   const handleRadioChange = (e) => {
     setSelectedRadio(e.target.value);
     setIsValid(true);
+  };
+
+  // Add this useEffect to load existing data when a module is selected
+  useEffect(() => {
+    if (selectedModule) {
+      // Find the module in the courseModules array
+      const moduleIndex = courseModules.findIndex((module, i) => {
+        if (i > 0) {
+          const moduleName = typeof module === "string" ? module : module.name;
+          return moduleName === selectedModule;
+        }
+        return false;
+      });
+
+      if (moduleIndex !== -1) {
+        const module = courseModules[moduleIndex];
+        // Check if this module has existing data
+        if (typeof module !== "string" && module.data) {
+          // Store the module data for form population
+          setCurrentModuleData(module.data);
+        } else {
+          // Reset the current module data if this is a new module
+          setCurrentModuleData(null);
+        }
+      }
+    } else {
+      setCurrentModuleData(null);
+    }
+  }, [selectedModule, courseModules]);
+
+  // Add this function to your component
+  // Update this function in your code
+  const handleModuleContentSubmit = (e) => {
+    e.preventDefault();
+
+    // Get form values
+    const moduleDescription = e.target.moduleDescription.value;
+    const moduleVideoInput = e.target.moduleVideo;
+    const moduleContentInput = e.target.moduleContent;
+    const moduleDuration = e.target.moduleDuration.value;
+
+    // Use the new uploaded files or keep existing ones if no new files selected
+    const moduleVideo =
+      moduleVideoInput.files.length > 0
+        ? moduleVideoInput.files[0]
+        : currentModuleData?.videoFile;
+
+    const moduleContent =
+      moduleContentInput.files.length > 0
+        ? moduleContentInput.files[0]
+        : currentModuleData?.contentFile;
+
+    // Store current module name before resetting state
+    const currentModule = selectedModule;
+
+    // Find the index of the selected module
+    const moduleIndex = courseModules.findIndex((module, i) => {
+      if (i > 0) {
+        const moduleName = typeof module === "string" ? module : module.name;
+        return moduleName === currentModule;
+      }
+      return false;
+    });
+
+    if (moduleIndex !== -1) {
+      // Create a moduleContent object
+      const moduleData = {
+        name: currentModule,
+        description: moduleDescription,
+        videoFile: moduleVideo,
+        contentFile: moduleContent,
+        duration: moduleDuration,
+      };
+
+      // Create new array with updated module
+      const updatedModules = [...courseModules];
+      updatedModules[moduleIndex] = {
+        name: currentModule,
+        data: moduleData,
+      };
+
+      // Close modal first, then update state
+      handleClose();
+
+      // Use setTimeout to ensure modal close logic completes before state update
+      setTimeout(() => {
+        setCourseModules(updatedModules);
+        setCurrentModuleData(null); // Reset current module data
+      }, 50);
+    } else {
+      handleClose();
+      setCurrentModuleData(null);
+    }
   };
 
   useEffect(() => {
@@ -171,6 +341,42 @@ function CreateCourse() {
       .filter((ability) => ability.trim() !== "");
     formData.append("HABILIDADES", filteredHabilities);
 
+    const modulesToSend = courseModules
+      .slice(1)
+      .filter(
+        (module) =>
+          module &&
+          (typeof module === "string"
+            ? module.trim() !== ""
+            : module.name.trim() !== "")
+      )
+      .map((module) => {
+        // Handle both string-only modules and modules with data
+        if (typeof module === "string") {
+          return { NOME: module };
+        } else {
+          return {
+            NOME: module.name,
+            DESCRICAO: module.data.description,
+            DURACAO: module.data.duration,
+            VIDEO: module.data.videoFile,
+            CONTEUDO: module.data.contentFile,
+          };
+        }
+      });
+    formData.append("MODULOS", JSON.stringify(modulesToSend));
+    // Now add each module's files separately
+    courseModules.slice(1).forEach((module, index) => {
+      if (module && typeof module !== "string" && module.data) {
+        if (module.data.videoFile) {
+          formData.append(`module_${index}_video`, module.data.videoFile);
+        }
+        if (module.data.contentFile) {
+          formData.append(`module_${index}_content`, module.data.contentFile);
+        }
+      }
+    });
+
     const URL =
       ID_FORMADOR === null
         ? "http://localhost:4000/api/cursos/create-assincrono"
@@ -199,12 +405,197 @@ function CreateCourse() {
     }
   };
 
+  const handleNovoModulo = () => {
+    const novoModulo = courseModules[0].trim();
+
+    // Verifica se o módulo já existe (seja string ou objeto)
+    const jaExiste = courseModules.some(
+      (m, i) =>
+        i > 0 &&
+        (typeof m === "string" ? m === novoModulo : m.name === novoModulo)
+    );
+
+    if (novoModulo !== "" && !jaExiste) {
+      const newModules = [...courseModules];
+      newModules.push(novoModulo);
+      newModules[0] = "";
+      setCourseModules(newModules);
+    }
+  };
+
   return (
     <>
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
 
-      <div className="container-fluid h-100 d-flex justify-content-center align-items-center p-4">
+      {/* Custom CSS Modal */}
+      {showModal && (
+        <div
+          style={modalStyles.modalOverlay}
+          onClick={(e) => {
+            // Close modal when clicking outside
+            if (e.target === e.currentTarget) {
+              handleClose();
+            }
+          }}
+        >
+          <div
+            style={modalStyles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={modalStyles.modalHeader}>
+              <h3 style={modalStyles.modalTitle}>
+                Editar Módulo: {selectedModule}
+              </h3>
+              <button
+                style={modalStyles.closeButton}
+                onClick={handleClose}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div style={modalStyles.modalBody}>
+              <form
+                className="content-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleModuleContentSubmit(e);
+                }}
+              >
+                <div className="mb-3">
+                  <label htmlFor="moduleDescription" className="form-label">
+                    Descrição do módulo
+                  </label>
+                  <textarea
+                    id="moduleDescription"
+                    className="form-control"
+                    placeholder="Ex. Aprenda a programar do zero com este curso de programação."
+                    required
+                    defaultValue={currentModuleData?.description || ""}
+                    rows={3}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="moduleVideo" className="form-label">
+                    Vídeo do módulo:
+                  </label>
+                  <input
+                    type="file"
+                    className="form-control mb-2"
+                    id="moduleVideo"
+                    required={!currentModuleData?.videoFile}
+                    accept="video/mp4, video/mkv, video/avi"
+                  />
+                  {currentModuleData?.videoFile && (
+                    <div className="current-file">
+                      <span
+                        className="badge bg-info text-dark"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Arquivo atual:{" "}
+                        {currentModuleData.videoFile.name || "video.mp4"}
+                      </span>
+                      <small className="d-block text-muted mt-1">
+                        Selecione um novo arquivo para substituir o atual
+                      </small>
+                    </div>
+                  )}
+                  <small className="form-text text-muted">
+                    Formatos suportados: MP4, MKV, AVI. Tamanho máximo: 500MB.
+                  </small>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="moduleContent" className="form-label">
+                    Conteúdo do módulo:
+                  </label>
+                  <input
+                    type="file"
+                    className="form-control mb-2"
+                    id="moduleContent"
+                    required={!currentModuleData?.contentFile}
+                    accept=".pdf, .docx, .pptx"
+                  />
+                  {currentModuleData?.contentFile && (
+                    <div className="current-file">
+                      <span
+                        className="badge bg-info text-dark"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Arquivo atual:{" "}
+                        {currentModuleData.contentFile.name || "documento.pdf"}
+                      </span>
+                      <small className="d-block text-muted mt-1">
+                        Selecione um novo arquivo para substituir o atual
+                      </small>
+                    </div>
+                  )}
+                  <small className="form-text text-muted">
+                    Formatos suportados: PDF, DOCX, PPTX. Tamanho máximo: 50MB.
+                  </small>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="moduleDuration" className="form-label">
+                    Duração do módulo (em minutos):
+                  </label>
+                  <input
+                    type="number"
+                    id="moduleDuration"
+                    className="form-control mb-3"
+                    required
+                    min={1}
+                    max={300}
+                    defaultValue={currentModuleData?.duration || ""}
+                  />
+                  <small className="form-text text-muted">
+                    Duração máxima: 300 minutos.
+                  </small>
+                </div>
+                <div style={modalStyles.modalFooter}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary me-2"
+                    onClick={handleClose}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Adicionar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="container-fluid h-100 d-flex flex-column align-items-center p-3">
+        <div className="container d-flex align-items-center">
+          <div className="d-flex flex-column">
+            <h3 className="text-start mb-0">Criar curso</h3>
+            <p className="mb-3">Complete todos os campos</p>
+          </div>
+          <div className="d-flex justify-content-end mt-4">
+            <button
+              type="button"
+              className="btn btn-secondary me-2"
+              onClick={() => navigate("/dashboard")}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isLoading || !isValid}
+            >
+              {isLoading ? (
+                <ButtonWithLoader isLoading={isLoading} />
+              ) : (
+                "Criar curso"
+              )}
+            </button>
+          </div>
+        </div>
         {showSuccess && (
           <SuccessMessage
             message="Curso criado com sucesso!"
@@ -670,6 +1061,107 @@ function CreateCourse() {
               <div className="col-md-6 mb-4">
                 <div className="card h-100">
                   <div className="card-header">
+                    <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
+                  </div>
+                  <div className="card-body">
+                    <div>
+                      <label className="form-label" htmlFor="courseModules">
+                        Crie módulos e adicione conteúdo aos mesmos
+                      </label>
+                      <div className="d-flex flex-row gap-2">
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="courseModules"
+                          placeholder="Ex. Introdução ao React"
+                          value={courseModules[0] || ""}
+                          onChange={(e) =>
+                            atualizarCampo(
+                              setCourseModules,
+                              courseModules,
+                              0,
+                              e.target.value
+                            )
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleNovoModulo}
+                        >
+                          Adicionar
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="Modules-list mt-3">
+                      {courseModules.slice(1).map((module, index) => {
+                        // Handle both string and object modules
+                        const isString = typeof module === "string";
+                        const moduleName = isString ? module : module.name;
+                        const hasContent = !isString && module.data;
+
+                        return (
+                          moduleName.trim() !== "" && (
+                            <div
+                              key={index}
+                              className={`module-item d-flex align-items-center justify-content-between rounded-pill px-3 py-2 me-2 mb-2 ${
+                                hasContent ? "bg-success-subtle" : "bg-light"
+                              }`}
+                              style={{
+                                backgroundColor: hasContent
+                                  ? "#e0f7e9"
+                                  : "#f8f9fa",
+                              }}
+                            >
+                              <span>{moduleName}</span>
+                              <div className="d-inline-flex">
+                                <button
+                                  type="button"
+                                  className="btn btn-sm text-primary ms-2 p-0 border-0"
+                                  onClick={() => {
+                                    const moduleName =
+                                      typeof module === "string"
+                                        ? module
+                                        : module.name;
+                                    setSelectedModule(moduleName);
+                                    handleShow();
+                                  }}
+                                >
+                                  <Pen size={16} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm text-danger ms-2 p-0 border-0"
+                                  onClick={() =>
+                                    removerCampo(
+                                      setCourseModules,
+                                      courseModules,
+                                      index + 1
+                                    )
+                                  }
+                                  aria-label="Remover Módulo"
+                                >
+                                  <XCircle size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        );
+                      })}
+                    </div>
+                    {courseModules.length <= 1 && (
+                      <div className="text-muted small mt-2">
+                        Nenhum módulo adicionado ainda.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-md-6 mb-4" style={{ maxHeight: "182px" }}>
+                <div className="card h-100">
+                  <div className="card-header">
                     <h5 className="card-title mb-0">Datas do curso</h5>
                   </div>
                   <div className="card-body">
@@ -700,40 +1192,6 @@ function CreateCourse() {
                   </div>
                 </div>
               </div>
-
-              <div className="col-md-6 mb-4">
-                <div className="card h-100">
-                  <div className="card-header">
-                    <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
-                  </div>
-                  <div className="card-body d-flex flex-column justify-content-center align-items-center">
-                    <h6 className="mb-0">
-                      Carregue aqui para criar os módulos e conteúdo dos mesmos
-                    </h6>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="d-flex justify-content-end mt-4">
-              <button
-                type="button"
-                className="btn btn-secondary me-2"
-                onClick={() => navigate("/dashboard")}
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={isLoading || !isValid}
-              >
-                {isLoading ? (
-                  <ButtonWithLoader isLoading={isLoading} />
-                ) : (
-                  "Criar curso"
-                )}
-              </button>
             </div>
           </form>
         </div>

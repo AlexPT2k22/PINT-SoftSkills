@@ -51,12 +51,54 @@ function Sidebar({ onToggle }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+
+  // Handle clicks outside the sidebar to close it
+  useEffect(() => {
+    // Handle clicks outside the sidebar
+    const handleClickOutside = (event) => {
+      // Get sidebar element
+      const sidebarElement = document.querySelector(".sidebar");
+
+      // If sidebar is open (not collapsed) and click is outside sidebar
+      if (
+        !collapsed &&
+        sidebarElement &&
+        !sidebarElement.contains(event.target) &&
+        !event.target.closest(".sidebar-toggle-btn")
+      ) {
+        // Close the sidebar
+        setCollapsed(true);
+        if (onToggle) {
+          onToggle(true);
+        }
+      }
+    };
+
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [collapsed, onToggle]);
+
   // Toggle sidebar
   const toggleSidebar = () => {
     const newCollapsedState = !collapsed;
     setCollapsed(newCollapsedState);
     if (onToggle) {
       onToggle(newCollapsedState);
+    }
+  };
+
+
+
+  // Toggle sidebar - open only for mobile toggle button
+  const openSidebar = () => {
+    setCollapsed(false);
+    if (onToggle) {
+      onToggle(false);
     }
   };
 
@@ -67,7 +109,7 @@ function Sidebar({ onToggle }) {
         className={`sidebar-toggle-btn ${
           mobileView && collapsed ? "visible" : ""
         }`}
-        onClick={toggleSidebar}
+        onClick={openSidebar}
       >
         <Menu size={24} />
       </button>
