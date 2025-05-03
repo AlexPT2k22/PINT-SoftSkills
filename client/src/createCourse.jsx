@@ -218,7 +218,7 @@ function CreateCourse() {
         <div className="container">
           <form onSubmit={handleSubmit}>
             <div className="row">
-              <div className="col-md-6 mb-4" style={{ height: "400px" }}>
+              <div className="col-md-6 mb-4">
                 <div className="card h-100">
                   <div className="card-header">
                     <h5 className="card-title mb-0">Informação do curso</h5>
@@ -260,7 +260,7 @@ function CreateCourse() {
                       />
                     </div>
 
-                    <div className="mb-3">
+                    <div>
                       <label htmlFor="courseImage" className="form-label">
                         Imagem do Curso:
                       </label>
@@ -280,7 +280,7 @@ function CreateCourse() {
                 </div>
               </div>
 
-              <div className="col-md-6 mb-4" style={{ height: "400px" }}>
+              <div className="col-md-6 mb-4">
                 <div className="card h-100">
                   <div className="card-header">
                     <h5 className="card-title mb-0">Detalhes do curso</h5>
@@ -505,13 +505,13 @@ function CreateCourse() {
             </div>
 
             <div className="row">
-              <div className="col-md-6 mb-4" style={{ height: "270px" }}>
+              <div className="col-md-6 mb-4">
                 <div className="card h-100">
                   <div className="card-header">
                     <h5 className="card-title mb-0">Objetivos</h5>
                   </div>
                   <div className="card-body">
-                    <div className="mb-3">
+                    <div>
                       <label className="form-label" htmlFor="courseObjectives">
                         Objetivos que o formando irá alcançar
                       </label>
@@ -584,13 +584,13 @@ function CreateCourse() {
                 </div>
               </div>
 
-              <div className="col-md-6 mb-4" style={{ height: "270px" }}>
+              <div className="col-md-6 mb-4">
                 <div className="card h-100">
                   <div className="card-header">
                     <h5 className="card-title mb-0">Habilidades</h5>
                   </div>
                   <div className="card-body">
-                    <div className="mb-3">
+                    <div>
                       <label className="form-label" htmlFor="courseHabilities">
                         Habilidades que o formando irá desenvolver
                       </label>
@@ -675,7 +675,7 @@ function CreateCourse() {
                   <div className="card-body">
                     <div className="row g-4">
                       <div className="col-md-6">
-                        <div className="mb-3">
+                        <div className="mb-2">
                           <label className="form-label">Data de início</label>
                           <input
                             type="date"
@@ -686,7 +686,7 @@ function CreateCourse() {
                         </div>
                       </div>
                       <div className="col-md-6">
-                        <div className="mb-3">
+                        <div className="mb-2">
                           <label className="form-label">Data de fim</label>
                           <input
                             type="date"
@@ -707,7 +707,7 @@ function CreateCourse() {
                     <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
                   </div>
                   <div className="card-body d-flex flex-column justify-content-center align-items-center">
-                    <h6>
+                    <h6 className="mb-0">
                       Carregue aqui para criar os módulos e conteúdo dos mesmos
                     </h6>
                   </div>
