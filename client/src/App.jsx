@@ -96,7 +96,7 @@ function App() {
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
         <Route
-          path="/dashboard/courses/:courseId/modules/:moduleId/content/:contentId"
+          path="/dashboard/courses/:courseId/modules/:moduleId"
           element={
             <ProtectedRoute>
               <CourseVideoPage />

@@ -127,6 +127,7 @@ const getCursoById = async (req, res) => {
             "TEMPO_ESTIMADO_MIN",
             "VIDEO_URL",
             "FILE_URL",
+            "ID_MODULO",
           ],
           as: "MODULOS",
         },
