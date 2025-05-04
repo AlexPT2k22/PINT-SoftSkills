@@ -25,6 +25,7 @@ function CreateCourse() {
   const [category, setCategory] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedRadio, setSelectedRadio] = useState(null);
+  const [selectedType, setSelectedType] = useState(null);
   const [Formador, setFormador] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
@@ -123,6 +124,11 @@ function CreateCourse() {
 
   const handleRadioChange = (e) => {
     setSelectedRadio(e.target.value);
+    setIsValid(true);
+  };
+
+  const handleRadioChangeType = (e) => {
+    setSelectedType(e.target.value);
     setIsValid(true);
   };
 
@@ -316,8 +322,8 @@ function CreateCourse() {
     }
 
     const ID_FORMADOR =
-      selectedRadio === "Síncrono" ? e.target.courseTeacher.value : null;
-    const vagas = selectedRadio === "Síncrono" ? e.target.seats.value : null;
+      selectedType === "Síncrono" ? e.target.courseTeacher.value : null;
+    const vagas = selectedType === "Síncrono" ? e.target.seats.value : null;
     const formData = new FormData();
     formData.append("NOME", courseName);
     formData.append("DESCRICAO_OBJETIVOS__", courseDescription);
@@ -340,42 +346,7 @@ function CreateCourse() {
       .slice(1)
       .filter((ability) => ability.trim() !== "");
     formData.append("HABILIDADES", filteredHabilities);
-
-    const modulesToSend = courseModules
-      .slice(1)
-      .filter(
-        (module) =>
-          module &&
-          (typeof module === "string"
-            ? module.trim() !== ""
-            : module.name.trim() !== "")
-      )
-      .map((module) => {
-        // Handle both string-only modules and modules with data
-        if (typeof module === "string") {
-          return { NOME: module };
-        } else {
-          return {
-            NOME: module.name,
-            DESCRICAO: module.data.description,
-            DURACAO: module.data.duration,
-            VIDEO: module.data.videoFile,
-            CONTEUDO: module.data.contentFile,
-          };
-        }
-      });
-    formData.append("MODULOS", JSON.stringify(modulesToSend));
-    // Now add each module's files separately
-    courseModules.slice(1).forEach((module, index) => {
-      if (module && typeof module !== "string" && module.data) {
-        if (module.data.videoFile) {
-          formData.append(`module_${index}_video`, module.data.videoFile);
-        }
-        if (module.data.contentFile) {
-          formData.append(`module_${index}_content`, module.data.contentFile);
-        }
-      }
-    });
+    
 
     const URL =
       ID_FORMADOR === null
@@ -570,32 +541,6 @@ function CreateCourse() {
       )}
 
       <div className="container-fluid h-100 d-flex flex-column align-items-center p-3">
-        <div className="container d-flex align-items-center">
-          <div className="d-flex flex-column">
-            <h3 className="text-start mb-0">Criar curso</h3>
-            <p className="mb-3">Complete todos os campos</p>
-          </div>
-          <div className="d-flex justify-content-end mt-4">
-            <button
-              type="button"
-              className="btn btn-secondary me-2"
-              onClick={() => navigate("/dashboard")}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isLoading || !isValid}
-            >
-              {isLoading ? (
-                <ButtonWithLoader isLoading={isLoading} />
-              ) : (
-                "Criar curso"
-              )}
-            </button>
-          </div>
-        </div>
         {showSuccess && (
           <SuccessMessage
             message="Curso criado com sucesso!"
@@ -608,6 +553,32 @@ function CreateCourse() {
 
         <div className="container">
           <form onSubmit={handleSubmit}>
+            <div className="container d-flex align-items-center justify-content-between">
+              <div className="d-flex flex-column">
+                <h3 className="text-start mb-0">Criar curso</h3>
+                <p className="mb-3">Complete todos os campos</p>
+              </div>
+              <div className="d-flex justify-content-end">
+                <button
+                  type="button"
+                  className="btn btn-secondary me-2"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isLoading || !isValid}
+                >
+                  {isLoading ? (
+                    <ButtonWithLoader isLoading={isLoading} />
+                  ) : (
+                    "Criar curso"
+                  )}
+                </button>
+              </div>
+            </div>
             <div className="row">
               <div className="col-md-6 mb-4">
                 <div className="card h-100">
@@ -692,6 +663,7 @@ function CreateCourse() {
                               value={"Iniciante"}
                               required
                               onChange={handleRadioChange}
+                              checked={selectedRadio === "Iniciante"}
                             />
                             <label
                               className="form-check-label"
@@ -708,6 +680,7 @@ function CreateCourse() {
                               id="difficulty2"
                               value={"Intermédio"}
                               onChange={handleRadioChange}
+                              checked={selectedRadio === "Intermédio"}
                             />
                             <label
                               className="form-check-label"
@@ -724,6 +697,7 @@ function CreateCourse() {
                               id="difficulty3"
                               value={"Difícil"}
                               onChange={handleRadioChange}
+                              checked={selectedRadio === "Difícil"}
                             />
                             <label
                               className="form-check-label"
@@ -745,8 +719,8 @@ function CreateCourse() {
                                 name="courseType"
                                 id="courseType1"
                                 value={"Assíncrono"}
-                                onChange={handleRadioChange}
-                                checked={selectedRadio === "Assíncrono"}
+                                onChange={handleRadioChangeType}
+                                checked={selectedType === "Assíncrono"}
                                 required
                               />
                               <label
@@ -763,8 +737,8 @@ function CreateCourse() {
                                 name="courseType"
                                 id="courseType2"
                                 value={"Síncrono"}
-                                onChange={handleRadioChange}
-                                checked={selectedRadio === "Síncrono"}
+                                onChange={handleRadioChangeType}
+                                checked={selectedType === "Síncrono"}
                               />
                               <label
                                 className="form-check-label"
@@ -776,7 +750,7 @@ function CreateCourse() {
                           </div>
                         </div>
                       </div>
-                      {selectedRadio === "Síncrono" && (
+                      {selectedType === "Síncrono" && (
                         <>
                           <div className="col-md-6">
                             <div className="mb-3">

@@ -376,6 +376,44 @@ function EditCourse() {
 
         <div className="container">
           <form onSubmit={handleSubmit}>
+            <div className="container d-flex align-items-center justify-content-between">
+              <div className="d-flex flex-column">
+                <h3 className="text-start mb-0">Editar curso: {courseName}</h3>
+                <p className="mb-3">Complete todos os campos</p>
+              </div>
+              <div className="d-flex justify-content-end">
+                <button
+                  type="button"
+                  className="btn btn-secondary me-2"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger me-2"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <ButtonWithLoader isLoading={isDeleting} />
+                  ) : (
+                    "Apagar curso"
+                  )}
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting || !isValid || isDeleting}
+                >
+                  {isSubmitting ? (
+                    <ButtonWithLoader isLoading={isSubmitting} />
+                  ) : (
+                    "Atualizar curso"
+                  )}
+                </button>
+              </div>
+            </div>
             <div className="row">
               <div className="col-md-6 mb-4">
                 <div className="card h-100">
@@ -862,6 +900,19 @@ function EditCourse() {
               <div className="col-md-6 mb-4">
                 <div className="card h-100">
                   <div className="card-header">
+                    <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
+                  </div>
+                  <div className="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h6 className="mb-0">
+                      Carregue aqui para editar os módulos e conteúdo dos mesmos
+                    </h6>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-md-6 mb-4">
+                <div className="card h-100">
+                  <div className="card-header">
                     <h5 className="card-title mb-0">Datas do curso</h5>
                   </div>
                   <div className="card-body">
@@ -906,52 +957,6 @@ function EditCourse() {
                   </div>
                 </div>
               </div>
-
-              <div className="col-md-6 mb-4">
-                <div className="card h-100">
-                  <div className="card-header">
-                    <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
-                  </div>
-                  <div className="card-body d-flex flex-column justify-content-center align-items-center">
-                    <h6 className="mb-0">
-                      Carregue aqui para editar os módulos e conteúdo dos mesmos
-                    </h6>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="d-flex justify-content-end mt-4">
-              <button
-                type="button"
-                className="btn btn-secondary me-2"
-                onClick={() => navigate("/dashboard")}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger me-2"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <ButtonWithLoader isLoading={isDeleting} />
-                ) : (
-                  "Apagar curso"
-                )}
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={isSubmitting || !isValid || isDeleting}
-              >
-                {isSubmitting ? (
-                  <ButtonWithLoader isLoading={isSubmitting} />
-                ) : (
-                  "Atualizar curso"
-                )}
-              </button>
             </div>
           </form>
         </div>

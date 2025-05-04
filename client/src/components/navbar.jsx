@@ -11,6 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -24,6 +25,7 @@ function Navbar() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const { isAuthenticated, user } = useAuthStore();
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   useEffect(() => {
     const getCategorias = async () => {
@@ -43,6 +45,10 @@ function Navbar() {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".mega-dropdown-wrapper")) {
         setShowMenu(false);
+      }
+
+      if (!event.target.closest(".nav-item.dropdown")) {
+        setShowUserDropdown(false);
       }
     };
 
@@ -188,10 +194,13 @@ function Navbar() {
                 </li>
                 <li className="nav-item dropdown">
                   <a
-                    className="nav-link dropdown-toggle d-flex align-items-center"
+                    className="nav-link d-flex align-items-center"
                     href="#"
-                    role="button"
-                    data-bs-toggle="dropdown"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowUserDropdown(!showUserDropdown);
+                      e.stopPropagation(); // Prevent this click from closing the dropdown immediately
+                    }}
                   >
                     <CircleUserRound
                       strokeWidth={1.5}
@@ -199,34 +208,40 @@ function Navbar() {
                       size={22}
                     />
                     <span className="ms-2">{user?.username}</span>
+                    <ChevronDown className="ms-1" size={18} color="#39639c" />
                   </a>
-                  <ul className="dropdown-menu dropdown-menu-end">
-                    <li>
-                      <a className="dropdown-item" href="/dashboard">
-                        Dashboard
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="/dashboard/my-courses">
-                        Meus Cursos
-                      </a>
-                    </li>
-                    <li>
-                      <hr className="dropdown-divider" />
-                    </li>
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          useAuthStore.getState().logout();
-                        }}
-                      >
-                        Sair
-                      </a>
-                    </li>
-                  </ul>
+                  {showUserDropdown && (
+                    <ul className="dropdown-menu dropdown-menu-end show" style={{transform: "translatex(-20px)"}}>
+                      <li>
+                        <a className="dropdown-item" href="/dashboard">
+                          Dashboard
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          href="/dashboard/my-courses"
+                        >
+                          Meus Cursos
+                        </a>
+                      </li>
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            useAuthStore.getState().logout();
+                          }}
+                        >
+                          Sair
+                        </a>
+                      </li>
+                    </ul>
+                  )}
                 </li>
               </>
             ) : (
