@@ -248,7 +248,7 @@ function CoursePage() {
                       Habilidades que desenvolverá
                     </h1>
                     <div className="d-flex flex-column p-2">
-                      <div className="d-flex flex-wrap justify-content-between">
+                      <div className="d-flex gap-4 flex-wrap">
                         {course.HABILIDADES.map((habilidade, index) => (
                           <div
                             key={index}
