@@ -17,6 +17,23 @@ const {
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 const cloudinary = require("cloudinary").v2;
+const { Readable } = require("stream");
+
+const streamUpload = (buffer, folder, resource_type = "auto") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    const readable = new Readable();
+    readable.push(buffer);
+    readable.push(null);
+    readable.pipe(stream);
+  });
+};
 
 // para ir buscar todos os cursos
 const getCursos = async (_, res) => {
@@ -104,7 +121,13 @@ const getCursoById = async (req, res) => {
         },
         {
           model: Modulos,
-          attributes: ["NOME", "DESCRICAO", "TEMPO_ESTIMADO_MIN"],
+          attributes: [
+            "NOME",
+            "DESCRICAO",
+            "TEMPO_ESTIMADO_MIN",
+            "VIDEO_URL",
+            "FILE_URL",
+          ],
           as: "MODULOS",
         },
       ],
@@ -160,33 +183,20 @@ const createCurso = async (req, res) => {
     HABILIDADES,
     OBJETIVOS,
   } = req.body;
+
+  const modulos = JSON.parse(req.body.MODULOS);
+
   try {
     let imagemUrl = null;
     let imagemPublicId = null;
 
     if (req.file) {
-      const bufferToStream = (buffer) => {
-        const { Readable } = require("stream");
-        const readable = new Readable();
-        readable.push(buffer);
-        readable.push(null);
-        return readable;
-      };
+      const result = await streamUpload(
+        req.file.buffer,
+        `cursos/${NOME}`,
+        "auto"
+      );
 
-      const streamUpload = () => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "cursos" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          bufferToStream(req.file.buffer).pipe(stream);
-        });
-      };
-
-      const result = await streamUpload();
       imagemUrl = result.secure_url;
       imagemPublicId = result.public_id;
     }
@@ -225,11 +235,57 @@ const createCurso = async (req, res) => {
       ),
     ]);
 
-    res.status(201).json(curso, {
+    // Adicionar módulos ao curso
+    for (let i = 0; i < modulos.length; i++) {
+      const modulo = modulos[i];
+
+      // Procurar vídeo e conteúdo pelo nome que definiste no formData
+      const videoFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_video`
+      );
+      const contentFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_content`
+      );
+
+      let videoUrl = null;
+      let contentUrl = null;
+
+      // Upload do vídeo para o Cloudinary
+      if (videoFile) {
+        const result = await cloudinary.uploader.upload(videoFile.path, {
+          resource_type: "video",
+          folder: `cursos/${NOME}/modulos/videos`,
+        });
+
+        videoUrl = result.secure_url;
+      }
+
+      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
+      if (contentFile) {
+        const result = await cloudinary.uploader.upload(contentFile.path, {
+          resource_type: "raw",
+          folder: `cursos/${NOME}/modulos/conteudos`,
+        });
+
+        contentUrl = result.secure_url;
+      }
+
+      await Modulos.create({
+        ID_CURSO: curso.ID_CURSO,
+        NOME: modulo.NOME,
+        DESCRICAO: modulo.DESCRICAO,
+        VIDEO_URL: videoUrl,
+        FILE_URL: contentUrl,
+        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+      });
+    }
+
+    res.status(201).json({
       message: "Curso criado com sucesso",
-      CursoCompleto: curso,
+      Curso: curso,
       HABILIDADES: habilidadesArray,
       OBJETIVOS: objetivosArray,
+      MODULOS: modulos,
     });
   } catch (error) {
     console.error("Erro ao criar curso:", error);
@@ -238,6 +294,7 @@ const createCurso = async (req, res) => {
 };
 
 const updateCurso = async (req, res) => {
+  //FIXME:
   const { id } = req.params;
   const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
     req.body;
@@ -305,6 +362,9 @@ const updateCursoSincrono = async (req, res) => {
     HABILIDADES,
     OBJETIVOS,
   } = req.body;
+
+  const modulos = JSON.parse(req.body.MODULOS);
+
   try {
     const curso = await Curso.findByPk(id);
     if (!curso) {
@@ -313,32 +373,19 @@ const updateCursoSincrono = async (req, res) => {
 
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
-    if (req.file) {
-      const bufferToStream = (buffer) => {
-        const { Readable } = require("stream");
-        const readable = new Readable();
-        readable.push(buffer);
-        readable.push(null);
-        return readable;
-      };
 
-      const streamUpload = () => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "cursos" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          bufferToStream(req.file.buffer).pipe(stream);
-        });
-      };
+    const imagem = req.files.find((file) => file.fieldname === "imagem");
 
-      const result = await streamUpload();
+    if (imagem) {
+      const result = await streamUpload(
+        req.file.buffer,
+        `cursos/${NOME}`,
+        "auto"
+      );
       imagemUrl = result.secure_url;
       imagemPublicId = result.public_id;
     }
+
     await curso.update({
       NOME,
       DESCRICAO_OBJETIVOS__,
@@ -391,6 +438,56 @@ const updateCursoSincrono = async (req, res) => {
       ),
     ]);
 
+    //Destroy dos modulos existentes
+    await Modulos.destroy({
+      where: { ID_CURSO: curso.ID_CURSO },
+    });
+
+    // Adicionar módulos ao curso
+    for (let i = 0; i < modulos.length; i++) {
+      const modulo = modulos[i];
+
+      // Procurar vídeo e conteúdo pelo nome que definiste no formData
+      const videoFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_video`
+      );
+      const contentFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_content`
+      );
+
+      let videoUrl = null;
+      let contentUrl = null;
+
+      // Upload do vídeo para o Cloudinary
+      if (videoFile) {
+        const result = await streamUpload(
+          videoFile.buffer,
+          `cursos/${NOME}/modulos/videos`,
+          "auto"
+        );
+        videoUrl = result.secure_url;
+      }
+
+      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
+      if (contentFile) {
+        const result = await streamUpload(
+          contentFile.buffer,
+          `cursos/${NOME}/modulos/conteudos`,
+          "auto"
+        );
+        contentUrl = result.secure_url;
+      }
+
+      await Modulos.create({
+        ID_CURSO: curso.ID_CURSO,
+        NOME: modulo.NOME,
+        DESCRICAO: modulo.DESCRICAO,
+        VIDEO_URL: videoUrl,
+        FILE_URL: contentUrl,
+        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+      });
+    }
+
     await cursoSincrono.update({
       NOME,
       DESCRICAO_OBJETIVOS__,
@@ -425,6 +522,9 @@ const updateCursoAssincrono = async (req, res) => {
     HABILIDADES,
     OBJETIVOS,
   } = req.body;
+
+  const modulos = JSON.parse(req.body.MODULOS);
+
   try {
     const curso = await Curso.findByPk(id);
     if (!curso) {
@@ -432,29 +532,13 @@ const updateCursoAssincrono = async (req, res) => {
     }
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
-    if (req.file) {
-      const bufferToStream = (buffer) => {
-        const { Readable } = require("stream");
-        const readable = new Readable();
-        readable.push(buffer);
-        readable.push(null);
-        return readable;
-      };
-
-      const streamUpload = () => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "cursos" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          bufferToStream(req.file.buffer).pipe(stream);
-        });
-      };
-
-      const result = await streamUpload();
+    const imagem = req.files.find((file) => file.fieldname === "imagem");
+    if (imagem) {
+      const result = await streamUpload(
+        req.file.buffer,
+        `cursos/${NOME}`,
+        "auto"
+      );
       imagemUrl = result.secure_url;
       imagemPublicId = result.public_id;
     }
@@ -510,6 +594,58 @@ const updateCursoAssincrono = async (req, res) => {
       ),
     ]);
 
+    //Destroy dos modulos existentes
+    await Modulos.destroy({
+      where: { ID_CURSO: curso.ID_CURSO },
+    });
+
+    // Adicionar módulos ao curso
+    for (let i = 0; i < modulos.length; i++) {
+      const modulo = modulos[i];
+
+      // Procurar vídeo e conteúdo pelo nome que definiste no formData
+      const videoFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_video`
+      );
+      const contentFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_content`
+      );
+
+      let videoUrl = null;
+      let contentUrl = null;
+
+      // Upload do vídeo para o Cloudinary
+      if (videoFile) {
+        const result = await streamUpload(
+          videoFile.buffer,
+          `cursos/${NOME}/modulos/videos`,
+          "auto"
+        );
+
+        videoUrl = result.secure_url;
+      }
+
+      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
+      if (contentFile) {
+        const result = await streamUpload(
+          contentFile.buffer,
+          `cursos/${NOME}/modulos/conteudos`,
+          "auto"
+        );
+
+        contentUrl = result.secure_url;
+      }
+
+      await Modulos.create({
+        ID_CURSO: curso.ID_CURSO,
+        NOME: modulo.NOME,
+        DESCRICAO: modulo.DESCRICAO,
+        VIDEO_URL: videoUrl,
+        FILE_URL: contentUrl,
+        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+      });
+    }
+
     await cursoAssincrono.update({
       NOME,
       DESCRICAO_OBJETIVOS__,
@@ -520,8 +656,11 @@ const updateCursoAssincrono = async (req, res) => {
       ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
     });
     res.status(200).json({
-      "Curso: ": curso,
-      "Curso Assincrono: ": cursoAssincrono,
+      Curso: curso,
+      CursoAssincrono: cursoAssincrono,
+      HABILIDADES: habilidadesArray,
+      OBJETIVOS: objetivosArray,
+      MODULOS: Modulos,
     });
   } catch (error) {
     console.error("Erro ao atualizar curso:", error);
@@ -543,6 +682,8 @@ const createSincrono = async (req, res) => {
     OBJETIVOS,
   } = req.body;
 
+  const modulos = JSON.parse(req.body.MODULOS);
+
   const ID_ESTADO_OCORRENCIA_ASSINCRONA2 = 1; // ID do estado "Inativo"
 
   // verifica se o curso já existe
@@ -560,29 +701,14 @@ const createSincrono = async (req, res) => {
     let imagemUrl = null;
     let imagemPublicId = null;
 
-    if (req.file) {
-      const bufferToStream = (buffer) => {
-        const { Readable } = require("stream");
-        const readable = new Readable();
-        readable.push(buffer);
-        readable.push(null);
-        return readable;
-      };
+    const imagem = req.files.find((file) => file.fieldname === "imagem");
 
-      const streamUpload = () => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "cursos" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          bufferToStream(req.file.buffer).pipe(stream);
-        });
-      };
-
-      const result = await streamUpload();
+    if (imagem) {
+      const result = await streamUpload(
+        req.file.buffer,
+        `cursos/${NOME}`,
+        "auto"
+      );
       imagemUrl = result.secure_url;
       imagemPublicId = result.public_id;
     }
@@ -621,6 +747,51 @@ const createSincrono = async (req, res) => {
       ),
     ]);
 
+    // Adicionar módulos ao curso
+    for (let i = 0; i < modulos.length; i++) {
+      const modulo = modulos[i];
+
+      // Procurar vídeo e conteúdo pelo nome que definiste no formData
+      const videoFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_video`
+      );
+      const contentFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_content`
+      );
+
+      let videoUrl = null;
+      let contentUrl = null;
+
+      // Upload do vídeo para o Cloudinary
+      if (videoFile) {
+        const result = await streamUpload(
+          videoFile.buffer,
+          `cursos/${NOME}/modulos/videos`,
+          "auto"
+        );
+        videoUrl = result.secure_url;
+      }
+
+      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
+      if (contentFile) {
+        const result = await streamUpload(
+          contentFile.buffer,
+          `cursos/${NOME}/modulos/conteudos`,
+          "auto"
+        );
+        contentUrl = result.secure_url;
+      }
+
+      await Modulos.create({
+        ID_CURSO: curso.ID_CURSO,
+        NOME: modulo.NOME,
+        DESCRICAO: modulo.DESCRICAO,
+        VIDEO_URL: videoUrl,
+        FILE_URL: contentUrl,
+        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+      });
+    }
+
     const cursoSincrono = await CursoSincrono.create({
       ID_CURSO: curso.ID_CURSO,
       ID_UTILIZADOR: ID_FORMADOR,
@@ -651,33 +822,22 @@ const createAssincrono = async (req, res) => {
     HABILIDADES,
     OBJETIVOS,
   } = req.body;
+
+  const modulos = JSON.parse(req.body.MODULOS);
+
   try {
     let imagemUrl = null;
     let imagemPublicId = null;
+    //console.log(req.files);
 
-    if (req.file) {
-      const bufferToStream = (buffer) => {
-        const { Readable } = require("stream");
-        const readable = new Readable();
-        readable.push(buffer);
-        readable.push(null);
-        return readable;
-      };
+    const imagem = req.files.find((file) => file.fieldname === "imagem");
 
-      const streamUpload = () => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "cursos" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          bufferToStream(req.file.buffer).pipe(stream);
-        });
-      };
-
-      const result = await streamUpload();
+    if (imagem) {
+      const result = await streamUpload(
+        imagem.buffer,
+        `cursos/${NOME}`,
+        "auto"
+      );
       imagemUrl = result.secure_url;
       imagemPublicId = result.public_id;
     }
@@ -719,6 +879,50 @@ const createAssincrono = async (req, res) => {
       ),
     ]);
 
+    // Adicionar módulos ao curso
+    for (let i = 0; i < modulos.length; i++) {
+      const modulo = modulos[i];
+
+      // Procurar vídeo e conteúdo pelo nome que definiste no formData
+      const videoFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_video`
+      );
+      const contentFile = req.files.find(
+        (file) => file.fieldname === `module_${i}_content`
+      );
+
+      let videoUrl = null;
+      let contentUrl = null;
+
+      // Upload do vídeo para o Cloudinary
+      if (videoFile) {
+        const result = await streamUpload(
+          videoFile.buffer,
+          `cursos/${NOME}/modulos/videos`,
+          "auto"
+        );
+        videoUrl = result.secure_url;
+      }
+      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
+      if (contentFile) {
+        const result = await streamUpload(
+          contentFile.buffer,
+          `cursos/${NOME}/modulos/conteudos`,
+          "auto"
+        );
+        contentUrl = result.secure_url;
+      }
+
+      await Modulos.create({
+        ID_CURSO: curso.ID_CURSO,
+        NOME: modulo.NOME,
+        DESCRICAO: modulo.DESCRICAO,
+        VIDEO_URL: videoUrl,
+        FILE_URL: contentUrl,
+        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+      });
+    }
+
     const cursoAssincrono = await CursoAssincrono.create({
       ID_CURSO: curso.ID_CURSO,
       NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
@@ -730,6 +934,9 @@ const createAssincrono = async (req, res) => {
     res.status(201).json({
       "Curso: ": curso,
       "Curso Assincrono: ": cursoAssincrono,
+      HABILIDADES: habilidadesArray,
+      OBJETIVOS: objetivosArray,
+      MODULOS: Modulos,
     });
   } catch (error) {
     console.error("Erro ao criar curso:", error);
@@ -744,7 +951,7 @@ const convertCursoType = async (req, res) => {
     DESCRICAO_OBJETIVOS__,
     DIFICULDADE_CURSO__,
     ID_AREA,
-    ID_UTILIZADOR, // Teacher for synchronous
+    ID_UTILIZADOR,
     DATA_INICIO,
     DATA_FIM,
     VAGAS,
@@ -761,28 +968,12 @@ const convertCursoType = async (req, res) => {
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
     if (req.file) {
-      const bufferToStream = (buffer) => {
-        const { Readable } = require("stream");
-        const readable = new Readable();
-        readable.push(buffer);
-        readable.push(null);
-        return readable;
-      };
+      const result = await streamUpload(
+        req.file.buffer,
+        `cursos/${NOME}`,
+        "auto"
+      );
 
-      const streamUpload = () => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "cursos" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          bufferToStream(req.file.buffer).pipe(stream);
-        });
-      };
-
-      const result = await streamUpload();
       imagemUrl = result.secure_url;
       imagemPublicId = result.public_id;
     }
@@ -837,6 +1028,9 @@ const convertCursoType = async (req, res) => {
       const cursoAssincrono = await CursoAssincrono.create({
         ID_CURSO: curso.ID_CURSO,
         NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
+        DATA_INICIO,
+        DATA_FIM,
+        ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // Inactive state
       });
 
       // Remove synchronous if it exists

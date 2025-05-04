@@ -346,7 +346,42 @@ function CreateCourse() {
       .slice(1)
       .filter((ability) => ability.trim() !== "");
     formData.append("HABILIDADES", filteredHabilities);
-    
+
+    const modulesToSend = courseModules
+      .slice(1)
+      .filter(
+        (module) =>
+          module &&
+          (typeof module === "string"
+            ? module.trim() !== ""
+            : module.name.trim() !== "")
+      )
+      .map((module) => {
+        // Handle both string-only modules and modules with data
+        if (typeof module === "string") {
+          return { NOME: module };
+        } else {
+          return {
+            NOME: module.name,
+            DESCRICAO: module.data.description,
+            DURACAO: module.data.duration,
+            VIDEO: module.data.videoFile,
+            CONTEUDO: module.data.contentFile,
+          };
+        }
+      });
+
+    formData.append("MODULOS", JSON.stringify(modulesToSend));
+    courseModules.slice(1).forEach((module, index) => {
+      if (module && typeof module !== "string" && module.data) {
+        if (module.data.videoFile) {
+          formData.append(`module_${index}_video`, module.data.videoFile);
+        }
+        if (module.data.contentFile) {
+          formData.append(`module_${index}_content`, module.data.contentFile);
+        }
+      }
+    });
 
     const URL =
       ID_FORMADOR === null

@@ -17,16 +17,23 @@ const Modulos = sequelize.define(
         model: "CURSO",
         key: "ID_CURSO",
       },
-      field: "ID_CURSO",
     },
-    nome: {
+    NOME: {
       type: DataTypes.TEXT,
       allowNull: false,
       field: "NOME",
     },
-    descricao: {
+    DESCRICAO: {
       type: DataTypes.TEXT,
-      field: "DESCRICAO",
+      allowNull: false,
+    },
+    VIDEO_URL: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    FILE_URL: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     TEMPO_ESTIMADO_MIN: {
       type: DataTypes.INTEGER,
