@@ -5,11 +5,13 @@ import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
 import "./styles/CourseSidebar.css";
 import VideoPlayer from "./components/videoplayer";
+import Loader from "./components/loader";
 
 function CourseVideoPage() {
   const { courseId, moduleId } = useParams();
   const [videoID, setVideoID] = useState("");
-  const [courseData, setCourseData] = useState(null);
+  const [courseData, setCourseData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
@@ -18,6 +20,7 @@ function CourseVideoPage() {
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch(
           `http://localhost:4000/api/cursos/${courseId}`,
           {
@@ -31,9 +34,8 @@ function CourseVideoPage() {
           throw new Error("Failed to fetch course data");
         }
         const data = await response.json();
-        console.log(data);
-        const modulo = data.MODULOS[moduleId - 1]; // Ajuste para o índice correto
-
+        setCourseData(data);
+        const modulo = data.MODULOS[moduleId - 1];
         if (modulo?.VIDEO_URL) {
           const baseURL =
             "https://res.cloudinary.com/dk2ifkqqc/video/upload/v1746399099/";
@@ -48,50 +50,36 @@ function CourseVideoPage() {
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchCourseData();
   }, [courseId, moduleId]);
 
-  const courseContent = [
-    {
-      id: 1,
-      title: "Secção 1: título",
-      totalVideos: 4,
-      totalDuration: "Y",
-      videos: [
-        { id: 1, title: "Título do vídeo", duration: 2, completed: true },
-        { id: 2, title: "Título do vídeo", duration: 2, completed: false },
-        { id: 3, title: "Título do vídeo", duration: 2, completed: false },
-        { id: 4, title: "Título do vídeo", duration: 2, completed: false },
-      ],
-    },
-    {
-      id: 2,
-      title: "Secção 2: título",
-      totalVideos: 3,
-      totalDuration: "Y",
-      videos: [
-        { id: 1, title: "Título do vídeo", duration: 2, completed: false },
-        { id: 2, title: "Título do vídeo", duration: 2, completed: false },
-        { id: 3, title: "Título do vídeo", duration: 2, completed: false },
-      ],
-    },
-  ];
+  const totalDuration = courseData.MODULOS?.reduce((acc, modulo) => {
+    const duration = parseInt(modulo.TEMPO_ESTIMADO_MIN, 10);
+    return acc + (isNaN(duration) ? 0 : duration);
+  }, 0);
+
+  const formattedDuration = totalDuration
+    ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`
+    : "N/A";
 
   return (
     <>
+      {isLoading && <Loader />}
       <NavbarDashboard />
       <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-4">
-        <div className="container-fluid border d-flex justify-content-between p-0 flex-row">
-          <div className="container border d-flex m-2 p-0 flex-column">
+        <div className="container-fluid d-flex justify-content-between p-0 flex-row">
+          <div className="container d-flex p-0 flex-column">
             {videoID && (
-              <div className="video-player border m-2">
+              <div className="video-player m-2">
                 <VideoPlayer publicId={videoID} />
               </div>
             )}
-            <div className="video-description m-2 border">
+            <div className="video-description m-2">
               <div className="container d-flex flex-column p-0">
                 <div className="container justify-content-start d-flex align-items-center">
                   <ul className="list-group list-group-horizontal">
@@ -121,17 +109,34 @@ function CourseVideoPage() {
                 </div>
               </div>
               <div className="container d-flex flex-column p-0 mt-2">
-                <h3 className="ps-2 fw-normal">Titulo do curso</h3>
+                <h3 className="ps-2 fw-normal">{courseData.NOME}</h3>
               </div>
               <div className="d-flex flex-row">
-                <div className="d-flex flex-column align-items-center justify-content-center ps-2">
-                  <h5 className="fw-normal">4.3</h5>
+                <div className="d-flex flex-column align-items-center ps-2">
+                  <div className="w-100">
+                    <h5 className="fw-normal mb-0">4.3</h5>
+                  </div>
+                  <h6 className="fw-normal text-muted">X reviews</h6>
+                </div>
+
+                <div className="d-flex flex-column align-items-center ps-2">
+                  <div className="w-100">
+                    <h5 className="fw-normal mb-0">Y</h5>
+                  </div>
+                  <h6 className="fw-normal text-muted">Alunos</h6>
+                </div>
+
+                <div className="d-flex flex-column align-items-center ps-2">
+                  <div className="w-100">
+                    <h5 className="fw-normal mb-0">{formattedDuration}</h5>
+                  </div>
+                  <h6 className="fw-normal text-muted">Duração total</h6>
                 </div>
               </div>
             </div>
           </div>
           <div
-            className="container course-sidebar border m-2 p-0"
+            className="container course-sidebar border p-0"
             style={{ width: "28rem" }}
           ></div>
         </div>
