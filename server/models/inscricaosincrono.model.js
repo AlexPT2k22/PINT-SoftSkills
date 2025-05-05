@@ -18,6 +18,14 @@ const InscricaoSincrono = sequelize.define(
         key: "ID_UTILIZADOR",
       },
     },
+    ID_CURSO_SINCRONO: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "CURSO_SINCRONO",
+        key: "ID_CURSO",
+      },
+    },
     FORMULARIO_INSCRICAO: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -28,10 +36,6 @@ const InscricaoSincrono = sequelize.define(
     },
     DATA_LIMITE_INSCRICAO_S: {
       type: DataTypes.DATE,
-      allowNull: false,
-    },
-    LIMITE_VAGAS_INT__: {
-      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },

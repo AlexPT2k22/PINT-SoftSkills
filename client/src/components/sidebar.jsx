@@ -146,9 +146,9 @@ function Sidebar({ onToggle }) {
 
             <li className="nav-item">
               <Link
-                to="/my-courses"
+                to="/dashboard/my-courses"
                 className={`nav-link ${
-                  isActive("/my-courses") ? "active" : ""
+                  isActive("/dashboard/my-courses") ? "active" : ""
                 }`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
@@ -159,9 +159,9 @@ function Sidebar({ onToggle }) {
 
             <li className="nav-item">
               <Link
-                to="/certifications"
+                to="/dashboard/certifications"
                 className={`nav-link ${
-                  isActive("/certifications") ? "active" : ""
+                  isActive("/dashboard/certifications") ? "active" : ""
                 }`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
@@ -227,9 +227,9 @@ function Sidebar({ onToggle }) {
           <ul className="nav flex-column mb-0">
             <li className="nav-item">
               <Link
-                to="/definicoes"
+                to="/dashboard/definicoes"
                 className={`nav-link ${
-                  isActive("/definicoes") ? "active" : ""
+                  isActive("/dashboard/definicoes") ? "active" : ""
                 }`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
@@ -240,8 +240,8 @@ function Sidebar({ onToggle }) {
 
             <li className="nav-item">
               <Link
-                to="/ajuda"
-                className={`nav-link ${isActive("/ajuda") ? "active" : ""}`}
+                to="/dashboard/ajuda"
+                className={`nav-link ${isActive("/dashboard/ajuda") ? "active" : ""}`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
                 <HelpCircle size={20} className="me-3" />

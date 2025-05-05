@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "./components/navbar.jsx";
 import Footer from "./components/footer.jsx";
 import { Star, User, Check } from "lucide-react";
@@ -15,9 +15,21 @@ function CoursePage() {
   const [loading, setLoading] = useState(true);
   const [totalTime, setTotalTime] = useState(0);
   const { courseId } = useParams();
+  const [inscrito, setInscrito] = useState(false);
+  const navigate = useNavigate();
 
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
+  };
+
+  const handleInscrito = (e) => {
+    if (inscrito) {
+      navigate(`/dashboard/courses/${courseId}/modules/1`);
+    } else {
+      e.preventDefault();
+      inscreverCurso(courseId);
+    }
+    setInscrito(!inscrito);
   };
 
   const convertMinutesToHours = (minutes) => {
@@ -50,6 +62,62 @@ function CoursePage() {
 
     getCourseData();
   }, [courseId]);
+
+  useEffect(() => {
+    const verificarInscricao = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/user/verify-course/${courseId}`,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.status === 200) {
+          console.log("User está inscrito no curso");
+          setInscrito(true);
+        } else {
+          console.log("Erro ao verificar inscrição:", response.data.message);
+          setInscrito(false);
+        }
+      } catch (error) {
+        console.error(
+          "Erro ao verificar inscrição:",
+          error.response?.data?.message || error.message
+        );
+      }
+    };
+
+    verificarInscricao();
+  }, [courseId]);
+
+  const inscreverCurso = async (cursoId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:4000/api/user/enter-course/${cursoId}`,
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        alert("Inscrição realizada com sucesso!");
+        // Redirecionar ou atualizar a interface
+      }
+    } catch (error) {
+      console.error(
+        "Erro ao inscrever:",
+        error.response?.data?.message || error.message
+      );
+      alert(error.response?.data?.message || "Erro ao realizar inscrição");
+    }
+  };
 
   return (
     <>
@@ -116,8 +184,12 @@ function CoursePage() {
                     </h1>
                   </div>
                   <div className="d-flex justify-content-start mt-3">
-                    <button className="btn btn-primary fs-5 ps-5 pe-5">
-                      Inscrever
+                    <button
+                      className="btn btn-primary fs-5 ps-5 pe-5"
+                      onClick={() => handleInscrito()}
+                      disabled={course.CURSO_SINCRONO.VAGAS <= 0}
+                    >
+                      {inscrito ? "Ir para o curso" : "Inscrever"}
                     </button>
                   </div>
                 </div>

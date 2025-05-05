@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import CourseCardDashboard from "./components/courseCardDashboard.jsx";
 
-const LinkedCourses = () => {
+const CoursesUser = () => {
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
   };
@@ -17,7 +17,7 @@ const LinkedCourses = () => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          "http://localhost:4000/api/user/teacher-courses",
+          "http://localhost:4000/api/user/student-courses",
           {
             withCredentials: true,
           }
@@ -44,7 +44,7 @@ const LinkedCourses = () => {
             <div className="col-md-10 col-lg-12 mb-4">
               <div className="card h-100 w-100">
                 <div className="card-header">
-                  <h3 className="card-title mb-0">Cursos atribuidos</h3>
+                  <h3 className="card-title mb-0">Os meus cursos</h3>
                 </div>
                 <div className="card-body">
                   {isLoading ? (
@@ -60,9 +60,7 @@ const LinkedCourses = () => {
                           <div className="col" key={course.ID_CURSO}>
                             <CourseCardDashboard
                               course={course}
-                              showButtons={true}
-                              showProgress={false}
-                              showStartButton={false}
+                              showStartButton={true}
                             />
                           </div>
                         ))}
@@ -89,4 +87,4 @@ const LinkedCourses = () => {
   );
 };
 
-export default LinkedCourses;
+export default CoursesUser;

@@ -3,12 +3,12 @@ require("dotenv").config();
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  //console.log("Auth Header:", authHeader);
+  console.log("Auth Header:", authHeader);
   const headerToken = authHeader && authHeader.split(" ")[1];
-  //console.log("Header Token:", headerToken);
+  console.log("Header Token:", headerToken);
 
   const cookieToken = req.cookies.token;
-  //console.log("Cookie Token:", cookieToken);
+  console.log("Cookie Token:", cookieToken);
 
   const token = headerToken || cookieToken;
   //console.log("Token:", token);

@@ -93,6 +93,8 @@ Modulos.belongsTo(Curso, { foreignKey: "ID_CURSO", as: "CURSO" });
 // CursoSincrono associations
 Utilizador.hasMany(CursoSincrono, { foreignKey: "ID_UTILIZADOR" });
 CursoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+CursoSincrono.hasMany(InscricaoSincrono, { foreignKey: "ID_CURSO_SINCRONO" });
+InscricaoSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO_SINCRONO" });
 
 InscricaoSincrono.hasMany(CursoSincrono, {
   foreignKey: "ID_INSCRICAO_SINCRONO",

@@ -4,6 +4,9 @@ require("dotenv").config();
 const {
   getTeachers,
   getCursosAssociados,
+  inscreverEmCurso,
+  verificarInscricao,
+  getCursosInscritos,
 } = require("../controllers/user.controller.js");
 const authenticateToken = require("../middlewares/authmiddleware.js");
 
@@ -14,5 +17,8 @@ router.get("/", async (req, res) => {
 
 router.get("/teachers", getTeachers);
 router.get("/teacher-courses", authenticateToken, getCursosAssociados);
+router.get("/student-courses", authenticateToken, getCursosInscritos);
+router.post("/enter-course/:cursoId", authenticateToken, inscreverEmCurso);
+router.get("/verify-course/:cursoId", authenticateToken, verificarInscricao);
 
 module.exports = router;
