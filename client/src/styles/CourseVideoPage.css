@@ -1,0 +1,22 @@
+.course-tab {
+  border: none;
+  border-radius: 0;
+  background-color: rgba(0, 0, 0, 0);
+  font-weight: 500;
+  color: #37373780;
+}
+
+.course-tab:hover {
+  cursor: pointer;
+  background-color: #ffffff00 !important;
+  color: #373737 !important;
+}
+
+.course-tab.active {
+  border: none;
+  border-radius: 0;
+  border-bottom: 3px solid #00b8e0;
+  background-color: rgba(0, 0, 0, 0);
+  font-weight: 500;
+  color: #373737;
+}

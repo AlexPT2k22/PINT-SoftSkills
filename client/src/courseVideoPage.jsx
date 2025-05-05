@@ -6,6 +6,7 @@ import "./styles/CourseSidebar.css";
 import VideoPlayer from "./components/videoplayer";
 import Loader from "./components/loader";
 import axios from "axios";
+import "./styles/CourseVideoPage.css";
 
 function CourseVideoPage() {
   const { courseId, moduleId } = useParams();
@@ -84,23 +85,43 @@ function CourseVideoPage() {
           <div className="container d-flex p-0 flex-column">
             {videoID && (
               <div className="video-player m-2">
-                <VideoPlayer publicId={videoID} />
+                <VideoPlayer publicId={videoID} width={1100} height={510} />
               </div>
             )}
             <div className="video-description m-2">
               <div className="container d-flex flex-column p-0">
                 <div className="container justify-content-start d-flex align-items-center">
                   <ul className="list-group list-group-horizontal">
-                    <a className="list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab active">
+                    <a
+                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                        index === 0 ? "active" : ""
+                      }`}
+                      onClick={() => handleIndexChange(0)}
+                    >
                       Info
                     </a>
-                    <a className="list-group-item list-group-item-action horizontal-list-item pb-0 course-tab ">
+                    <a
+                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 course-tab ${
+                        index === 1 ? "active" : ""
+                      }`}
+                      onClick={() => handleIndexChange(1)}
+                    >
                       Material
                     </a>
-                    <a className="list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ">
+                    <a
+                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                        index === 2 ? "active" : ""
+                      }`}
+                      onClick={() => handleIndexChange(2)}
+                    >
                       Notas
                     </a>
-                    <a className="list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ">
+                    <a
+                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                        index === 3 ? "active" : ""
+                      }`}
+                      onClick={() => handleIndexChange(3)}
+                    >
                       Anúncios
                     </a>
                   </ul>
@@ -116,30 +137,55 @@ function CourseVideoPage() {
                   ></div>
                 </div>
               </div>
-              <div className="container d-flex flex-column p-0 mt-2">
-                <h3 className="ps-2 fw-normal">{courseData.NOME}</h3>
-              </div>
-              <div className="d-flex flex-row">
-                <div className="d-flex flex-column align-items-center ps-2">
-                  <div className="w-100">
-                    <h5 className="fw-normal mb-0">4.3</h5>
-                  </div>
-                  <h6 className="fw-normal text-muted">X reviews</h6>
-                </div>
+              <div className="d-flex flex-column">
+                {index === 0 && (
+                  <>
+                    <div className="d-flex flex-column">
+                      <div className="container d-flex flex-column p-0 mt-2">
+                        <h3 className="ps-2 fw-normal">{courseData.NOME}</h3>
+                      </div>
+                      <div className="d-flex flex-row">
+                        <div className="d-flex flex-column align-items-center ps-2">
+                          <div className="w-100">
+                            <h5 className="fw-normal mb-0">4.3</h5>
+                          </div>
+                          <h6 className="fw-normal text-muted">X reviews</h6>
+                        </div>
 
-                <div className="d-flex flex-column align-items-center ps-2">
-                  <div className="w-100">
-                    <h5 className="fw-normal mb-0">Y</h5>
-                  </div>
-                  <h6 className="fw-normal text-muted">Alunos</h6>
-                </div>
+                        <div className="d-flex flex-column align-items-center ps-2">
+                          <div className="w-100">
+                            <h5 className="fw-normal mb-0">Y</h5>
+                          </div>
+                          <h6 className="fw-normal text-muted">Alunos</h6>
+                        </div>
 
-                <div className="d-flex flex-column align-items-center ps-2">
-                  <div className="w-100">
-                    <h5 className="fw-normal mb-0">{formattedDuration}</h5>
-                  </div>
-                  <h6 className="fw-normal text-muted">Duração total</h6>
-                </div>
+                        <div className="d-flex flex-column align-items-center ps-2">
+                          <div className="w-100">
+                            <h5 className="fw-normal mb-0">
+                              {formattedDuration}
+                            </h5>
+                          </div>
+                          <h6 className="fw-normal text-muted">
+                            Duração total
+                          </h6>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {index === 1 && (
+                  <>
+                    <div className="d-flex flex-column">
+                      <div className="container d-flex flex-column p-0 mt-2">
+                        <h3 className="ps-2 fw-normal">Material do curso</h3>
+                      </div>
+                      <div className="d-flex flex-row">
+                        <h4 className="ps-2 fw-normal">MATERIAL</h4>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
