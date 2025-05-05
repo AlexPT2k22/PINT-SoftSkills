@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import cloudinary from 'cloudinary-video-player';
+import cloudinary from "cloudinary-video-player";
 import "cloudinary-video-player/cld-video-player.min.css";
 
 const VideoPlayer = ({

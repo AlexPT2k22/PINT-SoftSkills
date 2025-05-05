@@ -12,9 +12,14 @@ function CourseVideoPage() {
   const [videoID, setVideoID] = useState("");
   const [courseData, setCourseData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [index, setIndex] = useState(0); // 0 - info, 1 - material, 2 - notas, 3 - anuncios
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
+  };
+
+  const handleIndexChange = (newIndex) => {
+    setIndex(newIndex);
   };
 
   useEffect(() => {
@@ -24,24 +29,19 @@ function CourseVideoPage() {
         const response = await axios.get(
           `http://localhost:4000/api/cursos/${courseId}`
         );
-        if (!response.ok) {
+        if (response.status !== 200) {
           throw new Error("Failed to fetch course data");
         }
-        const data = await response.json();
-        setCourseData(data);
-        const modulo = data.MODULOS[moduleId - 1];
-        if (modulo?.VIDEO_URL) {
-          const baseURL =
-            "https://res.cloudinary.com/dk2ifkqqc/video/upload/v1746399099/";
-          const publicId = modulo.VIDEO_URL.replace(baseURL, "").replace(
-            /\.[^/.]+$/,
-            ""
-          );
-          setVideoID(publicId);
-          console.log("publicId:", publicId);
+        const data = await response.data;
+        //console.log(data.MODULOS[moduleId - 1].VIDEO_URL);
+        const videoUrl = data.MODULOS[moduleId - 1].VIDEO_URL;
+        const resourceId = extractCloudinaryResourceId(videoUrl);
+        if (resourceId) {
+          setVideoID(resourceId);
         } else {
-          console.warn("Módulo não encontrado ou VIDEO_URL inexistente");
+          console.error("Invalid video URL format:", videoUrl);
         }
+        setCourseData(data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -56,6 +56,20 @@ function CourseVideoPage() {
     const duration = parseInt(modulo.TEMPO_ESTIMADO_MIN, 10);
     return acc + (isNaN(duration) ? 0 : duration);
   }, 0);
+
+  const extractCloudinaryResourceId = (url) => {
+    if (!url) return null;
+
+    // Pattern to match: after version number (v1234567890/) and before file extension
+    const regex = /\/v\d+\/(.+)\.(?:\w+)$/;
+    const match = url.match(regex);
+
+    if (match && match[1]) {
+      return match[1];
+    }
+
+    return null;
+  };
 
   const formattedDuration = totalDuration
     ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`

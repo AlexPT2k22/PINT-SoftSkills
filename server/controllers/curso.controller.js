@@ -379,7 +379,7 @@ const updateCursoSincrono = async (req, res) => {
 
     if (imagem) {
       const result = await streamUpload(
-        req.file.buffer,
+        imagem.buffer,
         `cursos/${NOME}`,
         "auto"
       );
@@ -536,7 +536,7 @@ const updateCursoAssincrono = async (req, res) => {
     const imagem = req.files.find((file) => file.fieldname === "imagem");
     if (imagem) {
       const result = await streamUpload(
-        req.file.buffer,
+        imagem.buffer,
         `cursos/${NOME}`,
         "auto"
       );
@@ -706,7 +706,7 @@ const createSincrono = async (req, res) => {
 
     if (imagem) {
       const result = await streamUpload(
-        req.file.buffer,
+        imagem.buffer,
         `cursos/${NOME}`,
         "auto"
       );
@@ -797,7 +797,6 @@ const createSincrono = async (req, res) => {
       ID_CURSO: curso.ID_CURSO,
       ID_UTILIZADOR: ID_FORMADOR,
       VAGAS,
-      ID_ESTADO_OCORRENCIA_ASSINCRONA2,
       DATA_INICIO,
       DATA_FIM,
     });
