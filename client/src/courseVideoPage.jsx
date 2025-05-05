@@ -1,11 +1,11 @@
-import React, { use } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
 import "./styles/CourseSidebar.css";
 import VideoPlayer from "./components/videoplayer";
 import Loader from "./components/loader";
+import axios from "axios";
 
 function CourseVideoPage() {
   const { courseId, moduleId } = useParams();
@@ -21,14 +21,8 @@ function CourseVideoPage() {
     const fetchCourseData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(
-          `http://localhost:4000/api/cursos/${courseId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+        const response = await axios.get(
+          `http://localhost:4000/api/cursos/${courseId}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch course data");
