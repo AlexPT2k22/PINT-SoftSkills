@@ -6,10 +6,14 @@ import { Star, User, Check } from "lucide-react";
 import "./styles/coursePage.css";
 import axios from "axios";
 import Loader from "./components/loader.jsx";
+import SuccessMessage from "./components/sucess_message.jsx";
+import ErrorMessage from "./components/error_message.jsx";
+import useAuthStore from "./store/authStore.js";
 
 //TODO: Buscar os dados do curso na API e preencher os dados do curso
 
 function CoursePage() {
+  const { user } = useAuthStore();
   const [index, setIndex] = useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
   const [course, setCourse] = useState({});
   const [loading, setLoading] = useState(true);
@@ -17,19 +21,27 @@ function CoursePage() {
   const { courseId } = useParams();
   const [inscrito, setInscrito] = useState(false);
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState(null);
+  const [showMessage, setShowMessage] = useState("");
+  const [isEnrolling, setIsEnrolling] = useState(false);
 
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
   };
 
-  const handleInscrito = (e) => {
+  const handleInscrito = () => {
+    if (!user) {
+      setError(true);
+      setMessage("Por favor faça login para se inscrever no curso.");
+      return;
+    }
+
     if (inscrito) {
       navigate(`/dashboard/courses/${courseId}/modules/1`);
     } else {
-      e.preventDefault();
       inscreverCurso(courseId);
     }
-    setInscrito(!inscrito);
   };
 
   const convertMinutesToHours = (minutes) => {
@@ -65,6 +77,11 @@ function CoursePage() {
 
   useEffect(() => {
     const verificarInscricao = async () => {
+      if (!user) {
+        setInscrito(false);
+        return;
+      }
+
       try {
         const response = await axios.get(
           `http://localhost:4000/api/user/verify-course/${courseId}`,
@@ -75,7 +92,7 @@ function CoursePage() {
             },
           }
         );
-        if (response.status === 200) {
+        if (response.data.inscrito === true) {
           console.log("User está inscrito no curso");
           setInscrito(true);
         } else {
@@ -91,10 +108,11 @@ function CoursePage() {
     };
 
     verificarInscricao();
-  }, [courseId]);
+  }, [courseId, user]);
 
   const inscreverCurso = async (cursoId) => {
     try {
+      setIsEnrolling(true);
       const response = await axios.post(
         `http://localhost:4000/api/user/enter-course/${cursoId}`,
         {},
@@ -107,7 +125,8 @@ function CoursePage() {
       );
 
       if (response.status === 201) {
-        alert("Inscrição realizada com sucesso!");
+        setMessage(`Inscrito com sucesso no curso ${course.NOME}`);
+        setShowMessage(true);
         // Redirecionar ou atualizar a interface
       }
     } catch (error) {
@@ -116,6 +135,10 @@ function CoursePage() {
         error.response?.data?.message || error.message
       );
       alert(error.response?.data?.message || "Erro ao realizar inscrição");
+      setMessage(error.response?.data?.message || "Erro ao realizar inscrição");
+      setError(true);
+    } finally {
+      setIsEnrolling(false);
     }
   };
 
@@ -126,6 +149,20 @@ function CoursePage() {
       ) : (
         <>
           <Navbar />
+          {showMessage && (
+            <SuccessMessage
+              message={message}
+              onClose={() => setShowMessage(false)}
+            />
+          )}
+          {error && (
+            <div
+              className="position-fixed top-0 start-0 w-100 d-flex justify-content-center align-items-center"
+              style={{ zIndex: 1050, paddingTop: "20px" }}
+            >
+              <ErrorMessage message={message} onClose={() => setError(false)} />
+            </div>
+          )}
           <div className="container-fluid banner-curso">
             <div className="container d-flex flex-column justify-content-start">
               <div className="container d-flex justify-content-start mt-3">
@@ -187,9 +224,26 @@ function CoursePage() {
                     <button
                       className="btn btn-primary fs-5 ps-5 pe-5"
                       onClick={() => handleInscrito()}
-                      disabled={course.CURSO_SINCRONO.VAGAS <= 0}
+                      disabled={
+                        (course.CURSO_SINCRONO &&
+                          course.CURSO_SINCRONO.VAGAS <= 0) ||
+                        isEnrolling
+                      }
                     >
-                      {inscrito ? "Ir para o curso" : "Inscrever"}
+                      {isEnrolling ? (
+                        <span>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          A guardar o lugar...
+                        </span>
+                      ) : inscrito ? (
+                        "Ir para o curso"
+                      ) : (
+                        "Inscrever"
+                      )}
                     </button>
                   </div>
                 </div>
