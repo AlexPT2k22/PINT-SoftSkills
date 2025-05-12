@@ -63,6 +63,15 @@ function CourseVideoPage() {
     return `http://localhost:4000/${fileUrl}`;
   };
 
+  const getFileName = (fileUrl) => {
+    if (!fileUrl) return null;
+    const urlParts = fileUrl.split("-$");
+    if (urlParts.length > 1) {
+      return urlParts[1].split(".")[0];
+    }
+    return null;
+  };
+
   const totalDuration = courseData.MODULOS?.reduce((acc, modulo) => {
     const duration = parseInt(modulo.TEMPO_ESTIMADO_MIN, 10);
     return acc + (isNaN(duration) ? 0 : duration);
@@ -208,7 +217,24 @@ function CourseVideoPage() {
                                       key={idx}
                                       className="list-group-item d-flex align-items-center border-0 py-3"
                                     >
-                                      {/* Existing material rendering code */}
+                                      <div className="material-icon me-3">
+                                        <i className="fas fa-file-alt text-primary fs-4"></i>
+                                      </div>
+                                      <div className="material-info flex-grow-1">
+                                        <h6 className="mb-1">
+                                          {getFileName(material)}
+                                        </h6>
+                                      </div>
+                                      <a
+                                        href={getFileUrl(material)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-outline-primary btn-sm"
+                                        download
+                                      >
+                                        <i className="fas fa-download me-1"></i>{" "}
+                                        Download
+                                      </a>
                                     </li>
                                   )
                                 )}
@@ -221,7 +247,12 @@ function CourseVideoPage() {
                                     <i className="fas fa-file-alt text-primary fs-4"></i>
                                   </div>
                                   <div className="material-info flex-grow-1">
-                                    <h6 className="mb-1">Material do Módulo</h6>
+                                    <h6 className="mb-1">
+                                      {getFileName(
+                                        courseData.MODULOS[moduleId - 1]
+                                          .FILE_URL
+                                      )}
+                                    </h6>
                                   </div>
                                   <a
                                     href={
