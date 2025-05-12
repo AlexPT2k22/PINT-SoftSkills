@@ -90,7 +90,6 @@ function CourseVideoPage() {
   const extractCloudinaryResourceId = (url) => {
     if (!url) return null;
 
-    // Pattern to match: after version number (v1234567890/) and before file extension
     const regex = /\/v\d+\/(.+)\.(?:\w+)$/;
     const match = url.match(regex);
 
