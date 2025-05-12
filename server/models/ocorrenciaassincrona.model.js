@@ -26,21 +26,21 @@ const OcorrenciaAssincrona = sequelize.define(
         key: "ID_UTILIZADOR",
       },
     },
-    ID_CURSO: {
+    ID_CURSO_ASSINCRONO: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "CURSO_ASSINCRONO",
-        key: "ID_CURSO",
+        key: "ID_CURSO_ASSINCRONO",
       },
     },
     DATA_INICIO_DATETIME__: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     DATA_FIM_DATETIME__: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
   },
   {

@@ -12,5 +12,8 @@ export default defineConfig({
     port: 5173,
     open: true, // Automatically open the app in the browser
     historyApiFallback: true, // Redirect 404s to index.html
+    fs: {
+      strict: false, // Allow serving files from outside the project root
+    },
   },
 });

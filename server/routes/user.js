@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 router.get("/teachers", getTeachers);
 router.get("/teacher-courses", authenticateToken, getCursosAssociados);
 router.get("/student-courses", authenticateToken, getCursosInscritos);
-router.post("/enter-course/:cursoId", authenticateToken, inscreverEmCurso);
-router.get("/verify-course/:cursoId", authenticateToken, verificarInscricao);
+router.post("/enter-course/:courseId", authenticateToken, inscreverEmCurso);
+router.post("/verify-course/:courseId", authenticateToken, verificarInscricao);
 
 module.exports = router;

@@ -53,6 +53,16 @@ function CourseVideoPage() {
     fetchCourseData();
   }, [courseId, moduleId]);
 
+  const getFileUrl = (fileUrl) => {
+    if (!fileUrl) return null;
+
+    if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
+      return fileUrl;
+    }
+
+    return `http://localhost:4000/${fileUrl}`;
+  };
+
   const totalDuration = courseData.MODULOS?.reduce((acc, modulo) => {
     const duration = parseInt(modulo.TEMPO_ESTIMADO_MIN, 10);
     return acc + (isNaN(duration) ? 0 : duration);
@@ -142,7 +152,10 @@ function CourseVideoPage() {
                   <>
                     <div className="d-flex flex-column">
                       <div className="container d-flex flex-column p-0 mt-2">
-                        <h3 className="ps-2 fw-normal">{courseData.NOME}</h3>
+                        <h3 className="ps-2 fw-normal">
+                          {courseData.MODULOS &&
+                            courseData.MODULOS[moduleId - 1]?.NOME}
+                        </h3>
                       </div>
                       <div className="d-flex flex-row">
                         <div className="d-flex flex-column align-items-center ps-2">
@@ -181,7 +194,57 @@ function CourseVideoPage() {
                         <h3 className="ps-2 fw-normal">Material do curso</h3>
                       </div>
                       <div className="d-flex flex-row">
-                        <h4 className="ps-2 fw-normal">MATERIAL</h4>
+                        <div className="materials-container p-2 w-100">
+                          {courseData.MODULOS &&
+                          courseData.MODULOS[moduleId - 1]?.FILE_URL ? (
+                            Array.isArray(
+                              courseData.MODULOS[moduleId - 1].FILE_URL
+                            ) ? (
+                              // Handle array of files case
+                              <ul className="list-group">
+                                {courseData.MODULOS[moduleId - 1].FILE_URL.map(
+                                  (material, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="list-group-item d-flex align-items-center border-0 py-3"
+                                    >
+                                      {/* Existing material rendering code */}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            ) : (
+                              // Handle single file URL string case
+                              <ul className="list-group">
+                                <li className="list-group-item d-flex align-items-center border-0 py-3">
+                                  <div className="material-icon me-3">
+                                    <i className="fas fa-file-alt text-primary fs-4"></i>
+                                  </div>
+                                  <div className="material-info flex-grow-1">
+                                    <h6 className="mb-1">Material do Módulo</h6>
+                                  </div>
+                                  <a
+                                    href={
+                                      courseData.MODULOS[moduleId - 1].FILE_URL
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-outline-primary btn-sm"
+                                    download
+                                  >
+                                    <i className="fas fa-download me-1"></i>{" "}
+                                    Download
+                                  </a>
+                                </li>
+                              </ul>
+                            )
+                          ) : (
+                            <div className="alert alert-info mt-3">
+                              <i className="fas fa-info-circle me-2"></i>
+                              Não há material disponível para este módulo.
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </>

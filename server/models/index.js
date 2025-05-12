@@ -118,11 +118,20 @@ OcorrenciaAssincrona.belongsTo(EstadoOcorrenciaAssincrona, {
   foreignKey: "ID_ESTADO_OCORRENCIA_ASSINCRONA",
 });
 
-CursoAssincrono.hasMany(OcorrenciaAssincrona, { foreignKey: "ID_CURSO" });
-OcorrenciaAssincrona.belongsTo(CursoAssincrono, { foreignKey: "ID_CURSO" });
+CursoAssincrono.hasMany(InscricaoAssincrono, {
+  foreignKey: "ID_CURSO_ASSINCRONO",
+});
+InscricaoAssincrono.belongsTo(CursoAssincrono, {
+  foreignKey: "ID_CURSO_ASSINCRONO",
+});
 
-Utilizador.hasMany(OcorrenciaAssincrona, { foreignKey: "ID_UTILIZADOR" });
-OcorrenciaAssincrona.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+Utilizador.hasMany(InscricaoAssincrono, {
+  foreignKey: "ID_UTILIZADOR",
+});
+InscricaoAssincrono.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+});
+
 
 // Topico and Resposta associations
 Topico.hasMany(Resposta, { foreignKey: "ID_TOPICO" });
@@ -182,13 +191,6 @@ InscricaoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 // InscricaoAssincrono associations
 Utilizador.hasMany(InscricaoAssincrono, { foreignKey: "ID_UTILIZADOR" });
 InscricaoAssincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
-
-OcorrenciaAssincrona.hasMany(InscricaoAssincrono, {
-  foreignKey: "ID_OCORRENCIA",
-});
-InscricaoAssincrono.belongsTo(OcorrenciaAssincrona, {
-  foreignKey: "ID_OCORRENCIA",
-});
 
 // FrequenciaSincrono associations
 Utilizador.hasMany(FrequenciaSincrono, { foreignKey: "ID_UTILIZADOR" });

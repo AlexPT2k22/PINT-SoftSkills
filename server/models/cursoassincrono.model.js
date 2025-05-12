@@ -4,10 +4,15 @@ const { sequelize } = require("../database/database.js");
 const CursoAssincrono = sequelize.define(
   "CURSO_ASSINCRONO",
   {
+    ID_CURSO_ASSINCRONO: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
     ID_CURSO: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
       references: {
         model: "CURSO",
         key: "ID_CURSO",

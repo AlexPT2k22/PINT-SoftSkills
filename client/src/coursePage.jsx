@@ -83,8 +83,11 @@ function CoursePage() {
       }
 
       try {
-        const response = await axios.get(
+        const response = await axios.post(
           `http://localhost:4000/api/user/verify-course/${courseId}`,
+          {
+            courseType: course.CURSO_SINCRONO ? "sincrono" : "assincrono",
+          },
           {
             withCredentials: true,
             headers: {
@@ -115,7 +118,9 @@ function CoursePage() {
       setIsEnrolling(true);
       const response = await axios.post(
         `http://localhost:4000/api/user/enter-course/${cursoId}`,
-        {},
+        {
+          courseType: course.CURSO_SINCRONO ? "sincrono" : "assincrono",
+        },
         {
           withCredentials: true,
           headers: {

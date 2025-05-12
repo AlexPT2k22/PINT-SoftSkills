@@ -19,15 +19,57 @@ const sequelize = require("sequelize");
 const cloudinary = require("cloudinary").v2;
 const { Readable } = require("stream");
 
-const streamUpload = (buffer, folder, resource_type = "auto") => {
+const streamUpload = (
+  buffer,
+  folder,
+  resource_type = "auto",
+  originalFilename = null
+) => {
   return new Promise((resolve, reject) => {
+    // Extract extension from original filename if provided
+    let fileExtension = "";
+    let publicId = "";
+
+    if (originalFilename) {
+      const lastDot = originalFilename.lastIndexOf(".");
+      fileExtension =
+        lastDot !== -1 ? originalFilename.substring(lastDot + 1) : "";
+      publicId =
+        lastDot !== -1
+          ? originalFilename.substring(0, lastDot)
+          : originalFilename;
+    }
+
+    const uploadOptions = {
+      folder,
+      resource_type,
+      use_filename: true,
+      unique_filename: true,
+      access_mode: "public",
+    };
+
+    // PDF-specific options
+    if (resource_type === "raw" && fileExtension.toLowerCase() === "pdf") {
+      // THIS IS THE KEY CHANGE - Use "image" type for PDFs, not "raw"
+      uploadOptions.resource_type = "image";
+      uploadOptions.format = "pdf";
+      uploadOptions.flags = "attachment";
+      uploadOptions.type = "upload";
+    }
+
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type },
+      uploadOptions,
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
+        if (error) {
+          console.error("Cloudinary upload error:", error);
+          reject(error);
+        } else {
+          resolve(result);
+        }
       }
     );
+
+    // Create stream from buffer
     const readable = new Readable();
     readable.push(buffer);
     readable.push(null);
@@ -775,12 +817,26 @@ const createSincrono = async (req, res) => {
 
       // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
       if (contentFile) {
-        const result = await streamUpload(
-          contentFile.buffer,
-          `cursos/${NOME}/modulos/conteudos`,
-          "auto"
-        );
-        contentUrl = result.secure_url;
+        try {
+          console.log("Uploading content file:", {
+            originalname: contentFile.originalname,
+            mimetype: contentFile.mimetype,
+            size: contentFile.size,
+          });
+
+          const result = await streamUpload(
+            contentFile.buffer,
+            `cursos/${NOME}/modulos/conteudos`,
+            "raw",
+            contentFile.originalname // Pass the original filename
+          );
+
+          console.log("Content upload success:", result.secure_url);
+          contentUrl = result.secure_url;
+        } catch (error) {
+          console.error("Error uploading content file:", error);
+          contentUrl = null;
+        }
       }
 
       await Modulos.create({
@@ -903,14 +959,28 @@ const createAssincrono = async (req, res) => {
         );
         videoUrl = result.secure_url;
       }
-      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
+
       if (contentFile) {
-        const result = await streamUpload(
-          contentFile.buffer,
-          `cursos/${NOME}/modulos/conteudos`,
-          "auto"
-        );
-        contentUrl = result.secure_url;
+        try {
+          console.log("Uploading content file:", {
+            originalname: contentFile.originalname,
+            mimetype: contentFile.mimetype,
+            size: contentFile.size,
+          });
+
+          const result = await streamUpload(
+            contentFile.buffer,
+            `cursos/${NOME}/modulos/conteudos`,
+            "raw",
+            contentFile.originalname // Pass the original filename
+          );
+
+          console.log("Content upload success:", result.secure_url);
+          contentUrl = result.secure_url;
+        } catch (error) {
+          console.error("Error uploading content file:", error);
+          contentUrl = null;
+        }
       }
 
       await Modulos.create({
