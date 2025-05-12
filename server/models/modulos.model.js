@@ -34,6 +34,24 @@ const Modulos = sequelize.define(
     FILE_URL: {
       type: DataTypes.TEXT,
       allowNull: true,
+      get() {
+        const value = this.getDataValue("FILE_URL");
+        if (value) {
+          try {
+            return JSON.parse(value);
+          } catch (e) {
+            return value;
+          }
+        }
+        return null;
+      },
+      set(value) {
+        if (Array.isArray(value)) {
+          this.setDataValue("FILE_URL", JSON.stringify(value));
+        } else {
+          this.setDataValue("FILE_URL", value);
+        }
+      },
     },
     TEMPO_ESTIMADO_MIN: {
       type: DataTypes.INTEGER,

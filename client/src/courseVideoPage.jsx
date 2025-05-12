@@ -53,14 +53,24 @@ function CourseVideoPage() {
     fetchCourseData();
   }, [courseId, moduleId]);
 
-  const getFileUrl = (fileUrl) => {
-    if (!fileUrl) return null;
+  const getModuleFiles = (moduleFileUrl) => {
+    if (!moduleFileUrl) return [];
 
-    if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
-      return fileUrl;
+    try {
+      // If it's a JSON string, parse it
+      if (typeof moduleFileUrl === "string" && moduleFileUrl.startsWith("[")) {
+        return JSON.parse(moduleFileUrl);
+      }
+      // If it's already an array, return it
+      if (Array.isArray(moduleFileUrl)) {
+        return moduleFileUrl;
+      }
+      // If it's a single URL string, convert to array
+      return [moduleFileUrl];
+    } catch (e) {
+      console.error("Error parsing file URLs:", e);
+      return [];
     }
-
-    return `http://localhost:4000/${fileUrl}`;
   };
 
   const getFileName = (fileUrl) => {
@@ -215,26 +225,26 @@ function CourseVideoPage() {
                                   (material, idx) => (
                                     <li
                                       key={idx}
-                                      className="list-group-item d-flex align-items-center border-0 py-3"
+                                      className="list-group-item d-flex align-items-center border-1 p-3"
                                     >
-                                      <div className="material-icon me-3">
-                                        <i className="fas fa-file-alt text-primary fs-4"></i>
-                                      </div>
                                       <div className="material-info flex-grow-1">
-                                        <h6 className="mb-1">
+                                        <h6 className="mb-0">
                                           {getFileName(material)}
                                         </h6>
                                       </div>
-                                      <a
-                                        href={getFileUrl(material)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="btn btn-outline-primary btn-sm"
-                                        download
-                                      >
-                                        <i className="fas fa-download me-1"></i>{" "}
-                                        Download
-                                      </a>
+                                      {getModuleFiles(material).map(
+                                        (url, idx) => (
+                                          <a
+                                            key={idx}
+                                            href={url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="btn btn-outline-primary btn-sm"
+                                          >
+                                            Download
+                                          </a>
+                                        )
+                                      )}
                                     </li>
                                   )
                                 )}

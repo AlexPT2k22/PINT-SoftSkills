@@ -36,6 +36,7 @@ function CreateCourse() {
   const [selectedModule, setSelectedModule] = useState(null);
   const [currentModuleData, setCurrentModuleData] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const moduleContentInputRef = useRef(null);
 
   // Add this to your component or create a new CSS file and import it
 
@@ -58,7 +59,7 @@ function CreateCourse() {
       boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
       width: "100%",
       maxWidth: "500px",
-      maxHeight: "90vh",
+      maxHeight: "95vh",
       overflowY: "auto",
       animation: "modalFadeIn 0.3s ease",
     },
@@ -182,6 +183,17 @@ function CreateCourse() {
         ? moduleContentInput.files[0]
         : currentModuleData?.contentFile;
 
+    let contentFile = [];
+
+    if (
+      moduleContentInput.files.length === 0 &&
+      currentModuleData?.contentFile
+    ) {
+      contentFile = currentModuleData.contentFile;
+    } else {
+      contentFile = Array.from(moduleContentInput.files);
+    }
+
     // Store current module name before resetting state
     const currentModule = selectedModule;
 
@@ -200,7 +212,7 @@ function CreateCourse() {
         name: currentModule,
         description: moduleDescription,
         videoFile: moduleVideo,
-        contentFile: moduleContent,
+        contentFile: contentFile,
         duration: moduleDuration,
       };
 
@@ -284,6 +296,25 @@ function CreateCourse() {
     setSelectedArea(""); // Limpa a área quando a categoria é alterada
   };
 
+  const validateFiles = (files, maxTotalSizeMB = 50) => {
+    const totalSizeBytes = Array.from(files).reduce(
+      (sum, file) => sum + file.size,
+      0
+    );
+    const totalSizeMB = totalSizeBytes / (1024 * 1024);
+
+    if (totalSizeMB > maxTotalSizeMB) {
+      return {
+        valid: false,
+        message: `O tamanho total dos arquivos (${totalSizeMB.toFixed(
+          1
+        )} MB) excede o limite de ${maxTotalSizeMB} MB.`,
+      };
+    }
+
+    return { valid: true };
+  };
+
   const selectedCategoryData = category.find(
     (cat) => cat.ID_CATEGORIA__PK___ === parseInt(selectedCategory)
   );
@@ -365,8 +396,10 @@ function CreateCourse() {
             NOME: module.name,
             DESCRICAO: module.data.description,
             DURACAO: module.data.duration,
-            VIDEO: module.data.videoFile,
-            CONTEUDO: module.data.contentFile,
+            VIDEO: module.data.videoFile ? true : false,
+            CONTEUDO: module.data.contentFile
+              ? module.data.contentFile.length
+              : 0,
           };
         }
       });
@@ -377,8 +410,14 @@ function CreateCourse() {
         if (module.data.videoFile) {
           formData.append(`module_${index}_video`, module.data.videoFile);
         }
-        if (module.data.contentFile) {
-          formData.append(`module_${index}_content`, module.data.contentFile);
+        if (module.data.contentFile && module.data.contentFile.length > 0) {
+          module.data.contentFile.forEach((file, fileIndex) => {
+            formData.append(
+              `module_${index}_content_${fileIndex}`,
+              file,
+              file.name
+            );
+          });
         }
       }
     });
@@ -400,7 +439,13 @@ function CreateCourse() {
         setCourseDescription("");
         setSelectedRadio(null);
         setIsValid(false);
-        e.target.reset(); // Limpar os campos do formulário
+        e.target.reset();
+        setCourseObjectives([""]);
+        setCourseHabilities([""]);
+        setCourseModules([""]);
+        setSelectedCategory(null);
+        setSelectedArea(null);
+        setSelectedType(null);
       }
     } catch (error) {
       console.error("Error creating course:", error);
@@ -517,27 +562,41 @@ function CreateCourse() {
                   </label>
                   <input
                     type="file"
+                    ref={moduleContentInputRef}
                     className="form-control mb-2"
                     id="moduleContent"
-                    required={!currentModuleData?.contentFile}
+                    required={!currentModuleData?.contentFile?.length}
                     accept=".pdf, .docx, .pptx"
+                    multiple
+                    onChange={(e) => {
+                      const validation = validateFiles(e.target.files);
+                      if (!validation.valid) {
+                        setError(true);
+                        setMessage(validation.message);
+                        e.target.value = ""; // Clear the input
+                      }
+                    }}
                   />
-                  {currentModuleData?.contentFile && (
-                    <div className="current-file">
-                      <span
-                        className="badge bg-info text-dark"
-                        style={{ fontSize: "14px" }}
-                      >
-                        Arquivo atual:{" "}
-                        {currentModuleData.contentFile.name || "documento.pdf"}
-                      </span>
-                      <small className="d-block text-muted mt-1">
-                        Selecione um novo arquivo para substituir o atual
-                      </small>
-                    </div>
-                  )}
+
+                  {currentModuleData?.contentFile &&
+                    currentModuleData?.contentFile?.length > 0 && (
+                      <div className="current-file">
+                        <span
+                          className="badge bg-info text-dark"
+                          style={{ fontSize: "14px" }}
+                        >
+                          {currentModuleData.contentFile.length} arquivos
+                          selecionados
+                        </span>
+                        <small className="d-block text-muted mt-1">
+                          Selecione novos arquivos para substituir os atuais
+                        </small>
+                      </div>
+                    )}
+
                   <small className="form-text text-muted">
                     Formatos suportados: PDF, DOCX, PPTX. Tamanho máximo: 50MB.
+                    Máximo 5 arquivos
                   </small>
                 </div>
                 <div className="mb-3">
