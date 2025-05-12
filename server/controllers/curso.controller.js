@@ -31,7 +31,7 @@ const savePdfToServer = (buffer, fileName) => {
       }
 
       // Generate unique filename
-      const uniqueFileName = `${Date.now()}-${fileName}`;
+      const uniqueFileName = `${Date.now()}-$${fileName}`;
       const filePath = path.join(uploadsDir, uniqueFileName);
 
       // Write file
