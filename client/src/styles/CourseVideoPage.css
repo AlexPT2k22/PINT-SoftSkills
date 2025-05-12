@@ -1,22 +1,48 @@
-.course-tab {
-  border: none;
-  border-radius: 0;
-  background-color: rgba(0, 0, 0, 0);
-  font-weight: 500;
-  color: #37373780;
+/* Add to styles/CourseVideoPage.css */
+.course-sidebar {
+  background-color: #ffffff;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
-.course-tab:hover {
+.section-header {
+  background-color: #f0f2f5;
   cursor: pointer;
-  background-color: #ffffff00 !important;
-  color: #373737 !important;
 }
 
-.course-tab.active {
-  border: none;
-  border-radius: 0;
-  border-bottom: 3px solid #00b8e0;
-  background-color: rgba(0, 0, 0, 0);
-  font-weight: 500;
-  color: #373737;
+.section-header:hover {
+  background-color: #e9ecef;
+}
+
+.module-item {
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding-left: 20px;
+}
+
+.module-item:hover {
+  background-color: #f0f8ff;
+}
+
+.module-item.active {
+  background-color: #e6f3ff;
+  border-left: 3px solid #39639c;
+}
+
+.module-status-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background-color: white;
+}
+
+.module-status-circle.completed {
+  background-color: #39639c;
+  border-color: #39639c;
 }
