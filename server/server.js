@@ -12,6 +12,7 @@ const categoriaRoutes = require("./routes/categoria.route.js");
 const cookieparser = require("cookie-parser");
 require("dotenv");
 const { connectCloudinary } = require("./database/cloudinary.js");
+const path = require("path");
 const port = process.env.PORT || 4000;
 
 app.use(express.json()); // Para ler JSON no corpo da requisição
@@ -29,6 +30,7 @@ app.use("/api/dashboard", dashboardRoute); // Rota para o dashboard
 app.use("/api/auth", authRoutes); // Rota para autenticação
 app.use("/api/cursos", cursoRoute); // Rota para cursos
 app.use("/api/categorias", categoriaRoutes); // Rota para categorias
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");
 });

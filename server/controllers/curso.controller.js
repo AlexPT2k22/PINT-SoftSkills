@@ -18,6 +18,32 @@ const {
 const sequelize = require("sequelize");
 const cloudinary = require("cloudinary").v2;
 const { Readable } = require("stream");
+const fs = require("fs");
+const path = require("path");
+
+const savePdfToServer = (buffer, fileName) => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(__dirname, "../public/uploads");
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
+      // Generate unique filename
+      const uniqueFileName = `${Date.now()}-${fileName}`;
+      const filePath = path.join(uploadsDir, uniqueFileName);
+
+      // Write file
+      fs.writeFileSync(filePath, buffer);
+
+      // Return the URL path that will be used to access the file
+      resolve(`/uploads/${uniqueFileName}`);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
 const streamUpload = (
   buffer,
@@ -818,23 +844,27 @@ const createSincrono = async (req, res) => {
       // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
       if (contentFile) {
         try {
-          console.log("Uploading content file:", {
-            originalname: contentFile.originalname,
-            mimetype: contentFile.mimetype,
-            size: contentFile.size,
-          });
+          console.log("Uploading PDF file:", contentFile.originalname);
 
-          const result = await streamUpload(
-            contentFile.buffer,
-            `cursos/${NOME}/modulos/conteudos`,
-            "raw",
-            contentFile.originalname // Pass the original filename
-          );
-
-          console.log("Content upload success:", result.secure_url);
-          contentUrl = result.secure_url;
+          if (contentFile.mimetype === "application/pdf") {
+            // Use direct file storage for PDFs
+            const filePath = await savePdfToServer(
+              contentFile.buffer,
+              contentFile.originalname
+            );
+            contentUrl = `http://localhost:4000${filePath}`;
+          } else {
+            // Use Cloudinary for other file types
+            const result = await streamUpload(
+              contentFile.buffer,
+              `cursos/${NOME}/modulos/conteudos`,
+              "raw",
+              contentFile.originalname
+            );
+            contentUrl = result.secure_url;
+          }
         } catch (error) {
-          console.error("Error uploading content file:", error);
+          console.error("Error uploading file:", error);
           contentUrl = null;
         }
       }
@@ -962,23 +992,27 @@ const createAssincrono = async (req, res) => {
 
       if (contentFile) {
         try {
-          console.log("Uploading content file:", {
-            originalname: contentFile.originalname,
-            mimetype: contentFile.mimetype,
-            size: contentFile.size,
-          });
+          console.log("Uploading PDF file:", contentFile.originalname);
 
-          const result = await streamUpload(
-            contentFile.buffer,
-            `cursos/${NOME}/modulos/conteudos`,
-            "raw",
-            contentFile.originalname // Pass the original filename
-          );
-
-          console.log("Content upload success:", result.secure_url);
-          contentUrl = result.secure_url;
+          if (contentFile.mimetype === "application/pdf") {
+            // Use direct file storage for PDFs
+            const filePath = await savePdfToServer(
+              contentFile.buffer,
+              contentFile.originalname
+            );
+            contentUrl = `http://localhost:4000${filePath}`;
+          } else {
+            // Use Cloudinary for other file types
+            const result = await streamUpload(
+              contentFile.buffer,
+              `cursos/${NOME}/modulos/conteudos`,
+              "raw",
+              contentFile.originalname
+            );
+            contentUrl = result.secure_url;
+          }
         } catch (error) {
-          console.error("Error uploading content file:", error);
+          console.error("Error uploading file:", error);
           contentUrl = null;
         }
       }
