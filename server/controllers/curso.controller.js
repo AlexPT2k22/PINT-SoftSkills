@@ -566,7 +566,6 @@ const updateCursoSincrono = async (req, res) => {
       DATA_INICIO,
       DATA_FIM,
       VAGAS,
-      ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
     });
 
     res.status(200).json({
@@ -722,7 +721,6 @@ const updateCursoAssincrono = async (req, res) => {
       ID_AREA,
       DATA_INICIO,
       DATA_FIM,
-      ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
     });
     res.status(200).json({
       Curso: curso,
@@ -981,7 +979,6 @@ const convertCursoType = async (req, res) => {
         VAGAS,
         DATA_INICIO,
         DATA_FIM,
-        ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // Inactive state
       });
 
       // Remove asynchronous if it exists
@@ -1006,7 +1003,6 @@ const convertCursoType = async (req, res) => {
         NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
         DATA_INICIO,
         DATA_FIM,
-        ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // Inactive state
       });
 
       // Remove synchronous if it exists
