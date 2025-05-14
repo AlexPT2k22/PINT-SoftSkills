@@ -8,3 +8,4 @@
 - PostgreSQL
 - Resend (Email sending)
 - Zustand (State management)
+- Cloudinary (gestão de imagens e videos)
