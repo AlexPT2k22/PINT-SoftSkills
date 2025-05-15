@@ -10,6 +10,7 @@ const {
   InscricaoSincrono,
   InscricaoAssincrono,
 } = require("../models/index.js");
+const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 
 const getTeachers = async (req, res) => {
@@ -206,7 +207,7 @@ const inscreverEmCursoAssincrono = async (userId, courseId, req, res) => {
     // Criar nova inscrição
     const novaInscricao = await InscricaoAssincrono.create({
       ID_UTILIZADOR: userId,
-      ID_CURSO_ASSINCRONO: curso.ID_CURSO_ASSINCRONO, // Use the correct ID from curso
+      ID_CURSO_ASSINCRONO: curso.ID_CURSO_ASSINCRONO,
       DATA_INSCRICAO: new Date(),
       ESTADO: "Ativo",
     });
@@ -233,7 +234,7 @@ const verificarInscricao = async (req, res) => {
 
     // If courseType is specified, check the specific enrollment type
     if (courseType) {
-      if (courseType.toLowerCase() === 'sincrono') {
+      if (courseType.toLowerCase() === "sincrono") {
         // Check synchronous enrollment
         const inscricao = await InscricaoSincrono.findOne({
           where: {
@@ -245,14 +246,14 @@ const verificarInscricao = async (req, res) => {
         return res.status(200).json({
           inscrito: !!inscricao,
           inscricao: inscricao || null,
-          tipo: 'sincrono',
+          tipo: "sincrono",
         });
-      } else if (courseType.toLowerCase() === 'assincrono') {
+      } else if (courseType.toLowerCase() === "assincrono") {
         // Find asynchronous course first to get its specific ID
         const curso = await CursoAssincrono.findOne({
           where: { ID_CURSO: courseId },
         });
-        
+
         if (!curso) {
           return res.status(404).json({
             success: false,
@@ -271,7 +272,7 @@ const verificarInscricao = async (req, res) => {
         return res.status(200).json({
           inscrito: !!inscricao,
           inscricao: inscricao || null,
-          tipo: 'assincrono',
+          tipo: "assincrono",
         });
       }
     }
@@ -288,7 +289,7 @@ const verificarInscricao = async (req, res) => {
       return res.status(200).json({
         inscrito: true,
         inscricao: inscricaoSincrono,
-        tipo: 'sincrono',
+        tipo: "sincrono",
       });
     }
 
@@ -309,7 +310,7 @@ const verificarInscricao = async (req, res) => {
         return res.status(200).json({
           inscrito: true,
           inscricao: inscricaoAssincrono,
-          tipo: 'assincrono',
+          tipo: "assincrono",
         });
       }
     }
@@ -327,19 +328,72 @@ const verificarInscricao = async (req, res) => {
 const getCursosInscritos = async (req, res) => {
   try {
     const id = req.user.ID_UTILIZADOR;
+    console.log("ID do utilizador:", id);
 
+    // para cursos síncronos
+    const cursosSincronosComInscricao = await CursoSincrono.findAll({
+      attributes: ["ID_CURSO"],
+      include: [
+        {
+          model: InscricaoSincrono,
+          where: {
+            ID_UTILIZADOR: id,
+          },
+          required: true,
+          attributes: [], // Não precisamos dos dados da inscrição, só filtrar
+        },
+      ],
+    });
+
+    const idsCursosSincronos = cursosSincronosComInscricao
+      .map((c) => c.ID_CURSO)
+      .filter(Boolean);
+    console.log("IDs de cursos síncronos encontrados:", idsCursosSincronos);
+
+    // Para cursos assíncronos - CORREÇÃO AQUI
+    const cursosAssincronosComInscricao = await CursoAssincrono.findAll({
+      attributes: ["ID_CURSO"],
+      include: [
+        {
+          model: InscricaoAssincrono,
+          where: {
+            ID_UTILIZADOR: id,
+          },
+          required: true,
+          attributes: [], // Não precisamos dos dados da inscrição, só filtrar
+        },
+      ],
+    });
+
+    const idsCursosAssincronos = cursosAssincronosComInscricao
+      .map((c) => c.ID_CURSO)
+      .filter(Boolean);
+    console.log("IDs de cursos assíncronos encontrados:", idsCursosAssincronos);
+
+    // Combine todos os IDs de cursos
+    const todosCursosIds = [...idsCursosSincronos, ...idsCursosAssincronos];
+    console.log("Todos os IDs de cursos encontrados:", todosCursosIds);
+
+    if (todosCursosIds.length === 0) {
+      console.log("Nenhum curso encontrado para o utilizador.");
+      return res.status(200).json([]);
+    }
+
+    // 2. Depois busque os detalhes completos desses cursos
     const cursosInscritos = await Curso.findAll({
+      where: {
+        ID_CURSO: {
+          [Op.in]: todosCursosIds,
+        },
+      },
       include: [
         {
           model: CursoSincrono,
-          required: true,
-          include: [
-            {
-              model: InscricaoSincrono,
-              where: { ID_UTILIZADOR: id },
-              required: true,
-            },
-          ],
+          required: false,
+        },
+        {
+          model: CursoAssincrono,
+          required: false,
         },
         {
           model: Area,
@@ -355,6 +409,7 @@ const getCursosInscritos = async (req, res) => {
       ],
     });
 
+    console.log("Cursos inscritos encontrados:", cursosInscritos.length);
     res.status(200).json(cursosInscritos);
   } catch (error) {
     console.error("Erro ao buscar cursos inscritos:", error);

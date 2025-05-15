@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NavbarDashboard from "./components/navbarDashboard";
 import "./styles/CourseSidebar.css";
@@ -14,6 +14,20 @@ function CourseVideoPage() {
   const [courseData, setCourseData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [index, setIndex] = useState(0); // 0 - info, 1 - material, 2 - notas, 3 - anuncios
+  const [moduleProgress, setModuleProgress] = useState({});
+  const [expandedSections, setExpandedSections] = useState({});
+  const navigate = useNavigate();
+
+  const toggleSection = (sectionId) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionId]: !prev[sectionId],
+    }));
+  };
+
+  const navigateToModule = (moduleId) => {
+    navigate(`/dashboard/courses/${courseId}/modules/${moduleId}`);
+  };
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
@@ -53,14 +67,33 @@ function CourseVideoPage() {
     fetchCourseData();
   }, [courseId, moduleId]);
 
-  const getFileUrl = (fileUrl) => {
-    if (!fileUrl) return null;
+  const getModuleFiles = (moduleFileUrl) => {
+    if (!moduleFileUrl) return [];
 
-    if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
-      return fileUrl;
+    try {
+      // If it's a JSON string, parse it
+      if (typeof moduleFileUrl === "string" && moduleFileUrl.startsWith("[")) {
+        return JSON.parse(moduleFileUrl);
+      }
+      // If it's already an array, return it
+      if (Array.isArray(moduleFileUrl)) {
+        return moduleFileUrl;
+      }
+      // If it's a single URL string, convert to array
+      return [moduleFileUrl];
+    } catch (e) {
+      console.error("Error parsing file URLs:", e);
+      return [];
     }
+  };
 
-    return `http://localhost:4000/${fileUrl}`;
+  const getFileName = (fileUrl) => {
+    if (!fileUrl) return null;
+    const urlParts = fileUrl.split("-$");
+    if (urlParts.length > 1) {
+      return urlParts[1].split(".")[0];
+    }
+    return null;
   };
 
   const totalDuration = courseData.MODULOS?.reduce((acc, modulo) => {
@@ -71,7 +104,6 @@ function CourseVideoPage() {
   const extractCloudinaryResourceId = (url) => {
     if (!url) return null;
 
-    // Pattern to match: after version number (v1234567890/) and before file extension
     const regex = /\/v\d+\/(.+)\.(?:\w+)$/;
     const match = url.match(regex);
 
@@ -90,6 +122,7 @@ function CourseVideoPage() {
     <>
       {isLoading && <Loader />}
       <NavbarDashboard />
+
       <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-4">
         <div className="container-fluid d-flex justify-content-between p-0 flex-row">
           <div className="container d-flex p-0 flex-column">
@@ -157,6 +190,24 @@ function CourseVideoPage() {
                             courseData.MODULOS[moduleId - 1]?.NOME}
                         </h3>
                       </div>
+
+                      <div className="mt-0">
+                        <p className="ps-2 mb-2">
+                          {courseData.MODULOS &&
+                            courseData.MODULOS[moduleId - 1].DESCRICAO}
+                        </p>
+                      </div>
+                      <div className="container d-flex align-items-center p-0">
+                        <div
+                          className="mb-2"
+                          style={{
+                            flex: 1,
+                            height: "1px",
+                            backgroundColor: "#DFE4EA",
+                            marginTop: "-2px",
+                          }}
+                        ></div>
+                      </div>
                       <div className="d-flex flex-row">
                         <div className="d-flex flex-column align-items-center ps-2">
                           <div className="w-100">
@@ -206,9 +257,26 @@ function CourseVideoPage() {
                                   (material, idx) => (
                                     <li
                                       key={idx}
-                                      className="list-group-item d-flex align-items-center border-0 py-3"
+                                      className="list-group-item d-flex align-items-center border-1 p-3"
                                     >
-                                      {/* Existing material rendering code */}
+                                      <div className="material-info flex-grow-1">
+                                        <h6 className="mb-0">
+                                          {getFileName(material)}
+                                        </h6>
+                                      </div>
+                                      {getModuleFiles(material).map(
+                                        (url, idx) => (
+                                          <a
+                                            key={idx}
+                                            href={url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="btn btn-outline-primary btn-sm"
+                                          >
+                                            Download
+                                          </a>
+                                        )
+                                      )}
                                     </li>
                                   )
                                 )}
@@ -221,7 +289,12 @@ function CourseVideoPage() {
                                     <i className="fas fa-file-alt text-primary fs-4"></i>
                                   </div>
                                   <div className="material-info flex-grow-1">
-                                    <h6 className="mb-1">Material do Módulo</h6>
+                                    <h6 className="mb-1">
+                                      {getFileName(
+                                        courseData.MODULOS[moduleId - 1]
+                                          .FILE_URL
+                                      )}
+                                    </h6>
                                   </div>
                                   <a
                                     href={
@@ -255,7 +328,60 @@ function CourseVideoPage() {
           <div
             className="container course-sidebar border p-0"
             style={{ width: "28rem" }}
-          ></div>
+          >
+            {courseData.MODULOS && (
+              <div className="course-modules-list">
+                <div className="section-container">
+                  <div
+                    className="section-header"
+                    onClick={() => toggleSection(1)}
+                  >
+                    <div className="d-flex justify-content-between align-items-center p-3">
+                      <div>
+                        <h5 className="mb-0">Curso: {courseData.NOME}</h5>
+                        <small className="text-muted">
+                          {courseData.MODULOS.length} Módulos
+                        </small>
+                      </div>
+                      <i className="fas fa-chevron-up"></i>
+                    </div>
+                  </div>
+
+                  <div className="section-content">
+                    {courseData.MODULOS.map((modulo, index) => (
+                      <div
+                        key={index}
+                        className={`module-item d-flex align-items-center p-2 ${
+                          parseInt(moduleId) === index + 1 ? "active" : ""
+                        }`}
+                        onClick={() => navigateToModule(index + 1)}
+                      >
+                        <div
+                          className={`module-status-circle me-2 ${
+                            moduleProgress[index + 1] ? "completed" : ""
+                          }`}
+                        >
+                          {moduleProgress[index + 1] && (
+                            <i className="fas fa-check"></i>
+                          )}
+                        </div>
+                        <div className="module-details">
+                          <div className="d-flex align-items-center">
+                            <span>
+                              {index + 1}. {modulo.NOME}
+                            </span>
+                          </div>
+                          <small className="text-muted d-block">
+                            {modulo.TEMPO_ESTIMADO_MIN} min
+                          </small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>

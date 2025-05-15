@@ -31,7 +31,7 @@ const savePdfToServer = (buffer, fileName) => {
       }
 
       // Generate unique filename
-      const uniqueFileName = `${Date.now()}-${fileName}`;
+      const uniqueFileName = `${Date.now()}-$${fileName}`;
       const filePath = path.join(uploadsDir, uniqueFileName);
 
       // Write file
@@ -566,7 +566,6 @@ const updateCursoSincrono = async (req, res) => {
       DATA_INICIO,
       DATA_FIM,
       VAGAS,
-      ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
     });
 
     res.status(200).json({
@@ -722,7 +721,6 @@ const updateCursoAssincrono = async (req, res) => {
       ID_AREA,
       DATA_INICIO,
       DATA_FIM,
-      ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo"
     });
     res.status(200).json({
       Curso: curso,
@@ -733,166 +731,6 @@ const updateCursoAssincrono = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao atualizar curso:", error);
-    res.status(500).json({ message: error.message });
-  }
-};
-
-const createSincrono = async (req, res) => {
-  const {
-    NOME,
-    DESCRICAO_OBJETIVOS__,
-    DIFICULDADE_CURSO__,
-    ID_AREA,
-    ID_FORMADOR,
-    DATA_INICIO,
-    DATA_FIM,
-    VAGAS,
-    HABILIDADES,
-    OBJETIVOS,
-  } = req.body;
-
-  const modulos = JSON.parse(req.body.MODULOS);
-
-  const ID_ESTADO_OCORRENCIA_ASSINCRONA2 = 1; // ID do estado "Inativo"
-
-  // verifica se o curso já existe
-  const cursoExistente = await Curso.findOne({
-    where: {
-      NOME,
-      ID_AREA,
-    },
-  });
-  if (cursoExistente) {
-    return res.status(400).json({ message: "Curso já existe" });
-  }
-
-  try {
-    let imagemUrl = null;
-    let imagemPublicId = null;
-
-    const imagem = req.files.find((file) => file.fieldname === "imagem");
-
-    if (imagem) {
-      const result = await streamUpload(
-        imagem.buffer,
-        `cursos/${NOME}`,
-        "auto"
-      );
-      imagemUrl = result.secure_url;
-      imagemPublicId = result.public_id;
-    }
-
-    const curso = await Curso.create({
-      NOME,
-      DESCRICAO_OBJETIVOS__,
-      DIFICULDADE_CURSO__,
-      IMAGEM: imagemUrl,
-      IMAGEM_PUBLIC_ID: imagemPublicId,
-      ID_AREA,
-      DATA_CRIACAO__: new Date(),
-    });
-
-    // Adicionar habilidades e objetivos ao curso
-    const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
-      return { DESCRICAO: habilidade.trim() };
-    });
-
-    const objetivosArray = OBJETIVOS.split(",").map((objetivo) => {
-      return { DESCRICAO: objetivo.trim() };
-    });
-
-    await Promise.all([
-      Habilidades.bulkCreate(
-        habilidadesArray.map((habilidade) => ({
-          ...habilidade,
-          ID_CURSO: curso.ID_CURSO,
-        }))
-      ),
-      Objetivos.bulkCreate(
-        objetivosArray.map((objetivo) => ({
-          ...objetivo,
-          ID_CURSO: curso.ID_CURSO,
-        }))
-      ),
-    ]);
-
-    // Adicionar módulos ao curso
-    for (let i = 0; i < modulos.length; i++) {
-      const modulo = modulos[i];
-
-      // Procurar vídeo e conteúdo pelo nome que definiste no formData
-      const videoFile = req.files.find(
-        (file) => file.fieldname === `module_${i}_video`
-      );
-      const contentFile = req.files.find(
-        (file) => file.fieldname === `module_${i}_content`
-      );
-
-      let videoUrl = null;
-      let contentUrl = null;
-
-      // Upload do vídeo para o Cloudinary
-      if (videoFile) {
-        const result = await streamUpload(
-          videoFile.buffer,
-          `cursos/${NOME}/modulos/videos`,
-          "auto"
-        );
-        videoUrl = result.secure_url;
-      }
-
-      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
-      if (contentFile) {
-        try {
-          console.log("Uploading PDF file:", contentFile.originalname);
-
-          if (contentFile.mimetype === "application/pdf") {
-            // Use direct file storage for PDFs
-            const filePath = await savePdfToServer(
-              contentFile.buffer,
-              contentFile.originalname
-            );
-            contentUrl = `http://localhost:4000${filePath}`;
-          } else {
-            // Use Cloudinary for other file types
-            const result = await streamUpload(
-              contentFile.buffer,
-              `cursos/${NOME}/modulos/conteudos`,
-              "raw",
-              contentFile.originalname
-            );
-            contentUrl = result.secure_url;
-          }
-        } catch (error) {
-          console.error("Error uploading file:", error);
-          contentUrl = null;
-        }
-      }
-
-      await Modulos.create({
-        ID_CURSO: curso.ID_CURSO,
-        NOME: modulo.NOME,
-        DESCRICAO: modulo.DESCRICAO,
-        VIDEO_URL: videoUrl,
-        FILE_URL: contentUrl,
-        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
-      });
-    }
-
-    const cursoSincrono = await CursoSincrono.create({
-      ID_CURSO: curso.ID_CURSO,
-      ID_UTILIZADOR: ID_FORMADOR,
-      VAGAS,
-      DATA_INICIO,
-      DATA_FIM,
-    });
-
-    res.status(201).json({
-      "Curso: ": curso,
-      "Curso Sincrono: ": cursoSincrono,
-    });
-  } catch (error) {
-    console.error("Erro ao criar curso:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -914,7 +752,6 @@ const createAssincrono = async (req, res) => {
   try {
     let imagemUrl = null;
     let imagemPublicId = null;
-    //console.log(req.files);
 
     const imagem = req.files.find((file) => file.fieldname === "imagem");
 
@@ -966,19 +803,23 @@ const createAssincrono = async (req, res) => {
     ]);
 
     // Adicionar módulos ao curso
+    const uploadedFiles = []; // Track all uploaded files
+
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
 
-      // Procurar vídeo e conteúdo pelo nome que definiste no formData
+      // Procurar vídeo pelo nome que definiste no formData
       const videoFile = req.files.find(
         (file) => file.fieldname === `module_${i}_video`
       );
-      const contentFile = req.files.find(
-        (file) => file.fieldname === `module_${i}_content`
-      );
+
+      // MODIFICAÇÃO: Procurar múltiplos arquivos de conteúdo
+      const contentFiles = req.files.filter((file) => {
+        return file.fieldname.startsWith(`module_${i}_content_`);
+      });
 
       let videoUrl = null;
-      let contentUrl = null;
+      let contentUrls = []; // Array para guardar múltiplas URLs
 
       // Upload do vídeo para o Cloudinary
       if (videoFile) {
@@ -988,32 +829,59 @@ const createAssincrono = async (req, res) => {
           "auto"
         );
         videoUrl = result.secure_url;
+
+        uploadedFiles.push({
+          originalname: videoFile.originalname,
+          url: result.secure_url,
+          public_id: result.public_id,
+          type: "video",
+          module: modulo.NOME,
+        });
       }
 
-      if (contentFile) {
-        try {
-          console.log("Uploading PDF file:", contentFile.originalname);
+      // Upload dos conteúdos (pdf/doc/etc.) para o Cloudinary
+      if (contentFiles && contentFiles.length > 0) {
+        for (const contentFile of contentFiles) {
+          try {
+            console.log("Uploading file:", contentFile.originalname);
 
-          if (contentFile.mimetype === "application/pdf") {
-            // Use direct file storage for PDFs
-            const filePath = await savePdfToServer(
-              contentFile.buffer,
-              contentFile.originalname
-            );
-            contentUrl = `http://localhost:4000${filePath}`;
-          } else {
-            // Use Cloudinary for other file types
-            const result = await streamUpload(
-              contentFile.buffer,
-              `cursos/${NOME}/modulos/conteudos`,
-              "raw",
-              contentFile.originalname
-            );
-            contentUrl = result.secure_url;
+            if (contentFile.mimetype === "application/pdf") {
+              // Use direct file storage for PDFs
+              const filePath = await savePdfToServer(
+                contentFile.buffer,
+                contentFile.originalname
+              );
+              const fileUrl = `http://localhost:4000${filePath}`;
+              contentUrls.push(fileUrl);
+
+              uploadedFiles.push({
+                originalname: contentFile.originalname,
+                url: fileUrl,
+                type: "document",
+                local_path: filePath,
+                module: modulo.NOME,
+              });
+            } else {
+              // Use Cloudinary for other file types
+              const result = await streamUpload(
+                contentFile.buffer,
+                `cursos/${NOME}/modulos/conteudos`,
+                "raw",
+                contentFile.originalname
+              );
+              contentUrls.push(result.secure_url);
+
+              uploadedFiles.push({
+                originalname: contentFile.originalname,
+                url: result.secure_url,
+                public_id: result.public_id,
+                type: "document",
+                module: modulo.NOME,
+              });
+            }
+          } catch (error) {
+            console.error("Error uploading file:", error);
           }
-        } catch (error) {
-          console.error("Error uploading file:", error);
-          contentUrl = null;
         }
       }
 
@@ -1022,7 +890,7 @@ const createAssincrono = async (req, res) => {
         NOME: modulo.NOME,
         DESCRICAO: modulo.DESCRICAO,
         VIDEO_URL: videoUrl,
-        FILE_URL: contentUrl,
+        FILE_URL: JSON.stringify(contentUrls), // Guardar como JSON string
         TEMPO_ESTIMADO_MIN: modulo.DURACAO,
       });
     }
@@ -1032,21 +900,23 @@ const createAssincrono = async (req, res) => {
       NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
       DATA_INICIO,
       DATA_FIM,
-      //ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // ID do estado "Inativo" //FIXME: fazer a associação com a tabela de estados
     });
 
     res.status(201).json({
-      "Curso: ": curso,
-      "Curso Assincrono: ": cursoAssincrono,
+      Curso: curso,
+      "Curso Assincrono": cursoAssincrono,
       HABILIDADES: habilidadesArray,
       OBJETIVOS: objetivosArray,
-      MODULOS: Modulos,
+      MODULOS: modulos,
+      ARQUIVOS_ENVIADOS: uploadedFiles,
     });
   } catch (error) {
     console.error("Erro ao criar curso:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+const createSincrono = async (req, res) => {};
 
 const convertCursoType = async (req, res) => {
   const { id } = req.params;

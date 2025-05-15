@@ -72,8 +72,10 @@ const CoursesUser = () => {
                       style={{ width: "18rem" }}
                     >
                       <div className="card-body">
-                        <h5 className="card-title">Cursos atribuidos</h5>
-                        <p className="card-text">Sem cursos atribuidos</p>
+                        <h5 className="card-title">Cursos inscritos</h5>
+                        <p className="card-text">
+                          Não está inscrito a nenhum curso
+                        </p>
                       </div>
                     </div>
                   )}
