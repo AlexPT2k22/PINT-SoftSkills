@@ -1109,7 +1109,6 @@ const convertCursoType = async (req, res) => {
         VAGAS,
         DATA_INICIO,
         DATA_FIM,
-        ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // Inactive state
       });
 
       // Remove asynchronous if it exists
@@ -1134,7 +1133,6 @@ const convertCursoType = async (req, res) => {
         NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
         DATA_INICIO,
         DATA_FIM,
-        ID_ESTADO_OCORRENCIA_ASSINCRONA2: 1, // Inactive state
       });
 
       // Remove synchronous if it exists
