@@ -6,13 +6,39 @@ import useAuthStore from "../store/authStore";
 
 function CourseCardDashboard({
   course,
-  progress = 0,
+  progress = null,
   showButtons = false,
   showProgress = true,
   showStartButton = true,
 }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    // If user has progress, navigate to the first incomplete module
+    if (progress > 0 && course.moduleProgress) {
+      // Find first incomplete module
+      const nextModule = course.MODULOS.find(
+        (module) => !course.moduleProgress[module.ID_MODULO]
+      );
+
+      // If found, navigate to it, otherwise navigate to first module
+      if (nextModule) {
+        navigate(
+          `/dashboard/courses/${course.ID_CURSO}/modules/${nextModule.ID_MODULO}`
+        );
+      } else {
+        navigate(
+          `/dashboard/courses/${course.ID_CURSO}/modules/${course.MODULOS[0].ID_MODULO}`
+        );
+      }
+    } else {
+      // If no progress, navigate to first module
+      navigate(
+        `/dashboard/courses/${course.ID_CURSO}/modules/${course.MODULOS[0].ID_MODULO}`
+      );
+    }
+  };
 
   // Get user data from auth store
   const user = useAuthStore((state) => state.user);
@@ -103,12 +129,7 @@ function CourseCardDashboard({
       <div className="coursecard-footer d-flex justify-content-between align-items-center p-2 m-2 mt-0">
         {showStartButton && (
           <div>
-            <button
-              className="btn btn-primary"
-              onClick={() =>
-                navigate(`/dashboard/courses/${course.ID_CURSO}/modules/1`)
-              }
-            >
+            <button className="btn btn-primary" onClick={handleClick}>
               {progress > 0 ? "Continuar" : "Começar"}
             </button>
           </div>

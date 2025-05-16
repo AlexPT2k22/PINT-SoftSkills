@@ -1,18 +1,41 @@
 import { useEffect, useRef } from "react";
 import cloudinary from "cloudinary-video-player";
 import "cloudinary-video-player/cld-video-player.min.css";
+import { use } from "react";
 
-const VideoPlayer = ({
+function VideoPlayer({
   id,
   publicId,
   width = 640,
   height = 360,
   playerConfig = {},
   sourceConfig = {},
+  onVideoComplete,
   ...props
-}) => {
+}) {
   const cloudinaryRef = useRef();
   const playerRef = useRef();
+  const videoRef = useRef();
+
+  useEffect(() => {
+    const videoElement = videoRef.current;
+
+    // Add event listener for video completion
+    if (videoElement) {
+      videoElement.addEventListener("ended", handleVideoEnd);
+
+      return () => {
+        videoElement.removeEventListener("ended", handleVideoEnd);
+      };
+    }
+  }, []);
+
+  const handleVideoEnd = () => {
+    // Call the callback function when video ends
+    if (onVideoComplete) {
+      onVideoComplete();
+    }
+  };
 
   useEffect(() => {
     if (!cloudinaryRef.current) {
@@ -30,7 +53,7 @@ const VideoPlayer = ({
           streaming_profile: "auto",
         },
         playbackRates: [0.5, 1, 1.5, 2], // opcional
-        showVideoSourcePicker: true, // <-- mostra opções de resolução!
+        showVideoSourcePicker: true,
         ...playerConfig,
       });
 
@@ -64,6 +87,6 @@ const VideoPlayer = ({
       {...props}
     />
   );
-};
+}
 
 export default VideoPlayer;

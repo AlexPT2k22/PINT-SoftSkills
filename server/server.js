@@ -6,6 +6,7 @@ const dashboardRoute = require("./routes/dashboard.js");
 const authRoutes = require("./routes/auth.route.js");
 const cursoRoute = require("./routes/curso.route.js");
 const areaRoute = require("./routes/area.route.js");
+const progressRoute = require("./routes/progresso.route.js");
 const { connectDB, sequelize } = require("./database/database.js");
 require("./models/index.js"); // Importar todos os modelos para garantir que estão registados
 const categoriaRoutes = require("./routes/categoria.route.js");
@@ -30,6 +31,7 @@ app.use("/api/dashboard", dashboardRoute); // Rota para o dashboard
 app.use("/api/auth", authRoutes); // Rota para autenticação
 app.use("/api/cursos", cursoRoute); // Rota para cursos
 app.use("/api/categorias", categoriaRoutes); // Rota para categorias
+app.use("/api/progress", progressRoute); // Rota para progresso
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");
@@ -46,7 +48,7 @@ connectCloudinary(); // Conectar ao Cloudinary
 // Sincronizar os modelos com o banco de dados
 (async () => {
   try {
-    await sequelize.sync({ alter: true }); // force false para não apagar os dados existentes
+    await sequelize.sync({ alter: true });
     console.log("Database configurada com sucesso!");
   } catch (error) {
     console.error("Erro a sincronizar base de dados:", error);

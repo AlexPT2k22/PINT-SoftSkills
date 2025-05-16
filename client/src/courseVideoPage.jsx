@@ -7,6 +7,7 @@ import VideoPlayer from "./components/videoplayer";
 import Loader from "./components/loader";
 import axios from "axios";
 import "./styles/CourseVideoPage.css";
+import { Check, Info } from "lucide-react";
 
 function CourseVideoPage() {
   const { courseId, moduleId } = useParams();
@@ -17,6 +18,37 @@ function CourseVideoPage() {
   const [moduleProgress, setModuleProgress] = useState({});
   const [expandedSections, setExpandedSections] = useState({});
   const navigate = useNavigate();
+  const [moduleCompleted, setModuleCompleted] = useState(false);
+  const [courseProgress, setCourseProgress] = useState(null);
+
+  const markModuleAsCompleted = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:4000/api/progress/courses/${courseId}/modules/${moduleId}/complete`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        // Immediately mark as completed in the UI
+        setModuleCompleted(true);
+
+        // Update the progress map with the new completed module
+        setModuleProgress((prev) => ({
+          ...prev,
+          [moduleId]: true,
+        }));
+
+        fetchCourseProgress();
+
+        console.log(
+          `Module ${moduleId} completed! Course progress: ${response.data.progress}%`
+        );
+      }
+    } catch (error) {
+      console.error("Failed to mark module as completed:", error);
+    }
+  };
 
   const toggleSection = (sectionId) => {
     setExpandedSections((prev) => ({
@@ -37,19 +69,44 @@ function CourseVideoPage() {
     setIndex(newIndex);
   };
 
+  const fetchCourseProgress = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/api/progress/courses/${courseId}/progress`,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setCourseProgress({
+          percentualProgresso: response.data.percentualProgresso,
+          modulosCompletos: response.data.modulosCompletos,
+          totalModulos: response.data.totalModulos,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch course progress:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `http://localhost:4000/api/cursos/${courseId}`
+          `http://localhost:4000/api/cursos/${courseId}`,
+          {
+            withCredentials: true,
+          }
         );
         if (response.status !== 200) {
           throw new Error("Failed to fetch course data");
         }
         const data = await response.data;
-        //console.log(data.MODULOS[moduleId - 1].VIDEO_URL);
-        const videoUrl = data.MODULOS[moduleId - 1].VIDEO_URL;
+        const currentModule = data.MODULOS.find(
+          (modulo) => modulo.ID_MODULO.toString() === moduleId
+        );
+        console.log("Current Module:", currentModule);
+        const videoUrl = currentModule.VIDEO_URL;
         const resourceId = extractCloudinaryResourceId(videoUrl);
         if (resourceId) {
           setVideoID(resourceId);
@@ -64,6 +121,41 @@ function CourseVideoPage() {
       }
     };
 
+    const checkModuleProgress = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/progress/courses/${courseId}/modules/progress`,
+          { withCredentials: true }
+        );
+
+        if (response.data.success) {
+          //console.log("Module progress data:", response.data);
+          // Convert the array response to a module ID mapped object
+          const progressMap = {};
+          response.data.modulos.forEach((modulo) => {
+            progressMap[modulo.id] = modulo.completo;
+          });
+
+          setModuleProgress(progressMap);
+
+          // Check if current module is completed
+          const currentModuleProgress = response.data.modulos.find(
+            (m) => m.id.toString() === moduleId
+          );
+
+          if (currentModuleProgress?.completo) {
+            setModuleCompleted(true);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch progress data:", error);
+      }
+    };
+
+    setModuleCompleted(false);
+
+    fetchCourseProgress();
+    checkModuleProgress();
     fetchCourseData();
   }, [courseId, moduleId]);
 
@@ -121,16 +213,22 @@ function CourseVideoPage() {
   return (
     <>
       {isLoading && <Loader />}
-      <NavbarDashboard />
+      <NavbarDashboard showProgress={true} progressData={courseProgress} />
 
       <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-4">
         <div className="container-fluid d-flex justify-content-between p-0 flex-row">
           <div className="container d-flex p-0 flex-column">
             {videoID && (
               <div className="video-player m-2">
-                <VideoPlayer publicId={videoID} width={1100} height={510} />
+                <VideoPlayer
+                  publicId={videoID}
+                  width={1100}
+                  height={510}
+                  onVideoComplete={markModuleAsCompleted}
+                />
               </div>
             )}
+
             <div className="video-description m-2">
               <div className="container d-flex flex-column p-0">
                 <div className="container justify-content-start d-flex align-items-center">
@@ -187,14 +285,18 @@ function CourseVideoPage() {
                       <div className="container d-flex flex-column p-0 mt-2">
                         <h3 className="ps-2 fw-normal">
                           {courseData.MODULOS &&
-                            courseData.MODULOS[moduleId - 1]?.NOME}
+                            courseData.MODULOS.find(
+                              (m) => m.ID_MODULO.toString() === moduleId
+                            )?.NOME}
                         </h3>
                       </div>
 
                       <div className="mt-0">
                         <p className="ps-2 mb-2">
                           {courseData.MODULOS &&
-                            courseData.MODULOS[moduleId - 1].DESCRICAO}
+                            courseData.MODULOS.find(
+                              (m) => m.ID_MODULO.toString() === moduleId
+                            )?.DESCRICAO}
                         </p>
                       </div>
                       <div className="container d-flex align-items-center p-0">
@@ -247,14 +349,29 @@ function CourseVideoPage() {
                       <div className="d-flex flex-row">
                         <div className="materials-container p-2 w-100">
                           {courseData.MODULOS &&
-                          courseData.MODULOS[moduleId - 1]?.FILE_URL ? (
-                            Array.isArray(
-                              courseData.MODULOS[moduleId - 1].FILE_URL
-                            ) ? (
-                              // Handle array of files case
-                              <ul className="list-group">
-                                {courseData.MODULOS[moduleId - 1].FILE_URL.map(
-                                  (material, idx) => (
+                            (() => {
+                              const currentModule = courseData.MODULOS.find(
+                                (m) => m.ID_MODULO.toString() === moduleId
+                              );
+
+                              if (!currentModule?.FILE_URL) {
+                                return (
+                                  <div className="alert alert-info mt-3">
+                                    <Info size={16} className="me-1" />
+                                    Não há material disponível para este módulo.
+                                  </div>
+                                );
+                              }
+
+                              const fileUrls = Array.isArray(
+                                currentModule.FILE_URL
+                              )
+                                ? currentModule.FILE_URL
+                                : [currentModule.FILE_URL];
+
+                              return (
+                                <ul className="list-group">
+                                  {fileUrls.map((material, idx) => (
                                     <li
                                       key={idx}
                                       className="list-group-item d-flex align-items-center border-1 p-3"
@@ -264,59 +381,19 @@ function CourseVideoPage() {
                                           {getFileName(material)}
                                         </h6>
                                       </div>
-                                      {getModuleFiles(material).map(
-                                        (url, idx) => (
-                                          <a
-                                            key={idx}
-                                            href={url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="btn btn-outline-primary btn-sm"
-                                          >
-                                            Download
-                                          </a>
-                                        )
-                                      )}
+                                      <a
+                                        href={material}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="btn btn-outline-primary btn-sm"
+                                      >
+                                        Download
+                                      </a>
                                     </li>
-                                  )
-                                )}
-                              </ul>
-                            ) : (
-                              // Handle single file URL string case
-                              <ul className="list-group">
-                                <li className="list-group-item d-flex align-items-center border-0 py-3">
-                                  <div className="material-icon me-3">
-                                    <i className="fas fa-file-alt text-primary fs-4"></i>
-                                  </div>
-                                  <div className="material-info flex-grow-1">
-                                    <h6 className="mb-1">
-                                      {getFileName(
-                                        courseData.MODULOS[moduleId - 1]
-                                          .FILE_URL
-                                      )}
-                                    </h6>
-                                  </div>
-                                  <a
-                                    href={
-                                      courseData.MODULOS[moduleId - 1].FILE_URL
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="btn btn-outline-primary btn-sm"
-                                    download
-                                  >
-                                    <i className="fas fa-download me-1"></i>{" "}
-                                    Download
-                                  </a>
-                                </li>
-                              </ul>
-                            )
-                          ) : (
-                            <div className="alert alert-info mt-3">
-                              <i className="fas fa-info-circle me-2"></i>
-                              Não há material disponível para este módulo.
-                            </div>
-                          )}
+                                  ))}
+                                </ul>
+                              );
+                            })()}
                         </div>
                       </div>
                     </div>
@@ -343,33 +420,36 @@ function CourseVideoPage() {
                           {courseData.MODULOS.length} Módulos
                         </small>
                       </div>
-                      <i className="fas fa-chevron-up"></i>
                     </div>
                   </div>
 
                   <div className="section-content">
-                    {courseData.MODULOS.map((modulo, index) => (
+                    {courseData.MODULOS.map((modulo) => (
                       <div
-                        key={index}
+                        key={modulo.ID_MODULO}
                         className={`module-item d-flex align-items-center p-2 ${
-                          parseInt(moduleId) === index + 1 ? "active" : ""
+                          moduleId === modulo.ID_MODULO.toString()
+                            ? "active"
+                            : ""
                         }`}
-                        onClick={() => navigateToModule(index + 1)}
+                        onClick={() => navigateToModule(modulo.ID_MODULO)}
                       >
                         <div
                           className={`module-status-circle me-2 ${
-                            moduleProgress[index + 1] ? "completed" : ""
+                            moduleProgress[modulo.ID_MODULO] ? "completed" : ""
                           }`}
                         >
-                          {moduleProgress[index + 1] && (
-                            <i className="fas fa-check"></i>
+                          {moduleProgress[modulo.ID_MODULO] && (
+                            <Check
+                              size={16}
+                              color="#fff"
+                              className="check-icon"
+                            />
                           )}
                         </div>
                         <div className="module-details">
                           <div className="d-flex align-items-center">
-                            <span>
-                              {index + 1}. {modulo.NOME}
-                            </span>
+                            <span>{modulo.NOME}</span>
                           </div>
                           <small className="text-muted d-block">
                             {modulo.TEMPO_ESTIMADO_MIN} min

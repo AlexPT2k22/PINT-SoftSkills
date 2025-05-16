@@ -32,6 +32,7 @@ const UtilizadorTemPreferencias = require("./utilizadortempreferencias.model.js"
 const Objetivos = require("./objetivos.model.js");
 const Habilidades = require("./habilidades.model.js");
 const Modulos = require("./modulos.model.js");
+const ProgressoModulo = require("./moduloProgresso.model.js");
 
 // Define associations
 
@@ -132,7 +133,6 @@ InscricaoAssincrono.belongsTo(Utilizador, {
   foreignKey: "ID_UTILIZADOR",
 });
 
-
 // Topico and Resposta associations
 Topico.hasMany(Resposta, { foreignKey: "ID_TOPICO" });
 Resposta.belongsTo(Topico, { foreignKey: "ID_TOPICO" });
@@ -216,6 +216,15 @@ ConteudoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 
 CursoSincrono.hasMany(ConteudoSincrono, { foreignKey: "ID_CURSO" });
 ConteudoSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
+
+Utilizador.hasMany(ProgressoModulo, { foreignKey: "ID_UTILIZADOR" });
+ProgressoModulo.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+Curso.hasMany(ProgressoModulo, { foreignKey: "ID_CURSO" });
+ProgressoModulo.belongsTo(Curso, { foreignKey: "ID_CURSO" });
+
+Modulos.hasMany(ProgressoModulo, { foreignKey: "ID_MODULO" });
+ProgressoModulo.belongsTo(Modulos, { foreignKey: "ID_MODULO" });
 
 // ConteudoAssincrono associations
 Modulos.hasMany(ConteudoAssincrono, {
@@ -340,4 +349,5 @@ module.exports = {
   Objetivos,
   Habilidades,
   Modulos,
+  ProgressoModulo,
 };

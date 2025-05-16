@@ -38,7 +38,9 @@ function CoursePage() {
     }
 
     if (inscrito) {
-      navigate(`/dashboard/courses/${courseId}/modules/1`);
+      navigate(
+        `/dashboard/courses/${courseId}/modules/${course.MODULOS[0].ID_MODULO}`
+      );
     } else {
       inscreverCurso(courseId);
     }

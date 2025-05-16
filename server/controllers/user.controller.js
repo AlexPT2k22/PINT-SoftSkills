@@ -9,6 +9,7 @@ const {
   Categoria,
   InscricaoSincrono,
   InscricaoAssincrono,
+  Modulos,
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
@@ -405,6 +406,11 @@ const getCursosInscritos = async (req, res) => {
               attributes: ["NOME__"],
             },
           ],
+        },
+        {
+          model: Modulos,
+          as: "MODULOS",
+          required: false, // Make it optional to still return courses without modules
         },
       ],
     });

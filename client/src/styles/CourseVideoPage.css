@@ -45,4 +45,5 @@
 .module-status-circle.completed {
   background-color: #39639c;
   border-color: #39639c;
+  color: white;
 }
