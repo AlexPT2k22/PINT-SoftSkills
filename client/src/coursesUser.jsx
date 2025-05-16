@@ -11,6 +11,7 @@ const CoursesUser = () => {
   };
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [courseProgress, setCourseProgress] = useState({});
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -22,8 +23,35 @@ const CoursesUser = () => {
             withCredentials: true,
           }
         );
-        setCourses(response.data);
         console.log(response.data);
+        const coursesData = response.data;
+        setCourses(coursesData);
+        const progressMap = {};
+        await Promise.all(
+          coursesData.map(async (course) => {
+            try {
+              const progressResponse = await axios.get(
+                `http://localhost:4000/api/progress/courses/${course.ID_CURSO}/progress`,
+                { withCredentials: true }
+              );
+
+              if (progressResponse.data.success) {
+                progressMap[course.ID_CURSO] = {
+                  percentualProgresso:
+                    progressResponse.data.percentualProgresso,
+                  modulosCompletos: progressResponse.data.modulosCompletos,
+                  totalModulos: progressResponse.data.totalModulos,
+                };
+              }
+            } catch (err) {
+              console.error(
+                `Failed to fetch progress for course ${course.ID_CURSO}:`,
+                err
+              );
+            }
+          })
+        );
+        setCourseProgress(progressMap);
       } catch (error) {
         console.error("Error fetching courses:", error);
       } finally {
@@ -61,6 +89,11 @@ const CoursesUser = () => {
                             <CourseCardDashboard
                               course={course}
                               showStartButton={true}
+                              showProgress={true}
+                              progress={
+                                courseProgress[course.ID_CURSO]
+                                  ?.percentualProgresso || 0
+                              }
                             />
                           </div>
                         ))}

@@ -124,13 +124,15 @@ function CourseCardDashboard({
         )}
       </div>
 
-      {/* Fixed footer layout: Start button on left, action buttons on right */}
-
       <div className="coursecard-footer d-flex justify-content-between align-items-center p-2 m-2 mt-0">
         {showStartButton && (
           <div>
             <button className="btn btn-primary" onClick={handleClick}>
-              {progress > 0 ? "Continuar" : "Começar"}
+              {progress === 0
+                ? "Começar"
+                : progress < 100
+                ? "Continuar"
+                : "Obter certificado"}
             </button>
           </div>
         )}
