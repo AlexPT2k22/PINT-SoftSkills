@@ -5,6 +5,31 @@ import useAuthStore from "./store/authStore";
 import CourseCardDashboard from "./components/courseCardDashboard";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement
+);
 
 function Dashboard() {
   const user = useAuthStore((state) => state.user);
@@ -71,9 +96,13 @@ function Dashboard() {
       <div className="container h-100 d-flex justify-content-center align-items-center flex-column p-4">
         <h1>Bem vindo, {user.username}</h1>
         <div className="container d-flex flex-column">
-          <h2 className="mt-4">Dashboard</h2>
-          <div className="">graficos</div>
-          <h2>Os meus cursos</h2>
+          <div className="d-flex justify-content-between align-items-center">
+            <h2>Cursos recentes</h2>
+            <a href="/dashboard/my-courses" className="btn btn-primary">
+              Ver todos os cursos
+            </a>
+          </div>
+
           <div className="container d-flex flex-row p-0">
             {isLoading ? (
               <div className="d-flex justify-content-center align-items-center h-100">
@@ -84,7 +113,8 @@ function Dashboard() {
             ) : courses.length > 0 ? (
               <div className="container p-0 mb-3">
                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-                  {courses.map((course) => (
+                  {/* Mostrar apenas os 3 cursos mais recentes */}
+                  {courses.slice(0, 3).map((course) => (
                     <div className="col" key={course.ID_CURSO}>
                       <CourseCardDashboard
                         course={course}
@@ -100,11 +130,11 @@ function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div className="card text-center" style={{ width: "18rem" }}>
-                <div className="card-body">
-                  <h5 className="card-title">Cursos inscritos</h5>
-                  <p className="card-text">Não está inscrito a nenhum curso</p>
-                </div>
+              <div className="alert alert-info">
+                Você não está inscrito em nenhum curso.
+                <a href="/" className="btn btn-link">
+                  Explorar cursos
+                </a>
               </div>
             )}
           </div>
