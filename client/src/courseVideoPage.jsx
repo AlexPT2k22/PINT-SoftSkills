@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import NavbarDashboard from "./components/navbarDashboard";
 import "./styles/CourseSidebar.css";
 import VideoPlayer from "./components/videoplayer";
@@ -8,6 +8,7 @@ import Loader from "./components/loader";
 import axios from "axios";
 import "./styles/CourseVideoPage.css";
 import { Check, Info } from "lucide-react";
+import NotesPanel from "./components/NotesPanel";
 
 function CourseVideoPage() {
   const { courseId, moduleId } = useParams();
@@ -20,6 +21,20 @@ function CourseVideoPage() {
   const navigate = useNavigate();
   const [moduleCompleted, setModuleCompleted] = useState(false);
   const [courseProgress, setCourseProgress] = useState(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const playerRef = useRef(null);
+
+  const handleTimeUpdate = (time) => {
+    setCurrentTime(time);
+  };
+
+  const handlePauseVideo = () => {
+    playerRef.current?.playerInstance?.pause();
+  };
+
+  const handleResumeVideo = () => {
+    playerRef.current?.playerInstance?.play();
+  };
 
   const markModuleAsCompleted = async () => {
     try {
@@ -224,8 +239,10 @@ function CourseVideoPage() {
               {videoID && (
                 <div className="video-player">
                   <VideoPlayer
+                    ref={playerRef}
                     publicId={videoID}
                     onVideoComplete={markModuleAsCompleted}
+                    onTimeUpdate={handleTimeUpdate}
                   />
                 </div>
               )}
@@ -400,6 +417,15 @@ function CourseVideoPage() {
                         </div>
                       </div>
                     </>
+                  )}
+
+                  {index === 2 && (
+                    <NotesPanel
+                      moduleId={moduleId}
+                      currentTime={currentTime}
+                      onPauseVideo={handlePauseVideo}
+                      onResumeVideo={handleResumeVideo}
+                    />
                   )}
                 </div>
               </div>

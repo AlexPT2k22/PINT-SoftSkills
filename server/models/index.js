@@ -33,6 +33,7 @@ const Objetivos = require("./objetivos.model.js");
 const Habilidades = require("./habilidades.model.js");
 const Modulos = require("./modulos.model.js");
 const ProgressoModulo = require("./moduloProgresso.model.js");
+const Notas = require("./notas.model.js");
 
 // Define associations
 
@@ -64,6 +65,12 @@ Area.belongsToMany(Utilizador, {
   foreignKey: "ID_AREA",
   otherKey: "ID_UTILIZADOR",
 });
+
+Utilizador.hasMany(Notas, { foreignKey: "ID_UTILIZADOR" });
+Notas.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+Modulos.hasMany(Notas, { foreignKey: "ID_MODULO" });
+Notas.belongsTo(Modulos, { foreignKey: "ID_MODULO" });
 
 // Category and Area associations
 Categoria.hasMany(Area, { foreignKey: "ID_CATEGORIA__PK___" });
