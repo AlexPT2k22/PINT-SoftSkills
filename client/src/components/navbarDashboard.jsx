@@ -4,13 +4,10 @@ import useAuthStore from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 
 function NavbarDashboard({
-  showProgress = false,
-  progressData = null,
   showIcons = true,
 }) {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const user = useAuthStore((state) => state.user);
-  const navigate = useNavigate();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -24,32 +21,7 @@ function NavbarDashboard({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const renderProgressBar = () => {
-    if (!showProgress || !progressData) {
-      return null;
-    }
-    return (
-      <div
-        className="progress-container ms-auto me-3"
-        style={{ width: "200px" }}
-      >
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <small>Progresso do curso</small>
-          <small>{progressData.percentualProgresso}%</small>
-        </div>
-        <div className="progress" style={{ height: "8px" }}>
-          <div
-            className="progress-bar"
-            role="progressbar"
-            style={{ width: `${progressData.percentualProgresso}%` }}
-            aria-valuenow={progressData.percentualProgresso}
-            aria-valuemin="0"
-            aria-valuemax="100"
-          />
-        </div>
-      </div>
-    );
-  };
+  
 
   return (
     <nav className="navbar sticky-top navbar-expand-lg">
@@ -59,8 +31,6 @@ function NavbarDashboard({
             <img src="/images/Logo.svg" alt="Logo" className="logo" />
           </div>
         </a>
-
-        {renderProgressBar()}
 
         <div className="d-flex align-items-center me-5">
           {showIcons && (

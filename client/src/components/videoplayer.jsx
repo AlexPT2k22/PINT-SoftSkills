@@ -1,13 +1,11 @@
 import { useEffect, useRef } from "react";
 import cloudinary from "cloudinary-video-player";
 import "cloudinary-video-player/cld-video-player.min.css";
-import { use } from "react";
 
 function VideoPlayer({
   id,
   publicId,
-  width = 640,
-  height = 360,
+  height = 610,
   playerConfig = {},
   sourceConfig = {},
   onVideoComplete,
@@ -49,10 +47,13 @@ function VideoPlayer({
         showJumpControls: true,
         sourceTypes: ["hls"],
         publicId: publicId,
+        fluid: false,
+        width: "100%",
+        height: height,
         transformation: {
           streaming_profile: "auto",
         },
-        playbackRates: [0.5, 1, 1.5, 2], // opcional
+        playbackRates: [0.5, 1, 1.5, 2],
         showVideoSourcePicker: true,
         ...playerConfig,
       });
@@ -75,17 +76,18 @@ function VideoPlayer({
         ...sourceConfig,
       });
     }
-  }, [publicId, playerConfig, sourceConfig]);
+  }, [publicId, playerConfig, sourceConfig, height]);
 
   return (
-    <video
-      ref={playerRef}
-      id={id}
-      width={width}
-      height={height}
-      className="cld-video-player"
-      {...props}
-    />
+    <div className="video-player-wrapper" style={{ height: height }}>
+      <video
+        ref={playerRef}
+        id={id}
+        style={{ width: "100%", height: "100%" }}
+        className="cld-video-player"
+        {...props}
+      />
+    </div>
   );
 }
 

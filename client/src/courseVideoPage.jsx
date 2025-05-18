@@ -105,14 +105,16 @@ function CourseVideoPage() {
         const currentModule = data.MODULOS.find(
           (modulo) => modulo.ID_MODULO.toString() === moduleId
         );
-        console.log("Current Module:", currentModule);
-        const videoUrl = currentModule.VIDEO_URL;
-        const resourceId = extractCloudinaryResourceId(videoUrl);
-        if (resourceId) {
-          setVideoID(resourceId);
-        } else {
-          console.error("Invalid video URL format:", videoUrl);
+
+        if (currentModule) {
+          const resourceId = extractCloudinaryResourceId(
+            currentModule.VIDEO_URL
+          );
+          if (resourceId) {
+            setVideoID(resourceId);
+          }
         }
+
         setCourseData(data);
       } catch (error) {
         console.error(error);
@@ -213,254 +215,249 @@ function CourseVideoPage() {
   return (
     <>
       {isLoading && <Loader />}
-      <NavbarDashboard showProgress={true} progressData={courseProgress} />
+      <div className="course-page-container">
+        <NavbarDashboard />
 
-      <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-4">
-        <div className="container-fluid d-flex justify-content-between p-0 flex-row">
-          <div className="container d-flex p-0 flex-column">
-            {videoID && (
-              <div className="video-player m-2">
-                <VideoPlayer
-                  publicId={videoID}
-                  width={1100}
-                  height={510}
-                  onVideoComplete={markModuleAsCompleted}
-                />
-              </div>
-            )}
-
-            <div className="video-description m-2">
-              <div className="container d-flex flex-column p-0">
-                <div className="container justify-content-start d-flex align-items-center">
-                  <ul className="list-group list-group-horizontal">
-                    <a
-                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
-                        index === 0 ? "active" : ""
-                      }`}
-                      onClick={() => handleIndexChange(0)}
-                    >
-                      Info
-                    </a>
-                    <a
-                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 course-tab ${
-                        index === 1 ? "active" : ""
-                      }`}
-                      onClick={() => handleIndexChange(1)}
-                    >
-                      Material
-                    </a>
-                    <a
-                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
-                        index === 2 ? "active" : ""
-                      }`}
-                      onClick={() => handleIndexChange(2)}
-                    >
-                      Notas
-                    </a>
-                    <a
-                      className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
-                        index === 3 ? "active" : ""
-                      }`}
-                      onClick={() => handleIndexChange(3)}
-                    >
-                      Anúncios
-                    </a>
-                  </ul>
+        <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-4">
+          <div className="container-fluid d-flex justify-content-between p-0 flex-row">
+            <div className="container d-flex p-0 flex-column">
+              {videoID && (
+                <div className="video-player">
+                  <VideoPlayer
+                    publicId={videoID}
+                    onVideoComplete={markModuleAsCompleted}
+                  />
                 </div>
-                <div className="container d-flex align-items-center p-0">
-                  <div
-                    style={{
-                      flex: 1,
-                      height: "1px",
-                      backgroundColor: "#DFE4EA",
-                      marginTop: "-2px",
-                    }}
-                  ></div>
+              )}
+
+              <div className="video-description mt-3">
+                <div className="container d-flex flex-column p-0">
+                  <div className="container justify-content-start d-flex align-items-center">
+                    <ul className="list-group list-group-horizontal">
+                      <a
+                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                          index === 0 ? "active" : ""
+                        }`}
+                        onClick={() => handleIndexChange(0)}
+                      >
+                        Info
+                      </a>
+                      <a
+                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 course-tab ${
+                          index === 1 ? "active" : ""
+                        }`}
+                        onClick={() => handleIndexChange(1)}
+                      >
+                        Material
+                      </a>
+                      <a
+                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                          index === 2 ? "active" : ""
+                        }`}
+                        onClick={() => handleIndexChange(2)}
+                      >
+                        Notas
+                      </a>
+                      <a
+                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                          index === 3 ? "active" : ""
+                        }`}
+                        onClick={() => handleIndexChange(3)}
+                      >
+                        Anúncios
+                      </a>
+                    </ul>
+                  </div>
+                  <div className="container d-flex align-items-center p-0">
+                    <div
+                      style={{
+                        flex: 1,
+                        height: "1px",
+                        backgroundColor: "#DFE4EA",
+                        marginTop: "-2px",
+                      }}
+                    ></div>
+                  </div>
                 </div>
-              </div>
-              <div className="d-flex flex-column">
-                {index === 0 && (
-                  <>
-                    <div className="d-flex flex-column">
-                      <div className="container d-flex flex-column p-0 mt-2">
-                        <h3 className="ps-2 fw-normal">
-                          {courseData.MODULOS &&
-                            courseData.MODULOS.find(
-                              (m) => m.ID_MODULO.toString() === moduleId
-                            )?.NOME}
-                        </h3>
-                      </div>
-
-                      <div className="mt-0">
-                        <p className="ps-2 mb-2">
-                          {courseData.MODULOS &&
-                            courseData.MODULOS.find(
-                              (m) => m.ID_MODULO.toString() === moduleId
-                            )?.DESCRICAO}
-                        </p>
-                      </div>
-                      <div className="container d-flex align-items-center p-0">
-                        <div
-                          className="mb-2"
-                          style={{
-                            flex: 1,
-                            height: "1px",
-                            backgroundColor: "#DFE4EA",
-                            marginTop: "-2px",
-                          }}
-                        ></div>
-                      </div>
-                      <div className="d-flex flex-row">
-                        <div className="d-flex flex-column align-items-center ps-2">
-                          <div className="w-100">
-                            <h5 className="fw-normal mb-0">4.3</h5>
-                          </div>
-                          <h6 className="fw-normal text-muted">X reviews</h6>
-                        </div>
-
-                        <div className="d-flex flex-column align-items-center ps-2">
-                          <div className="w-100">
-                            <h5 className="fw-normal mb-0">Y</h5>
-                          </div>
-                          <h6 className="fw-normal text-muted">Alunos</h6>
-                        </div>
-
-                        <div className="d-flex flex-column align-items-center ps-2">
-                          <div className="w-100">
-                            <h5 className="fw-normal mb-0">
-                              {formattedDuration}
-                            </h5>
-                          </div>
-                          <h6 className="fw-normal text-muted">
-                            Duração total
-                          </h6>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {index === 1 && (
-                  <>
-                    <div className="d-flex flex-column">
-                      <div className="container d-flex flex-column p-0 mt-2">
-                        <h3 className="ps-2 fw-normal">Material do curso</h3>
-                      </div>
-                      <div className="d-flex flex-row">
-                        <div className="materials-container p-2 w-100">
-                          {courseData.MODULOS &&
-                            (() => {
-                              const currentModule = courseData.MODULOS.find(
+                <div className="d-flex flex-column mt-2">
+                  {index === 0 && (
+                    <>
+                      <div className="d-flex flex-column">
+                        <div className="container d-flex flex-column p-0 mt-2">
+                          <h3 className="ps-2 fw-normal">
+                            {courseData.MODULOS &&
+                              courseData.MODULOS.find(
                                 (m) => m.ID_MODULO.toString() === moduleId
-                              );
+                              )?.NOME}
+                          </h3>
+                        </div>
 
-                              if (!currentModule?.FILE_URL) {
-                                return (
-                                  <div className="alert alert-info mt-3">
-                                    <Info size={16} className="me-1" />
-                                    Não há material disponível para este módulo.
-                                  </div>
-                                );
-                              }
+                        <div className="mt-0">
+                          <p className="ps-2 mb-2">
+                            {courseData.MODULOS &&
+                              courseData.MODULOS.find(
+                                (m) => m.ID_MODULO.toString() === moduleId
+                              )?.DESCRICAO}
+                          </p>
+                        </div>
+                        <div className="container d-flex align-items-center p-0">
+                          <div
+                            className="mb-2"
+                            style={{
+                              flex: 1,
+                              height: "1px",
+                              backgroundColor: "#DFE4EA",
+                              marginTop: "-2px",
+                            }}
+                          ></div>
+                        </div>
+                        <div className="d-flex flex-row gap-3">
+                          <div className="d-flex flex-column align-items-center ">
+                            <div className="w-100">
+                              <h5 className="fw-normal mb-0">4.3</h5>
+                            </div>
+                            <h6 className="fw-normal text-muted">X reviews</h6>
+                          </div>
 
-                              const fileUrls = Array.isArray(
-                                currentModule.FILE_URL
-                              )
-                                ? currentModule.FILE_URL
-                                : [currentModule.FILE_URL];
+                          <div className="d-flex flex-column align-items-center ">
+                            <div className="w-100">
+                              <h5 className="fw-normal mb-0">Y</h5>
+                            </div>
+                            <h6 className="fw-normal text-muted">Alunos</h6>
+                          </div>
 
-                              return (
-                                <ul className="list-group">
-                                  {fileUrls.map((material, idx) => (
-                                    <li
-                                      key={idx}
-                                      className="list-group-item d-flex align-items-center border-1 p-3"
-                                    >
-                                      <div className="material-info flex-grow-1">
-                                        <h6 className="mb-0">
-                                          {getFileName(material)}
-                                        </h6>
-                                      </div>
-                                      <a
-                                        href={material}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="btn btn-outline-primary btn-sm"
-                                      >
-                                        Download
-                                      </a>
-                                    </li>
-                                  ))}
-                                </ul>
-                              );
-                            })()}
+                          <div className="d-flex flex-column align-items-center ">
+                            <div className="w-100">
+                              <h5 className="fw-normal mb-0">
+                                {formattedDuration}
+                              </h5>
+                            </div>
+                            <h6 className="fw-normal text-muted">
+                              Duração total
+                            </h6>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
+
+                  {index === 1 && (
+                    <>
+                      <div className="d-flex flex-column">
+                        <div className="container d-flex flex-column p-0 mt-2">
+                          <h3 className="ps-2 fw-normal">Material do curso</h3>
+                        </div>
+                        <div className="d-flex flex-row">
+                          <div className="materials-container p-2 w-100">
+                            {courseData.MODULOS &&
+                              (() => {
+                                const currentModule = courseData.MODULOS.find(
+                                  (m) => m.ID_MODULO.toString() === moduleId
+                                );
+
+                                if (!currentModule?.FILE_URL) {
+                                  return (
+                                    <div className="alert alert-info mt-3">
+                                      <Info size={16} className="me-1" />
+                                      Não há material disponível para este
+                                      módulo.
+                                    </div>
+                                  );
+                                }
+
+                                const fileUrls = Array.isArray(
+                                  currentModule.FILE_URL
+                                )
+                                  ? currentModule.FILE_URL
+                                  : [currentModule.FILE_URL];
+
+                                return (
+                                  <ul className="list-group">
+                                    {fileUrls.map((material, idx) => (
+                                      <li
+                                        key={idx}
+                                        className="list-group-item d-flex align-items-center border-1 p-3"
+                                      >
+                                        <div className="material-info flex-grow-1">
+                                          <h6 className="mb-0">
+                                            {getFileName(material)}
+                                          </h6>
+                                        </div>
+                                        <a
+                                          href={material}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="btn btn-outline-primary btn-sm"
+                                        >
+                                          Download
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                );
+                              })()}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          <div
-            className="container course-sidebar border p-0"
-            style={{ width: "28rem" }}
-          >
-            {courseData.MODULOS && (
-              <div className="course-modules-list">
-                <div className="section-container">
+            <div
+              className="container course-sidebar border p-0"
+              style={{ width: "28rem" }}
+            >
+              <div className="lesson-header">
+                <h5 className="lesson-title mb-1">{courseData.NOME}</h5>
+                <span className="lesson-count">
+                  {courseProgress?.modulosCompletos || 0} de{" "}
+                  {courseProgress?.totalModulos || 0} módulos completos (
+                  {courseProgress?.percentualProgresso || 0}%)
+                </span>
+                <div className="progress mt-2" style={{ height: "4px" }}>
                   <div
-                    className="section-header"
-                    onClick={() => toggleSection(1)}
-                  >
-                    <div className="d-flex justify-content-between align-items-center p-3">
-                      <div>
-                        <h5 className="mb-0">Curso: {courseData.NOME}</h5>
-                        <small className="text-muted">
-                          {courseData.MODULOS.length} Módulos
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="section-content">
-                    {courseData.MODULOS.map((modulo) => (
-                      <div
-                        key={modulo.ID_MODULO}
-                        className={`module-item d-flex align-items-center p-2 ${
-                          moduleId === modulo.ID_MODULO.toString()
-                            ? "active"
-                            : ""
-                        }`}
-                        onClick={() => navigateToModule(modulo.ID_MODULO)}
-                      >
-                        <div
-                          className={`module-status-circle me-2 ${
-                            moduleProgress[modulo.ID_MODULO] ? "completed" : ""
-                          }`}
-                        >
-                          {moduleProgress[modulo.ID_MODULO] && (
-                            <Check
-                              size={16}
-                              color="#fff"
-                              className="check-icon"
-                            />
-                          )}
-                        </div>
-                        <div className="module-details">
-                          <div className="d-flex align-items-center">
-                            <span>{modulo.NOME}</span>
-                          </div>
-                          <small className="text-muted d-block">
-                            {modulo.TEMPO_ESTIMADO_MIN} min
-                          </small>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                    className="progress-bar"
+                    role="progressbar"
+                    style={{
+                      width: `${courseProgress?.percentualProgresso || 0}%`,
+                      backgroundColor: "#39639c",
+                    }}
+                    aria-valuenow={courseProgress?.percentualProgresso || 0}
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  />
                 </div>
               </div>
-            )}
+
+              <ul className="module-list">
+                {courseData.MODULOS?.map((modulo) => (
+                  <li
+                    key={modulo.ID_MODULO}
+                    className={`module-item ${
+                      moduleId === modulo.ID_MODULO.toString() ? "active" : ""
+                    }`}
+                    onClick={() => navigateToModule(modulo.ID_MODULO)}
+                  >
+                    <div
+                      className={`module-status ${
+                        moduleProgress[modulo.ID_MODULO] ? "completed" : ""
+                      }`}
+                    >
+                      {moduleProgress[modulo.ID_MODULO] && (
+                        <Check size={14} color="#fff" />
+                      )}
+                    </div>
+                    <div className="module-content">
+                      <div className="module-title">{modulo.NOME}</div>
+                      <div className="module-duration">
+                        {modulo.TEMPO_ESTIMADO_MIN} minutos
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
