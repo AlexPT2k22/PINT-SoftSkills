@@ -312,7 +312,7 @@ function CourseVideoPage() {
                           ></div>
                         </div>
                         <div className="d-flex flex-row gap-3">
-                          <div className="d-flex flex-column align-items-center ">
+                          <div className="d-flex flex-column align-items-center ps-2">
                             <div className="w-100">
                               <h5 className="fw-normal mb-0">4.3</h5>
                             </div>
