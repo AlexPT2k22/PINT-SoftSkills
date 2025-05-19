@@ -74,15 +74,6 @@ const streamUpload = (
       access_mode: "public",
     };
 
-    // PDF-specific options
-    if (resource_type === "raw" && fileExtension.toLowerCase() === "pdf") {
-      // THIS IS THE KEY CHANGE - Use "image" type for PDFs, not "raw"
-      uploadOptions.resource_type = "image";
-      uploadOptions.format = "pdf";
-      uploadOptions.flags = "attachment";
-      uploadOptions.type = "upload";
-    }
-
     const stream = cloudinary.uploader.upload_stream(
       uploadOptions,
       (error, result) => {
