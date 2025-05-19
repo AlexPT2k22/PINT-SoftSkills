@@ -3,13 +3,7 @@ import { Pencil, Trash2, Save, X, Play } from "lucide-react";
 import axios from "axios";
 import "../styles/notes.css";
 
-function NotesPanel({
-  moduleId,
-  currentTime,
-  onPauseVideo,
-  onResumeVideo,
-  playerRef,
-}) {
+function NotesPanel({ moduleId, currentTime }) {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [editingNoteId, setEditingNoteId] = useState(null);
@@ -39,7 +33,6 @@ function NotesPanel({
     if (!newNote.trim()) return;
 
     try {
-      onPauseVideo();
       const response = await axios.post(
         "http://localhost:4000/api/notes",
         {
@@ -67,22 +60,6 @@ function NotesPanel({
       setNotes((prev) => prev.filter((note) => note.ID_NOTA !== noteId));
     } catch (error) {
       console.error("Error deleting note:", error);
-    }
-  };
-
-  const jumpToTimestamp = (seconds) => {
-    if (playerRef?.current) {
-      // Send message to Cloudinary iframe
-      playerRef.current.sendMessage({
-        method: "seek",
-        args: [seconds],
-      });
-      // Play the video after seeking
-      setTimeout(() => {
-        playerRef.current.sendMessage({
-          method: "play",
-        });
-      }, 100);
     }
   };
 
@@ -118,13 +95,7 @@ function NotesPanel({
           <div key={note.ID_NOTA} className="note-item card mb-2">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <button
-                  className="btn btn-outline-primary btn-sm timestamp-btn"
-                  onClick={() => jumpToTimestamp(note.TEMPO_VIDEO)}
-                >
-                  <Play size={14} className="me-1" />
-                  {formatTime(note.TEMPO_VIDEO)}
-                </button>
+                <span className="">@ {formatTime(note.TEMPO_VIDEO)}</span>
               </div>
 
               {editingNoteId === note.ID_NOTA ? (
@@ -138,13 +109,17 @@ function NotesPanel({
                   <div className="d-flex gap-2">
                     <button
                       className="btn btn-success btn-sm"
-                      onClick={() => handleEdit(note.ID_NOTA)}
+                      onClick={() => {
+                        handleEdit(note.ID_NOTA);
+                      }}
                     >
                       <Save size={16} />
                     </button>
                     <button
                       className="btn btn-secondary btn-sm"
-                      onClick={() => setEditingNoteId(null)}
+                      onClick={() => {
+                        setEditingNoteId(null);
+                      }}
                     >
                       <X size={16} />
                     </button>

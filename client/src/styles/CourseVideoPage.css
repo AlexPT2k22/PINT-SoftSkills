@@ -80,3 +80,9 @@
   font-size: 0.9rem;
   color: #6c757d;
 }
+
+@media (max-height: 900px) {
+  .course-sidebar {
+    max-height: 450px;
+  }
+}

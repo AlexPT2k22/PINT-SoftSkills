@@ -6,6 +6,16 @@
   overflow: hidden;
 }
 
+@media (max-height: 900px) {
+  .video-wrapper {
+    height: 450px;
+  }
+
+  .cld-video-player {
+    max-height: 450px !important;
+  }
+}
+
 .cld-video-player {
   max-height: 610px !important;
   width: 100% !important;

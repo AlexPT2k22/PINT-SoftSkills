@@ -77,14 +77,18 @@ function CourseVideoPage() {
 
   // Handle pause/play for notes
   const handlePauseVideo = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
+    if (cloudinaryPlayerRef.current) {
+      cloudinaryPlayerRef.current.sendMessage({
+        method: "pause",
+      });
     }
   };
 
   const handleResumeVideo = () => {
-    if (videoRef.current) {
-      videoRef.current.play();
+    if (cloudinaryPlayerRef.current) {
+      cloudinaryPlayerRef.current.sendMessage({
+        method: "play",
+      });
     }
   };
 
@@ -271,7 +275,10 @@ function CourseVideoPage() {
               {videoID && (
                 <div
                   className="video-player"
-                  style={{ width: "100%", height: "610px" }}
+                  style={{
+                    width: "100%",
+                    height: window.innerHeight <= 900 ? "450px" : "610px",
+                  }}
                 >
                   <VideoPlayer
                     id={"video-player"}
@@ -469,7 +476,10 @@ function CourseVideoPage() {
             </div>
             <div
               className="container course-sidebar border p-0"
-              style={{ width: "28rem" }}
+              style={{
+                width: "28rem",
+                maxHeight: window.innerHeight <= 900 ? "450px" : "610px",
+              }}
             >
               <div className="lesson-header">
                 <h5 className="lesson-title mb-1">{courseData.NOME}</h5>
