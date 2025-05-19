@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import cloudinary from "cloudinary-video-player";
+import "cloudinary-video-player/cld-video-player.min.css";
+import "../styles/video.css"; // Import your CSS file
 
 const VideoPlayer = ({
   id,
@@ -22,20 +24,26 @@ const VideoPlayer = ({
       controls: true,
       showJumpControls: true,
       pictureInPictureToggle: true,
+      hideContextMenu: true,
       floatingWhenNotVisible: "right",
-      sourceTypes: ["hls"],
+      fluid: false, // Disable fluid to use fixed height
+      width: "100%",
+      height: 610, // Set fixed height
       ...playerConfig,
     });
     player.source(publicId, sourceConfig);
   }, []);
 
   return (
-    <video
-      ref={playerRef}
-      id={id}
-      className="cld-video-player cld-fluid"
-      {...props}
-    />
+    <div className="video-wrapper" style={{ maxHeight: "610px" }}>
+      <video
+        ref={playerRef}
+        id={id}
+        className="cld-video-player"
+        style={{ width: "100%", height: "100%" }}
+        {...props}
+      />
+    </div>
   );
 };
 

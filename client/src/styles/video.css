@@ -1,0 +1,13 @@
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  background: #000;
+  height: 610px;
+  overflow: hidden;
+}
+
+.cld-video-player {
+  max-height: 610px !important;
+  width: 100% !important;
+  height: 100% !important;
+}

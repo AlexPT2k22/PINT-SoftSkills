@@ -72,6 +72,12 @@ const streamUpload = (
       use_filename: true,
       unique_filename: true,
       access_mode: "public",
+      eager: [
+        {
+          streaming_profile: "full_hd", // Cria HLS com múltiplas resoluções
+          format: "m3u8", // Garante formato de streaming
+        },
+      ],
     };
 
     const stream = cloudinary.uploader.upload_stream(
