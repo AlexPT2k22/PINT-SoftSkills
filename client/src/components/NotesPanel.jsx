@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Pencil, Trash2, Save, X } from "lucide-react";
 import axios from "axios";
+import "../styles/notes.css";
 
-function NotesPanel({ moduleId, currentTime, onPauseVideo, onResumeVideo }) {
+function NotesPanel({
+  moduleId,
+  currentTime,
+  onPauseVideo,
+  onResumeVideo,
+  playerRef,
+}) {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [editingNoteId, setEditingNoteId] = useState(null);
@@ -28,20 +35,36 @@ function NotesPanel({ moduleId, currentTime, onPauseVideo, onResumeVideo }) {
     if (!newNote.trim()) return;
 
     try {
+      // Ensure we have the current time
+      console.log("Creating note at time:", Math.floor(currentTime));
+
+      // Pause the video first
       onPauseVideo();
+
       const response = await axios.post(
         "http://localhost:4000/api/notes",
         {
           moduleId,
           content: newNote,
-          timeInSeconds: Math.floor(currentTime),
+          timeInSeconds: Math.floor(currentTime) || 0,
         },
         { withCredentials: true }
       );
-      setNotes([...notes, response.data]);
+
+      // Update notes list with the new note
+      setNotes((prev) => [...prev, response.data]);
       setNewNote("");
     } catch (error) {
       console.error("Error creating note:", error);
+    }
+  };
+
+  const jumpToTimestamp = (seconds) => {
+    if (playerRef?.current) {
+      playerRef.current.sendMessage({
+        method: "seek",
+        args: [seconds],
+      });
     }
   };
 
@@ -86,7 +109,7 @@ function NotesPanel({ moduleId, currentTime, onPauseVideo, onResumeVideo }) {
           value={newNote}
           onChange={(e) => setNewNote(e.target.value)}
           placeholder="Adicione uma nota..."
-          rows={3}
+          rows={1}
           onFocus={onPauseVideo}
           onBlur={onResumeVideo}
         />
@@ -103,8 +126,13 @@ function NotesPanel({ moduleId, currentTime, onPauseVideo, onResumeVideo }) {
         {notes.map((note) => (
           <div key={note.ID_NOTA} className="note-item card mb-2">
             <div className="card-body">
-              <div className="note-timestamp text-muted small mb-1">
-                {formatTime(note.TEMPO_VIDEO)}
+              <div
+                className="note-timestamp text-muted small mb-1"
+                onClick={() => jumpToTimestamp(note.TEMPO_VIDEO)}
+                style={{ cursor: "pointer" }}
+              >
+                {formatTime(note.TEMPO_VIDEO)}{" "}
+                <span className="text-primary">(Jump to timestamp)</span>
               </div>
 
               {editingNoteId === note.ID_NOTA ? (

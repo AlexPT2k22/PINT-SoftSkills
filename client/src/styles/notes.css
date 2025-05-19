@@ -1,0 +1,40 @@
+/* Notes Panel Styles */
+.notes-panel {
+  padding: 1rem;
+}
+
+.note-item {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.note-item:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.note-timestamp {
+  color: #6c757d;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.note-timestamp:hover {
+  color: #39639c;
+  text-decoration: underline;
+}
+
+.note-content {
+  white-space: pre-wrap;
+  margin-right: 1rem;
+}
+
+.note-actions {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.note-item:hover .note-actions {
+  opacity: 1;
+}

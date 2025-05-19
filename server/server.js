@@ -13,6 +13,7 @@ const categoriaRoutes = require("./routes/categoria.route.js");
 const cookieparser = require("cookie-parser");
 require("dotenv");
 const { connectCloudinary } = require("./database/cloudinary.js");
+const notasRoutes = require("./routes/notas.route.js");
 const path = require("path");
 const port = process.env.PORT || 4000;
 
@@ -31,7 +32,8 @@ app.use("/api/dashboard", dashboardRoute); // Rota para o dashboard
 app.use("/api/auth", authRoutes); // Rota para autenticação
 app.use("/api/cursos", cursoRoute); // Rota para cursos
 app.use("/api/categorias", categoriaRoutes); // Rota para categorias
-app.use("/api/progress", progressRoute); // Rota para progresso
+app.use("/api/progress", progressRoute); // Rota para progresso\
+app.use("/api/notes", notasRoutes); // Rota para notas
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");

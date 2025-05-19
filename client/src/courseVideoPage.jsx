@@ -3,12 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import NavbarDashboard from "./components/navbarDashboard";
 import "./styles/CourseSidebar.css";
-import VideoPlayer from "./components/videoplayer";
 import Loader from "./components/loader";
 import axios from "axios";
 import "./styles/CourseVideoPage.css";
 import { Check, Info } from "lucide-react";
 import NotesPanel from "./components/NotesPanel";
+import VideoPlayer from "./components/video_player";
 
 function CourseVideoPage() {
   const { courseId, moduleId } = useParams();
@@ -22,18 +22,68 @@ function CourseVideoPage() {
   const [moduleCompleted, setModuleCompleted] = useState(false);
   const [courseProgress, setCourseProgress] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
-  const playerRef = useRef(null);
+  const videoIframeRef = useRef(null);
+  const cloudinaryPlayerRef = useRef(null);
 
-  const handleTimeUpdate = (time) => {
-    setCurrentTime(time);
-  };
+  useEffect(() => {
+    if (!videoID) return;
 
+    // Create script for Cloudinary Player SDK
+    const script = document.createElement("script");
+    script.src = "https://player.cloudinary.com/1.3.0/cld-video-player.min.js";
+    script.async = true;
+
+    script.onload = () => {
+      window.addEventListener("message", (event) => {
+        if (event.origin.includes("cloudinary.com")) {
+          try {
+            const data = JSON.parse(event.data);
+
+            // Handle time updates
+            if (data.event === "timeupdate" && data.player) {
+              setCurrentTime(Math.floor(data.player.currentTime));
+            }
+
+            // Store player reference on ready
+            if (data.event === "ready") {
+              cloudinaryPlayerRef.current = {
+                iframe: videoIframeRef.current,
+                sendMessage: (action) => {
+                  videoIframeRef.current.contentWindow.postMessage(
+                    JSON.stringify(action),
+                    "https://player.cloudinary.com"
+                  );
+                },
+              };
+            }
+          } catch (e) {
+            console.error("Error processing player message:", e);
+          }
+        }
+      });
+    };
+
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [videoID]);
+
+  // Handle pause/play for notes
   const handlePauseVideo = () => {
-    playerRef.current?.playerInstance?.pause();
+    if (cloudinaryPlayerRef.current) {
+      cloudinaryPlayerRef.current.sendMessage({
+        method: "pause",
+      });
+    }
   };
 
   const handleResumeVideo = () => {
-    playerRef.current?.playerInstance?.play();
+    if (cloudinaryPlayerRef.current) {
+      cloudinaryPlayerRef.current.sendMessage({
+        method: "play",
+      });
+    }
   };
 
   const markModuleAsCompleted = async () => {
@@ -176,26 +226,6 @@ function CourseVideoPage() {
     fetchCourseData();
   }, [courseId, moduleId]);
 
-  const getModuleFiles = (moduleFileUrl) => {
-    if (!moduleFileUrl) return [];
-
-    try {
-      // If it's a JSON string, parse it
-      if (typeof moduleFileUrl === "string" && moduleFileUrl.startsWith("[")) {
-        return JSON.parse(moduleFileUrl);
-      }
-      // If it's already an array, return it
-      if (Array.isArray(moduleFileUrl)) {
-        return moduleFileUrl;
-      }
-      // If it's a single URL string, convert to array
-      return [moduleFileUrl];
-    } catch (e) {
-      console.error("Error parsing file URLs:", e);
-      return [];
-    }
-  };
-
   const getFileName = (fileUrl) => {
     if (!fileUrl) return null;
     const urlParts = fileUrl.split("-$");
@@ -237,17 +267,15 @@ function CourseVideoPage() {
           <div className="container-fluid d-flex justify-content-between p-0 flex-row">
             <div className="container d-flex p-0 flex-column">
               {videoID && (
-                <div className="video-player">
-                  <VideoPlayer
-                    ref={playerRef}
-                    publicId={videoID}
-                    onVideoComplete={markModuleAsCompleted}
-                    onTimeUpdate={handleTimeUpdate}
-                  />
+                <div
+                  className="video-player"
+                  style={{ width: "100%", height: "610px" }}
+                >
+                  <VideoPlayer id={"video-player"} publicId={videoID} />
                 </div>
               )}
 
-              <div className="video-description mt-3">
+              <div className="video-description mt-4">
                 <div className="container d-flex flex-column p-0">
                   <div className="container justify-content-start d-flex align-items-center">
                     <ul className="list-group list-group-horizontal">
@@ -425,6 +453,7 @@ function CourseVideoPage() {
                       currentTime={currentTime}
                       onPauseVideo={handlePauseVideo}
                       onResumeVideo={handleResumeVideo}
+                      playerRef={cloudinaryPlayerRef}
                     />
                   )}
                 </div>

@@ -357,4 +357,5 @@ module.exports = {
   Habilidades,
   Modulos,
   ProgressoModulo,
+  Notas,
 };
