@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pencil, Trash2, Save, X } from "lucide-react";
+import { Pencil, Trash2, Save, X, Play } from "lucide-react";
 import axios from "axios";
 import "../styles/notes.css";
 
@@ -25,7 +25,11 @@ function NotesPanel({
         `http://localhost:4000/api/notes/module/${moduleId}`,
         { withCredentials: true }
       );
-      setNotes(response.data);
+      // Sort notes by timestamp
+      const sortedNotes = response.data.sort(
+        (a, b) => a.TEMPO_VIDEO - b.TEMPO_VIDEO
+      );
+      setNotes(sortedNotes);
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
@@ -35,52 +39,23 @@ function NotesPanel({
     if (!newNote.trim()) return;
 
     try {
-      // Ensure we have the current time
-      console.log("Creating note at time:", Math.floor(currentTime));
-
-      // Pause the video first
       onPauseVideo();
-
       const response = await axios.post(
         "http://localhost:4000/api/notes",
         {
           moduleId,
           content: newNote,
-          timeInSeconds: Math.floor(currentTime) || 0,
+          timeInSeconds: Math.floor(currentTime),
         },
         { withCredentials: true }
       );
 
-      // Update notes list with the new note
-      setNotes((prev) => [...prev, response.data]);
+      setNotes((prev) =>
+        [...prev, response.data].sort((a, b) => a.TEMPO_VIDEO - b.TEMPO_VIDEO)
+      );
       setNewNote("");
     } catch (error) {
       console.error("Error creating note:", error);
-    }
-  };
-
-  const jumpToTimestamp = (seconds) => {
-    if (playerRef?.current) {
-      playerRef.current.sendMessage({
-        method: "seek",
-        args: [seconds],
-      });
-    }
-  };
-
-  const handleEdit = async (noteId) => {
-    try {
-      const response = await axios.put(
-        `http://localhost:4000/api/notes/${noteId}`,
-        { content: editText },
-        { withCredentials: true }
-      );
-      setNotes(
-        notes.map((note) => (note.ID_NOTA === noteId ? response.data : note))
-      );
-      setEditingNoteId(null);
-    } catch (error) {
-      console.error("Error updating note:", error);
     }
   };
 
@@ -89,9 +64,25 @@ function NotesPanel({
       await axios.delete(`http://localhost:4000/api/notes/${noteId}`, {
         withCredentials: true,
       });
-      setNotes(notes.filter((note) => note.ID_NOTA !== noteId));
+      setNotes((prev) => prev.filter((note) => note.ID_NOTA !== noteId));
     } catch (error) {
       console.error("Error deleting note:", error);
+    }
+  };
+
+  const jumpToTimestamp = (seconds) => {
+    if (playerRef?.current) {
+      // Send message to Cloudinary iframe
+      playerRef.current.sendMessage({
+        method: "seek",
+        args: [seconds],
+      });
+      // Play the video after seeking
+      setTimeout(() => {
+        playerRef.current.sendMessage({
+          method: "play",
+        });
+      }, 100);
     }
   };
 
@@ -104,21 +95,30 @@ function NotesPanel({
   return (
     <div className="notes-panel">
       <div className="new-note mb-3">
+        <div className="d-flex align-items-center mb-2">
+          <span className="current-time me-2">
+            Current time: {formatTime(currentTime)}
+          </span>
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={onPauseVideo}
+          >
+            Pausa
+          </button>
+        </div>
         <textarea
           className="form-control mb-2"
           value={newNote}
           onChange={(e) => setNewNote(e.target.value)}
-          placeholder="Adicione uma nota..."
-          rows={1}
-          onFocus={onPauseVideo}
-          onBlur={onResumeVideo}
+          placeholder="Adicione uma nota neste instante..."
+          rows={2}
         />
         <button
           className="btn btn-primary"
           onClick={handleNewNote}
           disabled={!newNote.trim()}
         >
-          Adicionar Nota
+          Adicionar nota
         </button>
       </div>
 
@@ -126,13 +126,14 @@ function NotesPanel({
         {notes.map((note) => (
           <div key={note.ID_NOTA} className="note-item card mb-2">
             <div className="card-body">
-              <div
-                className="note-timestamp text-muted small mb-1"
-                onClick={() => jumpToTimestamp(note.TEMPO_VIDEO)}
-                style={{ cursor: "pointer" }}
-              >
-                {formatTime(note.TEMPO_VIDEO)}{" "}
-                <span className="text-primary">(Jump to timestamp)</span>
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <button
+                  className="btn btn-outline-primary btn-sm timestamp-btn"
+                  onClick={() => jumpToTimestamp(note.TEMPO_VIDEO)}
+                >
+                  <Play size={14} className="me-1" />
+                  {formatTime(note.TEMPO_VIDEO)}
+                </button>
               </div>
 
               {editingNoteId === note.ID_NOTA ? (

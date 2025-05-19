@@ -498,6 +498,7 @@ function CourseVideoPage() {
                       className={`module-status ${
                         moduleProgress[modulo.ID_MODULO] ? "completed" : ""
                       }`}
+                      onClick={markModuleAsCompleted}
                     >
                       {moduleProgress[modulo.ID_MODULO] && (
                         <Check size={14} color="#fff" />
