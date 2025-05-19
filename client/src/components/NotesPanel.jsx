@@ -97,17 +97,6 @@ function NotesPanel({
   return (
     <div className="notes-panel">
       <div className="new-note mb-3">
-        <div className="d-flex align-items-center mb-2">
-          <span className="current-time me-2">
-            Current time: {formatTime(currentTime)}
-          </span>
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={onPauseVideo}
-          >
-            Pausa
-          </button>
-        </div>
         <textarea
           className="form-control mb-2"
           value={newNote}
