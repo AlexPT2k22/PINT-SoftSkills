@@ -24,6 +24,12 @@ function CourseVideoPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const videoIframeRef = useRef(null);
   const cloudinaryPlayerRef = useRef(null);
+  const videoRef = useRef(null);
+
+  const handleTimeUpdate = (time) => {
+    setCurrentTime(time);
+    //console.log("Current time updated:", time);
+  };
 
   useEffect(() => {
     if (!videoID) return;
@@ -71,18 +77,14 @@ function CourseVideoPage() {
 
   // Handle pause/play for notes
   const handlePauseVideo = () => {
-    if (cloudinaryPlayerRef.current) {
-      cloudinaryPlayerRef.current.sendMessage({
-        method: "pause",
-      });
+    if (videoRef.current) {
+      videoRef.current.pause();
     }
   };
 
   const handleResumeVideo = () => {
-    if (cloudinaryPlayerRef.current) {
-      cloudinaryPlayerRef.current.sendMessage({
-        method: "play",
-      });
+    if (videoRef.current) {
+      videoRef.current.play();
     }
   };
 
@@ -271,7 +273,13 @@ function CourseVideoPage() {
                   className="video-player"
                   style={{ width: "100%", height: "610px" }}
                 >
-                  <VideoPlayer id={"video-player"} publicId={videoID} />
+                  <VideoPlayer
+                    id={"video-player"}
+                    publicId={videoID}
+                    onTimeUpdate={handleTimeUpdate}
+                    onPause={handlePauseVideo}
+                    onPlay={handleResumeVideo}
+                  />
                 </div>
               )}
 

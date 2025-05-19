@@ -3,11 +3,20 @@ import cloudinary from "cloudinary-video-player";
 import "cloudinary-video-player/cld-video-player.min.css";
 import "../styles/video.css"; // Import your CSS file
 
+const formatTime = (timeInSeconds) => {
+  const minutes = Math.floor(timeInSeconds / 60);
+  const seconds = Math.floor(timeInSeconds % 60);
+  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+};
+
 const VideoPlayer = ({
   id,
   publicId,
   playerConfig,
   sourceConfig,
+  onTimeUpdate,
+  onPause,
+  onPlay,
   ...props
 }) => {
   const cloudinaryRef = useRef();
@@ -25,14 +34,24 @@ const VideoPlayer = ({
       showJumpControls: true,
       pictureInPictureToggle: true,
       hideContextMenu: true,
-      floatingWhenNotVisible: "right",
+
       fluid: false, // Disable fluid to use fixed height
       width: "100%",
       height: 610, // Set fixed height
+      sourceTypes: ["hls"],
+      transformation: { streaming_profile: "full_hd" },
       ...playerConfig,
     });
+
+    player.on("timeupdate", () => {
+      const currentTime = player.currentTime();
+      if (onTimeUpdate) {
+        onTimeUpdate(currentTime);
+      }
+    });
+
     player.source(publicId, sourceConfig);
-  }, []);
+  }, [onTimeUpdate]);
 
   return (
     <div className="video-wrapper" style={{ maxHeight: "610px" }}>
