@@ -1,9 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const certificadoController = require('../controllers/certificado.controller');
-const authenticateToken = require('../middlewares/authmiddleware');
+const {
+  gerarCertificado,
+  verificarCertificado,
+} = require("../controllers/certificado.controller");
+const authenticateToken = require("../middlewares/authmiddleware");
 
-router.get('/gerar/:courseId', authenticateToken, certificadoController.gerarCertificado);
-router.get('/verificar/:codigo', certificadoController.verificarCertificado);
+router.get("/gerar/:courseId", authenticateToken, gerarCertificado);
+router.get("/verificar/:codigo", verificarCertificado);
 
 module.exports = router;

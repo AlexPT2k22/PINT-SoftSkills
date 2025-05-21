@@ -15,7 +15,6 @@ require("dotenv");
 const { connectCloudinary } = require("./database/cloudinary.js");
 const notasRoutes = require("./routes/notas.route.js");
 const certificadoRoutes = require("./routes/certificado.route.js");
-app.use("/api/certificados", certificadoRoutes);
 const path = require("path");
 const port = process.env.PORT || 4000;
 
