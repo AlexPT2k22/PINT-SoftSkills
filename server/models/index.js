@@ -366,4 +366,5 @@ module.exports = {
   Modulos,
   ProgressoModulo,
   Notas,
+  Certificado,
 };

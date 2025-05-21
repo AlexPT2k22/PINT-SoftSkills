@@ -1,4 +1,10 @@
-const { Certificado, Curso, Utilizador, ProgressoModulo, Modulos } = require("../models");
+const {
+  Certificado,
+  Curso,
+  Utilizador,
+  ProgressoModulo,
+  Modulos,
+} = require("../models/index.js");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
@@ -6,14 +12,14 @@ const { v4: uuidv4 } = require("uuid");
 const QRCode = require("qrcode");
 
 const gerarCodigoVerificacao = () => {
-  return uuidv4().replace(/-/g, '').substring(0, 16).toUpperCase();
+  return uuidv4().replace(/-/g, "").substring(0, 16).toUpperCase();
 };
 
 const verificarConclusaoCurso = async (userId, courseId) => {
   try {
     // Get total modules for the course
     const totalModulos = await Modulos.count({
-      where: { ID_CURSO: courseId }
+      where: { ID_CURSO: courseId },
     });
 
     // Get completed modules for the user
@@ -21,8 +27,8 @@ const verificarConclusaoCurso = async (userId, courseId) => {
       where: {
         ID_UTILIZADOR: userId,
         ID_CURSO: courseId,
-        COMPLETO: true
-      }
+        COMPLETO: true,
+      },
     });
 
     // Return true if all modules are completed
@@ -37,14 +43,15 @@ const gerarCertificado = async (req, res) => {
   try {
     const { courseId } = req.params;
     const userId = req.user.ID_UTILIZADOR;
-    
+
     // Verify course completion
     const cursoCompleto = await verificarConclusaoCurso(userId, courseId);
-    
+
     if (!cursoCompleto) {
       return res.status(403).json({
         success: false,
-        message: "Complete todos os módulos do curso para receber o certificado"
+        message:
+          "Complete todos os módulos do curso para receber o certificado",
       });
     }
 
@@ -52,8 +59,8 @@ const gerarCertificado = async (req, res) => {
     let certificado = await Certificado.findOne({
       where: {
         ID_UTILIZADOR: userId,
-        ID_CURSO: courseId
-      }
+        ID_CURSO: courseId,
+      },
     });
 
     if (!certificado) {
@@ -61,20 +68,20 @@ const gerarCertificado = async (req, res) => {
         ID_UTILIZADOR: userId,
         ID_CURSO: courseId,
         CODIGO_VERIFICACAO: gerarCodigoVerificacao(),
-        DATA_EMISSAO: new Date()
+        DATA_EMISSAO: new Date(),
       });
     }
 
     // Get course and user data
     const [curso, usuario] = await Promise.all([
       Curso.findByPk(courseId),
-      Utilizador.findByPk(userId)
+      Utilizador.findByPk(userId),
     ]);
 
     if (!curso || !usuario) {
       return res.status(404).json({
         success: false,
-        message: "Curso ou usuário não encontrado"
+        message: "Curso ou usuário não encontrado",
       });
     }
 
@@ -85,7 +92,10 @@ const gerarCertificado = async (req, res) => {
     }
 
     // Generate PDF path
-    const pdfPath = path.join(certificatesDir, `${certificado.CODIGO_VERIFICACAO}.pdf`);
+    const pdfPath = path.join(
+      certificatesDir,
+      `${certificado.CODIGO_VERIFICACAO}.pdf`
+    );
     const pdfUrl = `/certificates/${certificado.CODIGO_VERIFICACAO}.pdf`;
 
     // Generate QR Code
@@ -96,7 +106,7 @@ const gerarCertificado = async (req, res) => {
     // Create PDF
     const doc = new PDFDocument({
       layout: "landscape",
-      size: "A4"
+      size: "A4",
     });
 
     // Pipe the PDF to a file
@@ -110,7 +120,9 @@ const gerarCertificado = async (req, res) => {
       .moveDown()
       .font("Helvetica")
       .fontSize(16)
-      .text(`Certificamos que ${usuario.NOME} concluiu com êxito o curso`, { align: "center" })
+      .text(`Certificamos que ${usuario.USERNAME} concluiu com êxito o curso`, {
+        align: "center",
+      })
       .moveDown()
       .font("Helvetica-Bold")
       .fontSize(20)
@@ -120,7 +132,7 @@ const gerarCertificado = async (req, res) => {
       .fontSize(14)
       .text(`Código de Verificação: ${certificado.CODIGO_VERIFICACAO}`)
       .moveDown()
-      .text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`)
+      .text(`Data de Emissão: ${new Date().toLocaleDateString("pt-BR")}`)
       .image(qrCodeUrl, 450, 400, { width: 100 });
 
     // Finalize PDF
@@ -133,15 +145,14 @@ const gerarCertificado = async (req, res) => {
       success: true,
       certificado: {
         codigo: certificado.CODIGO_VERIFICACAO,
-        url: `http://localhost:4000${pdfUrl}`
-      }
+        url: `http://localhost:4000${pdfUrl}`,
+      },
     });
-
   } catch (error) {
     console.error("Erro ao gerar certificado:", error);
     res.status(500).json({
       success: false,
-      message: "Erro ao gerar certificado"
+      message: "Erro ao gerar certificado",
     });
   }
 };
@@ -153,15 +164,17 @@ const verificarCertificado = async (req, res) => {
     const certificado = await Certificado.findOne({
       where: { CODIGO_VERIFICACAO: codigo },
       include: [
-        { model: Utilizador, attributes: ['NOME'] },
-        { model: Curso, attributes: ['NOME'] }
-      ]
+        { model: Utilizador, attributes: ["USERNAME"] },
+        { model: Curso, attributes: ["NOME"] },
+      ],
     });
+
+    console.log("Certificado encontrado:", certificado);
 
     if (!certificado) {
       return res.status(404).json({
         success: false,
-        message: "Certificado não encontrado"
+        message: "Certificado não encontrado",
       });
     }
 
@@ -170,21 +183,20 @@ const verificarCertificado = async (req, res) => {
       certificado: {
         codigo: certificado.CODIGO_VERIFICACAO,
         dataEmissao: certificado.DATA_EMISSAO,
-        aluno: certificado.UTILIZADOR.NOME,
-        curso: certificado.CURSO.NOME
-      }
+        aluno: certificado.UTILIZADOR.USERNAME,
+        curso: certificado.CURSO.NOME,
+      },
     });
-
   } catch (error) {
     console.error("Erro ao verificar certificado:", error);
     res.status(500).json({
       success: false,
-      message: "Erro ao verificar certificado"
+      message: "Erro ao verificar certificado",
     });
   }
 };
 
 module.exports = {
   gerarCertificado,
-  verificarCertificado
+  verificarCertificado,
 };
