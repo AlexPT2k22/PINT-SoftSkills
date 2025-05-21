@@ -22,8 +22,10 @@ const port = process.env.PORT || 4000;
 app.use(express.json()); // Para ler JSON no corpo da requisição
 app.use(
   cors({
-    origin: "*",
+    origin: "http://localhost:5173", // Allow requests from your React dev server
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 ); // Permitir cookies e credenciais
 app.use(cookieparser()); // Para ler cookies
