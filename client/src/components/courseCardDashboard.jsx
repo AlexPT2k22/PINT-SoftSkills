@@ -1,7 +1,7 @@
 import React from "react";
 import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
-import { Pen, Eye } from "lucide-react";
+import { Pen, Eye, Download } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import axios from "axios";
 
@@ -14,23 +14,6 @@ function CourseCardDashboard({
 }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
-
-  const handleDownloadCertificate = async () => {
-    try {
-      // Tentar gerar um certificado (se ainda não existir)
-      const response = await axios.get(
-        `http://localhost:4000/api/certificados/gerar/${course.ID_CURSO}`,
-        { withCredentials: true }
-      );
-
-      if (response.data.success) {
-        // Abrir o PDF em uma nova aba
-        window.open(response.data.certificado.url, "_blank");
-      }
-    } catch (error) {
-      console.error("Erro ao baixar certificado:", error);
-    }
-  };
 
   const handleClick = () => {
     // If user has progress, navigate to the first incomplete module
@@ -50,8 +33,6 @@ function CourseCardDashboard({
           `/dashboard/courses/${course.ID_CURSO}/modules/${course.MODULOS[0].ID_MODULO}`
         );
       }
-    } else if (progress === 100) {
-      handleDownloadCertificate();
     } else {
       // If no progress, navigate to first module
       navigate(
@@ -152,7 +133,7 @@ function CourseCardDashboard({
                 ? "Começar"
                 : progress < 100
                 ? "Continuar"
-                : "Obter certificado"}
+                : "Abrir curso"}
             </button>
           </div>
         )}
