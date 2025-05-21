@@ -14,13 +14,15 @@ const cookieparser = require("cookie-parser");
 require("dotenv");
 const { connectCloudinary } = require("./database/cloudinary.js");
 const notasRoutes = require("./routes/notas.route.js");
+const certificadoRoutes = require("./routes/certificado.route.js");
+app.use("/api/certificados", certificadoRoutes);
 const path = require("path");
 const port = process.env.PORT || 4000;
 
 app.use(express.json()); // Para ler JSON no corpo da requisição
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://pint-soft-skills.vercel.app/"],
+    origin: "*",
     credentials: true,
   })
 ); // Permitir cookies e credenciais
@@ -32,8 +34,13 @@ app.use("/api/dashboard", dashboardRoute); // Rota para o dashboard
 app.use("/api/auth", authRoutes); // Rota para autenticação
 app.use("/api/cursos", cursoRoute); // Rota para cursos
 app.use("/api/categorias", categoriaRoutes); // Rota para categorias
-app.use("/api/progress", progressRoute); // Rota para progresso\
+app.use("/api/progress", progressRoute); // Rota para progresso
 app.use("/api/notes", notasRoutes); // Rota para notas
+app.use("/api/certificados", certificadoRoutes);
+app.use(
+  "/certificates",
+  express.static(path.join(__dirname, "public/certificates"))
+);
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");

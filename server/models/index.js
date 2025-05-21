@@ -34,12 +34,16 @@ const Habilidades = require("./habilidades.model.js");
 const Modulos = require("./modulos.model.js");
 const ProgressoModulo = require("./moduloProgresso.model.js");
 const Notas = require("./notas.model.js");
+const Certificado = require("./certificado.model.js");
 
 // Define associations
 
 // Utilizador associations
 Utilizador.hasMany(LoginSocialMedia, { foreignKey: "ID_UTILIZADOR" });
 LoginSocialMedia.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
+Utilizador.hasMany(Certificado, { foreignKey: "ID_UTILIZADOR" });
+Certificado.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 
 Utilizador.hasMany(Notificacao, { foreignKey: "ID_UTILIZADOR" });
 Notificacao.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
@@ -97,6 +101,10 @@ Habilidades.belongsTo(Curso, { foreignKey: "ID_CURSO", as: "CURSO" });
 
 Curso.hasMany(Modulos, { foreignKey: "ID_CURSO", as: "MODULOS" });
 Modulos.belongsTo(Curso, { foreignKey: "ID_CURSO", as: "CURSO" });
+
+// curso e certificado associations
+Curso.hasMany(Certificado, { foreignKey: "ID_CURSO" });
+Certificado.belongsTo(Curso, { foreignKey: "ID_CURSO" });
 
 // CursoSincrono associations
 Utilizador.hasMany(CursoSincrono, { foreignKey: "ID_UTILIZADOR" });
