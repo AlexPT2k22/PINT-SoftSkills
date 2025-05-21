@@ -63,6 +63,28 @@ function NotesPanel({ moduleId, currentTime }) {
     }
   };
 
+  const handleEdit = async (noteId) => {
+    if (!editText.trim()) return;
+    try {
+      await axios.put(
+        `http://localhost:4000/api/notes/${noteId}`,
+        {
+          content: editText,
+        },
+        { withCredentials: true }
+      );
+      setNotes((prev) =>
+        prev.map((note) =>
+          note.ID_NOTA === noteId ? { ...note, CONTEUDO: editText } : note
+        )
+      );
+      setEditingNoteId(null);
+      setEditText("");
+    } catch (error) {
+      console.error("Error updating note:", error);
+    }
+  };
+
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingseconds = Math.floor(seconds % 60);

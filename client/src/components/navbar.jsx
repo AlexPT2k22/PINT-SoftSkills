@@ -174,7 +174,7 @@ function Navbar() {
             </div>
           </form>
 
-          <ul className="navbar-nav me-5">
+          <ul className="navbar-nav">
             <li className="nav-item">
               <a className="nav-link text-decoration-underline text" href="#">
                 Torne-se Formador
@@ -257,7 +257,7 @@ function Navbar() {
                 </li>
                 <li className="nav-item">
                   <button
-                    className="btn btn-primary me-5 button-login"
+                    className="btn btn-primary button-login"
                     type="button"
                     onClick={() => navigate("/login?login=1")}
                   >
