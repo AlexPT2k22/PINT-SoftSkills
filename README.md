@@ -8,4 +8,5 @@
 - PostgreSQL
 - Resend (Email sending)
 - Zustand (State management)
-- Cloudinary (gestão de imagens e videos)
+- Cloudinary (Image and video storage)
+- PDFmaker (For certificates)
