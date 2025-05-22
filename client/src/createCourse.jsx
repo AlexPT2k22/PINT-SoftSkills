@@ -37,6 +37,8 @@ function CreateCourse() {
   const [currentModuleData, setCurrentModuleData] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const moduleContentInputRef = useRef(null);
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [topics, setTopics] = useState([]);
 
   // Add this to your component or create a new CSS file and import it
 
@@ -236,6 +238,24 @@ function CreateCourse() {
       setCurrentModuleData(null);
     }
   };
+
+  useEffect(() => {
+    // Add to your existing useEffect
+    const fetchTopics = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/topicos/by-area/${selectedArea}`
+        );
+        setTopics(response.data);
+      } catch (error) {
+        console.error("Error fetching topics:", error);
+      }
+    };
+
+    if (selectedArea) {
+      fetchTopics();
+    }
+  }, [selectedArea]);
 
   useEffect(() => {
     const getAreas = async () => {
@@ -955,6 +975,27 @@ function CreateCourse() {
                               )) || []}
                             </select>
                           )}
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Tópico do curso</label>
+                          <select
+                            className="form-select"
+                            value={selectedTopic}
+                            onChange={(e) => setSelectedTopic(e.target.value)}
+                            required
+                          >
+                            <option value="">Selecione um tópico</option>
+                            {topics.map((topic) => (
+                              <option
+                                key={topic.ID_TOPICO}
+                                value={topic.ID_TOPICO}
+                              >
+                                {topic.TITULO}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     </div>

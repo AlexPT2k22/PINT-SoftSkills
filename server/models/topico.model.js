@@ -22,10 +22,6 @@ const Topico = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    FICHEIRO: {
-      type: DataTypes.BLOB("tiny"), // binary(1) mapeado para BLOB pequeno
-      allowNull: true,
-    },
     DATA_CRIACAO: {
       type: DataTypes.DATE,
       allowNull: false,

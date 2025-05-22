@@ -328,6 +328,12 @@ TrabalhoCursoSincrono.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 CursoSincrono.hasMany(TrabalhoCursoSincrono, { foreignKey: "ID_CURSO" });
 TrabalhoCursoSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
 
+Topico.belongsTo(Area, { foreignKey: "ID_AREA" });
+Area.hasMany(Topico, { foreignKey: "ID_AREA" });
+
+Curso.belongsTo(Topico, { foreignKey: "ID_TOPICO" });
+Topico.hasMany(Curso, { foreignKey: "ID_TOPICO" });
+
 // Export all models with their associations
 module.exports = {
   sequelize,
