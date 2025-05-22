@@ -24,6 +24,7 @@ import ListCoursesDashboard from "./ListCoursesDashboard.jsx";
 import LinkedCourses from "./linkedCourses.jsx";
 import CourseVideoPage from "./courseVideoPage.jsx";
 import CoursesUser from "./coursesUser.jsx";
+import NotFound from "./404.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -92,6 +93,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<Inicio />}></Route>
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>

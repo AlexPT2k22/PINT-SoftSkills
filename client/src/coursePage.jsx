@@ -199,7 +199,7 @@ function CoursePage() {
                         className="text-decoration-none"
                         style={{ color: "#39639C", fontWeight: "500" }}
                       >
-                        TOPICO
+                        {course.Topico?.TITULO}
                       </a>
                     </li>
                   </ol>

@@ -18,6 +18,14 @@ const Curso = sequelize.define(
         key: "ID_AREA",
       },
     },
+    ID_TOPICO: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "TOPICO",
+        key: "ID_TOPICO",
+      },
+    },
     IMAGEM: {
       type: DataTypes.TEXT,
       allowNull: true,

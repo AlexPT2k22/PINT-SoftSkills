@@ -14,8 +14,14 @@ const {
   Modulos,
   EstadoOcorrenciaAssincrona,
   EstadoCursoSincrono,
+  Topico,
+  InscricaoAssincrono,
+  InscricaoAssincronoCurso,
+  InscricaoSincronoCurso,
+  ProgressoModulo,
+  Notas,
 } = require("../models/index.js");
-const sequelize = require("sequelize");
+const { sequelize } = require("../database/database.js");
 const cloudinary = require("cloudinary").v2;
 const { Readable } = require("stream");
 const fs = require("fs");
@@ -162,6 +168,11 @@ const getCursoById = async (req, res) => {
           ],
         },
         {
+          model: Topico,
+          as: "Topico",
+          attributes: ["ID_TOPICO", "TITULO", "DESCRICAO"],
+        },
+        {
           model: CursoAssincrono,
         },
         {
@@ -246,6 +257,7 @@ const createCurso = async (req, res) => {
     DESCRICAO_OBJETIVOS__,
     DIFICULDADE_CURSO__,
     ID_AREA,
+    ID_TOPICO,
     HABILIDADES,
     OBJETIVOS,
   } = req.body;
@@ -274,6 +286,7 @@ const createCurso = async (req, res) => {
       IMAGEM: imagemUrl,
       IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
+      ID_TOPICO,
       DATA_CRIACAO__: new Date(),
     });
 
@@ -362,8 +375,13 @@ const createCurso = async (req, res) => {
 const updateCurso = async (req, res) => {
   //FIXME:
   const { id } = req.params;
-  const { NOME, DESCRICAO_OBJETIVOS__, DIFICULDADE_CURSO__, ID_AREA } =
-    req.body;
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    ID_TOPICO,
+  } = req.body;
 
   try {
     const curso = await Curso.findByPk(id);
@@ -404,6 +422,7 @@ const updateCurso = async (req, res) => {
       IMAGEM: imagemUrl,
       IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
+      ID_TOPICO,
     });
 
     res.status(200).json(curso);
@@ -427,6 +446,7 @@ const updateCursoSincrono = async (req, res) => {
     VAGAS,
     HABILIDADES,
     OBJETIVOS,
+    ID_TOPICO,
   } = req.body;
 
   const modulos = JSON.parse(req.body.MODULOS);
@@ -459,6 +479,7 @@ const updateCursoSincrono = async (req, res) => {
       IMAGEM: imagemUrl,
       IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
+      ID_TOPICO,
       DATA_CRIACAO__: new Date(),
     });
     const cursoSincrono = await CursoSincrono.findOne({
@@ -586,6 +607,7 @@ const updateCursoAssincrono = async (req, res) => {
     DATA_FIM,
     HABILIDADES,
     OBJETIVOS,
+    ID_TOPICO,
   } = req.body;
 
   const modulos = JSON.parse(req.body.MODULOS);
@@ -614,6 +636,7 @@ const updateCursoAssincrono = async (req, res) => {
       IMAGEM: imagemUrl,
       IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
+      ID_TOPICO,
       DATA_CRIACAO__: new Date(),
     });
     const cursoAssincrono = await CursoAssincrono.findOne({
@@ -742,6 +765,7 @@ const createAssincrono = async (req, res) => {
     DATA_INICIO,
     HABILIDADES,
     OBJETIVOS,
+    ID_TOPICO,
   } = req.body;
 
   const modulos = JSON.parse(req.body.MODULOS);
@@ -769,6 +793,7 @@ const createAssincrono = async (req, res) => {
       IMAGEM: imagemUrl,
       IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
+      ID_TOPICO,
       DATA_CRIACAO__: new Date(),
     });
 
@@ -905,6 +930,7 @@ const createSincrono = async (req, res) => {
     VAGAS,
     HABILIDADES,
     OBJETIVOS,
+    ID_TOPICO,
   } = req.body;
 
   const modulos = JSON.parse(req.body.MODULOS);
@@ -943,6 +969,7 @@ const createSincrono = async (req, res) => {
       IMAGEM: imagemUrl,
       IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
+      ID_TOPICO,
       DATA_CRIACAO__: new Date(),
     });
 
@@ -1075,6 +1102,7 @@ const convertCursoType = async (req, res) => {
     DATA_INICIO,
     DATA_FIM,
     VAGAS,
+    ID_TOPICO,
   } = req.body;
 
   try {
@@ -1106,6 +1134,7 @@ const convertCursoType = async (req, res) => {
       IMAGEM: imagemUrl,
       IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
+      ID_TOPICO,
     });
 
     // Check if we already have async or sync version
@@ -1171,9 +1200,12 @@ const convertCursoType = async (req, res) => {
 
 const deleteCurso = async (req, res) => {
   const { id } = req.params;
-  const transaction = await sequelize.transaction();
+  let transaction;
 
   try {
+    // Start transaction correctly
+    transaction = await sequelize.transaction();
+
     // Find the course with all its related data
     const curso = await Curso.findByPk(id, {
       include: [
@@ -1182,11 +1214,13 @@ const deleteCurso = async (req, res) => {
         { model: CursoSincrono },
         { model: Objetivos, as: "OBJETIVOS" },
         { model: Habilidades, as: "HABILIDADES" },
+        { model: Topico, as: "Topico" }, // Add Topico to make sure it's included
       ],
+      transaction,
     });
 
     if (!curso) {
-      await transaction.rollback();
+      if (transaction) await transaction.rollback();
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
@@ -1200,22 +1234,23 @@ const deleteCurso = async (req, res) => {
           `Failed to delete course image: ${curso.IMAGEM_PUBLIC_ID}`,
           err
         );
+        // Continue with deletion even if image deletion fails
       }
     }
 
-    // 2. Clean up module files - videos and content files
+    // 2. Clean up module files
     if (curso.MODULOS && curso.MODULOS.length > 0) {
       for (const modulo of curso.MODULOS) {
-        // Handle videos
+        // Process video deletion
         if (modulo.VIDEO_URL) {
           try {
-            // Extract public ID from Cloudinary URL
-            const vidMatch = modulo.VIDEO_URL.match(/\/v\d+\/([^/]+\/[^.]+)/);
-            if (vidMatch && vidMatch[1]) {
-              await cloudinary.uploader.destroy(vidMatch[1], {
+            // Extract public_id from Cloudinary URL
+            const publicId = extractCloudinaryPublicId(modulo.VIDEO_URL);
+            if (publicId) {
+              await cloudinary.uploader.destroy(publicId, {
                 resource_type: "video",
               });
-              console.log(`Deleted module video: ${vidMatch[1]}`);
+              console.log(`Deleted module video: ${publicId}`);
             }
           } catch (err) {
             console.warn(
@@ -1225,35 +1260,23 @@ const deleteCurso = async (req, res) => {
           }
         }
 
-        // Handle content files (stored as JSON string array)
+        // Process content files deletion
         if (modulo.FILE_URL) {
           try {
-            const fileUrls = JSON.parse(modulo.FILE_URL);
+            let fileUrls = modulo.FILE_URL;
+
+            // Handle both string and JSON array formats
+            if (typeof fileUrls === "string") {
+              try {
+                fileUrls = JSON.parse(fileUrls);
+              } catch (e) {
+                fileUrls = [fileUrls]; // Treat as single URL if not JSON
+              }
+            }
+
             if (Array.isArray(fileUrls)) {
               for (const fileUrl of fileUrls) {
-                if (fileUrl.includes("localhost:4000")) {
-                  // Local file
-                  const localPath = fileUrl.split("localhost:4000")[1];
-                  const fullPath = path.join(
-                    __dirname,
-                    "..",
-                    "public",
-                    localPath
-                  );
-                  if (fs.existsSync(fullPath)) {
-                    fs.unlinkSync(fullPath);
-                    console.log(`Deleted local file: ${fullPath}`);
-                  }
-                } else if (fileUrl.includes("cloudinary")) {
-                  // Cloudinary file
-                  const fileMatch = fileUrl.match(/\/v\d+\/([^/]+\/[^.]+)/);
-                  if (fileMatch && fileMatch[1]) {
-                    await cloudinary.uploader.destroy(fileMatch[1], {
-                      resource_type: "raw",
-                    });
-                    console.log(`Deleted content file: ${fileMatch[1]}`);
-                  }
-                }
+                await deleteFile(fileUrl);
               }
             }
           } catch (err) {
@@ -1266,9 +1289,45 @@ const deleteCurso = async (req, res) => {
       }
     }
 
-    // 3. Delete all database records in the right order
+    // 3. Delete associated records in correct order
 
-    // Delete course modules
+    // Clear progress records
+    await ProgressoModulo.destroy({
+      where: { ID_CURSO: id },
+      transaction,
+    }).catch((err) => console.warn("Error deleting module progress", err));
+
+    // Delete inscriptions for sync courses
+    if (curso.CursoSincrono) {
+      await InscricaoSincrono.destroy({
+        where: { ID_CURSO_SINCRONO: curso.CursoSincrono.ID_CURSO },
+        transaction,
+      }).catch((err) => console.warn("Error deleting inscriptions", err));
+
+      await FrequenciaSincrono.destroy({
+        where: { ID_CURSO_SINCRONO: curso.CursoSincrono.ID_CURSO },
+        transaction,
+      }).catch((err) => console.warn("Error deleting attendance records", err));
+    }
+
+    // Delete associated notes
+    await Promise.all(
+      (curso.MODULOS || []).map(async (modulo) => {
+        try {
+          await Notas.destroy({
+            where: { ID_MODULO: modulo.ID_MODULO },
+            transaction,
+          });
+        } catch (err) {
+          console.warn(
+            `Error deleting notes for module ${modulo.ID_MODULO}`,
+            err
+          );
+        }
+      })
+    ).catch((err) => console.warn("Error in notes deletion process", err));
+
+    // Delete modules
     await Modulos.destroy({
       where: { ID_CURSO: id },
       transaction,
@@ -1285,22 +1344,16 @@ const deleteCurso = async (req, res) => {
       transaction,
     });
 
-    // Delete CursoAssincrono or CursoSincrono
-    if (curso.CURSO_ASSINCRONO) {
+    // Delete CursoAssincrono
+    if (curso.CursoAssincrono) {
       await CursoAssincrono.destroy({
         where: { ID_CURSO: id },
         transaction,
       });
     }
 
-    if (curso.CURSO_SINCRONO) {
-      // First delete any inscriptions to avoid foreign key constraints
-      await InscricaoSincrono.destroy({
-        where: { ID_CURSO_SINCRONO: curso.CURSO_SINCRONO.ID_CURSO },
-        transaction,
-      });
-
-      // Then delete the course itself
+    // Delete CursoSincrono
+    if (curso.CursoSincrono) {
       await CursoSincrono.destroy({
         where: { ID_CURSO: id },
         transaction,
@@ -1310,16 +1363,60 @@ const deleteCurso = async (req, res) => {
     // Finally delete the main course record
     await curso.destroy({ transaction });
 
-    // If all went well, commit the transaction
+    // Commit transaction
     await transaction.commit();
 
     res.status(200).json({ message: "Curso apagado com sucesso" });
   } catch (error) {
-    await transaction.rollback();
+    // Rollback transaction on error
+    if (transaction) await transaction.rollback();
     console.error("Erro ao deletar curso:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+// Helper function to extract Cloudinary public ID
+function extractCloudinaryPublicId(url) {
+  if (!url) return null;
+
+  // Extract the public ID from Cloudinary URL
+  // Format: https://res.cloudinary.com/cloud_name/image_or_video/upload/v123456789/folder/file
+  const match = url.match(/\/v\d+\/([^/\.]+)/);
+  return match ? match[1] : null;
+}
+
+// Helper function to delete files
+async function deleteFile(fileUrl) {
+  if (!fileUrl) return;
+
+  if (fileUrl.includes("localhost:4000")) {
+    // Local file
+    const localPath = fileUrl.split("localhost:4000")[1];
+    if (!localPath) return;
+
+    const fullPath = path.join(__dirname, "..", "public", localPath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+      console.log(`Deleted local file: ${fullPath}`);
+    }
+  } else if (fileUrl.includes("cloudinary")) {
+    // Cloudinary file
+    const publicId = extractCloudinaryPublicId(fileUrl);
+    if (publicId) {
+      // Try both raw and image resource types since we don't know the type
+      try {
+        await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
+      } catch (e) {
+        try {
+          await cloudinary.uploader.destroy(publicId);
+        } catch (e2) {
+          console.warn(`Failed to delete Cloudinary asset: ${publicId}`);
+        }
+      }
+      console.log(`Deleted Cloudinary file: ${publicId}`);
+    }
+  }
+}
 
 module.exports = {
   getCursos,

@@ -386,6 +386,7 @@ function CreateCourse() {
     formData.append("DATA_INICIO", e.target.startDate.value);
     formData.append("DATA_FIM", e.target.endDate.value);
     formData.append("VAGAS", vagas);
+    formData.append("ID_TOPICO", e.target.courseTopic.value);
     // Add objectives (filtering out the first empty input and empty strings)
     const filteredObjectives = courseObjectives
       .slice(1)
@@ -981,6 +982,7 @@ function CreateCourse() {
                         <div className="mb-3">
                           <label className="form-label">Tópico do curso</label>
                           <select
+                            id="courseTopic"
                             className="form-select"
                             value={selectedTopic}
                             onChange={(e) => setSelectedTopic(e.target.value)}

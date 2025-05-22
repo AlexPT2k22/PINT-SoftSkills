@@ -314,6 +314,7 @@ function EditCourse() {
       formData.append("DATA_INICIO", startDate);
       formData.append("DATA_FIM", endDate);
       formData.append("ID_CATEGORIA", selectedCategory);
+      formData.append("ID_TOPICO", selectedTopic);
       formData.append("imagem", e.target.courseImage.files[0]);
       // Add objectives (filtering out the first empty input and empty strings)
       const filteredObjectives = courseObjectives
