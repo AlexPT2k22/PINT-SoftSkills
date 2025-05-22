@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authenticateToken = require("../middlewares/authmiddleware.js");
+const {authenticateToken} = require("../middlewares/authmiddleware.js");
 const {
   getNotasPorModulo,
   criarNota,

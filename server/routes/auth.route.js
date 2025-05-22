@@ -13,7 +13,7 @@ const {
   checkauth,
 } = require("../controllers/auth.controller.js");
 
-const authenticateToken = require("../middlewares/authmiddleware.js");
+const {authenticateToken} = require("../middlewares/authmiddleware.js");
 
 // "/auth"
 router.get("/", (_, res) => {

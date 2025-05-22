@@ -8,7 +8,7 @@ const {
   verificarInscricao,
   getCursosInscritos,
 } = require("../controllers/user.controller.js");
-const authenticateToken = require("../middlewares/authmiddleware.js");
+const {authenticateToken} = require("../middlewares/authmiddleware.js");
 
 // rota para /user/*
 router.get("/", async (req, res) => {
