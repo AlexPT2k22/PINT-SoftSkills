@@ -4,7 +4,10 @@ const {
   Curso,
   CursoAssincrono,
   CursoSincrono,
+  Utilizador,
+  UtilizadorTemPerfil,
 } = require("../models");
+const { Op } = require("sequelize");
 
 // Get all topics
 const getAllTopicos = async (req, res) => {
@@ -43,7 +46,24 @@ const getTopicosByArea = async (req, res) => {
 // Create new topic
 const createTopico = async (req, res) => {
   try {
+    const user = req.user;
     const { titulo, descricao, areaId } = req.body;
+
+    console.log("User from token:", user);
+
+    // Check if the user has the required role
+    const userPerfil = await UtilizadorTemPerfil.findOne({
+      where: {
+        ID_UTILIZADOR: user.ID_UTILIZADOR,
+        ID_PERFIL: 3,
+      },
+    });
+    if (!userPerfil) {
+      return res
+        .status(403)
+        .json({ message: "Acesso negado. Permissão insuficiente." });
+    }
+    console.log("User profile:", userPerfil);
 
     if (!titulo || !descricao || !areaId) {
       return res
@@ -81,6 +101,7 @@ const createTopico = async (req, res) => {
 const updateTopico = async (req, res) => {
   try {
     const { id } = req.params;
+    const { user } = req.user;
     const { titulo, descricao } = req.body;
 
     if (!titulo || !descricao) {
@@ -116,6 +137,7 @@ const updateTopico = async (req, res) => {
 const deleteTopico = async (req, res) => {
   try {
     const { id } = req.params;
+    const { user } = req.user;
 
     const topico = await Topico.findByPk(id);
     if (!topico) {

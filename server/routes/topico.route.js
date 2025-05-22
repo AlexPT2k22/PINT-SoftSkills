@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const topicoController = require("../controllers/topico.controller");
-const { checkRole } = require("../middlewares/authmiddleware");
+const { authenticateToken } = require("../middlewares/authmiddleware");
 
 // Get all topics
 router.get("/", topicoController.getAllTopicos);
@@ -11,12 +11,12 @@ router.get("/by-area/:areaId", topicoController.getTopicosByArea);
 
 // Protected routes - only for Gestor and Formador
 // Create new topic
-router.post("/", checkRole, topicoController.createTopico);
+router.post("/", authenticateToken, topicoController.createTopico);
 
 // Update topic
-router.put("/:id", checkRole, topicoController.updateTopico);
+router.put("/:id", authenticateToken, topicoController.updateTopico);
 
 // Delete topic
-router.delete("/:id", checkRole, topicoController.deleteTopico);
+router.delete("/:id", authenticateToken, topicoController.deleteTopico);
 
 module.exports = router;

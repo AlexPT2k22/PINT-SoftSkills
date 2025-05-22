@@ -28,16 +28,5 @@ function authenticateToken(req, res, next) {
   }
 }
 
-function checkRole(req, res, next) {
-  authenticateToken(req, res, () => {
-    const userRole = req.user.perfil;
-    console.log("User Role:", userRole);
-    if (userRole === 3 || userRole === 2) {
-      next();
-    } else {
-      return res.status(403).json({ message: "Acesso negado" });
-    }
-  });
-}
 
-module.exports = {authenticateToken, checkRole};
+module.exports = {authenticateToken};
