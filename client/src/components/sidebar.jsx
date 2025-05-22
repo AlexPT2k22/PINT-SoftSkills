@@ -156,19 +156,6 @@ function Sidebar({ onToggle }) {
                 {!collapsed && <span>Os meus cursos</span>}
               </Link>
             </li>
-
-            <li className="nav-item">
-              <Link
-                to="/dashboard/certifications"
-                className={`nav-link ${
-                  isActive("/dashboard/certifications") ? "active" : ""
-                }`}
-                onClick={() => mobileView && setCollapsed(true)}
-              >
-                <FileText size={20} className="me-3" />
-                {!collapsed && <span>Certificados</span>}
-              </Link>
-            </li>
           </ul>
 
           <div className="sidebar-divider"></div>
