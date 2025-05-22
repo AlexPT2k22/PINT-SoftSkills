@@ -174,7 +174,7 @@ function Navbar() {
             </div>
           </form>
 
-          <ul className="navbar-nav">
+          <ul className="navbar-nav me-5">
             <li className="nav-item">
               <a className="nav-link text-decoration-underline text" href="#">
                 Torne-se Formador

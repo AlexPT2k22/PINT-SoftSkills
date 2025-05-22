@@ -41,6 +41,34 @@ function CourseCardDashboard({
     }
   };
 
+  const handleClickCertificado = async () => {
+    try {
+      // Get the certificate
+      const response = await axios.get(
+        `http://localhost:4000/api/certificados/gerar/${course.ID_CURSO}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        // Open certificate URL in a new tab
+        window.open(response.data.certificado.url, "_blank");
+      } else {
+        console.error("Falha ao gerar certificado:", response.data.message);
+        alert("Erro ao gerar certificado. Por favor, tente novamente.");
+      }
+    } catch (error) {
+      console.error("Erro ao gerar certificado:", error);
+
+      // Show specific error message if available
+      const errorMessage =
+        error.response?.data?.message ||
+        "Erro ao gerar certificado. Por favor, tente novamente.";
+      alert(errorMessage);
+    }
+  };
+
   // Get user data from auth store
   const user = useAuthStore((state) => state.user);
   const userType = user?.perfil;
@@ -127,7 +155,7 @@ function CourseCardDashboard({
 
       <div className="coursecard-footer d-flex justify-content-between align-items-center p-2 m-2 mt-0">
         {showStartButton && (
-          <div>
+          <div className="d-flex flex-row align-items-center gap-2">
             <button className="btn btn-primary" onClick={handleClick}>
               {progress === 0
                 ? "Começar"
@@ -135,6 +163,15 @@ function CourseCardDashboard({
                 ? "Continuar"
                 : "Abrir curso"}
             </button>
+            {progress === 100 && (
+              <button
+                className="btn btn-secondary align-items-center"
+                onClick={handleClickCertificado}
+              >
+                <Download size={20} />
+                <span className="ms-2">Certificado</span>
+              </button>
+            )}
           </div>
         )}
 
