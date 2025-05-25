@@ -285,7 +285,6 @@ const getCursosInscritos = async (req, res) => {
     const id = req.user.ID_UTILIZADOR;
     console.log("ID do utilizador:", id);
 
-    // para cursos síncronos
     const cursosSincronosComInscricao = await CursoSincrono.findAll({
       attributes: ["ID_CURSO"],
       include: [
@@ -305,7 +304,6 @@ const getCursosInscritos = async (req, res) => {
       .filter(Boolean);
     console.log("IDs de cursos síncronos encontrados:", idsCursosSincronos);
 
-    // Para cursos assíncronos - CORREÇÃO AQUI
     const cursosAssincronosComInscricao = await CursoAssincrono.findAll({
       attributes: ["ID_CURSO"],
       include: [
@@ -315,7 +313,7 @@ const getCursosInscritos = async (req, res) => {
             ID_UTILIZADOR: id,
           },
           required: true,
-          attributes: [], // Não precisamos dos dados da inscrição, só filtrar
+          attributes: [],
         },
       ],
     });
@@ -325,7 +323,6 @@ const getCursosInscritos = async (req, res) => {
       .filter(Boolean);
     console.log("IDs de cursos assíncronos encontrados:", idsCursosAssincronos);
 
-    // Combine todos os IDs de cursos
     const todosCursosIds = [...idsCursosSincronos, ...idsCursosAssincronos];
     console.log("Todos os IDs de cursos encontrados:", todosCursosIds);
 
@@ -334,7 +331,6 @@ const getCursosInscritos = async (req, res) => {
       return res.status(200).json([]);
     }
 
-    // 2. Depois busque os detalhes completos desses cursos
     const cursosInscritos = await Curso.findAll({
       where: {
         ID_CURSO: {
@@ -364,7 +360,7 @@ const getCursosInscritos = async (req, res) => {
         {
           model: Modulos,
           as: "MODULOS",
-          required: false, // Make it optional to still return courses without modules
+          required: false,
         },
       ],
     });

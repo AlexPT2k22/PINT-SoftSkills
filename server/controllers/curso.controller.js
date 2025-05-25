@@ -1418,6 +1418,30 @@ async function deleteFile(fileUrl) {
   }
 }
 
+//FIXME: alterar para nome
+// Para cursos Sincronos
+const getInscritos = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const inscritos = await InscricaoSincrono.findAll({
+      where: { ID_CURSO_SINCRONO: id },
+      include: [
+        {
+          model: Utilizador,
+          as: "UTILIZADOR",
+          attributes: ["ID_UTILIZADOR", "USERNAME", "EMAIL"],
+        },
+      ],
+    });
+
+    res.status(200).json(inscritos);
+  } catch (error) {
+    console.error("Erro ao obter inscritos:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCursos,
   getCursoById,
@@ -1430,4 +1454,5 @@ module.exports = {
   deleteCurso,
   convertCursoType,
   updateCursoAssincrono,
+  getInscritos,
 };
