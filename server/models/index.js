@@ -35,9 +35,20 @@ const Modulos = require("./modulos.model.js");
 const ProgressoModulo = require("./moduloProgresso.model.js");
 const Notas = require("./notas.model.js");
 const Certificado = require("./certificado.model.js");
+const AulaSincrona = require("./aulaSincrona.model.js");
+const PresencaAula = require("./presenca.model.js");
 
-// Define associations
+CursoSincrono.hasMany(AulaSincrona, { foreignKey: "ID_CURSO" });
+AulaSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
 
+Modulos.hasMany(AulaSincrona, { foreignKey: "ID_MODULO" });
+AulaSincrona.belongsTo(Modulos, { foreignKey: "ID_MODULO" });
+
+AulaSincrona.hasMany(PresencaAula, { foreignKey: "ID_AULA" });
+PresencaAula.belongsTo(AulaSincrona, { foreignKey: "ID_AULA" });
+
+Utilizador.hasMany(PresencaAula, { foreignKey: "ID_UTILIZADOR" });
+PresencaAula.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 // Utilizador associations
 Utilizador.hasMany(LoginSocialMedia, { foreignKey: "ID_UTILIZADOR" });
 LoginSocialMedia.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
@@ -331,13 +342,13 @@ TrabalhoCursoSincrono.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
 Area.hasMany(Topico, { foreignKey: "ID_AREA" });
 Topico.belongsTo(Area, { foreignKey: "ID_AREA" });
 
-Curso.belongsTo(Topico, { 
+Curso.belongsTo(Topico, {
   foreignKey: "ID_TOPICO",
-  as: "Topico"
+  as: "Topico",
 });
-Topico.hasMany(Curso, { 
+Topico.hasMany(Curso, {
   foreignKey: "ID_TOPICO",
-  as: "Cursos"
+  as: "Cursos",
 });
 
 // Export all models with their associations
@@ -379,4 +390,6 @@ module.exports = {
   ProgressoModulo,
   Notas,
   Certificado,
+  AulaSincrona,
+  PresencaAula,
 };
