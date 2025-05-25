@@ -231,67 +231,26 @@ const verificarInscricao = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { courseId } = req.params;
-    const { courseType } = req.body; // Get course type from query parameter
 
-    // If courseType is specified, check the specific enrollment type
-    if (courseType) {
-      if (courseType.toLowerCase() === "sincrono") {
-        // Check synchronous enrollment
-        const inscricao = await InscricaoSincrono.findOne({
-          where: {
-            ID_UTILIZADOR: userId,
-            ID_CURSO_SINCRONO: courseId,
-          },
-        });
-
-        return res.status(200).json({
-          inscrito: !!inscricao,
-          inscricao: inscricao || null,
-          tipo: "sincrono",
-        });
-      } else if (courseType.toLowerCase() === "assincrono") {
-        // Find asynchronous course first to get its specific ID
-        const curso = await CursoAssincrono.findOne({
-          where: { ID_CURSO: courseId },
-        });
-
-        if (!curso) {
-          return res.status(404).json({
-            success: false,
-            message: "Curso assíncrono não encontrado",
-          });
-        }
-
-        // Check asynchronous enrollment
-        const inscricao = await InscricaoAssincrono.findOne({
-          where: {
-            ID_UTILIZADOR: userId,
-            ID_CURSO_ASSINCRONO: curso.ID_CURSO_ASSINCRONO,
-          },
-        });
-
-        return res.status(200).json({
-          inscrito: !!inscricao,
-          inscricao: inscricao || null,
-          tipo: "assincrono",
-        });
-      }
-    }
-
-    // If no course type specified or invalid type, check both
-    const inscricaoSincrono = await InscricaoSincrono.findOne({
-      where: {
-        ID_UTILIZADOR: userId,
-        ID_CURSO_SINCRONO: courseId,
-      },
+    const cursoSincrono = await CursoSincrono.findOne({
+      where: { ID_CURSO: courseId },
     });
 
-    if (inscricaoSincrono) {
-      return res.status(200).json({
-        inscrito: true,
-        inscricao: inscricaoSincrono,
-        tipo: "sincrono",
+    if (cursoSincrono) {
+      const inscricaoSincrono = await InscricaoSincrono.findOne({
+        where: {
+          ID_UTILIZADOR: userId,
+          ID_CURSO_SINCRONO: courseId,
+        },
       });
+
+      if (inscricaoSincrono) {
+        return res.status(200).json({
+          inscrito: true,
+          inscricao: inscricaoSincrono,
+          tipo: "sincrono",
+        });
+      }
     }
 
     // Check asynchronous course enrollment
@@ -315,11 +274,6 @@ const verificarInscricao = async (req, res) => {
         });
       }
     }
-
-    // If no enrollment found
-    return res.status(200).json({
-      inscrito: false,
-    });
   } catch (error) {
     console.error("Erro ao verificar inscrição:", error);
     res.status(500).json({ message: error.message });

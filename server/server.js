@@ -10,12 +10,13 @@ const progressRoute = require("./routes/progresso.route.js");
 const { connectDB, sequelize } = require("./database/database.js");
 require("./models/index.js"); // Importar todos os modelos para garantir que estão registados
 const categoriaRoutes = require("./routes/categoria.route.js");
-const topicoRoutes = require('./routes/topico.route');
+const topicoRoutes = require("./routes/topico.route");
 const cookieparser = require("cookie-parser");
 require("dotenv");
 const { connectCloudinary } = require("./database/cloudinary.js");
 const notasRoutes = require("./routes/notas.route.js");
 const certificadoRoutes = require("./routes/certificado.route.js");
+const avaliacaoSincronaRoutes = require("./routes/avaliacaoSincrona.route.js");
 const path = require("path");
 const port = process.env.PORT || 4000;
 
@@ -38,12 +39,13 @@ app.use("/api/cursos", cursoRoute); // Rota para cursos
 app.use("/api/categorias", categoriaRoutes); // Rota para categorias
 app.use("/api/progress", progressRoute); // Rota para progresso
 app.use("/api/notes", notasRoutes); // Rota para notas
+app.use("/api/avaliacoes", avaliacaoSincronaRoutes); // Rota para avaliações síncronas
 app.use("/api/certificados", certificadoRoutes);
 app.use(
   "/certificates",
   express.static(path.join(__dirname, "public/certificates"))
 );
-app.use('/api/topicos', topicoRoutes);
+app.use("/api/topicos", topicoRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");

@@ -25,6 +25,7 @@ import LinkedCourses from "./linkedCourses.jsx";
 import CourseVideoPage from "./courseVideoPage.jsx";
 import CoursesUser from "./coursesUser.jsx";
 import NotFound from "./404.jsx";
+import SynchronousCourseView from "./courseSincronoViewPage.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -103,6 +104,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CoursesUser />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/dashboard/synchronous-course/:courseId"
+          element={
+            <ProtectedRoute>
+              <SynchronousCourseView />
             </ProtectedRoute>
           }
         ></Route>

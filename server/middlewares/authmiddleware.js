@@ -11,7 +11,7 @@ function authenticateToken(req, res, next) {
   console.log("Cookie Token:", cookieToken);
 
   const token = headerToken || cookieToken;
-  //console.log("Token:", token);
+  console.log("Token:", token);
 
   if (!token) return res.status(401).json({ message: "Token em falta" });
 

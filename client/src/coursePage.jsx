@@ -87,9 +87,7 @@ function CoursePage() {
       try {
         const response = await axios.post(
           `http://localhost:4000/api/user/verify-course/${courseId}`,
-          {
-            courseType: course.CURSO_SINCRONO ? "sincrono" : "assincrono",
-          },
+          {},
           {
             withCredentials: true,
             headers: {
