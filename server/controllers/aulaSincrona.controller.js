@@ -152,7 +152,7 @@ const getListaPresenca = async (req, res) => {
       include: [
         {
           model: Utilizador,
-          attributes: ["ID_UTILIZADOR", "USERNAME", "EMAIL", "NOME"],
+          attributes: ["ID_UTILIZADOR", "USERNAME", "EMAIL"],
         },
       ],
     });

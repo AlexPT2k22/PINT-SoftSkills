@@ -126,7 +126,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       axios.get(`http://localhost:4000/api/cursos/${cursoId}/alunos`),
 
       // Buscar registros de presença existentes para esta aula
-      axios.get(`http://localhost:4000/api/presencas/${aula.ID_AULA}`),
+      axios.get(`http://localhost:4000/api/aulas/${aula.ID_AULA}/presenca`),
     ])
       .then(([studentsResponse, attendanceResponse]) => {
         setAlunos(studentsResponse.data);
@@ -454,8 +454,11 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                           <tbody>
                             {alunos.map((aluno) => (
                               <tr key={aluno.ID_UTILIZADOR}>
-                                <td>{aluno.NOME || aluno.USERNAME}</td>
-                                <td>{aluno.EMAIL}</td>
+                                <td>
+                                  {aluno.UTILIZADOR.NOME ||
+                                    aluno.UTILIZADOR.USERNAME}
+                                </td>
+                                <td>{aluno.UTILIZADOR.EMAIL}</td>
                                 <td>
                                   <div className="form-check form-switch">
                                     <input

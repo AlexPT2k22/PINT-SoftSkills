@@ -13,7 +13,7 @@ const ListaPresenca = ({ aulaId }) => {
   const fetchPresencas = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/aulas/${aulaId}/presenca`);
+      const response = await axios.get(`http://localhost:4000/api/aulas/${aulaId}/presenca`);
       setPresencas(response.data);
       setLoading(false);
     } catch (error) {
@@ -24,7 +24,7 @@ const ListaPresenca = ({ aulaId }) => {
   
   const handleMarcarPresenca = async (alunoId, presente) => {
     try {
-      await axios.post(`/api/aulas/${aulaId}/presenca`, {
+      await axios.post(`http://localhost:4000/api/aulas/${aulaId}/presenca`, {
         alunoId,
         presente
       });
