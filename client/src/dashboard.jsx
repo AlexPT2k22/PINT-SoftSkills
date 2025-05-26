@@ -147,7 +147,6 @@ function Dashboard() {
   };
 
   const handleEntrarAula = (aulaId, aulaLink) => {
-    // Implementar navegação para a aula
     console.log("Entrando na aula:", aulaId);
     window.open(aulaLink, "_blank");
   };
@@ -195,12 +194,12 @@ function Dashboard() {
                       <h6 className="card-subtitle mb-2 text-muted">
                         Próxima Aula
                       </h6>
-                      <h3 className="card-title mb-0 text-success">
+                      <h3 className="card-title mb-0 text-primary">
                         {metricas.proximaAula}
                       </h3>
                     </div>
                     <div className="bg-light rounded-circle p-3">
-                      <Clock size={24} className="text-success" />
+                      <Clock size={24} className="text-primary" />
                     </div>
                   </div>
                 </div>
@@ -213,10 +212,10 @@ function Dashboard() {
                       <h6 className="card-subtitle mb-2 text-muted">
                         Nota média
                       </h6>
-                      <h3 className="card-title mb-0 text-purple">NOTA</h3>
+                      <h3 className="card-title mb-0 text-primary">NOTA</h3>
                     </div>
                     <div className="bg-light rounded-circle p-3">
-                      <GraduationCap size={24} className="text-purple" />
+                      <GraduationCap size={24} className="text-primary" />
                     </div>
                   </div>
                 </div>
@@ -229,12 +228,12 @@ function Dashboard() {
                       <h6 className="card-subtitle mb-2 text-muted">
                         Progresso Geral
                       </h6>
-                      <h3 className="card-title mb-0 text-warning">
+                      <h3 className="card-title mb-0 text-primary">
                         {metricas.progressoGeral}%
                       </h3>
                     </div>
                     <div className="bg-light rounded-circle p-3">
-                      <BarChart2 size={24} className="text-warning" />
+                      <BarChart2 size={24} className="text-primary" />
                     </div>
                   </div>
                 </div>
