@@ -164,10 +164,44 @@ const getListaPresenca = async (req, res) => {
   }
 };
 
+const getAllAulasSincronas = async (req, res) => {
+  const userId = req.user.ID_UTILIZADOR;
+  try {
+    const aulas = await AulaSincrona.findAll({
+      include: [
+        {
+          model: Modulos,
+          attributes: ["NOME", "DESCRICAO"],
+        },
+        {
+          model: PresencaAula,
+          include: [
+            {
+              model: Utilizador,
+              where: { ID_UTILIZADOR: userId },
+              attributes: ["ID_UTILIZADOR", "USERNAME", "EMAIL"],
+            },
+          ],
+        },
+      ],
+      order: [
+        ["DATA_AULA", "ASC"],
+        ["HORA_INICIO", "ASC"],
+      ],
+    });
+
+    res.status(200).json(aulas);
+  } catch (error) {
+    console.error("Erro ao buscar todas as aulas síncronas:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createAula,
   getAulasByCurso,
   updateAulaStatus,
   marcarPresenca,
   getListaPresenca,
+  getAllAulasSincronas,
 };

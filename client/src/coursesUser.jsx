@@ -70,49 +70,39 @@ const CoursesUser = () => {
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-10 col-lg-12 mb-4">
-              <div className="card h-100 w-100">
-                <div className="card-header">
-                  <h3 className="card-title mb-0">Os meus cursos</h3>
-                </div>
-                <div className="card-body">
-                  {isLoading ? (
-                    <div className="d-flex justify-content-center align-items-center h-100">
-                      <div className="spinner-border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
+              <div className="container">
+                <h2 className="">Os meus cursos</h2>
+
+                {isLoading ? (
+                  <div className="d-flex justify-content-center align-items-center h-100">
+                    <div className="spinner-border" role="status">
+                      <span className="visually-hidden">Loading...</span>
                     </div>
-                  ) : courses.length > 0 ? (
-                    <div className="container p-0 mb-3">
-                      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-                        {courses.map((course) => (
-                          <div className="col" key={course.ID_CURSO}>
-                            <CourseCardDashboard
-                              course={course}
-                              showStartButton={true}
-                              showProgress={true}
-                              progress={
-                                courseProgress[course.ID_CURSO]
-                                  ?.percentualProgresso || 0
-                              }
-                            />
-                          </div>
-                        ))}
-                      </div>
+                  </div>
+                ) : courses.length > 0 ? (
+                  <div className="container p-0 mb-3">
+                    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                      {courses.map((course) => (
+                        <div className="col" key={course.ID_CURSO}>
+                          <CourseCardDashboard
+                            course={course}
+                            showStartButton={true}
+                            showProgress={true}
+                            progress={
+                              courseProgress[course.ID_CURSO]
+                                ?.percentualProgresso || 0
+                            }
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ) : (
-                    <div
-                      className="card text-center"
-                      style={{ width: "18rem" }}
-                    >
-                      <div className="card-body">
-                        <h5 className="card-title">Cursos inscritos</h5>
-                        <p className="card-text">
-                          Não está inscrito a nenhum curso
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="container">
+                    <h5 className="title">Cursos inscritos</h5>
+                    <p className="text">Não está inscrito a nenhum curso</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

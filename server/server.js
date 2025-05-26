@@ -18,6 +18,7 @@ const notasRoutes = require("./routes/notas.route.js");
 const certificadoRoutes = require("./routes/certificado.route.js");
 const avaliacaoSincronaRoutes = require("./routes/avaliacaoSincrona.route.js");
 const aulaSincronaRoutes = require("./routes/aulaSincrona.route.js");
+const presencaRoutes = require('./routes/presenca.route');
 const path = require("path");
 const port = process.env.PORT || 4000;
 
@@ -48,6 +49,7 @@ app.use(
 );
 app.use("/api/topicos", topicoRoutes); // Rota para tópicos
 app.use("/api/aulas", aulaSincronaRoutes); // Rota para aulas síncronas
+app.use('/api/presencas', presencaRoutes); // Rota para presenças
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");

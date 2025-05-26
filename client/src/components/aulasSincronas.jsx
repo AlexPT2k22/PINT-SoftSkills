@@ -431,7 +431,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                   <div className="text-center">
                     <div className="spinner-border" role="status">
                       <span className="visually-hidden">
-                        Carregando alunos...
+                        A carregar os alunos...
                       </span>
                     </div>
                   </div>
@@ -522,7 +522,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                       setSavingPresencas(false);
                       setSelectedAula(null);
                     } catch (error) {
-                      console.error("Erro ao salvar presenças:", error);
+                      console.error("Erro ao guardar presenças:", error);
                       setSavingPresencas(false);
                     }
                   }}
@@ -535,10 +535,10 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                         role="status"
                         aria-hidden="true"
                       ></span>
-                      Salvando...
+                      A guardar...
                     </>
                   ) : (
-                    "Salvar Presenças"
+                    "Guardar presenças"
                   )}
                 </button>
               </div>

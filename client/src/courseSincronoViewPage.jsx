@@ -5,6 +5,7 @@ import AvaliacoesSincronas from "./components/avaliacoesSincronas";
 import AulasSincronas from "./components/aulasSincronas";
 import axios from "axios";
 import useAuthStore from "./store/authStore";
+import Sidebar from "./components/sidebar";
 
 const SynchronousCourseView = () => {
   const [activeTab, setActiveTab] = useState("aulas");
@@ -15,6 +16,9 @@ const SynchronousCourseView = () => {
   const { user } = useAuthStore.getState();
   const Teacher = user?.perfil === 2 || user?.perfil === 3;
   const userId = user?.id || null;
+  const handleSidebarToggle = (newCollapsedState) => {
+    setCollapsed(newCollapsedState);
+  };
 
   useEffect(() => {
     const verificarFormador = async () => {
@@ -48,6 +52,7 @@ const SynchronousCourseView = () => {
     <>
       <div className="container-fluid p-0">
         <NavbarDashboard />
+        <Sidebar onToggle={handleSidebarToggle} />
         <div className="container mt-4">
           {loading ? (
             <div className="d-flex justify-content-center">
