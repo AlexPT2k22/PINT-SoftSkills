@@ -19,6 +19,7 @@ function Dashboard() {
     proximaAula: "14:30",
     videosAssistidos: 0,
     progressoGeral: 0,
+    notaMedia: 0,
   });
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
@@ -101,6 +102,7 @@ function Dashboard() {
                 .replace(/\//g, "-"),
               estado: aula.ESTADO,
               descricao: aula.DESCRICAO,
+              presenca: aula.PRESENCA_AULAs[0].PRESENTE,
             }))
             // Limitar a 5 próximas aulas
             .slice(0, 5);
@@ -127,6 +129,7 @@ function Dashboard() {
               }));
             }
           }
+          //console.log(aulasFormatadas);
         } else {
           // Fallback para dados vazios se a API não retornar o esperado
           console.error(
@@ -277,15 +280,17 @@ function Dashboard() {
                       <Clock size={18} className="me-2" /> Próximas Aulas
                     </h5>
                   </div>
-                  <div className="card-body">
+                  <div className="card-body pt-0 pb-0">
                     {proximasAulas.length > 0 ? (
                       proximasAulas
                         .slice()
                         .reverse()
-                        .map((aula) => (
+                        .map((aula, index, array) => (
                           <div
                             key={aula.id}
-                            className="d-flex align-items-center justify-content-between pb-3 border-bottom"
+                            className={`d-flex align-items-center justify-content-between pt-3 pb-3 ${
+                              index !== array.length - 1 ? "border-bottom" : ""
+                            }`}
                           >
                             <div className="d-flex align-items-center">
                               <div className="me-4">
@@ -314,6 +319,17 @@ function Dashboard() {
                               </div>
                             </div>
                             <div>
+                              <span
+                                className={`badge ${
+                                  aula.presenca === true
+                                    ? "bg-secondary"
+                                    : "bg-warning"
+                                } me-2`}
+                              >
+                                {aula.presenca === true
+                                  ? "Presente"
+                                  : "Não presente"}
+                              </span>
                               {aula.link ? (
                                 <button
                                   className="btn btn-primary"
