@@ -10,6 +10,14 @@ const Topico = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    ID_AREA: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "AREA",
+        key: "ID_AREA",
+      },
+    },
     TITULO: {
       type: DataTypes.TEXT,
       allowNull: false,
