@@ -100,6 +100,7 @@ function Dashboard() {
                 })
                 .replace(/\//g, "-"),
               estado: aula.ESTADO,
+              descricao: aula.DESCRICAO,
             }))
             // Limitar a 5 próximas aulas
             .slice(0, 5);
@@ -108,12 +109,24 @@ function Dashboard() {
 
           // Também podemos atualizar a métrica de próxima aula
           if (aulasFormatadas.length > 0) {
-            setMetricas((prev) => ({
-              ...prev,
-              proximaAula: aulasFormatadas[0].hora,
-            }));
+            // Filtrar aulas que não estão canceladas ou concluídas
+            const aulasValidas = aulasFormatadas.filter(
+              (aula) =>
+                aula.estado !== "Cancelada" && aula.estado !== "Concluída"
+            );
+
+            if (aulasValidas.length > 0) {
+              setMetricas((prev) => ({
+                ...prev,
+                proximaAula: aulasValidas[0].hora, // Define a hora da próxima aula válida
+              }));
+            } else {
+              setMetricas((prev) => ({
+                ...prev,
+                proximaAula: "N/A", // Caso não haja aulas válidas
+              }));
+            }
           }
-          console.log("Próximas aulas formatadas:", aulasFormatadas);
         } else {
           // Fallback para dados vazios se a API não retornar o esperado
           console.error(
@@ -141,6 +154,21 @@ function Dashboard() {
 
     fetchData();
   }, []);
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "Agendada":
+        return "bg-info";
+      case "Em andamento":
+        return "bg-primary";
+      case "Concluída":
+        return "bg-success";
+      case "Cancelada":
+        return "bg-danger";
+      default:
+        return "bg-secondary";
+    }
+  };
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
@@ -251,65 +279,69 @@ function Dashboard() {
                   </div>
                   <div className="card-body">
                     {proximasAulas.length > 0 ? (
-                      proximasAulas.map((aula) => (
-                        <div
-                          key={aula.id}
-                          className="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom"
-                        >
-                          <div className="d-flex align-items-center">
-                            <div className="me-4">
-                              <h5 className="mb-0">{aula.hora}</h5>
-                              <small className="text-muted">
-                                {new Date(aula.data).toLocaleDateString()}
-                              </small>
+                      proximasAulas
+                        .slice()
+                        .reverse()
+                        .map((aula) => (
+                          <div
+                            key={aula.id}
+                            className="d-flex align-items-center justify-content-between pb-3 border-bottom"
+                          >
+                            <div className="d-flex align-items-center">
+                              <div className="me-4">
+                                <h5 className="mb-0">{aula.hora}</h5>
+                                <small className="text-muted">
+                                  {aula.data}
+                                </small>
+                              </div>
+                              <div className="me-4">
+                                <h6 className="mb-0">{aula.materia}</h6>
+                                {aula.estado && (
+                                  <span
+                                    className={`badge ${getStatusBadgeClass(
+                                      aula.estado
+                                    )}`}
+                                  >
+                                    {aula.estado}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="me-4">
+                                <h5 className="mb-0">Sumário</h5>
+                                <small className="text-muted">
+                                  {aula.descricao || "Sem descrição"}
+                                </small>
+                              </div>
                             </div>
                             <div>
-                              <h6 className="mb-0">{aula.materia}</h6>
-                              <small className="text-muted">
-                                {aula.professor}
-                              </small>
-                              {aula.estado && (
-                                <span
-                                  className={`badge ${
-                                    aula.estado === "Em andamento"
-                                      ? "bg-success"
-                                      : "bg-info"
-                                  }`}
+                              {aula.link ? (
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() =>
+                                    handleEntrarAula(aula.id, aula.link)
+                                  }
+                                  disabled={
+                                    !aula.link ||
+                                    aula.estado === "Concluída" ||
+                                    aula.estado === "Cancelada"
+                                  }
                                 >
-                                  {aula.estado}
-                                </span>
+                                  {aula.estado === "Em andamento" ||
+                                  aula.estado === "Agendada"
+                                    ? "Entrar na Aula"
+                                    : "Indisponível"}
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-primary"
+                                  disabled={!aula.link}
+                                >
+                                  Indisponível
+                                </button>
                               )}
                             </div>
                           </div>
-                          <div>
-                            {aula.link ? (
-                              <button
-                                className="btn btn-primary"
-                                onClick={() =>
-                                  handleEntrarAula(aula.id, aula.link)
-                                }
-                                disabled={
-                                  !aula.link ||
-                                  aula.estado !== "Concluída" ||
-                                  aula.estado !== "Cancelada"
-                                }
-                              >
-                                {aula.estado === "Em andamento" ||
-                                aula.estado === "Agendada"
-                                  ? "Entrar na Aula"
-                                  : "Indisponível"}
-                              </button>
-                            ) : (
-                              <button
-                                className="btn btn-primary"
-                                disabled={!aula.link}
-                              >
-                                Indisponível
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))
+                        ))
                     ) : (
                       <p className="text-center mb-0">
                         Não há aulas agendadas.

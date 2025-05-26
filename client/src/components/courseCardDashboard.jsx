@@ -1,7 +1,7 @@
 import React from "react";
 import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
-import { Pen, Eye, Download } from "lucide-react";
+import { Pen, Eye, Download, GraduationCap } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import axios from "axios";
 
@@ -191,6 +191,14 @@ function CourseCardDashboard({
               }
             >
               <Pen size={20} />
+            </button>
+            <button
+              className="btn btn-outline-success"
+              onClick={() =>
+                navigate(`/dashboard/synchronous-course/${course.ID_CURSO}`)
+              }
+            >
+              <GraduationCap size={20} />
             </button>
           </div>
         )}

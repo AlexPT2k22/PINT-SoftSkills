@@ -29,6 +29,10 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
   const [alunos, setAlunos] = useState([]);
   const [presencas, setPresencas] = useState({});
   const [savingPresencas, setSavingPresencas] = useState(false);
+  const [formErrors, setFormErrors] = useState({
+    data: false,
+    hora: false,
+  });
 
   useEffect(() => {
     fetchAulas();
@@ -36,6 +40,14 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       fetchModulos();
     }
   }, [cursoId]);
+
+  const getCurrentDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const fetchAulas = async () => {
     try {
@@ -65,6 +77,19 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
 
   const handleCreateAula = async (e) => {
     e.preventDefault();
+    const hoje = new Date(getCurrentDate());
+    const dataAula = new Date(novaAula.DATA_AULA);
+    const dataValida = dataAula >= hoje;
+    const horaInicio = novaAula.HORA_INICIO;
+    const horaFim = novaAula.HORA_FIM;
+    const horaValida = horaFim > horaInicio;
+    setFormErrors({
+      data: !dataValida,
+      hora: !horaValida,
+    });
+    if (!dataValida || !horaValida) {
+      return;
+    }
     try {
       await axios.post("http://localhost:4000/api/aulas", {
         ...novaAula,
@@ -334,13 +359,21 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                     <label className="form-label">Data</label>
                     <input
                       type="date"
-                      className="form-control"
+                      className={`form-control ${
+                        formErrors.data ? "is-invalid" : ""
+                      }`}
                       value={novaAula.DATA_AULA}
+                      min={getCurrentDate()}
                       onChange={(e) =>
                         setNovaAula({ ...novaAula, DATA_AULA: e.target.value })
                       }
                       required
                     />
+                    {formErrors.data && (
+                      <div className="invalid-feedback">
+                        A data da aula deve ser igual ou posterior à data atual.
+                      </div>
+                    )}
                   </div>
 
                   <div className="row mb-3">
@@ -348,7 +381,9 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                       <label className="form-label">Hora Início</label>
                       <input
                         type="time"
-                        className="form-control"
+                        className={`form-control ${
+                          formErrors.hora ? "is-invalid" : ""
+                        }`}
                         value={novaAula.HORA_INICIO}
                         onChange={(e) =>
                           setNovaAula({
@@ -363,13 +398,20 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                       <label className="form-label">Hora Fim</label>
                       <input
                         type="time"
-                        className="form-control"
+                        className={`form-control ${
+                          formErrors.hora ? "is-invalid" : ""
+                        }`}
                         value={novaAula.HORA_FIM}
                         onChange={(e) =>
                           setNovaAula({ ...novaAula, HORA_FIM: e.target.value })
                         }
                         required
                       />
+                      {formErrors.hora && (
+                        <div className="invalid-feedback">
+                          A hora de fim deve ser posterior à hora de início.
+                        </div>
+                      )}
                     </div>
                   </div>
 
