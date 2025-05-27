@@ -241,7 +241,7 @@ function CoursePage() {
                             month: "2-digit",
                             day: "2-digit",
                           })}`
-                        : `Curso assíncrono`}
+                        : ``}
                     </h1>
                   </div>
                   <div className="d-flex justify-content-start mt-2">
