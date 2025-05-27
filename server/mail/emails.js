@@ -1,5 +1,4 @@
 const { resend, sender } = require("./mailtrap.config.js");
-const { Resend } = require("resend");
 const {
   VERIFICATION_EMAIL_TEMPLATE,
   RESET_PASSWORD_EMAIL_TEMPLATE,
