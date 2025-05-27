@@ -226,74 +226,79 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                   </small>
                 </div>
 
-                <div className="d-flex align-items-center">
-                  <span className="me-2">Módulo:</span>
-                  <span className="badge bg-secondary">
-                    {aula.MODULO?.NOME || "N/A"}
-                  </span>
-                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div className="d-flex">
+                    <span className="me-2">Módulo:</span>
+                    <span className="badge bg-secondary">
+                      {aula.MODULO?.NOME || "N/A"}
+                    </span>
+                  </div>
 
-                <div className="d-flex mt-3">
-                  {aula.LINK_ZOOM && (
-                    <a
-                      href={aula.LINK_ZOOM}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-sm btn-outline-primary me-2"
-                    >
-                      <LinkIcon size={16} className="me-1" />
-                      Entrar na Aula
-                    </a>
-                  )}
-
-                  {isTeacher && (
-                    <>
-                      {aula.ESTADO === "Agendada" && (
-                        <button
-                          className="btn btn-sm btn-success me-2"
-                          onClick={() =>
-                            handleUpdateAulaStatus(aula.ID_AULA, "Em andamento")
-                          }
-                        >
-                          <Play size={16} className="me-1" />
-                          Iniciar Aula
-                        </button>
-                      )}
-
-                      {aula.ESTADO === "Em andamento" && (
-                        <button
-                          className="btn btn-sm btn-outline-success me-2"
-                          onClick={() =>
-                            handleUpdateAulaStatus(aula.ID_AULA, "Concluída")
-                          }
-                        >
-                          <CheckCircle size={16} className="me-1" />
-                          Concluir Aula
-                        </button>
-                      )}
-
-                      {(aula.ESTADO === "Agendada" ||
-                        aula.ESTADO === "Em andamento") && (
-                        <button
-                          className="btn btn-sm btn-outline-danger me-2"
-                          onClick={() =>
-                            handleUpdateAulaStatus(aula.ID_AULA, "Cancelada")
-                          }
-                        >
-                          <XCircle size={16} className="me-1" />
-                          Cancelar
-                        </button>
-                      )}
-
-                      <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => handleOpenPresencasModal(aula)}
+                  <div className="d-flex">
+                    {aula.LINK_ZOOM && (
+                      <a
+                        href={aula.LINK_ZOOM}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-sm btn-outline-primary me-2"
                       >
-                        <Users size={16} className="me-1" />
-                        Presenças
-                      </button>
-                    </>
-                  )}
+                        <LinkIcon size={16} className="me-1" />
+                        Entrar na Aula
+                      </a>
+                    )}
+
+                    {isTeacher && (
+                      <>
+                        {aula.ESTADO === "Agendada" && (
+                          <button
+                            className="btn btn-sm btn-success me-2"
+                            onClick={() =>
+                              handleUpdateAulaStatus(
+                                aula.ID_AULA,
+                                "Em andamento"
+                              )
+                            }
+                          >
+                            <Play size={16} className="me-1" />
+                            Iniciar Aula
+                          </button>
+                        )}
+
+                        {aula.ESTADO === "Em andamento" && (
+                          <button
+                            className="btn btn-sm btn-outline-success me-2"
+                            onClick={() =>
+                              handleUpdateAulaStatus(aula.ID_AULA, "Concluída")
+                            }
+                          >
+                            <CheckCircle size={16} className="me-1" />
+                            Concluir Aula
+                          </button>
+                        )}
+
+                        {(aula.ESTADO === "Agendada" ||
+                          aula.ESTADO === "Em andamento") && (
+                          <button
+                            className="btn btn-sm btn-outline-danger me-2"
+                            onClick={() =>
+                              handleUpdateAulaStatus(aula.ID_AULA, "Cancelada")
+                            }
+                          >
+                            <XCircle size={16} className="me-1" />
+                            Cancelar
+                          </button>
+                        )}
+
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => handleOpenPresencasModal(aula)}
+                        >
+                          <Users size={16} className="me-1" />
+                          Presenças
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
