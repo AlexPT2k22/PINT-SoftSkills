@@ -177,6 +177,7 @@ const getCursoById = async (req, res) => {
         },
         {
           model: CursoSincrono,
+          attributes: ["ESTADO"],
           include: [
             { model: ConteudoSincrono },
             {
@@ -236,7 +237,7 @@ const getCursosPopulares = async (req, res) => {
         },
         {
           model: CursoSincrono,
-          attributes: ["VAGAS", "DATA_INICIO", "DATA_FIM"],
+          attributes: ["VAGAS", "DATA_INICIO", "DATA_FIM", "ESTADO"],
           required: false, // Use LEFT JOIN
         },
       ],

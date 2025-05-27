@@ -36,8 +36,29 @@ function WelcomePage() {
       try {
         setIsLoadingCourses(true);
         const response = await axios.get(`${URL}/api/cursos/popular`);
-        console.log("Cursos Populares:", response.data);
-        setCourses(response.data);
+        const processedCourses = response.data.map((course) => {
+          let status = "Indisponível";
+
+          if (course.CURSO_SINCRONO) {
+            status = course.CURSO_SINCRONO.ESTADO;
+          } else if (course.CURSO_ASSINCRONO) {
+            // Para cursos assíncronos, verifique as datas
+            const now = new Date();
+            const startDate = new Date(course.CURSO_ASSINCRONO.DATA_INICIO);
+            const endDate = new Date(course.CURSO_ASSINCRONO.DATA_FIM);
+
+            if (now < startDate) {
+              status = "Brevemente";
+            } else if (now > endDate) {
+              status = "Terminado";
+            } else {
+              status = "Ativo";
+            }
+          }
+
+          return { ...course, status };
+        });
+        setCourses(processedCourses);
         setLoading(false);
       } catch (err) {
         console.error("Erro a encontrar os cursos populares:", err);

@@ -7,6 +7,23 @@ function CourseCard({ course }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
 
+  const statusBadgeClass = (status) => {
+    switch (status) {
+      case "Ativo":
+        return "bg-success";
+      case "Em curso":
+        return "bg-primary";
+      case "Inativo":
+        return "bg-secondary";
+      case "Terminado":
+        return "bg-danger";
+      case "Brevemente":
+        return "bg-warning";
+      default:
+        return "bg-secondary";
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { month: "numeric", day: "numeric" };
     return new Date(dateString).toLocaleDateString("pt-PT", options);
@@ -29,13 +46,11 @@ function CourseCard({ course }) {
 
   return (
     <div className="card h-100 course-card" onClick={handleClick}>
-      {CURSO_SINCRONO && VAGAS <= 10 && (
-        <div className="z-1 position-absolute p-2">
-          <span className="badge text-bg-info position-absolute p-2 fs-6">
-            Mais Popular!
-          </span>
-        </div>
-      )}
+      <div className="z-1 position-absolute p-2">
+        <span className={`badge ${statusBadgeClass(course.status)}`}>
+          {course.status}
+        </span>
+      </div>
       <img
         src={
           IMAGEM
