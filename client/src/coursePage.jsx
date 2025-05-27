@@ -225,7 +225,26 @@ function CoursePage() {
                         : ``}
                     </h1>
                   </div>
-                  <div className="d-flex justify-content-start mt-3">
+                  <div className="d-flex flex-row justify-content-between">
+                    <h1 className="course-text-h1 mb-0">
+                      {course.CURSO_SINCRONO
+                        ? `Datas: ${new Date(
+                            course.CURSO_SINCRONO.DATA_INICIO
+                          ).toLocaleDateString("pt-PT", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                          })} a ${new Date(
+                            course.CURSO_SINCRONO.DATA_FIM
+                          ).toLocaleDateString("pt-PT", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                          })}`
+                        : `Curso assíncrono`}
+                    </h1>
+                  </div>
+                  <div className="d-flex justify-content-start mt-2">
                     <button
                       className="btn btn-primary fs-5 ps-5 pe-5"
                       onClick={() => handleInscrito()}

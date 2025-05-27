@@ -9,6 +9,7 @@ import {
   CircleUserRound,
   ChevronDown,
   ChevronRight,
+  SquareArrowOutUpRight,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -176,8 +177,13 @@ function Navbar() {
 
           <ul className="navbar-nav me-5">
             <li className="nav-item">
-              <a className="nav-link text-decoration-underline text" href="#">
-                Torne-se Formador
+              <a className="nav-link text align-items-center" href="#">
+                Fórum
+                <SquareArrowOutUpRight
+                  color="#39639C"
+                  size={18}
+                  className="ms-2"
+                />
               </a>
             </li>
             {isAuthenticated ? (
@@ -211,7 +217,10 @@ function Navbar() {
                     <ChevronDown className="ms-1" size={18} color="#39639c" />
                   </a>
                   {showUserDropdown && (
-                    <ul className="dropdown-menu dropdown-menu-end show" style={{transform: "translatex(-20px)"}}>
+                    <ul
+                      className="dropdown-menu dropdown-menu-end show"
+                      style={{ transform: "translatex(-20px)" }}
+                    >
                       <li>
                         <a className="dropdown-item" href="/dashboard">
                           Dashboard
