@@ -47,7 +47,7 @@ function CourseCard({ course }) {
   return (
     <div className="card h-100 course-card" onClick={handleClick}>
       <div className="z-1 position-absolute p-2">
-        <span className={`badge ${statusBadgeClass(course.status)}`}>
+        <span className={`badge ${statusBadgeClass(course.status)} fs-6`}>
           {course.status}
         </span>
       </div>
