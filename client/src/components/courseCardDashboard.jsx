@@ -124,11 +124,6 @@ function CourseCardDashboard({
               : ""}
           </p>
         </div>
-        <div className="d-flex justify-content-between align-items-center">
-          <p className="card-text mb-0">
-            {tipo === "Síncrono" ? "Vagas restantes: " + VAGAS : ""}
-          </p>
-        </div>
 
         {/* Progress bar visible for all users */}
         {showProgress && (
@@ -163,6 +158,17 @@ function CourseCardDashboard({
                 ? "Continuar"
                 : "Abrir curso"}
             </button>
+            {CURSO_SINCRONO && (
+              <button
+                className="btn btn-outline-primary"
+                onClick={() =>
+                  navigate(`/dashboard/synchronous-course/${course.ID_CURSO}`)
+                }
+              >
+                <GraduationCap size={20} />
+                <span className="ms-2">Aulas</span>
+              </button>
+            )}
             {progress === 100 && (
               <button
                 className="btn btn-secondary align-items-center"
@@ -191,6 +197,7 @@ function CourseCardDashboard({
               }
             >
               <Pen size={20} />
+              <span className="ms-2">Editar</span>
             </button>
             <button
               className="btn btn-outline-success"
@@ -199,6 +206,7 @@ function CourseCardDashboard({
               }
             >
               <GraduationCap size={20} />
+              <span className="ms-2">Aulas</span>
             </button>
           </div>
         )}

@@ -328,22 +328,25 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                         setNovaAula({ ...novaAula, TITULO: e.target.value })
                       }
                       required
+                      placeholder="Insira o título da aula"
                     />
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Descrição</label>
+                    <label className="form-label">Sumário</label>
                     <textarea
                       className="form-control"
                       value={novaAula.DESCRICAO}
                       onChange={(e) =>
                         setNovaAula({ ...novaAula, DESCRICAO: e.target.value })
                       }
+                      placeholder="Insira um breve resumo da aula"
+                      required
                     ></textarea>
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Link Zoom</label>
+                    <label className="form-label">Link aula</label>
                     <input
                       type="url"
                       className="form-control"
@@ -351,7 +354,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                       onChange={(e) =>
                         setNovaAula({ ...novaAula, LINK_ZOOM: e.target.value })
                       }
-                      placeholder="https://zoom.us/j/..."
+                      placeholder="Insira o link da aula no Zoom ou outra plataforma"
                     />
                   </div>
 

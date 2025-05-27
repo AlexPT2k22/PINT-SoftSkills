@@ -5,7 +5,7 @@ import useAuthStore from "./store/authStore";
 import CourseCardDashboard from "./components/courseCardDashboard";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Book, Clock, Video, BarChart2, GraduationCap } from "lucide-react";
+import { Book, Clock, Files, BarChart2, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
@@ -193,7 +193,7 @@ function Dashboard() {
         {isLoading ? (
           <div className="d-flex justify-content-center">
             <div className="spinner-border" role="status">
-              <span className="visually-hidden">Carregando...</span>
+              <span className="visually-hidden">Loading...</span>
             </div>
           </div>
         ) : (
@@ -205,7 +205,7 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Cursos Ativos
+                        Cursos ativos
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {metricas.cursosAtivos}
@@ -223,7 +223,7 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Próxima Aula
+                        Próxima aula
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {metricas.proximaAula}
@@ -257,7 +257,7 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Progresso Geral
+                        Progresso geral
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {metricas.progressoGeral}%
@@ -271,16 +271,20 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Próximas Aulas */}
+            {/* Próximas Aulas e trabalhos lado a lado */}
             <div className="row mb-4">
-              <div className="col-md-12">
-                <div className="card">
+              {/* Próximas Aulas */}
+              <div className="col-md-6">
+                <div className="card h-100">
                   <div className="card-header bg-white">
                     <h5 className="card-title mb-0 d-flex align-items-center">
-                      <Clock size={18} className="me-2" /> Próximas Aulas
+                      <Clock size={18} className="me-2" /> Próximas aulas
                     </h5>
                   </div>
-                  <div className="card-body pt-0 pb-0">
+                  <div
+                    className="card-body pt-0 pb-0 overflow-auto"
+                    style={{ maxHeight: "500px" }}
+                  >
                     {proximasAulas.length > 0 ? (
                       proximasAulas
                         .slice()
@@ -322,7 +326,7 @@ function Dashboard() {
                               <span
                                 className={`badge ${
                                   aula.presenca === true
-                                    ? "bg-secondary"
+                                    ? "bg-info"
                                     : "bg-warning"
                                 } me-2`}
                               >
@@ -363,6 +367,25 @@ function Dashboard() {
                         Não há aulas agendadas.
                       </p>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Próximos trabalhos */}
+              <div className="col-md-6">
+                <div className="card h-100">
+                  <div className="card-header bg-white">
+                    <h5 className="card-title mb-0 d-flex align-items-center">
+                      <Files size={18} className="me-2" /> Próximos trabalhos
+                    </h5>
+                  </div>
+                  <div
+                    className="card-body pt-0 pb-0 overflow-auto"
+                    style={{ maxHeight: "500px" }}
+                  >
+                    <p className="text-center mb-0">
+                      Não há trabalhos para submeter.
+                    </p>
                   </div>
                 </div>
               </div>
