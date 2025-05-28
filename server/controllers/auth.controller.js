@@ -100,7 +100,6 @@ const register = async (req, res) => {
       ID_UTILIZADOR: user.ID_UTILIZADOR,
       ID_PERFIL: 1,
     });
-    generateJWT(res, user); // gerar o token
     await sendVerificationEmail(
       user.USERNAME,
       user.NOME,
