@@ -30,6 +30,8 @@ function EditCourse() {
   const [courseImage, setCourseImage] = useState(null);
   const [courseObjectives, setCourseObjectives] = useState([""]);
   const [courseHabilities, setCourseHabilities] = useState([""]);
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [topics, setTopics] = useState([]);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
@@ -122,6 +124,10 @@ function EditCourse() {
         const isSynchronous = response.data.CURSO_SINCRONO != null;
         setCourseType(isSynchronous ? "Síncrono" : "Assíncrono");
         setSelectedRadio(isSynchronous ? "Síncrono" : "Assíncrono");
+
+        if (response.data.ID_TOPICO) {
+          setSelectedTopic(response.data.ID_TOPICO.toString());
+        }
 
         // Set teacher if available - note we need to get ID separately
         if (response.data.CURSO_SINCRONO) {
@@ -239,7 +245,7 @@ function EditCourse() {
       console.log(
         "Set category to:",
         categoryIdFromAPI,
-        "and area to:",
+        ",area to:",
         areaIdFromAPI,
         "Categories available:",
         category.map((c) => c.ID_CATEGORIA__PK___)
@@ -270,6 +276,29 @@ function EditCourse() {
       setIsDeleting(false);
     }
   };
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        if (selectedArea) {
+          const response = await axios.get(
+            `http://localhost:4000/api/topicos/by-area/${selectedArea}`
+          );
+          setTopics(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching topics:", error);
+      }
+    };
+
+    fetchTopics();
+  }, [selectedArea]);
+
+  useEffect(() => {
+    if (courseData?.ID_TOPICO) {
+      setSelectedTopic(courseData.ID_TOPICO.toString());
+    }
+  }, [courseData]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -350,7 +379,7 @@ function EditCourse() {
         setShowSuccess(true);
       }
     } catch (error) {
-      console.error("Error updating course:", error.response.data.message);
+      console.error("Error updating course:", error);
       setError(
         error.response?.data?.message ||
           "Erro ao atualizar o curso. Tente novamente mais tarde."
@@ -725,6 +754,32 @@ function EditCourse() {
                                     )) || []}
                                 </select>
                               )}
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                Tópico do curso
+                              </label>
+                              <select
+                                id="courseTopic"
+                                className="form-select"
+                                value={selectedTopic}
+                                onChange={(e) =>
+                                  setSelectedTopic(e.target.value)
+                                }
+                                required
+                              >
+                                <option value="">Selecione um tópico</option>
+                                {topics.map((topic) => (
+                                  <option
+                                    key={topic.ID_TOPICO}
+                                    value={topic.ID_TOPICO}
+                                  >
+                                    {topic.TITULO}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                           </div>
                         </div>

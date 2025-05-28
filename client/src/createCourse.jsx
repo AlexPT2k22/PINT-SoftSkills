@@ -240,7 +240,6 @@ function CreateCourse() {
   };
 
   useEffect(() => {
-    // Add to your existing useEffect
     const fetchTopics = async () => {
       try {
         const response = await axios.get(
