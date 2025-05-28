@@ -5,7 +5,13 @@ const {
   PASSWORD_CHANGE_EMAIL_TEMPLATE,
 } = require("./emailTemplates.js");
 
-const sendVerificationEmail = async (username, email, verificationToken) => {
+const sendVerificationEmail = async (
+  username,
+  nome,
+  email,
+  password,
+  verificationToken
+) => {
   // Convert recipient object to string format for email sending
   const recipientString = email.toString();
   try {
@@ -14,10 +20,11 @@ const sendVerificationEmail = async (username, email, verificationToken) => {
       from: sender,
       to: recipientString,
       subject: "Verificação de Email",
-      html: VERIFICATION_EMAIL_TEMPLATE.replace(
-        "{user_name}",
-        username
-      ).replace("{verification_token}", verificationToken),
+      html: VERIFICATION_EMAIL_TEMPLATE.replace("{user_name}", username)
+        .replace("{nome}", nome)
+        .replace("{password}", password)
+        .replace("{verification_token}", verificationToken)
+        .replace("{email}", email),
       category: "Email verification",
     });
     response.statusCode = 200;

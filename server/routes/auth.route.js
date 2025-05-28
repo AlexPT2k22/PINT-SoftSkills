@@ -11,9 +11,10 @@ const {
   resetPassword,
   linkedInAssociate,
   checkauth,
+  changeInitialPassword,
 } = require("../controllers/auth.controller.js");
 
-const {authenticateToken} = require("../middlewares/authmiddleware.js");
+const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
 // "/auth"
 router.get("/", (_, res) => {
@@ -28,8 +29,13 @@ router.get("/checkauth", authenticateToken, checkauth);
 router.post("/register", register);
 router.post("/login", login);
 router.post("/verifyemail", verifyEmail);
-router.get("/logout",authenticateToken, logout);
+router.get("/logout", authenticateToken, logout);
 router.post("/forgotpassword", forgotPassword);
 router.post("/resetpassword/:token", resetPassword);
+router.post(
+  "/change-initial-password",
+  authenticateToken,
+  changeInitialPassword
+);
 
 module.exports = router;

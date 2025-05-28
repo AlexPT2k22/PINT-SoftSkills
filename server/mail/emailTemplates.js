@@ -82,9 +82,15 @@ const VERIFICATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
                     <tbody>
                       <tr>
                         <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
-                          Bem vindo, {user_name}!
+                          Bem vindo, {user_name}! A seguir encontra-se os seus dados de acesso:
                         </td>
                       </tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                            Username: <strong>{user_name}</strong><br>
+                            Nome: <strong>{nome}</strong><br>
+                            Email: <strong>{email}</strong><br>
+                            Password: <strong>{password}</strong>
+                          </td>
                       <tr>
                       </tr>
                       <tr>
@@ -96,6 +102,9 @@ const VERIFICATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
                         <td style="padding: 0 0 24px 0;">
                           <a style="width: 100%; background:rgb(255, 255, 255); text-decoration: none; display: inline-block; padding: 10px 0; color: #39639C; font-size: 25px; line-height: 21px; text-align: center; font-weight: bold; border-radius: 7px;">{verification_token}</a>
                         </td>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                            De seguida altere a sua passoword!
+                          </td>
                       </tr>
                           </a>
                         </td>

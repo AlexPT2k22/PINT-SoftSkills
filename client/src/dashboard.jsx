@@ -16,7 +16,7 @@ function Dashboard() {
   const [proximasAulas, setProximasAulas] = useState([]);
   const [metricas, setMetricas] = useState({
     cursosAtivos: 0,
-    proximaAula: "14:30",
+    proximaAula: "N/A",
     videosAssistidos: 0,
     progressoGeral: 0,
     notaMedia: 0,

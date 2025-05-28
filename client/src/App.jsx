@@ -26,6 +26,7 @@ import CourseVideoPage from "./courseVideoPage.jsx";
 import CoursesUser from "./coursesUser.jsx";
 import NotFound from "./404.jsx";
 import SynchronousCourseView from "./courseSincronoViewPage.jsx";
+import ChangePasswordPage from "./ChangePasswordPage.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -62,7 +63,7 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  if (!user?.isVerified) {
+  if (!user?.isVerified && location.pathname !== "/change-password") {
     console.log("Not verified, redirecting to auth");
     return <Navigate to="/auth" replace />;
   }
@@ -99,6 +100,14 @@ function App() {
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute>
+              <ChangePasswordPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/my-courses"
           element={

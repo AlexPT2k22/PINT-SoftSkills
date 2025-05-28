@@ -54,8 +54,8 @@ const checkauth = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { USERNAME, EMAIL, PASSWORD } = req.body;
-  if (!USERNAME || !PASSWORD || !EMAIL) {
+  const { USERNAME, NOME, EMAIL } = req.body;
+  if (!USERNAME || !NOME || !EMAIL) {
     return res
       .status(400)
       .json({ error: "Todos os campos devem estar preenchidos" });
@@ -73,12 +73,15 @@ const register = async (req, res) => {
       }
     }
 
+    const PASSWORD = crypto.randomBytes(16).toString("hex");
     const hashedPassword = await bcrypt.hash(PASSWORD, 10); // hash da password
     const verificationToken = Math.floor(100000 + Math.random() * 900000); // gerar um token de verificação radom
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // expira em 24 horas
     const user = await User.create({
       USERNAME: USERNAME,
+      NOME: NOME,
       PASSWORD: hashedPassword,
+      LINKEDIN: null, // por defeito o user não tem linkedin associado
       EMAIL: EMAIL,
       VERIFICATIONTOKEN: verificationToken,
       VERIFICATIONTOKENEXPIRES: verificationExpires,
@@ -91,12 +94,19 @@ const register = async (req, res) => {
       ID_PERFIL: 1,
     });
     generateJWT(res, user); // gerar o token
-    await sendVerificationEmail(user.USERNAME, user.EMAIL, verificationToken); // enviar o email de verificação
+    await sendVerificationEmail(
+      user.USERNAME,
+      user.NOME,
+      user.EMAIL,
+      PASSWORD, //password gerada em plain text
+      verificationToken
+    ); // enviar o email de verificação
 
     res.status(201).json({
       message: `Registado com sucesso! Verifique o seu email para confirmar a conta!`,
       user: {
         id: user.ID_UTILIZADOR,
+        nome: user.NOME,
         username: user.USERNAME,
         email: user.EMAIL,
         isVerified: user.ESTA_VERIFICADO,
@@ -146,6 +156,7 @@ const login = async (req, res) => {
         email: user.EMAIL,
         isVerified: user.ESTA_VERIFICADO,
         perfil: perfil.ID_PERFIL,
+        primeiroLogin: user.PRIMEIRO_LOGIN,
       },
     });
   } catch (error) {
@@ -382,6 +393,46 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const changeInitialPassword = async (req, res) => {
+  const { PASSWORD } = req.body;
+  const userId = req.user.ID_UTILIZADOR;
+
+  if (!PASSWORD) {
+    return res.status(400).json({ error: "Password é obrigatória!" });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Utilizador não encontrado!" });
+    }
+
+    const hashedPassword = await bcrypt.hash(PASSWORD, 10);
+    user.PASSWORD = hashedPassword;
+    user.PRIMEIRO_LOGIN = false;
+    await user.save();
+
+    await sendConfirmationEmail(
+      user.USERNAME,
+      user.EMAIL,
+      `${frontendURL}/login?login=2&email=${user.EMAIL}`
+    );
+
+    res.status(200).json({
+      message: "Password alterada com sucesso!",
+      user: {
+        username: user.USERNAME,
+        email: user.EMAIL,
+        isVerified: user.ESTA_VERIFICADO,
+        primeiroLogin: false,
+      },
+    });
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Erro ao alterar a password!" });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -393,4 +444,5 @@ module.exports = {
   resetPassword,
   linkedInAssociate,
   checkauth,
+  changeInitialPassword,
 };

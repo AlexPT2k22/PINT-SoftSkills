@@ -93,13 +93,6 @@ function CourseCardDashboard({
 
   return (
     <div className="card h-100 course-card">
-      {CURSO_SINCRONO && VAGAS <= 10 && (
-        <div className="z-1 position-absolute p-2">
-          <span className="badge text-bg-info position-absolute p-2 fs-6">
-            Mais Popular!
-          </span>
-        </div>
-      )}
       <img
         src={
           IMAGEM

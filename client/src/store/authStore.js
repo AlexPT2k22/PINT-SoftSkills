@@ -14,16 +14,17 @@ const useAuthStore = create((set, get) => ({
   error: null,
   isLoading: false,
   isCheckingAuth: false,
+  userPrimeiroLogin: false,
 
-  signup: async (USERNAME, EMAIL, PASSWORD) => {
+  signup: async (USERNAME, NOME, EMAIL) => {
     set({ isLoading: true, error: null });
     try {
       const response = await axios.post(
         `${url}/api/auth/register`,
         {
           USERNAME,
+          NOME,
           EMAIL,
-          PASSWORD,
         },
         { withCredentials: true }
       );
@@ -78,6 +79,7 @@ const useAuthStore = create((set, get) => ({
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        userPrimeiroLogin: response.data.user.primeiroLogin,
       });
       console.log("Usuário autenticado com sucesso:", response.data.user);
     } catch (error) {

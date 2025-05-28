@@ -14,12 +14,12 @@ const Utilizador = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    PRIMEIRO_NOME: {
-      type: DataTypes.STRING(50),
+    LINKEDIN: {
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
-    ULTIMO_NOME: {
-      type: DataTypes.STRING(50),
+    NOME: {
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
     EMAIL: {
@@ -49,6 +49,7 @@ const Utilizador = sequelize.define(
     ESTA_VERIFICADO: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
+      defaultValue: false,
     },
     ONLINE: {
       type: DataTypes.BOOLEAN,
@@ -69,6 +70,11 @@ const Utilizador = sequelize.define(
     VERIFICATIONTOKENEXPIRES: {
       type: DataTypes.DATE,
       allowNull: true,
+    },
+    PRIMEIRO_LOGIN: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
     },
     DATA_CRIACAO: {
       type: DataTypes.DATE,

@@ -177,7 +177,6 @@ const getCursoById = async (req, res) => {
         },
         {
           model: CursoSincrono,
-          attributes: ["ESTADO"],
           include: [
             { model: ConteudoSincrono },
             {

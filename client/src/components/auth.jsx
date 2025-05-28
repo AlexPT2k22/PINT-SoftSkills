@@ -58,10 +58,46 @@ function Auth() {
     }
   };
 
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").trim();
+
+    // Check if pasted content is a valid numeric string
+    if (/^\d+$/.test(pastedData)) {
+      const digits = pastedData.split("").slice(0, code.length);
+      const newCode = [...code];
+
+      digits.forEach((digit, index) => {
+        if (index < code.length) newCode[index] = digit;
+      });
+
+      setCode(newCode);
+
+      // Focus the next empty input or the last one
+      const nextEmptyIndex = newCode.findIndex((d) => d === "");
+      if (nextEmptyIndex !== -1) {
+        reference.current[nextEmptyIndex]?.focus();
+      } else {
+        reference.current[code.length - 1]?.focus();
+
+        // Auto-submit if a complete code is pasted
+        if (newCode.every((digit) => digit !== "")) {
+          setTimeout(() => {
+            const form = reference.current[0]?.form;
+            if (form)
+              form.dispatchEvent(
+                new Event("submit", { cancelable: true, bubbles: true })
+              );
+          }, 100);
+        }
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const codVerification = code.join("");
-    console.log(`Código enviado: ${codVerification}`);
+    //console.log(`Código enviado: ${codVerification}`);
     try {
       await verify_email(codVerification);
       setShowSuccess(true);
@@ -100,6 +136,7 @@ function Auth() {
                 maxLength={1}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={handlePaste}
                 className="form-control text-center fs-4 auth-input"
               />
             ))}

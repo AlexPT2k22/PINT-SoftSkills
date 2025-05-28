@@ -66,7 +66,7 @@ const CoursesUser = () => {
     <>
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
-      <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-4">
+      <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center mt-4 p-4">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-10 col-lg-12 mb-4">
@@ -98,9 +98,10 @@ const CoursesUser = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="container">
-                    <h5 className="title">Cursos inscritos</h5>
-                    <p className="text">Não está inscrito a nenhum curso</p>
+                  <div className="container p-0">
+                    <p className="text-muted">
+                      Não está inscrito a nenhum curso
+                    </p>
                   </div>
                 )}
               </div>

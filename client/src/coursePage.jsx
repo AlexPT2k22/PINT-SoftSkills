@@ -132,7 +132,7 @@ function CoursePage() {
       if (response.status === 201) {
         setMessage(`Inscrito com sucesso no curso ${course.NOME}`);
         setShowMessage(true);
-        // Redirecionar ou atualizar a interface
+        setInscrito(true);
       }
     } catch (error) {
       console.error(

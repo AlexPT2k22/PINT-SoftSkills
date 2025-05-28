@@ -15,8 +15,10 @@ function Login() {
   const [EMAIL, setEMAIL] = useState("");
   const [PASSWORD, setPASSWORD] = useState("");
   const [USERNAME, setUSERNAME] = useState("");
+  const [NOME, setNOME] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const { signup, login, error, isLoading } = useAuthStore();
+  const { signup, login, error, isLoading, userPrimeiroLogin, userType } =
+    useAuthStore();
   const redirectURL =
     import.meta.env.PROD === "production"
       ? "https://pint-softskills-api.onrender.com"
@@ -58,8 +60,8 @@ function Login() {
     }
 
     if (Login === 0) {
-      if (!USERNAME || !EMAIL || !PASSWORD) {
-        setError("O campo Username, Email e Password são obrigatórios!");
+      if (!USERNAME || !EMAIL || !NOME) {
+        setError("O campo Username, Email e Nome são obrigatórios!");
         return;
       }
     }
@@ -76,16 +78,22 @@ function Login() {
 
     try {
       if (Login === 0) {
-        await signup(USERNAME, EMAIL, PASSWORD);
-        navigate("/auth");
+        await signup(USERNAME, NOME, EMAIL);
+        setShowSuccess(true);
+        setTimeout(() => {
+          navigate("/auth");
+        }, 3000);
       }
       if (Login === 1) {
         await login(EMAIL, PASSWORD);
-        const userType = useAuthStore.getState().userType;
-        if (userType === 2 || userType === 3) {
-          navigate("/role");
+        if (userPrimeiroLogin === true) {
+          navigate("/change-password");
         } else {
-          navigate("/");
+          if (userType === 2 || userType === 3) {
+            navigate("/role");
+          } else {
+            navigate("/");
+          }
         }
       }
       if (Login === 2) {
@@ -195,15 +203,27 @@ function Login() {
 
         <form onSubmit={handleLogin} className="login-form">
           {Login === 0 && (
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Username"
-                value={USERNAME}
-                onChange={(e) => setUSERNAME(e.target.value)}
-              />
-            </div>
+            <>
+              <div className="form-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Username"
+                  value={USERNAME}
+                  onChange={(e) => setUSERNAME(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Nome completo"
+                  value={NOME}
+                  onChange={(e) => setNOME(e.target.value)}
+                  required
+                />
+              </div>
+            </>
           )}
 
           <div className="form-group">
@@ -217,7 +237,7 @@ function Login() {
             />
           </div>
 
-          {Login !== 2 && (
+          {Login == 1 && (
             <div className="form-group">
               <input
                 type="password"
