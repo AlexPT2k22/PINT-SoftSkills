@@ -81,7 +81,7 @@ function Login() {
         await signup(USERNAME, NOME, EMAIL);
         setShowSuccess(true);
         setTimeout(() => {
-          navigate("/auth");
+          navigate("/auth?email=" + EMAIL);
         }, 3000);
       }
       if (Login === 1) {

@@ -1,17 +1,22 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useAuthStore from "../store/authStore.js";
 import ErrorMessage from "./error_message.jsx";
 import SuccessMessage from "./sucess_message.jsx";
 import ButtonWithLoader from "./butao_loader.jsx";
 import "../styles/auth.css";
+import axios from "axios";
 
 function Auth() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const reference = useRef([]);
   const navigate = useNavigate();
-  const { error, isLoading, verify_email } = useAuthStore();
+  const { error, isLoading, verify_email, user } = useAuthStore();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [message, setMessage] = useState("");
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get("email");
 
   useEffect(() => {
     if (showSuccess) {
@@ -22,6 +27,24 @@ function Auth() {
     }
   }, [showSuccess, navigate]);
 
+  useEffect(() => {
+    if (user?.isVerified) {
+      if (user.perfil === 2 || user.perfil === 3) {
+        navigate("/role");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [user, navigate]);
+  useEffect(() => {
+    if (resendSuccess) {
+      const timer = setTimeout(() => {
+        setResendSuccess(false);
+      }, 3000); // Mostra a mensagem por 5 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [resendSuccess]);
+
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
 
@@ -31,6 +54,27 @@ function Auth() {
 
     if (value && index < code.length - 1) {
       reference.current[index + 1]?.focus();
+    }
+  };
+
+  const handleResendCode = async (email) => {
+    console.log(`Reenviando código para ${email}`);
+    setMessage("");
+    setResendSuccess(false);
+    try {
+      const response = await axios.post(
+        `http://localhost:4000/api/auth/resend-verification-code`,
+        { email }
+      );
+
+      if (response.status === 200) {
+        console.log("Código reenviado com sucesso");
+        setMessage("Código reenviado com sucesso!");
+        setResendSuccess(true);
+      }
+    } catch (error) {
+      console.error("Erro ao reenviar código:", error);
+      setMessage("Erro ao reenviar código. Tente novamente.");
     }
   };
 
@@ -96,10 +140,12 @@ function Auth() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
     const codVerification = code.join("");
     //console.log(`Código enviado: ${codVerification}`);
     try {
       await verify_email(codVerification);
+      setMessage("Email verificado com sucesso!");
       setShowSuccess(true);
     } catch (error) {
       console.log(error.response?.data?.error);
@@ -111,8 +157,14 @@ function Auth() {
       <div className="auth-container">
         {showSuccess && (
           <SuccessMessage
-            message="Email verificado com sucesso! A redirecionar..."
+            message={message}
             onClose={() => setShowSuccess(false)}
+          />
+        )}
+        {resendSuccess && (
+          <SuccessMessage
+            message={message}
+            onClose={() => setResendSuccess(false)}
           />
         )}
         {error && (
@@ -145,9 +197,7 @@ function Auth() {
             <span className="text-muted p-0">Não recebeu o código?</span>
             <span
               className="btn btn-link p-0 ms-1 text-decoration-none auth-resend-text"
-              onClick={() => {
-                // Adiciona lógica para reenviar o código
-              }}
+              onClick={() => handleResendCode(email)}
             >
               Reenviar código
             </span>

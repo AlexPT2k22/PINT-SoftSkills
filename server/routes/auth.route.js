@@ -12,6 +12,7 @@ const {
   linkedInAssociate,
   checkauth,
   changeInitialPassword,
+  resendVerificationCode,
 } = require("../controllers/auth.controller.js");
 
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
@@ -37,5 +38,6 @@ router.post(
   authenticateToken,
   changeInitialPassword
 );
+router.post("/resend-verification-code", resendVerificationCode);
 
 module.exports = router;

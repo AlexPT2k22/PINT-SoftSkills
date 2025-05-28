@@ -3,6 +3,7 @@ const {
   VERIFICATION_EMAIL_TEMPLATE,
   RESET_PASSWORD_EMAIL_TEMPLATE,
   PASSWORD_CHANGE_EMAIL_TEMPLATE,
+  RESEND_EMAIL_TEMPLATE,
 } = require("./emailTemplates.js");
 
 const sendVerificationEmail = async (
@@ -25,6 +26,27 @@ const sendVerificationEmail = async (
         .replace("{password}", password)
         .replace("{verification_token}", verificationToken)
         .replace("{email}", email),
+      category: "Email verification",
+    });
+    response.statusCode = 200;
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+};
+
+const resendEmail = async (username, email, verificationToken) => {
+  // Convert recipient object to string format for email sending
+  const recipientString = email.toString();
+  try {
+    console.log(`Resending verification email to ${email}`); // Log the recipient email
+    const response = await resend.emails.send({
+      from: sender,
+      to: recipientString,
+      subject: "Verificação de Email",
+      html: RESEND_EMAIL_TEMPLATE.replace("{user_name}", username).replace(
+        "{verification_token}",
+        verificationToken
+      ),
       category: "Email verification",
     });
     response.statusCode = 200;
@@ -77,4 +99,5 @@ module.exports = {
   sendVerificationEmail,
   sendResetEmail,
   sendConfirmationEmail,
+  resendEmail,
 };

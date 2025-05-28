@@ -65,7 +65,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user?.isVerified && location.pathname !== "/change-password") {
     console.log("Not verified, redirecting to auth");
-    return <Navigate to="/auth" replace />;
+    return <Navigate to={`/auth?email=${user.email}`} replace />;
   }
 
   return children;

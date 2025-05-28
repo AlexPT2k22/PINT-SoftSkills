@@ -12,6 +12,7 @@ const {
   sendVerificationEmail,
   sendResetEmail,
   sendConfirmationEmail,
+  resendEmail,
 } = require("../mail/emails.js");
 const backendURL =
   process.env.PROD === "production"
@@ -433,6 +434,50 @@ const changeInitialPassword = async (req, res) => {
   }
 };
 
+const resendVerificationCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email é obrigatório!" });
+    }
+
+    const user = await User.findOne({ where: { EMAIL: email } });
+    if (!user) {
+      return res.status(404).json({ error: "Utilizador não encontrado!" });
+    }
+
+    if (user.ESTA_VERIFICADO) {
+      return res.status(400).json({ error: "Este email já foi verificado!" });
+    }
+
+    // Gerar novo código de verificação (pode ser um token ou um código numérico)
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    const tokenExpiry = new Date();
+    tokenExpiry.setHours(tokenExpiry.getHours() + 1);
+
+    // Atualizar o token no banco de dados
+    await user.update({
+      VERIFICATIONTOKEN: verificationCode,
+      VERIFICATIONTOKENEXPIRES: tokenExpiry,
+    });
+
+    // Enviar o email com o código
+    await resendEmail(user.USERNAME, email, verificationCode);
+
+    return res
+      .status(200)
+      .json({ message: "Código de verificação reenviado com sucesso!" });
+  } catch (error) {
+    console.error("Erro ao reenviar código:", error);
+    return res
+      .status(500)
+      .json({ error: "Erro ao reenviar o código de verificação!" });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -445,4 +490,5 @@ module.exports = {
   linkedInAssociate,
   checkauth,
   changeInitialPassword,
+  resendVerificationCode,
 };
