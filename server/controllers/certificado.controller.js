@@ -199,7 +199,7 @@ const gerarCertificado = async (req, res) => {
       .font("Helvetica-Bold")
       .fontSize(28)
       .fillColor("#39639c")
-      .text(usuario.USERNAME, 0, centerY + 100, {
+      .text(usuario.NOME, 0, centerY + 100, {
         align: "center",
       });
 
