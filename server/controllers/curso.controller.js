@@ -181,7 +181,7 @@ const getCursoById = async (req, res) => {
             { model: ConteudoSincrono },
             {
               model: Utilizador,
-              attributes: ["USERNAME"],
+              attributes: ["USERNAME", "NOME", "LINKEDIN"],
             },
           ],
         },

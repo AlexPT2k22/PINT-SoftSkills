@@ -2,7 +2,7 @@ import { React, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "./components/navbar.jsx";
 import Footer from "./components/footer.jsx";
-import { Star, User, Check } from "lucide-react";
+import { Star, User, Check, SquareArrowOutUpRight } from "lucide-react";
 import "./styles/coursePage.css";
 import axios from "axios";
 import Loader from "./components/loader.jsx";
@@ -215,9 +215,35 @@ function CoursePage() {
                   </p>
                   <div className="d-flex flex-row justify-content-between">
                     <h1 className="course-text-h1">
-                      {course.CURSO_SINCRONO
-                        ? `Lecionado por: ${course.CURSO_SINCRONO.UTILIZADOR.USERNAME}`
-                        : `Curso assíncrono`}
+                      {course.CURSO_SINCRONO ? (
+                        course.CURSO_SINCRONO.UTILIZADOR.LINKEDIN ? (
+                          <>
+                            Lecionado por:{" "}
+                            <a
+                              href={course.CURSO_SINCRONO.UTILIZADOR.LINKEDIN}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-decoration-none"
+                              style={{ color: "#39639c" }}
+                            >
+                              {course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
+                                course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME}
+                              <SquareArrowOutUpRight
+                                color="#39639C"
+                                size={14}
+                                className="ms-1"
+                              />
+                            </a>
+                          </>
+                        ) : (
+                          `Lecionado por: ${
+                            course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
+                            course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME
+                          }`
+                        )
+                      ) : (
+                        `Curso assíncrono`
+                      )}
                     </h1>
                     <h1 className="course-text-h1">
                       {course.CURSO_SINCRONO

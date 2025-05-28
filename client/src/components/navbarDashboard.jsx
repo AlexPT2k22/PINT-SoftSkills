@@ -3,9 +3,7 @@ import { Bell, CircleUserRound, ChevronDown } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 
-function NavbarDashboard({
-  showIcons = true,
-}) {
+function NavbarDashboard({ showIcons = true }) {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const user = useAuthStore((state) => state.user);
 
@@ -20,8 +18,6 @@ function NavbarDashboard({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  
 
   return (
     <nav className="navbar sticky-top navbar-expand-lg">
@@ -69,7 +65,7 @@ function NavbarDashboard({
                     </li>
                     <li>
                       <a className="dropdown-item" href="/dashboard/my-courses">
-                        Meus Cursos
+                        Os meus Cursos
                       </a>
                     </li>
                     <li>

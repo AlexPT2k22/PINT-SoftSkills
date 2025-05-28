@@ -13,10 +13,9 @@ const sendVerificationEmail = async (
   password,
   verificationToken
 ) => {
-  // Convert recipient object to string format for email sending
   const recipientString = email.toString();
   try {
-    console.log(`Sending verification email to ${email}`); // Log the recipient email
+    console.log(`Sending verification email to ${email}`);
     const response = await resend.emails.send({
       from: sender,
       to: recipientString,
@@ -35,10 +34,9 @@ const sendVerificationEmail = async (
 };
 
 const resendEmail = async (username, email, verificationToken) => {
-  // Convert recipient object to string format for email sending
   const recipientString = email.toString();
   try {
-    console.log(`Resending verification email to ${email}`); // Log the recipient email
+    console.log(`Resending verification email to ${email}`);
     const response = await resend.emails.send({
       from: sender,
       to: recipientString,

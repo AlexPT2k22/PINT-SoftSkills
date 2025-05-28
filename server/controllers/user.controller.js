@@ -17,7 +17,7 @@ const { Op } = require("sequelize");
 const getTeachers = async (req, res) => {
   try {
     const teachers = await Utilizador.findAll({
-      attributes: ["ID_UTILIZADOR", "USERNAME", "PRIMEIRO_NOME", "ULTIMO_NOME"],
+      attributes: ["ID_UTILIZADOR", "USERNAME", "NOME"],
       include: [
         {
           model: Perfil,

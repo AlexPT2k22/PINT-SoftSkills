@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  User, 
-  Linkedin, 
-  Mail, 
-  Lock, 
-  Save, 
-  X, 
-  CheckCircle 
-} from "lucide-react";
+import { User, Linkedin, Mail, Lock, Save, X, CheckCircle } from "lucide-react";
 import useAuthStore from "./store/authStore.js";
 import axios from "axios";
 import NavbarDashboard from "./components/navbarDashboard.jsx";
 import Sidebar from "./components/sidebar.jsx";
 import "./styles/settings.css";
+import SuccessMessage from "./components/sucess_message.jsx";
+import ErrorMessage from "./components/error_message.jsx";
 
 function SettingsPage() {
   const navigate = useNavigate();
@@ -24,19 +18,27 @@ function SettingsPage() {
   const [collapsed, setCollapsed] = useState(false);
   const [formData, setFormData] = useState({
     nome: "",
+    linkedIn: "",
     email: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    emailNotifications: true
+    emailNotifications: true,
   });
+
+  const checkLinkedInUrl = (url) => {
+    const regex =
+      /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/;
+    return regex.test(url);
+  };
 
   useEffect(() => {
     // Carregar dados do usuário ao inicializar
     if (user) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         nome: user.nome || "",
+        linkedIn: user.linkedIn || "",
         email: user.email || "",
       }));
     }
@@ -48,9 +50,9 @@ function SettingsPage() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -58,10 +60,23 @@ function SettingsPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     // Validar formulário
-    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
+    if (
+      formData.newPassword &&
+      formData.newPassword !== formData.confirmPassword
+    ) {
       setError("As passwords não coincidem");
+      setLoading(false);
+      return;
+    }
+    if (formData.linkedIn && !checkLinkedInUrl(formData.linkedIn)) {
+      setError("O URL do LinkedIn não é válido");
+      setLoading(false);
+      return;
+    }
+    if (!formData.nome) {
+      setError("O nome é obrigatório");
       setLoading(false);
       return;
     }
@@ -69,11 +84,11 @@ function SettingsPage() {
     try {
       // Exemplo de chamada API para salvar alterações
       // Substituir com chamada real à API
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulação de chamada
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulação de chamada
+
       // Exemplo de atualização do store
       // useAuthStore.getState().updateUser({ ...user, nome: formData.nome });
-      
+
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -87,25 +102,25 @@ function SettingsPage() {
     <>
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
-      
-      <div className={`container mt-4 p-4 ${collapsed ? "" : "sidebar-active"}`}>
+      {error && (
+        <ErrorMessage
+          message={error}
+          onClose={() => setError("")}
+          duration={3000}
+        />
+      )}
+
+      {success && (
+        <SuccessMessage
+          message="Alterações guardadas com sucesso!"
+          onClose={() => setSuccess(false)}
+          duration={3000}
+        />
+      )}
+      <div className={`container mt-4 p-4 `}>
         <div className="settings-container">
           <h2 className="mb-4">Definições</h2>
-          
-          {error && (
-            <div className="alert alert-danger d-flex align-items-center" role="alert">
-              <X size={20} className="me-2" />
-              {error}
-            </div>
-          )}
-          
-          {success && (
-            <div className="alert alert-success d-flex align-items-center" role="alert">
-              <CheckCircle size={20} className="me-2" />
-              Alterações guardadas com sucesso!
-            </div>
-          )}
-          
+
           <div className="row">
             {/* Perfil do utilizador */}
             <div className="col-lg-4">
@@ -119,38 +134,61 @@ function SettingsPage() {
                   </div>
                   <h4 className="mb-1">{user?.nome || user?.username}</h4>
                   <p className="text-muted mb-2">@{user?.username}</p>
-                  
-                  {user?.linkedin && (
-                    <a 
-                      href={user.linkedin} 
-                      target="_blank" 
+
+                  {user?.linkedIn && (
+                    <a
+                      href={user.linkedIn}
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-outline-primary btn-sm"
+                      className="btn btn-primary btn-sm"
                     >
-                      <Linkedin size={16} className="me-1" />
-                      Ver perfil LinkedIn
+                      <span className="d-flex align-items-center">
+                        Ver perfil LinkedIn
+                      </span>
                     </a>
                   )}
-                  
+
                   <hr className="my-4" />
-                  
+
                   <div className="text-start">
-                    <p className="mb-1"><strong>Membro desde:</strong></p>
+                    <p className="mb-1">
+                      <strong>Membro desde:</strong>
+                    </p>
                     <p className="text-muted">
-                      {new Date(user?.dataCriacao || new Date()).toLocaleDateString('pt-PT')}
+                      {new Date(
+                        user?.dataCriacao || new Date()
+                      ).toLocaleDateString("pt-PT")}
+                    </p>
+                  </div>
+                  <div className="text-start">
+                    <p className="mb-1">
+                      <strong>XP:</strong>
+                    </p>
+                    <p className="text-muted">{user?.xp || "N/A"} pontos</p>
+                  </div>
+                  <div className="text-start">
+                    <p className="mb-1">
+                      <strong>Perfil:</strong>
+                    </p>
+                    <p className="text-muted">
+                      {user?.perfil === 3
+                        ? "Gestor"
+                        : user?.perfil === 2
+                        ? "Formador"
+                        : "Formando"}{" "}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {/* Formulário de configurações */}
             <div className="col-lg-8">
               <div className="card">
                 <div className="card-body">
                   <form onSubmit={handleSaveChanges}>
                     <h5 className="card-title mb-4">Informações da Conta</h5>
-                    
+
                     <div className="mb-4">
                       <label className="form-label">Nome</label>
                       <div className="input-group">
@@ -166,7 +204,23 @@ function SettingsPage() {
                         />
                       </div>
                     </div>
-                    
+
+                    <div className="mb-4">
+                      <label className="form-label">LinkedIn</label>
+                      <div className="input-group">
+                        <span className="input-group-text">
+                          <Linkedin size={18} />
+                        </span>
+                        <input
+                          type="url"
+                          className="form-control"
+                          name="linkedIn"
+                          value={formData.linkedIn}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
                     <div className="mb-4">
                       <label className="form-label">Email</label>
                       <div className="input-group">
@@ -182,12 +236,14 @@ function SettingsPage() {
                           disabled
                         />
                       </div>
-                      <small className="text-muted">O email não pode ser alterado</small>
+                      <small className="text-muted">
+                        O email não pode ser alterado
+                      </small>
                     </div>
-                    
+
                     <hr className="my-4" />
                     <h5 className="card-title mb-4">Alterar Password</h5>
-                    
+
                     <div className="mb-3">
                       <label className="form-label">Password atual</label>
                       <div className="input-group">
@@ -203,7 +259,7 @@ function SettingsPage() {
                         />
                       </div>
                     </div>
-                    
+
                     <div className="mb-3">
                       <label className="form-label">Nova password</label>
                       <div className="input-group">
@@ -219,9 +275,11 @@ function SettingsPage() {
                         />
                       </div>
                     </div>
-                    
+
                     <div className="mb-4">
-                      <label className="form-label">Confirmar nova password</label>
+                      <label className="form-label">
+                        Confirmar nova password
+                      </label>
                       <div className="input-group">
                         <span className="input-group-text">
                           <Lock size={18} />
@@ -235,10 +293,12 @@ function SettingsPage() {
                         />
                       </div>
                     </div>
-                    
+
                     <hr className="my-4" />
-                    <h5 className="card-title mb-4">Preferências de Notificações</h5>
-                    
+                    <h5 className="card-title mb-4">
+                      Preferências de Notificações
+                    </h5>
+
                     <div className="form-check form-switch mb-4">
                       <input
                         className="form-check-input"
@@ -248,14 +308,18 @@ function SettingsPage() {
                         checked={formData.emailNotifications}
                         onChange={handleInputChange}
                       />
-                      <label className="form-check-label" htmlFor="emailNotifications">
+                      <label
+                        className="form-check-label"
+                        htmlFor="emailNotifications"
+                      >
                         Receber notificações por email
                       </label>
                       <div className="text-muted small">
-                        Receba emails sobre atualizações de cursos, novas aulas e avisos importantes
+                        Receba emails sobre atualizações de cursos, novas aulas
+                        e avisos importantes
                       </div>
                     </div>
-                    
+
                     <div className="d-flex justify-content-end mt-4">
                       <button
                         type="button"
@@ -271,7 +335,11 @@ function SettingsPage() {
                       >
                         {loading ? (
                           <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
                             A guardar...
                           </>
                         ) : (

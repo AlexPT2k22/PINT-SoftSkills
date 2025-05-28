@@ -17,10 +17,15 @@ function SuccessMessage({ message, onClose, duration = 4000 }) {
   return (
     <>
       <div
-        className="alert alert-success alert-dismissible fade show position-fixed d-flex align-items-center sucess-alert-message"
+        className="alert alert-success alert-dismissible fade show position-fixed d-flex align-items-center"
         role="alert"
         style={{
           zIndex: 9999,
+          top: "30px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          minWidth: "300px",
+          maxWidth: "80%",
         }}
       >
         <svg

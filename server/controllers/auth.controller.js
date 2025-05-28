@@ -43,9 +43,12 @@ const checkauth = async (req, res) => {
       user: {
         id: user.ID_UTILIZADOR,
         username: user.USERNAME,
+        nome: user.NOME,
+        linkedIn: user.LINKEDIN,
         email: user.EMAIL,
         isVerified: user.ESTA_VERIFICADO,
         perfil: perfil.ID_PERFIL,
+        dataCriacao: user.DATA_CRIACAO,
       },
     });
   } catch (error) {
@@ -86,6 +89,9 @@ const register = async (req, res) => {
       EMAIL: EMAIL,
       VERIFICATIONTOKEN: verificationToken,
       VERIFICATIONTOKENEXPIRES: verificationExpires,
+      ESTA_VERIFICADO: false, // por defeito o user não está verificado
+      PRIMEIRO_LOGIN: true, // por defeito o user é o primeiro login
+      DATA_CRIACAO: new Date(), // data de criação do user
     });
 
     await user.save();

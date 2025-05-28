@@ -27,6 +27,8 @@ function Navbar() {
   const [showMenu, setShowMenu] = useState(false);
   const { isAuthenticated, user } = useAuthStore();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [activeArea, setActiveArea] = useState(null);
+  const [topics, setTopics] = useState([]);
 
   useEffect(() => {
     const getCategorias = async () => {
@@ -42,6 +44,18 @@ function Navbar() {
     };
 
     getCategorias();
+
+    const fetchTopics = async () => {
+      try {
+        const response = await axios.get(`${URL}/api/topicos/`);
+        setTopics(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar tópicos:", error);
+        setTopics([]);
+      }
+    };
+
+    fetchTopics();
 
     const handleClickOutside = (event) => {
       if (!event.target.closest(".mega-dropdown-wrapper")) {
@@ -144,15 +158,45 @@ function Navbar() {
                           ?.AREAs?.map((area) => (
                             <div
                               key={area.ID_AREA}
-                              className="area-item"
+                              className={`area-item ${
+                                activeArea === area.ID_AREA ? "active" : ""
+                              }`}
                               onClick={() => {
                                 navigate(`/areas/${area.ID_AREA}`);
                                 setShowMenu(false);
+                              }}
+                              onMouseEnter={() => {
+                                setActiveArea(area.ID_AREA);
                               }}
                             >
                               {area.NOME}
                             </div>
                           ))}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Third Panel - Topics */}
+                  <div className="topics-panel">
+                    {activeArea && !loading && (
+                      <>
+                        {topics.filter((topic) => topic.ID_AREA === activeArea)
+                          .length > 0 &&
+                          topics
+                            .filter((topic) => topic.ID_AREA === activeArea)
+                            .map((topic) => (
+                              <div
+                                key={topic.ID_TOPICO}
+                                className="topic-item"
+                                onClick={() => {
+                                  navigate(`/topicos/${topic.ID_TOPICO}`);
+                                  setShowMenu(false);
+                                }}
+                                title={topic.TITULO}
+                              >
+                                {topic.TITULO}
+                              </div>
+                            ))}
                       </>
                     )}
                   </div>
@@ -194,7 +238,7 @@ function Navbar() {
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="#">
+                  <a className="nav-link" href="/dashboard/settings">
                     <Settings strokeWidth={1.5} color="#39639C" size={22} />
                   </a>
                 </li>
@@ -231,7 +275,7 @@ function Navbar() {
                           className="dropdown-item"
                           href="/dashboard/my-courses"
                         >
-                          Meus Cursos
+                          Os meus Cursos
                         </a>
                       </li>
                       <li>

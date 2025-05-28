@@ -883,7 +883,7 @@ function CreateCourse() {
                                     key={formador.ID_UTILIZADOR}
                                     value={formador.ID_UTILIZADOR}
                                   >
-                                    {formador.USERNAME}
+                                    {formador?.NOME || formador?.USERNAME}
                                   </option>
                                 ))}
                               </select>
