@@ -51,7 +51,6 @@ function Sidebar({ onToggle }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
   // Handle clicks outside the sidebar to close it
   useEffect(() => {
     // Handle clicks outside the sidebar
@@ -91,8 +90,6 @@ function Sidebar({ onToggle }) {
       onToggle(newCollapsedState);
     }
   };
-
-
 
   // Toggle sidebar - open only for mobile toggle button
   const openSidebar = () => {
@@ -214,9 +211,9 @@ function Sidebar({ onToggle }) {
           <ul className="nav flex-column mb-0">
             <li className="nav-item">
               <Link
-                to="/dashboard/definicoes"
+                to="/dashboard/settings"
                 className={`nav-link ${
-                  isActive("/dashboard/definicoes") ? "active" : ""
+                  isActive("/dashboard/settings") ? "active" : ""
                 }`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
@@ -228,7 +225,9 @@ function Sidebar({ onToggle }) {
             <li className="nav-item">
               <Link
                 to="/dashboard/ajuda"
-                className={`nav-link ${isActive("/dashboard/ajuda") ? "active" : ""}`}
+                className={`nav-link ${
+                  isActive("/dashboard/ajuda") ? "active" : ""
+                }`}
                 onClick={() => mobileView && setCollapsed(true)}
               >
                 <HelpCircle size={20} className="me-3" />

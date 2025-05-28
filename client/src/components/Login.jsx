@@ -17,8 +17,7 @@ function Login() {
   const [USERNAME, setUSERNAME] = useState("");
   const [NOME, setNOME] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const { signup, login, error, isLoading, userPrimeiroLogin, userType } =
-    useAuthStore();
+  const { signup, login, error, isLoading } = useAuthStore();
   const redirectURL =
     import.meta.env.PROD === "production"
       ? "https://pint-softskills-api.onrender.com"
@@ -86,14 +85,14 @@ function Login() {
       }
       if (Login === 1) {
         await login(EMAIL, PASSWORD);
-        if (userPrimeiroLogin === true) {
+        const currentUser = useAuthStore.getState().user;
+        const isPrimeiroLogin = useAuthStore.getState().userPrimeiroLogin;
+        if (isPrimeiroLogin === true) {
           navigate("/change-password");
+        } else if (currentUser?.perfil === 2 || currentUser?.perfil === 3) {
+          navigate("/role");
         } else {
-          if (userType === 2 || userType === 3) {
-            navigate("/role");
-          } else {
-            navigate("/");
-          }
+          navigate("/");
         }
       }
       if (Login === 2) {
@@ -122,7 +121,7 @@ function Login() {
       }
     } catch (error) {
       //console.log(error.response.data.error);
-      useAuthStore.setState({ error: error.response.data.error });
+      useAuthStore.setState({ error: error.error });
     }
   };
 
