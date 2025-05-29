@@ -233,7 +233,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="d-flex">
                     <span className="me-2">Módulo:</span>
-                    <span className="badge bg-secondary">
+                    <span className="badge bg-secondary align-items-center">
                       {aula.MODULO?.NOME || "N/A"}
                     </span>
                   </div>

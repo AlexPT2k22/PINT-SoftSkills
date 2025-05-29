@@ -15,7 +15,7 @@ const SynchronousCourseView = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore.getState();
   const Teacher = user?.perfil === 2 || user?.perfil === 3;
-  const userId = user?.id || null;
+
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
   };
@@ -53,18 +53,18 @@ const SynchronousCourseView = () => {
       <div className="container-fluid p-0">
         <NavbarDashboard />
         <Sidebar onToggle={handleSidebarToggle} />
-        <div className="container mt-4">
+        <div className={`container mt-4 p-4 `}>
           {loading ? (
             <div className="d-flex justify-content-center">
               <div className="spinner-border" role="status">
-                <span className="visually-hidden">Carregando...</span>
+                <span className="visually-hidden">A carregar...</span>
               </div>
             </div>
           ) : (
-            <div className="card">
-              <div className="card-header">
-                <h4 className="mb-0">{curso?.NOME || "Curso Síncrono"}</h4>
-                <ul className="nav nav-tabs card-header-tabs mt-2">
+            <>
+              <div className="course-header mb-4">
+                <h2 className="mb-3">{curso?.NOME || "Curso Síncrono"}</h2>
+                <ul className="nav nav-tabs">
                   <li className="nav-item">
                     <button
                       className={`nav-link ${
@@ -82,23 +82,13 @@ const SynchronousCourseView = () => {
                       }`}
                       onClick={() => setActiveTab("trabalhos")}
                     >
-                      Trabalhos
-                    </button>
-                  </li>
-                  <li className="nav-item">
-                    <button
-                      className={`nav-link ${
-                        activeTab === "avaliacoes" ? "active" : ""
-                      }`}
-                      onClick={() => setActiveTab("avaliacoes")}
-                    >
-                      Avaliações
+                      Trabalhos/Avaliações
                     </button>
                   </li>
                 </ul>
               </div>
 
-              <div className="card-body">
+              <div className="course-content mt-4">
                 {activeTab === "aulas" && (
                   <AulasSincronas cursoId={courseId} isTeacher={isTeacher} />
                 )}
@@ -117,7 +107,7 @@ const SynchronousCourseView = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
