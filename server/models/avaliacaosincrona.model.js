@@ -10,14 +10,6 @@ const AvaliacaoSincrona = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    ID_AVALIACAO_FINAL_SINCRONA: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "AVALIACAO_FINAL_SINCRONA",
-        key: "ID_AVALIACAO_FINAL_SINCRONA",
-      },
-    },
     ID_CURSO: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -26,33 +18,30 @@ const AvaliacaoSincrona = sequelize.define(
         key: "ID_CURSO",
       },
     },
+    TITULO: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    DESCRICAO: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    CRITERIOS: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    DATA_CRIACAO: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
     DATA_LIMITE_REALIZACAO: {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    DATA_REALIZACAO: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    NOTA: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    OSERVACAO: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    URL: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    FICHEIRO: {
-      type: DataTypes.BLOB("tiny"),
-      allowNull: true,
-    },
     ESTADO: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "Pendente",
     },
   },
   {

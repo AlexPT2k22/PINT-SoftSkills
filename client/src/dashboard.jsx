@@ -23,6 +23,7 @@ function Dashboard() {
   });
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const [proximosTrabalhos, setProximosTrabalhos] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,10 +39,14 @@ function Dashboard() {
         setCourses(cursosData);
 
         // aulas dos cursos síncronos
-        const aulasResponse = await axios.get(
-          "http://localhost:4000/api/aulas/all",
-          { withCredentials: true }
-        );
+        const [aulasResponse, trabalhosResponse] = await Promise.all([
+          axios.get("http://localhost:4000/api/aulas/all", {
+            withCredentials: true,
+          }),
+          axios.get("http://localhost:4000/api/avaliacoes/proximas", {
+            withCredentials: true,
+          }),
+        ]);
         console.log("Dados recebidos da API:", aulasResponse.data);
 
         // Calcular progresso geral
@@ -104,8 +109,11 @@ function Dashboard() {
               descricao: aula.DESCRICAO,
               presenca: aula.PRESENCA_AULAs[0].PRESENTE,
             }))
-            // Limitar a 5 próximas aulas
-            .slice(0, 5);
+            // Filtrar aulas futuras
+            .filter((aula) => {
+              const dataAula = new Date(`${aula.data}T${aula.hora}`);
+              return dataAula >= new Date(); // Apenas aulas futuras
+            });
 
           setProximasAulas(aulasFormatadas);
 
@@ -137,6 +145,53 @@ function Dashboard() {
             aulasResponse.data
           );
           setProximasAulas([]);
+        }
+
+        if (trabalhosResponse.data && Array.isArray(trabalhosResponse.data)) {
+          const trabalhosFormatados = trabalhosResponse.data
+            // Ordenar por data de entrega
+            .sort((a, b) => {
+              const dataA = new Date(a.DATA_LIMITE_REALIZACAO);
+              const dataB = new Date(b.DATA_LIMITE_REALIZACAO);
+              return dataA - dataB;
+            })
+            // Mapear para o formato do componente
+            .map((trabalho) => {
+              // Verificar se o usuário já submeteu este trabalho
+              const jaSubmetido =
+                trabalho.SUBMISSAO_AVALIACAOs &&
+                trabalho.SUBMISSAO_AVALIACAOs.length > 0;
+
+              return {
+                id: trabalho.ID_AVALIACAO_SINCRONA,
+                titulo: trabalho.TITULO,
+                descricao: trabalho.DESCRICAO,
+                dataLimite: new Date(trabalho.DATA_LIMITE_REALIZACAO),
+                dataFormatada: new Date(
+                  trabalho.DATA_LIMITE_REALIZACAO
+                ).toLocaleDateString("pt-PT", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                }),
+                cursoId: trabalho.ID_CURSO,
+                cursoNome:
+                  trabalho.CURSO_SINCRONO?.CURSO?.NOME ||
+                  "Curso não especificado",
+                status:
+                  new Date() > new Date(trabalho.DATA_LIMITE_REALIZACAO)
+                    ? "Fechado"
+                    : "Aberto",
+                jaSubmetido: jaSubmetido,
+                nota: jaSubmetido && trabalho.SUBMISSAO_AVALIACAOs[0]?.NOTA,
+              };
+            })
+            // Filtrar apenas trabalhos em aberto e limitar a 5
+            .filter((trabalho) => trabalho.status === "Aberto");
+
+          setProximosTrabalhos(trabalhosFormatados);
+        } else {
+          setProximosTrabalhos([]);
         }
 
         // Atualizar métricas
@@ -373,9 +428,55 @@ function Dashboard() {
                     className="card-body pt-0 pb-0 overflow-auto"
                     style={{ maxHeight: "500px" }}
                   >
-                    <p className="text-center mb-0">
-                      Não há trabalhos para submeter.
-                    </p>
+                    {proximosTrabalhos.length > 0 ? (
+                      proximosTrabalhos.map((trabalho, index, array) => (
+                        <div
+                          key={trabalho.id}
+                          className={`d-flex align-items-center justify-content-between pt-3 pb-3 ${
+                            index !== array.length - 1 ? "border-bottom" : ""
+                          }`}
+                        >
+                          <div className="d-flex align-items-center">
+                            <div className="me-4">
+                              <h5 className="mb-0">{trabalho.titulo}</h5>
+                              <small className="text-muted">
+                                {trabalho.cursoNome}
+                              </small>
+                            </div>
+                            <div className="me-4">
+                              <h6 className="mb-0">Data limite</h6>
+                              <small className="text-muted">
+                                {trabalho.dataFormatada}
+                              </small>
+                            </div>
+                          </div>
+                          <div>
+                            {trabalho.jaSubmetido ? (
+                              <span className="badge bg-success me-2">
+                                Submetido
+                                {trabalho.nota !== null &&
+                                  ` (${trabalho.nota}/20)`}
+                              </span>
+                            ) : (
+                              <button
+                                className="btn btn-primary"
+                                onClick={() =>
+                                  navigate(
+                                    `/synchronous-course/${trabalho.cursoId}?tab=avaliacoes`
+                                  )
+                                }
+                              >
+                                Submeter
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center mb-0">
+                        Não há trabalhos para submeter.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

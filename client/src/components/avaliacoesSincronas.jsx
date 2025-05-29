@@ -1,20 +1,48 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ErrorMessage from "./error_message";
+import useAuthStore from "../store/authStore";
+import { Upload, FileText, Check, X, ExternalLink } from "lucide-react";
 
 const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
   const [avaliacoes, setAvaliacoes] = useState([]);
-  const [novaAvaliacao, setNovaAvaliacao] = useState({
-    NOTA: "",
-    OBSERVACAO: "",
-    DATA_LIMITE_REALIZACAO: "",
-  });
+  const [minhasSubmissoes, setMinhasSubmissoes] = useState({});
+  const [avaliacaoAtual, setAvaliacaoAtual] = useState(null);
+  const [submissoes, setSubmissoes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
+  const [showSubmissaoModal, setShowSubmissaoModal] = useState(false);
+  const [showAvaliarModal, setShowAvaliarModal] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [loadingSub, setLoadingSub] = useState(false);
+
+  const { user } = useAuthStore();
+
+  const [novaAvaliacao, setNovaAvaliacao] = useState({
+    TITULO: "",
+    DESCRICAO: "",
+    DATA_LIMITE_REALIZACAO: "",
+    CRITERIOS: "",
+  });
+
+  const [novaSubmissao, setNovaSubmissao] = useState({
+    ID_AVALIACAO: "",
+    DESCRICAO: "",
+    ARQUIVO: null,
+  });
+
+  const [novaNotaSubmissao, setNovaNotaSubmissao] = useState({
+    ID_SUBMISSAO: "",
+    NOTA: "",
+    OBSERVACAO: "",
+  });
 
   useEffect(() => {
     fetchAvaliacoes();
+    if (!isTeacher) {
+      fetchMinhasSubmissoes();
+    }
   }, [cursoId]);
 
   const fetchAvaliacoes = async () => {
@@ -22,15 +50,9 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
       setLoading(true);
       const response = await axios.get(
         `http://localhost:4000/api/avaliacoes/curso/${cursoId}`,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
-      // Verifique a estrutura da resposta
-      console.log("Resposta da API:", response.data);
-
-      // Garantir que avaliacoes seja sempre um array
       if (response.data && Array.isArray(response.data)) {
         setAvaliacoes(response.data);
       } else if (
@@ -38,14 +60,11 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
         response.data.avaliacoes &&
         Array.isArray(response.data.avaliacoes)
       ) {
-        // Se a resposta contiver um objeto com propriedade avaliacoes
         setAvaliacoes(response.data.avaliacoes);
       } else {
-        // Fallback seguro - sempre definir como array vazio se não for array
         console.warn("Avaliações não é um array:", response.data);
         setAvaliacoes([]);
       }
-
       setError(null);
     } catch (error) {
       console.error("Erro ao buscar avaliações:", error);
@@ -56,41 +75,190 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const fetchMinhasSubmissoes = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/api/avaliacoes/minhas-submissoes/${cursoId}`,
+        { withCredentials: true }
+      );
+
+      const subsPorAvaliacao = {};
+      if (response.data && Array.isArray(response.data)) {
+        response.data.forEach((sub) => {
+          subsPorAvaliacao[sub.ID_AVALIACAO_SINCRONA] = sub;
+        });
+      }
+      setMinhasSubmissoes(subsPorAvaliacao);
+    } catch (error) {
+      console.error("Erro ao buscar submissões:", error);
+    }
+  };
+
+  const fetchSubmissoesPorAvaliacao = async (avaliacaoId) => {
+    try {
+      setLoadingSub(true);
+      const response = await axios.get(
+        `http://localhost:4000/api/avaliacoes/${avaliacaoId}/submissoes`,
+        { withCredentials: true }
+      );
+
+      if (response.data && Array.isArray(response.data)) {
+        setSubmissoes(response.data);
+      } else {
+        setSubmissoes([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar submissões da avaliação:", error);
+      setError("Erro ao carregar submissões.");
+    } finally {
+      setLoadingSub(false);
+    }
+  };
+
+  const handleSubmitNovaAvaliacao = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/avaliacoes", {
-        ...novaAvaliacao,
-        ID_CURSO: cursoId,
-      });
+      setUploading(true);
+      await axios.post(
+        "http://localhost:4000/api/avaliacoes",
+        {
+          ...novaAvaliacao,
+          ID_CURSO: cursoId,
+        },
+        { withCredentials: true }
+      );
       fetchAvaliacoes();
       setNovaAvaliacao({
-        NOTA: "",
-        OBSERVACAO: "",
+        TITULO: "",
+        DESCRICAO: "",
         DATA_LIMITE_REALIZACAO: "",
+        CRITERIOS: "",
       });
+      setShowAvaliacaoModal(false);
     } catch (error) {
       console.error("Erro ao criar avaliação:", error);
+      setError("Erro ao criar avaliação. Tente novamente.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmitSubmissao = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("ID_AVALIACAO", avaliacaoAtual.ID_AVALIACAO_SINCRONA);
+    formData.append("DESCRICAO", novaSubmissao.DESCRICAO);
+
+    if (novaSubmissao.ARQUIVO) {
+      formData.append("ARQUIVO", novaSubmissao.ARQUIVO);
+    }
+
+    try {
+      setUploading(true);
+      await axios.post(
+        "http://localhost:4000/api/avaliacoes/submeter",
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      fetchMinhasSubmissoes();
+      setShowSubmissaoModal(false);
+      setNovaSubmissao({
+        ID_AVALIACAO: "",
+        DESCRICAO: "",
+        ARQUIVO: null,
+      });
+    } catch (error) {
+      console.error("Erro ao submeter trabalho:", error);
+      setError("Erro ao submeter trabalho. Tente novamente.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAvaliarSubmissao = async (e) => {
+    e.preventDefault();
+    try {
+      setUploading(true);
+      await axios.post(
+        "http://localhost:4000/api/avaliacoes/avaliar-submissao",
+        novaNotaSubmissao,
+        { withCredentials: true }
+      );
+
+      fetchSubmissoesPorAvaliacao(avaliacaoAtual.ID_AVALIACAO_SINCRONA);
+      setShowAvaliarModal(false);
+      setNovaNotaSubmissao({
+        ID_SUBMISSAO: "",
+        NOTA: "",
+        OBSERVACAO: "",
+      });
+    } catch (error) {
+      console.error("Erro ao avaliar submissão:", error);
+      setError("Erro ao avaliar submissão. Tente novamente.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    setNovaSubmissao({
+      ...novaSubmissao,
+      ARQUIVO: e.target.files[0],
+    });
+  };
+
+  const openSubmissaoModal = (avaliacao) => {
+    setAvaliacaoAtual(avaliacao);
+    setNovaSubmissao({
+      ID_AVALIACAO: avaliacao.ID_AVALIACAO_SINCRONA,
+      DESCRICAO: "",
+      ARQUIVO: null,
+    });
+    setShowSubmissaoModal(true);
+  };
+
+  const openSubmissoesModal = (avaliacao) => {
+    setAvaliacaoAtual(avaliacao);
+    fetchSubmissoesPorAvaliacao(avaliacao.ID_AVALIACAO_SINCRONA);
+    setShowAvaliarModal(true);
+  };
+
+  const getDataStatus = (dataLimite) => {
+    if (!dataLimite) return "";
+
+    const hoje = new Date();
+    const limite = new Date(dataLimite);
+
+    if (hoje > limite) {
+      return "Fechado";
+    } else {
+      return "Aberto";
     }
   };
 
   return (
-    <div className="container mt-4">
-      {/* Button to trigger modal - only visible for teachers */}
+    <div className="container p-0">
       {isTeacher && (
         <div className="mb-4">
           <button
             className="btn btn-primary"
             onClick={() => setShowAvaliacaoModal(true)}
           >
-            Criar Avaliação
+            Criar Nova Avaliação
           </button>
         </div>
       )}
 
       {error && <ErrorMessage message={error} onClose={() => setError(null)} />}
 
-      {/* Modal for creating new evaluation */}
+      {/* Modal para criar nova avaliação (professor) */}
       <div
         className={`modal fade ${showAvaliacaoModal ? "show" : ""}`}
         style={{ display: showAvaliacaoModal ? "block" : "none" }}
@@ -101,7 +269,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Nova Avaliação</h5>
+              <h5 className="modal-title">Criar Nova Avaliação</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -110,39 +278,53 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
               ></button>
             </div>
             <div className="modal-body">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmitNovaAvaliacao}>
                 <div className="mb-3">
-                  <label className="form-label">Nota</label>
+                  <label className="form-label">Título</label>
                   <input
-                    type="number"
+                    type="text"
                     className="form-control"
-                    value={novaAvaliacao.NOTA}
+                    value={novaAvaliacao.TITULO}
                     onChange={(e) =>
                       setNovaAvaliacao({
                         ...novaAvaliacao,
-                        NOTA: e.target.value,
+                        TITULO: e.target.value,
                       })
                     }
-                    min="0"
-                    max="20"
                     required
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Observação</label>
+                  <label className="form-label">Descrição/Instruções</label>
                   <textarea
                     className="form-control"
-                    value={novaAvaliacao.OBSERVACAO}
+                    rows="4"
+                    value={novaAvaliacao.DESCRICAO}
                     onChange={(e) =>
                       setNovaAvaliacao({
                         ...novaAvaliacao,
-                        OBSERVACAO: e.target.value,
+                        DESCRICAO: e.target.value,
                       })
                     }
+                    required
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Data Limite</label>
+                  <label className="form-label">Critérios de Avaliação</label>
+                  <textarea
+                    className="form-control"
+                    value={novaAvaliacao.CRITERIOS}
+                    onChange={(e) =>
+                      setNovaAvaliacao({
+                        ...novaAvaliacao,
+                        CRITERIOS: e.target.value,
+                      })
+                    }
+                    placeholder="Descreva os critérios para a avaliação"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Data Limite de Entrega</label>
                   <input
                     type="datetime-local"
                     className="form-control"
@@ -164,8 +346,23 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    Criar Avaliação
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        A criar...
+                      </>
+                    ) : (
+                      "Criar Avaliação"
+                    )}
                   </button>
                 </div>
               </form>
@@ -174,7 +371,312 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
         </div>
       </div>
 
-      {/* Backdrop for modal */}
+      {/* Modal para submeter trabalho (aluno) */}
+      <div
+        className={`modal fade ${showSubmissaoModal ? "show" : ""}`}
+        style={{ display: showSubmissaoModal ? "block" : "none" }}
+        tabIndex="-1"
+        role="dialog"
+        aria-hidden={!showSubmissaoModal}
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Submeter Trabalho</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowSubmissaoModal(false)}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              {avaliacaoAtual && (
+                <>
+                  <div className="mb-3">
+                    <h6>{avaliacaoAtual.TITULO}</h6>
+                    <p>{avaliacaoAtual.DESCRICAO}</p>
+                    {avaliacaoAtual.CRITERIOS && (
+                      <div className="alert alert-info">
+                        <strong>Critérios de avaliação:</strong>
+                        <br />
+                        {avaliacaoAtual.CRITERIOS}
+                      </div>
+                    )}
+                    <p>
+                      <small>
+                        Data limite:{" "}
+                        {new Date(
+                          avaliacaoAtual.DATA_LIMITE_REALIZACAO
+                        ).toLocaleString()}
+                      </small>
+                    </p>
+                  </div>
+                  <hr />
+                </>
+              )}
+              <form onSubmit={handleSubmitSubmissao}>
+                <div className="mb-3">
+                  <label className="form-label">Descrição da Submissão</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={novaSubmissao.DESCRICAO}
+                    onChange={(e) =>
+                      setNovaSubmissao({
+                        ...novaSubmissao,
+                        DESCRICAO: e.target.value,
+                      })
+                    }
+                    placeholder="Descreva seu trabalho ou deixe comentários para o formador"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Arquivo (opcional)</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    onChange={handleFileChange}
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowSubmissaoModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        A enviar...
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={16} className="me-1" />
+                        Submeter Trabalho
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal para ver e avaliar submissões (professor) */}
+      <div
+        className={`modal fade ${showAvaliarModal ? "show" : ""}`}
+        style={{ display: showAvaliarModal ? "block" : "none" }}
+        tabIndex="-1"
+        role="dialog"
+        aria-hidden={!showAvaliarModal}
+      >
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">
+                {avaliacaoAtual
+                  ? `Submissões - ${avaliacaoAtual.TITULO}`
+                  : "Submissões"}
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowAvaliarModal(false)}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              {loadingSub ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border" role="status">
+                    <span className="visually-hidden">A carregar...</span>
+                  </div>
+                </div>
+              ) : submissoes.length === 0 ? (
+                <div className="alert alert-info">
+                  Ainda não há submissões para esta avaliação.
+                </div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Aluno</th>
+                        <th>Data Submissão</th>
+                        <th>Arquivo</th>
+                        <th>Nota</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {submissoes.map((submissao) => (
+                        <tr key={submissao.ID_SUBMISSAO}>
+                          <td>
+                            {submissao.UTILIZADOR?.NOME ||
+                              submissao.UTILIZADOR?.USERNAME ||
+                              "N/A"}
+                          </td>
+                          <td>
+                            {new Date(
+                              submissao.DATA_SUBMISSAO
+                            ).toLocaleString()}
+                          </td>
+                          <td>
+                            {submissao.URL_ARQUIVO ? (
+                              <a
+                                href={`http://localhost:4000${submissao.URL_ARQUIVO}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-sm btn-outline-primary"
+                              >
+                                <FileText size={16} className="me-1" />
+                                Ver Arquivo
+                              </a>
+                            ) : (
+                              <span className="badge bg-secondary">
+                                Sem arquivo
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            {submissao.NOTA ? (
+                              <span
+                                className={`badge ${
+                                  submissao.NOTA >= 10
+                                    ? "bg-success"
+                                    : "bg-danger"
+                                }`}
+                              >
+                                {submissao.NOTA}/20
+                              </span>
+                            ) : (
+                              <span className="badge bg-warning text-dark">
+                                Pendente
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-primary"
+                              onClick={() => {
+                                setNovaNotaSubmissao({
+                                  ID_SUBMISSAO: submissao.ID_SUBMISSAO,
+                                  NOTA: submissao.NOTA || "",
+                                  OBSERVACAO: submissao.OBSERVACAO || "",
+                                });
+
+                                // Mostrar formulário de avaliação inline ou em modal
+                                document
+                                  .getElementById(
+                                    `avaliar-form-${submissao.ID_SUBMISSAO}`
+                                  )
+                                  .classList.toggle("d-none");
+                              }}
+                            >
+                              {submissao.NOTA ? "Editar Nota" : "Avaliar"}
+                            </button>
+                            <div
+                              id={`avaliar-form-${submissao.ID_SUBMISSAO}`}
+                              className="mt-2 d-none"
+                            >
+                              <form
+                                onSubmit={handleAvaliarSubmissao}
+                                className="border rounded p-2"
+                              >
+                                <div className="mb-2">
+                                  <label className="form-label">
+                                    Nota (0-20)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    min="0"
+                                    max="20"
+                                    value={novaNotaSubmissao.NOTA}
+                                    onChange={(e) =>
+                                      setNovaNotaSubmissao({
+                                        ...novaNotaSubmissao,
+                                        NOTA: e.target.value,
+                                      })
+                                    }
+                                    required
+                                  />
+                                </div>
+                                <div className="mb-2">
+                                  <label className="form-label">
+                                    Observação
+                                  </label>
+                                  <textarea
+                                    className="form-control form-control-sm"
+                                    rows="2"
+                                    value={novaNotaSubmissao.OBSERVACAO}
+                                    onChange={(e) =>
+                                      setNovaNotaSubmissao({
+                                        ...novaNotaSubmissao,
+                                        OBSERVACAO: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                                <div className="d-flex justify-content-end gap-2">
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-secondary"
+                                    onClick={() => {
+                                      document
+                                        .getElementById(
+                                          `avaliar-form-${submissao.ID_SUBMISSAO}`
+                                        )
+                                        .classList.add("d-none");
+                                    }}
+                                  >
+                                    Cancelar
+                                  </button>
+                                  <button
+                                    type="submit"
+                                    className="btn btn-sm btn-success"
+                                  >
+                                    <Check size={16} className="me-1" />
+                                    Guardar
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowAvaliarModal(false)}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlays para os modais */}
       {showAvaliacaoModal && (
         <div
           className="modal-backdrop fade show"
@@ -182,8 +684,21 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
         ></div>
       )}
 
-      {/* Lista de avaliações */}
+      {showSubmissaoModal && (
+        <div
+          className="modal-backdrop fade show"
+          onClick={() => setShowSubmissaoModal(false)}
+        ></div>
+      )}
 
+      {showAvaliarModal && (
+        <div
+          className="modal-backdrop fade show"
+          onClick={() => setShowAvaliarModal(false)}
+        ></div>
+      )}
+
+      {/* Lista de avaliações */}
       {loading ? (
         <div className="d-flex justify-content-center my-3">
           <div className="spinner-border" role="status">
@@ -193,37 +708,95 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
       ) : (
         <>
           <div className="table-responsive">
-            <table className="table">
+            <table className="table table-hover">
               <thead>
                 <tr>
-                  <th>Data</th>
-                  <th>Nota</th>
-                  <th>Estado</th>
-                  <th>Observação</th>
+                  <th>Título</th>
+                  <th>Descrição</th>
                   <th>Data Limite</th>
+                  <th>Status</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {avaliacoes.length > 0 ? (
-                  avaliacoes.map((avaliacao) => (
-                    <tr key={avaliacao.ID_AVALIACAO_SINCRONA}>
-                      <td>
-                        {new Date(
-                          avaliacao.DATA_REALIZACAO
-                        ).toLocaleDateString()}
-                      </td>
-                      <td>{avaliacao.NOTA}</td>
-                      <td>{avaliacao.ESTADO}</td>
-                      <td>{avaliacao.OBSERVACAO}</td>
-                      <td>
-                        {avaliacao.DATA_LIMITE_REALIZACAO
-                          ? new Date(
-                              avaliacao.DATA_LIMITE_REALIZACAO
-                            ).toLocaleDateString()
-                          : "-"}
-                      </td>
-                    </tr>
-                  ))
+                  avaliacoes.map((avaliacao) => {
+                    const status = getDataStatus(
+                      avaliacao.DATA_LIMITE_REALIZACAO
+                    );
+                    const jaSubmeti =
+                      minhasSubmissoes[avaliacao.ID_AVALIACAO_SINCRONA];
+
+                    return (
+                      <tr key={avaliacao.ID_AVALIACAO_SINCRONA}>
+                        <td>{avaliacao.TITULO}</td>
+                        <td>
+                          {avaliacao.DESCRICAO?.length > 50
+                            ? avaliacao.DESCRICAO.substring(0, 50) + "..."
+                            : avaliacao.DESCRICAO}
+                        </td>
+                        <td>
+                          {avaliacao.DATA_LIMITE_REALIZACAO
+                            ? new Date(
+                                avaliacao.DATA_LIMITE_REALIZACAO
+                              ).toLocaleString()
+                            : "-"}
+                        </td>
+                        <td>
+                          <span
+                            className={`badge ${
+                              status === "Aberto" ? "bg-success" : "bg-danger"
+                            }`}
+                          >
+                            {status}
+                          </span>
+                        </td>
+                        <td>
+                          {isTeacher ? (
+                            // Ações para o professor
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => openSubmissoesModal(avaliacao)}
+                            >
+                              <FileText size={16} className="me-1" />
+                              Ver Submissões
+                            </button>
+                          ) : (
+                            // Ações para o aluno
+                            <>
+                              {jaSubmeti ? (
+                                <div>
+                                  <span className="badge bg-success me-2">
+                                    Submetido
+                                  </span>
+                                  {jaSubmeti.NOTA && (
+                                    <span
+                                      className={`badge ${
+                                        jaSubmeti.NOTA >= 10
+                                          ? "bg-success"
+                                          : "bg-danger"
+                                      }`}
+                                    >
+                                      Nota: {jaSubmeti.NOTA}/20
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <button
+                                  className="btn btn-sm btn-primary"
+                                  onClick={() => openSubmissaoModal(avaliacao)}
+                                  disabled={status !== "Aberto"}
+                                >
+                                  <Upload size={16} className="me-1" />
+                                  Submeter Trabalho
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td colSpan="5" className="text-center">

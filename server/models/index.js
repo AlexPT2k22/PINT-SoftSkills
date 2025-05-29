@@ -37,6 +37,7 @@ const Notas = require("./notas.model.js");
 const Certificado = require("./certificado.model.js");
 const AulaSincrona = require("./aulaSincrona.model.js");
 const PresencaAula = require("./presenca.model.js");
+const SubmissaoAvaliacao = require("./submissaoAvaliacao.model.js");
 
 CursoSincrono.hasMany(AulaSincrona, { foreignKey: "ID_CURSO" });
 AulaSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
@@ -272,6 +273,16 @@ AvaliacaoSincrona.belongsTo(AvaliacaoFinalSincrona, {
   foreignKey: "ID_AVALIACAO_FINAL_SINCRONA",
 });
 
+SubmissaoAvaliacao.belongsTo(AvaliacaoSincrona, {
+  foreignKey: "ID_AVALIACAO_SINCRONA",
+});
+AvaliacaoSincrona.hasMany(SubmissaoAvaliacao, {
+  foreignKey: "ID_AVALIACAO_SINCRONA",
+});
+
+SubmissaoAvaliacao.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+Utilizador.hasMany(SubmissaoAvaliacao, { foreignKey: "ID_UTILIZADOR" });
+
 // AvaliacaoFinalSincrona associations
 Utilizador.hasMany(AvaliacaoFinalSincrona, {
   foreignKey: "UTI_ID_UTILIZADOR",
@@ -392,4 +403,5 @@ module.exports = {
   Certificado,
   AulaSincrona,
   PresencaAula,
+  SubmissaoAvaliacao,
 };
