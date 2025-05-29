@@ -372,7 +372,9 @@ function CreateCourse() {
     }
 
     const ID_FORMADOR =
-      selectedType === "Síncrono" ? e.target.courseTeacher.value : null;
+      selectedType === "Síncrono"
+        ? e.target.courseTeacher?.value
+        : null;
     const vagas = selectedType === "Síncrono" ? e.target.seats.value : null;
     const formData = new FormData();
     formData.append("NOME", courseName);
@@ -877,6 +879,7 @@ function CreateCourse() {
                                 <option value="" disabled selected>
                                   Selecione um formador
                                 </option>
+                                <option value="0">Não atibuir formador</option>
                                 {Formador.map((formador) => (
                                   <option
                                     key={formador.ID_UTILIZADOR}

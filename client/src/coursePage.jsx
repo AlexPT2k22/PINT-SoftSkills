@@ -10,8 +10,6 @@ import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 import useAuthStore from "./store/authStore.js";
 
-//TODO: Buscar os dados do curso na API e preencher os dados do curso
-
 function CoursePage() {
   const { user } = useAuthStore();
   const [index, setIndex] = useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
@@ -147,6 +145,20 @@ function CoursePage() {
     }
   };
 
+  const checkDates = (startDate, endDate) => {
+    const today = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (today < start) {
+      return "Inscrever";
+    } else if (today > end) {
+      return "O curso já terminou";
+    } else {
+      return "O curso está em andamento";
+    }
+  };
+
   return (
     <>
       {loading ? (
@@ -216,7 +228,7 @@ function CoursePage() {
                   <div className="d-flex flex-row justify-content-between">
                     <h1 className="course-text-h1">
                       {course.CURSO_SINCRONO ? (
-                        course.CURSO_SINCRONO.UTILIZADOR.LINKEDIN ? (
+                        course.CURSO_SINCRONO.UTILIZADOR?.LINKEDIN ? (
                           <>
                             Lecionado por:{" "}
                             <a
@@ -227,7 +239,8 @@ function CoursePage() {
                               style={{ color: "#39639c" }}
                             >
                               {course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
-                                course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME}
+                                course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME ||
+                                "Sem formador"}{" "}
                               <SquareArrowOutUpRight
                                 color="#39639C"
                                 size={14}
@@ -238,7 +251,8 @@ function CoursePage() {
                         ) : (
                           `Lecionado por: ${
                             course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
-                            course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME
+                            course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME ||
+                            "Sem formador"
                           }`
                         )
                       ) : (
@@ -277,7 +291,18 @@ function CoursePage() {
                       disabled={
                         (course.CURSO_SINCRONO &&
                           course.CURSO_SINCRONO.VAGAS <= 0) ||
-                        isEnrolling
+                        isEnrolling ||
+                        (course.CURSO_SINCRONO &&
+                          checkDates(
+                            course.CURSO_SINCRONO.DATA_INICIO,
+                            course.CURSO_SINCRONO.DATA_FIM
+                          ) === "O curso já terminou" &&
+                          inscrito === false) ||
+                        (checkDates(
+                          course.CURSO_SINCRONO.DATA_INICIO,
+                          course.CURSO_SINCRONO.DATA_FIM
+                        ) === "O curso está em andamento" &&
+                          inscrito === false)
                       }
                     >
                       {isEnrolling ? (
@@ -291,8 +316,16 @@ function CoursePage() {
                         </span>
                       ) : inscrito ? (
                         "Ir para o curso"
-                      ) : (
+                      ) : checkDates(
+                          course.CURSO_SINCRONO?.DATA_INICIO,
+                          course.CURSO_SINCRONO?.DATA_FIM
+                        ) === "Inscrever" ? (
                         "Inscrever"
+                      ) : (
+                        checkDates(
+                          course.CURSO_SINCRONO?.DATA_INICIO,
+                          course.CURSO_SINCRONO?.DATA_FIM
+                        )
                       )}
                     </button>
                   </div>

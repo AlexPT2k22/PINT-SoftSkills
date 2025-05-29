@@ -312,176 +312,194 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {showModal && (
-        <div className="modal show d-block" tabIndex="-1" role="dialog">
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Agendar Nova Aula</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form onSubmit={handleCreateAula}>
-                  <div className="mb-3">
-                    <label className="form-label">Título</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={novaAula.TITULO}
-                      onChange={(e) =>
-                        setNovaAula({ ...novaAula, TITULO: e.target.value })
-                      }
-                      required
-                      placeholder="Insira o título da aula"
-                    />
-                  </div>
+      <div
+        className={`modal fade ${showModal ? "show" : ""}`}
+        style={{ display: showModal ? "block" : "none" }}
+        tabIndex="-1"
+        role="dialog"
+        aria-hidden={!showModal}
+      >
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Agendar Nova Aula</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowModal(false)}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleCreateAula}>
+                <div className="mb-3">
+                  <label className="form-label">Título</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={novaAula.TITULO}
+                    onChange={(e) =>
+                      setNovaAula({ ...novaAula, TITULO: e.target.value })
+                    }
+                    required
+                    placeholder="Insira o título da aula"
+                  />
+                </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Sumário</label>
-                    <textarea
-                      className="form-control"
-                      value={novaAula.DESCRICAO}
-                      onChange={(e) =>
-                        setNovaAula({ ...novaAula, DESCRICAO: e.target.value })
-                      }
-                      placeholder="Insira um breve resumo da aula"
-                      required
-                    ></textarea>
-                  </div>
+                <div className="mb-3">
+                  <label className="form-label">Sumário</label>
+                  <textarea
+                    className="form-control"
+                    value={novaAula.DESCRICAO}
+                    onChange={(e) =>
+                      setNovaAula({ ...novaAula, DESCRICAO: e.target.value })
+                    }
+                    placeholder="Insira um breve resumo da aula"
+                    required
+                  ></textarea>
+                </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Link aula</label>
-                    <input
-                      type="url"
-                      className="form-control"
-                      value={novaAula.LINK_ZOOM}
-                      onChange={(e) =>
-                        setNovaAula({ ...novaAula, LINK_ZOOM: e.target.value })
-                      }
-                      placeholder="Insira o link da aula no Zoom ou outra plataforma"
-                    />
-                  </div>
+                <div className="mb-3">
+                  <label className="form-label">Link aula</label>
+                  <input
+                    type="url"
+                    className="form-control"
+                    value={novaAula.LINK_ZOOM}
+                    onChange={(e) =>
+                      setNovaAula({ ...novaAula, LINK_ZOOM: e.target.value })
+                    }
+                    placeholder="Insira o link da aula no Zoom ou outra plataforma"
+                  />
+                </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Data</label>
+                <div className="mb-3">
+                  <label className="form-label">Data</label>
+                  <input
+                    type="date"
+                    className={`form-control ${
+                      formErrors.data ? "is-invalid" : ""
+                    }`}
+                    value={novaAula.DATA_AULA}
+                    min={getCurrentDate()}
+                    onChange={(e) =>
+                      setNovaAula({ ...novaAula, DATA_AULA: e.target.value })
+                    }
+                    required
+                  />
+                  {formErrors.data && (
+                    <div className="invalid-feedback">
+                      A data da aula deve ser igual ou posterior à data atual.
+                    </div>
+                  )}
+                </div>
+
+                <div className="row mb-3">
+                  <div className="col">
+                    <label className="form-label">Hora Início</label>
                     <input
-                      type="date"
+                      type="time"
                       className={`form-control ${
-                        formErrors.data ? "is-invalid" : ""
+                        formErrors.hora ? "is-invalid" : ""
                       }`}
-                      value={novaAula.DATA_AULA}
-                      min={getCurrentDate()}
+                      value={novaAula.HORA_INICIO}
                       onChange={(e) =>
-                        setNovaAula({ ...novaAula, DATA_AULA: e.target.value })
+                        setNovaAula({
+                          ...novaAula,
+                          HORA_INICIO: e.target.value,
+                        })
                       }
                       required
                     />
-                    {formErrors.data && (
+                  </div>
+                  <div className="col">
+                    <label className="form-label">Hora Fim</label>
+                    <input
+                      type="time"
+                      className={`form-control ${
+                        formErrors.hora ? "is-invalid" : ""
+                      }`}
+                      value={novaAula.HORA_FIM}
+                      onChange={(e) =>
+                        setNovaAula({ ...novaAula, HORA_FIM: e.target.value })
+                      }
+                      required
+                    />
+                    {formErrors.hora && (
                       <div className="invalid-feedback">
-                        A data da aula deve ser igual ou posterior à data atual.
+                        A hora de fim deve ser posterior à hora de início.
                       </div>
                     )}
                   </div>
+                </div>
 
-                  <div className="row mb-3">
-                    <div className="col">
-                      <label className="form-label">Hora Início</label>
-                      <input
-                        type="time"
-                        className={`form-control ${
-                          formErrors.hora ? "is-invalid" : ""
-                        }`}
-                        value={novaAula.HORA_INICIO}
-                        onChange={(e) =>
-                          setNovaAula({
-                            ...novaAula,
-                            HORA_INICIO: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="col">
-                      <label className="form-label">Hora Fim</label>
-                      <input
-                        type="time"
-                        className={`form-control ${
-                          formErrors.hora ? "is-invalid" : ""
-                        }`}
-                        value={novaAula.HORA_FIM}
-                        onChange={(e) =>
-                          setNovaAula({ ...novaAula, HORA_FIM: e.target.value })
-                        }
-                        required
-                      />
-                      {formErrors.hora && (
-                        <div className="invalid-feedback">
-                          A hora de fim deve ser posterior à hora de início.
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                <div className="mb-3">
+                  <label className="form-label">Módulo</label>
+                  <select
+                    className="form-select"
+                    value={novaAula.ID_MODULO}
+                    onChange={(e) =>
+                      setNovaAula({ ...novaAula, ID_MODULO: e.target.value })
+                    }
+                    required
+                  >
+                    <option value="">Selecione um módulo</option>
+                    {modulos.map((modulo) => (
+                      <option key={modulo.ID_MODULO} value={modulo.ID_MODULO}>
+                        {modulo.NOME}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Módulo</label>
-                    <select
-                      className="form-select"
-                      value={novaAula.ID_MODULO}
-                      onChange={(e) =>
-                        setNovaAula({ ...novaAula, ID_MODULO: e.target.value })
-                      }
-                      required
-                    >
-                      <option value="">Selecione um módulo</option>
-                      {modulos.map((modulo) => (
-                        <option key={modulo.ID_MODULO} value={modulo.ID_MODULO}>
-                          {modulo.NOME}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setShowModal(false)}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <span
-                            className="spinner-border spinner-border-sm me-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          A agendar...
-                        </>
-                      ) : (
-                        "Agendar Aula"
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        A agendar...
+                      </>
+                    ) : (
+                      "Agendar Aula"
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
+      </div>
+
+      {showModal && (
+        <div
+          className="modal-backdrop fade show"
+          onClick={() => setShowModal(false)}
+        ></div>
       )}
 
       {/* Modal de presenças */}
       {selectedAula && (
-        <div className="modal show d-block" tabIndex="-1" role="dialog">
+        <div
+          className={`modal fade show`}
+          style={{ display: "block" }}
+          tabIndex="-1"
+          role="dialog"
+          aria-hidden="false"
+        >
           <div className="modal-dialog modal-lg" role="document">
             <div className="modal-content">
               <div className="modal-header">
@@ -611,6 +629,14 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Background escuro para o modal de presenças */}
+      {selectedAula && (
+        <div
+          className="modal-backdrop fade show"
+          onClick={() => setSelectedAula(null)}
+        ></div>
       )}
     </div>
   );

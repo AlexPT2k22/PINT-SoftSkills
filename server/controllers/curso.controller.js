@@ -130,7 +130,7 @@ const getCursos = async (_, res) => {
           include: [
             {
               model: Utilizador,
-              attributes: ["USERNAME"],
+              attributes: ["USERNAME", "NOME"],
             },
             {
               model: EstadoCursoSincrono,
@@ -933,20 +933,28 @@ const createSincrono = async (req, res) => {
     ID_TOPICO,
   } = req.body;
 
-  const modulos = JSON.parse(req.body.MODULOS);
-
-  // verifica se o curso já existe
-  const cursoExistente = await Curso.findOne({
-    where: {
-      NOME,
-      ID_AREA,
-    },
-  });
-  if (cursoExistente) {
-    return res.status(400).json({ message: "Curso já existe" });
-  }
+  let transaction;
 
   try {
+    // Start a transaction
+    transaction = await sequelize.transaction();
+
+    const modulos = JSON.parse(req.body.MODULOS);
+
+    // verifica se o curso já existe
+    const cursoExistente = await Curso.findOne({
+      where: {
+        NOME,
+        ID_AREA,
+      },
+      transaction,
+    });
+
+    if (cursoExistente) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "Curso já existe" });
+    }
+
     let imagemUrl = null;
     let imagemPublicId = null;
 
@@ -962,16 +970,19 @@ const createSincrono = async (req, res) => {
       imagemPublicId = result.public_id;
     }
 
-    const curso = await Curso.create({
-      NOME,
-      DESCRICAO_OBJETIVOS__,
-      DIFICULDADE_CURSO__,
-      IMAGEM: imagemUrl,
-      IMAGEM_PUBLIC_ID: imagemPublicId,
-      ID_AREA,
-      ID_TOPICO,
-      DATA_CRIACAO__: new Date(),
-    });
+    const curso = await Curso.create(
+      {
+        NOME,
+        DESCRICAO_OBJETIVOS__,
+        DIFICULDADE_CURSO__,
+        IMAGEM: imagemUrl,
+        IMAGEM_PUBLIC_ID: imagemPublicId,
+        ID_AREA,
+        ID_TOPICO,
+        DATA_CRIACAO__: new Date(),
+      },
+      { transaction }
+    );
 
     // Adicionar habilidades e objetivos ao curso
     const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
@@ -1069,6 +1080,9 @@ const createSincrono = async (req, res) => {
       });
     }
 
+    if (ID_FORMADOR === 0) {
+      ID_FORMADOR = null; // Se não houver formador, definir como null
+    }
     const cursoSincrono = await CursoSincrono.create({
       ID_CURSO: curso.ID_CURSO,
       ID_UTILIZADOR: ID_FORMADOR,

@@ -40,7 +40,16 @@ function WelcomePage() {
           let status = "Indisponível";
 
           if (course.CURSO_SINCRONO) {
-            status = course.CURSO_SINCRONO.ESTADO;
+            const now = new Date();
+            const startDate = new Date(course.CURSO_SINCRONO.DATA_INICIO);
+            const endDate = new Date(course.CURSO_SINCRONO.DATA_FIM);
+            if (now < startDate) {
+              status = "Brevemente";
+            } else if (now > endDate) {
+              status = "Inativo";
+            } else {
+              status = "Em curso";
+            }
           } else if (course.CURSO_ASSINCRONO) {
             // Para cursos assíncronos, verifique as datas
             const now = new Date();

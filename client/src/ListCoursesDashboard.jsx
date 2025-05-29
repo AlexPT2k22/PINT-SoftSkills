@@ -194,7 +194,10 @@ function ListCoursesDashboard() {
                               <td>
                                 {course.CURSO_SINCRONO === null
                                   ? "N/A"
-                                  : course.CURSO_SINCRONO.UTILIZADOR.USERNAME}
+                                  : course.CURSO_SINCRONO.UTILIZADOR?.NOME ||
+                                    course.CURSO_SINCRONO.UTILIZADOR
+                                      ?.USERNAME ||
+                                    "Sem formador atribuído"}
                               </td>
                               <td>{`${
                                 (course.CURSO_SINCRONO &&

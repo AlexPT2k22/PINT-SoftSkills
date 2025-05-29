@@ -82,7 +82,17 @@ const SynchronousCourseView = () => {
                       }`}
                       onClick={() => setActiveTab("trabalhos")}
                     >
-                      Trabalhos/Avaliações
+                      Trabalhos
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link ${
+                        activeTab === "avaliacoes" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("avaliacoes")}
+                    >
+                      Avaliações
                     </button>
                   </li>
                 </ul>
@@ -101,10 +111,7 @@ const SynchronousCourseView = () => {
                 )}
 
                 {activeTab === "avaliacoes" && (
-                  <div className="avaliacoes-content">
-                    <h5>Avaliações do Curso</h5>
-                    <AvaliacoesSincronas cursoId={courseId} />
-                  </div>
+                  <AvaliacoesSincronas cursoId={courseId} isTeacher={isTeacher} />
                 )}
               </div>
             </>
