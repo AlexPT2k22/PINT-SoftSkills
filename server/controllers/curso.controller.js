@@ -1418,7 +1418,6 @@ async function deleteFile(fileUrl) {
   }
 }
 
-//FIXME: alterar para nome
 // Para cursos Sincronos
 const getInscritos = async (req, res) => {
   const { id } = req.params;
@@ -1430,7 +1429,7 @@ const getInscritos = async (req, res) => {
         {
           model: Utilizador,
           as: "UTILIZADOR",
-          attributes: ["ID_UTILIZADOR", "USERNAME", "EMAIL"],
+          attributes: ["ID_UTILIZADOR", "NOME", "EMAIL"],
         },
       ],
     });

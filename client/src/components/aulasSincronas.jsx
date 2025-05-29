@@ -13,6 +13,7 @@ import {
 const AulasSincronas = ({ cursoId, isTeacher = false }) => {
   const [aulas, setAulas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedAula, setSelectedAula] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [novaAula, setNovaAula] = useState({
@@ -91,6 +92,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       return;
     }
     try {
+      setIsLoading(true);
       await axios.post("http://localhost:4000/api/aulas", {
         ...novaAula,
         ID_CURSO: cursoId,
@@ -108,6 +110,8 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       fetchAulas();
     } catch (error) {
       console.error("Erro ao criar aula:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -308,7 +312,6 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Modal para criar nova aula */}
       {showModal && (
         <div className="modal show d-block" tabIndex="-1" role="dialog">
           <div className="modal-dialog" role="document">
@@ -450,8 +453,23 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                     >
                       Cancelar
                     </button>
-                    <button type="submit" className="btn btn-primary">
-                      Agendar Aula
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          A agendar...
+                        </>
+                      ) : (
+                        "Agendar Aula"
+                      )}
                     </button>
                   </div>
                 </form>
@@ -497,7 +515,6 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                           <thead>
                             <tr>
                               <th>Aluno</th>
-                              <th>Email</th>
                               <th>Presença</th>
                             </tr>
                           </thead>
@@ -508,7 +525,6 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                                   {aluno.UTILIZADOR.NOME ||
                                     aluno.UTILIZADOR.USERNAME}
                                 </td>
-                                <td>{aluno.UTILIZADOR.EMAIL}</td>
                                 <td>
                                   <div className="form-check form-switch">
                                     <input

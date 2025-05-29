@@ -334,31 +334,21 @@ function Dashboard() {
                                   ? "Presente"
                                   : "Não presente"}
                               </span>
-                              {aula.link ? (
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={() =>
-                                    handleEntrarAula(aula.id, aula.link)
-                                  }
-                                  disabled={
-                                    !aula.link ||
-                                    aula.estado === "Concluída" ||
-                                    aula.estado === "Cancelada"
-                                  }
-                                >
-                                  {aula.estado === "Em andamento" ||
-                                  aula.estado === "Agendada"
-                                    ? "Entrar na Aula"
-                                    : "Indisponível"}
-                                </button>
-                              ) : (
-                                <button
-                                  className="btn btn-primary"
-                                  disabled={!aula.link}
-                                >
-                                  Indisponível
-                                </button>
-                              )}
+                              {aula.link &&
+                                (aula.estado === "Em andamento" ||
+                                  aula.estado === "Agendada") && (
+                                  <button
+                                    className="btn btn-primary"
+                                    onClick={() =>
+                                      handleEntrarAula(aula.id, aula.link)
+                                    }
+                                  >
+                                    {aula.estado === "Em andamento" ||
+                                    aula.estado === "Agendada"
+                                      ? "Entrar na Aula"
+                                      : "Indisponível"}
+                                  </button>
+                                )}
                             </div>
                           </div>
                         ))

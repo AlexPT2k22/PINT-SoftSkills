@@ -408,9 +408,11 @@ const updateUser = async (req, res) => {
         .json({ message: "Nova senha e confirmação não coincidem" });
     }
 
-    // Atualiza o LinkedIn se fornecido
     if (linkedIn) {
       utilizador.LINKEDIN = linkedIn;
+    } else if (!linkedIn && utilizador.LINKEDIN) {
+      // Se o LinkedIn não for fornecido, remove o link existente
+      utilizador.LINKEDIN = null;
     }
 
     // Atualiza o nome se fornecido
