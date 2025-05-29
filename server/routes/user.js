@@ -7,8 +7,9 @@ const {
   inscreverEmCurso,
   verificarInscricao,
   getCursosInscritos,
+  updateUser,
 } = require("../controllers/user.controller.js");
-const {authenticateToken} = require("../middlewares/authmiddleware.js");
+const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
 // rota para /user/*
 router.get("/", async (req, res) => {
@@ -20,5 +21,6 @@ router.get("/teacher-courses", authenticateToken, getCursosAssociados);
 router.get("/student-courses", authenticateToken, getCursosInscritos);
 router.post("/enter-course/:courseId", authenticateToken, inscreverEmCurso);
 router.post("/verify-course/:courseId", authenticateToken, verificarInscricao);
+router.post("/change-name", authenticateToken, updateUser);
 
 module.exports = router;

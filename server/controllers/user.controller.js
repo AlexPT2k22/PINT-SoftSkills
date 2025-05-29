@@ -13,6 +13,8 @@ const {
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const getTeachers = async (req, res) => {
   try {
@@ -373,10 +375,67 @@ const getCursosInscritos = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.user.ID_UTILIZADOR;
+    const { nome, currentPassword, newPassword, confirmPassword, linkedIn } =
+      req.body;
+
+    // Verifica se o utilizador existe
+    const utilizador = await Utilizador.findByPk(userId);
+    if (!utilizador) {
+      return res.status(404).json({ message: "Utilizador não encontrado" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      utilizador.PASSWORD
+    );
+
+    // Verifica se a senha atual está correta
+    if (currentPassword && !isPasswordValid) {
+      return res.status(400).json({ message: "Senha atual incorreta" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Atualiza a senha se fornecida
+    if (newPassword && newPassword === confirmPassword) {
+      utilizador.PASSWORD = hashedNewPassword;
+    } else if (newPassword || confirmPassword) {
+      return res
+        .status(400)
+        .json({ message: "Nova senha e confirmação não coincidem" });
+    }
+
+    // Atualiza o LinkedIn se fornecido
+    if (linkedIn) {
+      utilizador.LINKEDIN = linkedIn;
+    }
+
+    // Atualiza o nome se fornecido
+    if (nome) {
+      utilizador.NOME = nome;
+    }
+
+    // Salva as alterações no utilizador
+    await utilizador.save();
+
+    res.status(200).json({
+      message: "Nome e username atualizados com sucesso",
+      utilizador,
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar nome e username:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getTeachers,
   getCursosAssociados,
   inscreverEmCurso,
   verificarInscricao,
   getCursosInscritos,
+  updateUser,
 };

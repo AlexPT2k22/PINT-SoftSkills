@@ -61,7 +61,6 @@ function SettingsPage() {
     setLoading(true);
     setError("");
 
-    // Validar formulário
     if (
       formData.newPassword &&
       formData.newPassword !== formData.confirmPassword
@@ -82,13 +81,46 @@ function SettingsPage() {
     }
 
     try {
-      // Exemplo de chamada API para salvar alterações
-      // Substituir com chamada real à API
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulação de chamada
+      await axios.post(
+        `http://localhost:4000/api/user/change-name`,
+        {
+          nome: formData.nome,
+          linkedIn: formData.linkedIn,
+          emailNotifications: formData.emailNotifications,
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+          confirmPassword: formData.confirmPassword,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // Exemplo de atualização do store
-      // useAuthStore.getState().updateUser({ ...user, nome: formData.nome });
+      // Atualizar o estado do usuário no store
+      useAuthStore.setState((state) => ({
+        user: {
+          ...state.user,
+          nome: formData.nome,
+          linkedIn: formData.linkedIn,
+          emailNotifications: formData.emailNotifications,
+        },
+      }));
 
+      // Redefinir o formulário após salvar
+      setFormData({
+        nome: formData.nome,
+        linkedIn: formData.linkedIn,
+        email: formData.email,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+        emailNotifications: formData.emailNotifications,
+      });
+
+      // Exibir mensagem de sucesso
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
