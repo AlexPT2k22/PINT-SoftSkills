@@ -193,7 +193,6 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
       );
 
       fetchSubmissoesPorAvaliacao(avaliacaoAtual.ID_AVALIACAO_SINCRONA);
-      setShowAvaliarModal(false);
       setNovaNotaSubmissao({
         ID_SUBMISSAO: "",
         NOTA: "",
@@ -578,7 +577,6 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                                   OBSERVACAO: submissao.OBSERVACAO || "",
                                 });
 
-                                // Mostrar formulário de avaliação inline ou em modal
                                 document
                                   .getElementById(
                                     `avaliar-form-${submissao.ID_SUBMISSAO}`
@@ -762,7 +760,6 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                               Ver Submissões
                             </button>
                           ) : (
-                            // Ações para o aluno
                             <>
                               {jaSubmeti ? (
                                 <div>

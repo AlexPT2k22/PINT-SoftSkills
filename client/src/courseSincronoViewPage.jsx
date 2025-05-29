@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import NavbarDashboard from "./components/navbarDashboard";
 import AvaliacoesSincronas from "./components/avaliacoesSincronas";
 import AulasSincronas from "./components/aulasSincronas";
@@ -10,11 +10,13 @@ import Sidebar from "./components/sidebar";
 const SynchronousCourseView = () => {
   const [activeTab, setActiveTab] = useState("aulas");
   const { courseId } = useParams();
+  const [searchParams] = useSearchParams();
   const [isTeacher, setIsTeacher] = useState(false);
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore.getState();
   const Teacher = user?.perfil === 2 || user?.perfil === 3;
+  const tab = searchParams.get("tab");
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
@@ -44,6 +46,10 @@ const SynchronousCourseView = () => {
         setLoading(false);
       }
     };
+
+    if (tab) {
+      setActiveTab(tab);
+    }
 
     verificarFormador();
   }, [courseId]);
@@ -75,16 +81,7 @@ const SynchronousCourseView = () => {
                       Aulas
                     </button>
                   </li>
-                  <li className="nav-item">
-                    <button
-                      className={`nav-link ${
-                        activeTab === "trabalhos" ? "active" : ""
-                      }`}
-                      onClick={() => setActiveTab("trabalhos")}
-                    >
-                      Trabalhos
-                    </button>
-                  </li>
+
                   <li className="nav-item">
                     <button
                       className={`nav-link ${
@@ -103,15 +100,11 @@ const SynchronousCourseView = () => {
                   <AulasSincronas cursoId={courseId} isTeacher={isTeacher} />
                 )}
 
-                {activeTab === "trabalhos" && (
-                  <div className="trabalhos-content">
-                    <h5>Trabalhos do Curso</h5>
-                    {/* Implementar componente de trabalhos */}
-                  </div>
-                )}
-
                 {activeTab === "avaliacoes" && (
-                  <AvaliacoesSincronas cursoId={courseId} isTeacher={isTeacher} />
+                  <AvaliacoesSincronas
+                    cursoId={courseId}
+                    isTeacher={isTeacher}
+                  />
                 )}
               </div>
             </>

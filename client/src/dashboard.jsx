@@ -5,7 +5,7 @@ import useAuthStore from "./store/authStore";
 import CourseCardDashboard from "./components/courseCardDashboard";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Book, Clock, Files, BarChart2, GraduationCap } from "lucide-react";
+import { Book, Clock, Files, File, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
@@ -312,14 +312,16 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Progresso geral
+                        Próximo trabalho até
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
-                        {metricas.progressoGeral}%
+                        {proximosTrabalhos.length > 0
+                          ? proximosTrabalhos[0].dataFormatada
+                          : "N/A"}
                       </h3>
                     </div>
                     <div className="bg-light rounded-circle p-3">
-                      <BarChart2 size={24} className="text-primary" />
+                      <File size={24} className="text-primary" />
                     </div>
                   </div>
                 </div>
@@ -462,7 +464,7 @@ function Dashboard() {
                                 className="btn btn-primary"
                                 onClick={() =>
                                   navigate(
-                                    `/synchronous-course/${trabalho.cursoId}?tab=avaliacoes`
+                                    `/dashboard/synchronous-course/${trabalho.cursoId}?tab=avaliacoes`
                                   )
                                 }
                               >
