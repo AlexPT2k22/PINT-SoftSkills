@@ -61,9 +61,6 @@ const getAvaliacoesByCurso = async (req, res) => {
         },
       ],
     });
-    if (!avaliacoes || avaliacoes.length === 0) {
-      return res.status(404).json({ message: "Nenhuma avaliação encontrada" });
-    }
 
     res.status(200).json(avaliacoes);
   } catch (error) {

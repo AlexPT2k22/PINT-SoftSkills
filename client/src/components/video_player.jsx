@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import cloudinary from "cloudinary-video-player";
 import "cloudinary-video-player/cld-video-player.min.css";
-import "../styles/video.css"; // Import your CSS file
+import "../styles/video.css";
 
 const formatTime = (timeInSeconds) => {
   const minutes = Math.floor(timeInSeconds / 60);
@@ -28,7 +28,7 @@ const VideoPlayer = ({
     cloudinaryRef.current = cloudinary;
 
     const player = cloudinaryRef.current.videoPlayer(playerRef.current, {
-      cloud_name: "dk2ifkqqc",
+      cloud_name: "dbhxixkmb",
       secure: true,
       controls: true,
       showJumpControls: true,
