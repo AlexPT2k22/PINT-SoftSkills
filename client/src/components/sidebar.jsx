@@ -5,7 +5,7 @@ import "../styles/sidebar.css";
 import {
   Home,
   BookOpen,
-  FileText,
+  FolderCog,
   NotebookPen,
   Settings,
   HelpCircle,
@@ -199,6 +199,19 @@ function Sidebar({ onToggle }) {
                       >
                         <ShieldAlert size={20} className="me-3" />
                         {!collapsed && <span>Gerir cursos</span>}
+                      </Link>
+                    </li>
+
+                    <li className="nav-item">
+                      <Link
+                        to="/dashboard/categories"
+                        className={`nav-link ${
+                          isActive("/dashboard/categories") ? "active" : ""
+                        }`}
+                        onClick={() => mobileView && setCollapsed(true)}
+                      >
+                        <FolderCog size={20} className="me-3" />
+                        {!collapsed && <span>Gerir categorias</span>}
                       </Link>
                     </li>
                   </>

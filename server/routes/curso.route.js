@@ -13,6 +13,9 @@ const {
   updateCursoAssincrono,
   convertCursoType,
   getInscritos,
+  checkCategoriaAssociation,
+  checkAreaAssociation,
+  checkTopicoAssociation,
 } = require("../controllers/curso.controller.js");
 const multer = require("multer");
 const storage = multer.memoryStorage();
@@ -31,5 +34,8 @@ router.put("/sincrono/:id", upload.any(), updateCursoSincrono); // atualizar cur
 router.put("/convert/:id", upload.any(), convertCursoType); // converter curso de assincrono para sincrono ou vice-versa
 router.delete("/:id", deleteCurso); // deletar curso
 router.get("/:id/alunos", getInscritos);
+router.get("/check-categoria/:categoriaId", checkCategoriaAssociation);
+router.get("/check-area/:areaId", checkAreaAssociation);
+router.get("/check-topico/:topicoId", checkTopicoAssociation);
 
 module.exports = router;

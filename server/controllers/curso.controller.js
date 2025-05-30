@@ -1455,6 +1455,66 @@ const getInscritos = async (req, res) => {
   }
 };
 
+const checkCategoriaAssociation = async (req, res) => {
+  try {
+    const { categoriaId } = req.params;
+
+    const count = await Curso.count({
+      include: [
+        {
+          model: Area,
+          where: { ID_CATEGORIA: categoriaId },
+          required: true,
+        },
+      ],
+    });
+
+    res.json({
+      temCursos: count > 0,
+      quantidade: count,
+    });
+  } catch (error) {
+    console.error("Erro ao verificar associação de categoria:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const checkAreaAssociation = async (req, res) => {
+  try {
+    const { areaId } = req.params;
+
+    const count = await Curso.count({
+      where: { ID_AREA: areaId },
+    });
+
+    res.json({
+      temCursos: count > 0,
+      quantidade: count,
+    });
+  } catch (error) {
+    console.error("Erro ao verificar associação de área:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const checkTopicoAssociation = async (req, res) => {
+  try {
+    const { topicoId } = req.params;
+
+    const count = await Curso.count({
+      where: { ID_TOPICO: topicoId },
+    });
+
+    res.json({
+      temCursos: count > 0,
+      quantidade: count,
+    });
+  } catch (error) {
+    console.error("Erro ao verificar associação de tópico:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCursos,
   getCursoById,
@@ -1468,4 +1528,7 @@ module.exports = {
   convertCursoType,
   updateCursoAssincrono,
   getInscritos,
+  checkCategoriaAssociation,
+  checkAreaAssociation,
+  checkTopicoAssociation,
 };

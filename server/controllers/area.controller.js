@@ -1,10 +1,17 @@
-const { Area } = require("../models/index.js");
+const { Area, Categoria } = require("../models/index.js");
 const sequelize = require("sequelize");
 
 const getAreas = async (req, res) => {
   try {
     const areas = await Area.findAll({
-      attributes: ["ID_AREA", "NOME"],
+      attributes: ["ID_AREA", "NOME", "DESCRICAO"],
+      include: [
+        {
+          model: Categoria,
+          as: "Categoria",
+          attributes: ["ID_CATEGORIA__PK___", "NOME__"],
+        },
+      ],
     });
     res.status(200).json(areas);
   } catch (error) {

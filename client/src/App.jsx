@@ -28,6 +28,7 @@ import NotFound from "./404.jsx";
 import SynchronousCourseView from "./courseSincronoViewPage.jsx";
 import ChangePasswordPage from "./ChangePasswordPage.jsx";
 import SettingsPage from "./settings.jsx";
+import GerirCategorias from "./gerirCategorias.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -101,6 +102,14 @@ function App() {
         <Route path="/auth" element={<AuthPage />}></Route>
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
+        <Route
+          path="/dashboard/categories"
+          element={
+            <ProtectedRoute>
+              <GerirCategorias />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/settings"
           element={
