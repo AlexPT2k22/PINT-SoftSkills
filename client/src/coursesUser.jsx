@@ -5,10 +5,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import CourseCardDashboard from "./components/courseCardDashboard.jsx";
 
-const CoursesUser = () => {
-  const handleSidebarToggle = (newCollapsedState) => {
-    setCollapsed(newCollapsedState);
-  };
+function CoursesUser() {
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [courseProgress, setCourseProgress] = useState({});
@@ -65,52 +62,39 @@ const CoursesUser = () => {
   return (
     <>
       <NavbarDashboard />
-      <Sidebar onToggle={handleSidebarToggle} />
-      <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center mt-4 p-4">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-10 col-lg-12 mb-4">
-              <div className="container">
-                <h2 className="">Os meus cursos</h2>
+      <Sidebar />
+      <div className="container mt-4 p-4">
+        <h2 className="mb-4">Os meus cursos</h2>
 
-                {isLoading ? (
-                  <div className="d-flex justify-content-center align-items-center h-100">
-                    <div className="spinner-border" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  </div>
-                ) : courses.length > 0 ? (
-                  <div className="container p-0 mb-3">
-                    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-                      {courses.map((course) => (
-                        <div className="col" key={course.ID_CURSO}>
-                          <CourseCardDashboard
-                            course={course}
-                            showStartButton={true}
-                            showProgress={true}
-                            progress={
-                              courseProgress[course.ID_CURSO]
-                                ?.percentualProgresso || 0
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="container p-0">
-                    <p className="text-muted">
-                      Não está inscrito a nenhum curso
-                    </p>
-                  </div>
-                )}
-              </div>
+        {isLoading ? (
+          <div className="d-flex justify-content-center">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        </div>
+        ) : courses.length > 0 ? (
+          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            {courses.map((course) => (
+              <div className="col" key={course.ID_CURSO}>
+                <CourseCardDashboard
+                  course={course}
+                  showStartButton={true}
+                  showProgress={true}
+                  progress={
+                    courseProgress[course.ID_CURSO]?.percentualProgresso || 0
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="alert alert-info">
+            Não está inscrito em nenhum curso
+          </div>
+        )}
       </div>
     </>
   );
-};
+}
 
 export default CoursesUser;

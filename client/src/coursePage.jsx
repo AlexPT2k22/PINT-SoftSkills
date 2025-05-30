@@ -298,10 +298,11 @@ function CoursePage() {
                             course.CURSO_SINCRONO.DATA_FIM
                           ) === "O curso já terminou" &&
                           inscrito === false) ||
-                        (checkDates(
-                          course.CURSO_SINCRONO.DATA_INICIO,
-                          course.CURSO_SINCRONO.DATA_FIM
-                        ) === "O curso está em andamento" &&
+                        (course.CURSO_SINCRONO &&
+                          checkDates(
+                            course.CURSO_SINCRONO.DATA_INICIO,
+                            course.CURSO_SINCRONO.DATA_FIM
+                          ) === "O curso está em andamento" &&
                           inscrito === false)
                       }
                     >
