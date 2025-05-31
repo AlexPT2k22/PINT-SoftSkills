@@ -47,7 +47,7 @@ const getTopicosByArea = async (req, res) => {
 const createTopico = async (req, res) => {
   try {
     const user = req.user;
-    const { titulo, descricao, areaId } = req.body;
+    const { NOME, DESCRICAO, ID_AREA } = req.body;
 
     console.log("User from token:", user);
 
@@ -65,28 +65,28 @@ const createTopico = async (req, res) => {
     }
     console.log("User profile:", userPerfil);
 
-    if (!titulo || !descricao || !areaId) {
+    if (!NOME || !DESCRICAO || !ID_AREA) {
       return res
         .status(400)
         .json({ message: "Todos os campos são obrigatórios" });
     }
 
-    const area = await Area.findByPk(areaId);
+    const area = await Area.findByPk(ID_AREA);
     if (!area) {
       return res.status(404).json({ message: "Área não encontrada" });
     }
 
     const topicoExistente = await Topico.findOne({
-      where: { TITULO: titulo, ID_AREA: areaId },
+      where: { TITULO: NOME, ID_AREA: ID_AREA },
     });
     if (topicoExistente) {
       return res.status(400).json({ message: "Tópico já existe na área" });
     }
 
     const novoTopico = await Topico.create({
-      TITULO: titulo,
-      DESCRICAO: descricao,
-      ID_AREA: areaId,
+      TITULO: NOME,
+      DESCRICAO: DESCRICAO,
+      ID_AREA: ID_AREA,
       DATA_CRIACAO: new Date(),
     });
 
@@ -102,15 +102,15 @@ const updateTopico = async (req, res) => {
   try {
     const { id } = req.params;
     const { user } = req.user;
-    const { titulo, descricao } = req.body;
+    const { NOME, DESCRICAO } = req.body;
 
-    if (!titulo || !descricao) {
+    if (!NOME || !DESCRICAO) {
       return res
         .status(400)
         .json({ message: "Título e descrição são obrigatórios" });
     }
     const topicoExistente = await Topico.findOne({
-      where: { TITULO: titulo, ID_TOPICO: { [Op.ne]: id } },
+      where: { TITULO: NOME, ID_TOPICO: { [Op.ne]: id } },
     });
     if (topicoExistente) {
       return res.status(400).json({ message: "Tópico já existe" });
@@ -122,8 +122,8 @@ const updateTopico = async (req, res) => {
     }
 
     await topico.update({
-      TITULO: titulo,
-      DESCRICAO: descricao,
+      TITULO: NOME,
+      DESCRICAO: DESCRICAO,
     });
 
     res.json(topico);

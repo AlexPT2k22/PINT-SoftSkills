@@ -88,7 +88,7 @@ function GerirCategorias() {
     try {
       if (editandoCategoria) {
         await axios.put(
-          `http://localhost:4000/api/categorias/${editandoCategoria.ID_CATEGORIA}`,
+          `http://localhost:4000/api/categorias/${editandoCategoria.ID_CATEGORIA__PK___}`,
           novaCategoria,
           { withCredentials: true }
         );
