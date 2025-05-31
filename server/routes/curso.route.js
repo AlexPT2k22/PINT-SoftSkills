@@ -16,6 +16,7 @@ const {
   checkCategoriaAssociation,
   checkAreaAssociation,
   checkTopicoAssociation,
+  searchCursos,
 } = require("../controllers/curso.controller.js");
 const multer = require("multer");
 const storage = multer.memoryStorage();
@@ -26,6 +27,7 @@ router.get("/", getCursos);
 router.get("/popular", getCursosPopulares);
 router.post("/create", upload.any(), createCurso);
 router.post("/create-sincrono", upload.any(), createSincrono); // criar curso sincrono
+router.get("/search", searchCursos); // buscar cursos por nome ou descrição
 router.post("/create-assincrono", upload.any(), createAssincrono); // criar curso assincrono
 router.get("/:id", getCursoById);
 router.put("/:id", upload.any(), updateCurso);

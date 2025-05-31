@@ -46,7 +46,7 @@ function WelcomePage() {
             if (now < startDate) {
               status = "Brevemente";
             } else if (now > endDate) {
-              status = "Inativo";
+              status = "Terminado";
             } else {
               status = "Em curso";
             }

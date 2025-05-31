@@ -29,6 +29,15 @@ function Navbar() {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [activeArea, setActiveArea] = useState(null);
   const [topics, setTopics] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/find-courses?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm("");
+    }
+  };
 
   useEffect(() => {
     const getCategorias = async () => {
@@ -205,7 +214,7 @@ function Navbar() {
             </li>
           </ul>
 
-          <form className="d-flex flex-grow-1 mx-4">
+          <form className="d-flex flex-grow-1 mx-4" onSubmit={handleSearch}>
             <div className="input-group">
               <span className="input-group-text bg-white border-end-0 search-input">
                 <Search strokeWidth={1.5} color="#39639C" />
@@ -215,7 +224,12 @@ function Navbar() {
                 className="form-control border-start-0 ps-0 search-input"
                 placeholder="Procure por um curso"
                 aria-label="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
+              <button type="submit" className="btn btn-primary">
+                Pesquisar
+              </button>
             </div>
           </form>
 

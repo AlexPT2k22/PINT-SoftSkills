@@ -7,6 +7,33 @@ function CourseCard({ course }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
 
+  const calculateStatus = (course) => {
+    if (course.CURSO_ASSINCRONO) {
+      const { DATA_INICIO, DATA_FIM } = course.CURSO_ASSINCRONO;
+      const now = new Date();
+      if (now < new Date(DATA_INICIO)) {
+        return "Brevemente";
+      } else if (now >= new Date(DATA_INICIO) && now <= new Date(DATA_FIM)) {
+        return "Em curso";
+      } else {
+        return "Terminado";
+      }
+    } else if (course.CURSO_SINCRONO) {
+      const { DATA_INICIO, DATA_FIM } = course.CURSO_SINCRONO;
+      const now = new Date();
+      if (
+        now < new Date(DATA_INICIO) ||
+        (now >= new Date(DATA_INICIO) && now <= new Date(DATA_FIM))
+      ) {
+        return "Ativo";
+      } else {
+        return "Terminado";
+      }
+    } else {
+      return "Não especificado";
+    }
+  };
+
   const statusBadgeClass = (status) => {
     switch (status) {
       case "Ativo":
@@ -47,8 +74,12 @@ function CourseCard({ course }) {
   return (
     <div className="card h-100 course-card" onClick={handleClick}>
       <div className="z-1 position-absolute p-2">
-        <span className={`badge ${statusBadgeClass(course.status)} fs-6`}>
-          {course.status}
+        <span
+          className={`badge ${statusBadgeClass(calculateStatus(course))} fs-6`}
+        >
+          {calculateStatus(course)
+            ? calculateStatus(course)
+            : "Status desconhecido"}
         </span>
       </div>
       <img

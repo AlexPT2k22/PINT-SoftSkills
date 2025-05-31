@@ -26,6 +26,7 @@ const cloudinary = require("cloudinary").v2;
 const { Readable } = require("stream");
 const fs = require("fs");
 const path = require("path");
+const { Op } = require("sequelize");
 
 const savePdfToServer = (buffer, fileName) => {
   return new Promise((resolve, reject) => {
@@ -1515,6 +1516,170 @@ const checkTopicoAssociation = async (req, res) => {
   }
 };
 
+const searchCursos = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 12,
+      search = "",
+      category = "",
+      area = "",
+      topic = "",
+      difficulty = "",
+      type = "",
+      sortBy = "newest",
+    } = req.query;
+
+    const offset = (page - 1) * limit;
+
+    // Construir condições WHERE
+    const whereConditions = {};
+    const includeConditions = [];
+
+    // Pesquisa por nome e descrição
+    if (search) {
+      whereConditions[Op.or] = [
+        { NOME: { [Op.iLike]: `%${search}%` } },
+        { DESCRICAO_OBJETIVOS__: { [Op.iLike]: `%${search}%` } },
+      ];
+    }
+
+    // Filtros específicos
+    if (difficulty) {
+      whereConditions.DIFICULDADE_CURSO__ = difficulty;
+    }
+
+    if (area) {
+      whereConditions.ID_AREA = area;
+    }
+
+    if (topic) {
+      whereConditions.ID_TOPICO = topic;
+    }
+
+    // Incluir relacionamentos
+    const includeArray = [
+      {
+        model: Area,
+        as: "AREA",
+        attributes: ["NOME", "ID_AREA"],
+        include: [
+          {
+            model: Categoria,
+            as: "Categoria",
+            attributes: ["ID_CATEGORIA__PK___", "NOME__"],
+            ...(category && { where: { ID_CATEGORIA__PK___: category } }),
+          },
+        ],
+        ...(category && { required: true }),
+      },
+      {
+        model: Topico,
+        as: "Topico",
+        attributes: ["ID_TOPICO", "TITULO"],
+      },
+      {
+        model: CursoAssincrono,
+        required: false,
+        attributes: ["DATA_INICIO", "DATA_FIM"],
+      },
+      {
+        model: CursoSincrono,
+        required: false,
+        attributes: ["DATA_INICIO", "DATA_FIM", "VAGAS"],
+        include: [
+          {
+            model: Utilizador,
+            attributes: ["USERNAME", "NOME"],
+          },
+        ],
+      },
+      {
+        model: Modulos,
+        attributes: ["TEMPO_ESTIMADO_MIN", "NOME"],
+        as: "MODULOS",
+      },
+    ];
+
+    // Filtro por tipo de curso
+    if (type === "sincrono") {
+      includeArray[2].required = false;
+      includeArray[3].required = true;
+    } else if (type === "assincrono") {
+      includeArray[2].required = true;
+      includeArray[3].required = false;
+    }
+
+    // Definir ordem
+    let orderClause;
+    switch (sortBy) {
+      case "oldest":
+        orderClause = [["DATA_CRIACAO__", "ASC"]];
+        break;
+      case "name_asc":
+        orderClause = [["NOME", "ASC"]];
+        break;
+      case "name_desc":
+        orderClause = [["NOME", "DESC"]];
+        break;
+      case "difficulty_asc":
+        orderClause = [
+          [
+            sequelize.literal(`
+            CASE 
+              WHEN "DIFICULDADE_CURSO__" = 'Iniciante' THEN 1
+              WHEN "DIFICULDADE_CURSO__" = 'Intermédio' THEN 2
+              WHEN "DIFICULDADE_CURSO__" = 'Difícil' THEN 3
+              ELSE 4
+            END
+          `),
+          ],
+        ];
+        break;
+      case "difficulty_desc":
+        orderClause = [
+          [
+            sequelize.literal(`
+            CASE 
+              WHEN "DIFICULDADE_CURSO__" = 'Difícil' THEN 1
+              WHEN "DIFICULDADE_CURSO__" = 'Intermédio' THEN 2
+              WHEN "DIFICULDADE_CURSO__" = 'Iniciante' THEN 3
+              ELSE 4
+            END
+          `),
+          ],
+        ];
+        break;
+      default: // newest
+        orderClause = [["DATA_CRIACAO__", "DESC"]];
+    }
+
+    // Buscar cursos
+    const { count, rows: courses } = await Curso.findAndCountAll({
+      where: whereConditions,
+      include: includeArray,
+      order: orderClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      distinct: true,
+      col: "ID_CURSO",
+    });
+
+    const hasMore = offset + courses.length < count;
+
+    res.status(200).json({
+      courses,
+      totalCount: count,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+      hasMore,
+    });
+  } catch (error) {
+    console.error("Erro na pesquisa de cursos:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCursos,
   getCursoById,
@@ -1531,4 +1696,5 @@ module.exports = {
   checkCategoriaAssociation,
   checkAreaAssociation,
   checkTopicoAssociation,
+  searchCursos,
 };
