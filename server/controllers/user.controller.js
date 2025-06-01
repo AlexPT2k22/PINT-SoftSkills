@@ -424,8 +424,7 @@ const updateUser = async (req, res) => {
     await utilizador.save();
 
     res.status(200).json({
-      message: "Nome e username atualizados com sucesso",
-      utilizador,
+      success: true,
     });
   } catch (error) {
     console.error("Erro ao atualizar nome e username:", error);
@@ -503,6 +502,109 @@ const getProfiles = async (req, res) => {
   }
 };
 
+const changeUser = async (req, res) => {
+  try {
+    const adminId = req.user.ID_UTILIZADOR;
+    const userId = req.params.id;
+    const { NOME, EMAIL, LINKEDIN, profileId } = req.body;
+
+    // Verifica se o utilizador tem o perfil de gestor
+    const userIsAdmin = await UtilizadorTemPerfil.findOne({
+      where: {
+        ID_UTILIZADOR: adminId,
+        ID_PERFIL: 3, // ID do perfil de gestor
+      },
+    });
+
+    if (!userIsAdmin) {
+      return res.status(403).json({
+        message: "Acesso negado. Apenas gestores podem atualizar utilizadores.",
+      });
+    }
+    // Verifica se o ID do utilizador a ser atualizado é válido
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: "ID de utilizador inválido" });
+    }
+
+    // Verifica se o utilizador existe
+    const utilizador = await Utilizador.findByPk(userId);
+    if (!utilizador) {
+      return res.status(404).json({ message: "Utilizador não encontrado" });
+    }
+
+    // Atualiza o nome e username
+    if (NOME) {
+      utilizador.NOME = NOME;
+    }
+
+    // Atualiza o perfil se fornecido
+    if (profileId) {
+      const perfilExistente = await Perfil.findByPk(profileId);
+      if (!perfilExistente) {
+        return res.status(404).json({ message: "Perfil não encontrado" });
+      }
+      await UtilizadorTemPerfil.update(
+        { ID_PERFIL: profileId },
+        { where: { ID_UTILIZADOR: userId } }
+      );
+    }
+
+    // Salva as alterações no utilizador
+    await utilizador.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Utilizador atualizado com sucesso",
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar utilizador:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const adminId = req.user.ID_UTILIZADOR;
+    const userId = req.params.id;
+
+    // Verifica se o utilizador tem o perfil de gestor
+    const userIsAdmin = await UtilizadorTemPerfil.findOne({
+      where: {
+        ID_UTILIZADOR: adminId,
+        ID_PERFIL: 3, // ID do perfil de gestor
+      },
+    });
+
+    if (!userIsAdmin) {
+      return res.status(403).json({
+        message: "Acesso negado. Apenas gestores podem excluir utilizadores.",
+      });
+    }
+
+    // Verifica se o ID do utilizador a ser excluído é válido
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: "ID de utilizador inválido" });
+    }
+
+    // Verifica se o utilizador existe
+    const utilizador = await Utilizador.findByPk(userId);
+    if (!utilizador) {
+      return res.status(404).json({ message: "Utilizador não encontrado" });
+    }
+
+    // Exclui o utilizador
+    await utilizador.destroy();
+
+    res.status(200).json({
+      success: true,
+      message: "Utilizador excluído com sucesso",
+    });
+  } catch (error) {
+    console.error("Erro ao excluir utilizador:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getTeachers,
   getCursosAssociados,
@@ -512,4 +614,6 @@ module.exports = {
   updateUser,
   getUsers,
   getProfiles,
+  changeUser,
+  deleteUser,
 };

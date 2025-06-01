@@ -11,8 +11,11 @@ import {
   Linkedin,
   Mail,
   User,
+  AlertTriangle,
 } from "lucide-react";
 import "./styles/gerirUsers.css";
+import SuccessMessage from "./components/sucess_message";
+import ErrorMessage from "./components/error_message";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -27,6 +30,31 @@ function GerirUsers() {
   const [filterProfile, setFilterProfile] = useState("");
   const [profiles, setProfiles] = useState([]);
 
+  // Estados para mensagens
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Estados para modal de delete
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Função para mostrar mensagem de sucesso
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 5000);
+  };
+
+  // Função para mostrar mensagem de erro
+  const showError = (message) => {
+    setErrorMessage(message);
+    setShowErrorMessage(true);
+    setTimeout(() => setShowErrorMessage(false), 5000);
+  };
+
   // Buscar utilizadores
   const getUsers = async () => {
     try {
@@ -38,6 +66,7 @@ function GerirUsers() {
       console.log("Users:", response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
+      showError("Erro ao carregar utilizadores");
     } finally {
       setLoading(false);
     }
@@ -52,6 +81,7 @@ function GerirUsers() {
       setProfiles(response.data);
     } catch (error) {
       console.error("Error fetching profiles:", error);
+      showError("Erro ao carregar perfis");
     }
   };
 
@@ -90,7 +120,7 @@ function GerirUsers() {
         NOME: editingUser.NOME,
         EMAIL: editingUser.EMAIL,
         LINKEDIN: editingUser.LINKEDIN,
-        profileId: editingUser.selectedProfile, // Enviar apenas um perfil
+        profileId: editingUser.selectedProfile,
       };
 
       await axios.put(
@@ -101,14 +131,12 @@ function GerirUsers() {
         }
       );
 
-      // Atualizar lista de utilizadores
       await getUsers();
       setEditingUser(null);
-
-      alert("Utilizador atualizado com sucesso!");
+      showSuccess("Utilizador atualizado com sucesso!");
     } catch (error) {
       console.error("Error updating user:", error);
-      alert("Erro ao atualizar utilizador");
+      showError("Erro ao atualizar utilizador. Verifique os dados inseridos.");
     }
   };
 
@@ -117,24 +145,39 @@ function GerirUsers() {
     setEditingUser(null);
   };
 
-  // Função para desativar/ativar utilizador
-  const handleToggleUserStatus = async (userId, currentStatus) => {
+  // Função para abrir modal de delete
+  const handleDeleteClick = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  // Função para cancelar delete
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setUserToDelete(null);
+  };
+
+  // Função para confirmar delete
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+
     try {
-      await axios.patch(
-        `${URL}/api/user/${userId}/toggle-status`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      setIsDeleting(true);
+      await axios.delete(`${URL}/api/user/${userToDelete.ID_UTILIZADOR}`, {
+        withCredentials: true,
+      });
 
       await getUsers();
-      alert(
-        `Utilizador ${currentStatus ? "desativado" : "ativado"} com sucesso!`
-      );
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+      showSuccess(`Utilizador "${userToDelete.NOME}" eliminado com sucesso!`);
     } catch (error) {
-      console.error("Error toggling user status:", error);
-      alert("Erro ao alterar status do utilizador");
+      console.error("Error deleting user:", error);
+      showError(
+        "Erro ao eliminar utilizador. Verifique se não existem dependências."
+      );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -142,13 +185,30 @@ function GerirUsers() {
     <>
       <NavbarDashboard />
       <Sidebar />
-      <div className="dashboard-content mt-4 p-4">
-        <div className="container-fluid">
+      <div className="container t-4 p-4">
+        <div className="container">
+          {/* Componentes de Mensagem */}
+          {showSuccessMessage && (
+            <SuccessMessage
+              message={successMessage}
+              onClose={() => setShowSuccessMessage(false)}
+            />
+          )}
+          {showErrorMessage && (
+            <ErrorMessage
+              message={errorMessage}
+              onClose={() => setShowErrorMessage(false)}
+            />
+          )}
+
           <div className="users-management-header">
             <h2 className="users-title">
               <User className="me-2" size={28} />
               Gerir Utilizadores
             </h2>
+            <p className="users-subtitle">
+              Gerencie os utilizadores, perfis e permissões do sistema
+            </p>
           </div>
 
           {/* Filtros e Pesquisa */}
@@ -189,7 +249,6 @@ function GerirUsers() {
             </div>
           </div>
 
-          {/* Tabela de Utilizadores */}
           <div className="users-table-section">
             {loading ? (
               <div className="text-center p-4">
@@ -268,28 +327,11 @@ function GerirUsers() {
                               <Edit size={14} />
                             </button>
                             <button
-                              className={`btn btn-sm ${
-                                user.ATIVO
-                                  ? "btn-outline-danger"
-                                  : "btn-outline-success"
-                              }`}
-                              onClick={() =>
-                                handleToggleUserStatus(
-                                  user.ID_UTILIZADOR,
-                                  user.ATIVO
-                                )
-                              }
-                              title={
-                                user.ATIVO
-                                  ? "Desativar utilizador"
-                                  : "Ativar utilizador"
-                              }
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleDeleteClick(user)}
+                              title="Eliminar utilizador"
                             >
-                              {user.ATIVO ? (
-                                <XCircle size={14} />
-                              ) : (
-                                <CheckCircle size={14} />
-                              )}
+                              <UserX size={14} />
                             </button>
                           </div>
                         </td>
@@ -337,6 +379,7 @@ function GerirUsers() {
                       onChange={(e) =>
                         setEditingUser({ ...editingUser, NOME: e.target.value })
                       }
+                      required
                     />
                   </div>
                   <div className="mb-3">
@@ -351,6 +394,7 @@ function GerirUsers() {
                           EMAIL: e.target.value,
                         })
                       }
+                      required
                     />
                   </div>
                   <div className="mb-3">
@@ -407,6 +451,7 @@ function GerirUsers() {
                   type="button"
                   className="btn btn-primary"
                   onClick={handleSaveUser}
+                  disabled={!editingUser.NOME || !editingUser.EMAIL}
                 >
                   Guardar Alterações
                 </button>
@@ -415,7 +460,93 @@ function GerirUsers() {
           </div>
         </div>
       )}
-      {editingUser && <div className="modal-backdrop show"></div>}
+
+      {/* Modal de Confirmação de Delete */}
+      {showDeleteModal && userToDelete && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title d-flex align-items-center">
+                  Confirmar Eliminação
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCancelDelete}
+                  disabled={isDeleting}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="text-center">
+                  <div className="user-details-delete">
+                    <p className="mb-2">
+                      <strong>Nome:</strong> {userToDelete.NOME}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Email:</strong> {userToDelete.EMAIL}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Username:</strong> @{userToDelete.USERNAME}
+                    </p>
+                    {userToDelete.PERFILs &&
+                      userToDelete.PERFILs.length > 0 && (
+                        <p className="mb-2">
+                          <strong>Perfil:</strong>{" "}
+                          <span
+                            className={`badge profile-badge profile-${userToDelete.PERFILs[0].PERFIL.toLowerCase()}`}
+                          >
+                            {userToDelete.PERFILs[0].PERFIL}
+                          </span>
+                        </p>
+                      )}
+                  </div>
+                  <div className="alert alert-warning mt-3">
+                    <small>
+                      <strong>Atenção:</strong> Esta ação não pode ser desfeita.
+                      Todos os dados associados a este utilizador serão
+                      removidos permanentemente.
+                    </small>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCancelDelete}
+                  disabled={isDeleting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleConfirmDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      ></span>
+                      A eliminar...
+                    </>
+                  ) : (
+                    <>Eliminar Utilizador</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Backdrop para os modais */}
+      {(editingUser || showDeleteModal) && (
+        <div className="modal-backdrop show"></div>
+      )}
     </>
   );
 }
