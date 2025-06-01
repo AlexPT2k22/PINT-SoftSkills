@@ -6,6 +6,17 @@
   padding: 2rem 0;
 }
 
+.find-courses-filter-tag-warning {
+  background-color: #ffc400;
+  border: 1px solid #ffffff;
+}
+
+
+.find-courses-filter-tag-dark {
+  background-color: #13c6e6;
+  border: 1px solid #ffffff;
+}
+
 /* Sidebar de filtros */
 .find-courses-sidebar {
   background: white;

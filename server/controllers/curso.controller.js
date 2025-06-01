@@ -1530,11 +1530,20 @@ const searchCursos = async (req, res) => {
       sortBy = "newest",
     } = req.query;
 
+    console.log("Parâmetros de pesquisa recebidos:", {
+      search,
+      category,
+      area,
+      topic,
+      difficulty,
+      type,
+      sortBy,
+    });
+
     const offset = (page - 1) * limit;
 
     // Construir condições WHERE
     const whereConditions = {};
-    const includeConditions = [];
 
     // Pesquisa por nome e descrição
     if (search) {
@@ -1556,6 +1565,8 @@ const searchCursos = async (req, res) => {
     if (topic) {
       whereConditions.ID_TOPICO = topic;
     }
+
+    console.log("Condições WHERE construídas:", whereConditions);
 
     // Incluir relacionamentos
     const includeArray = [
@@ -1666,6 +1677,9 @@ const searchCursos = async (req, res) => {
     });
 
     const hasMore = offset + courses.length < count;
+
+    console.log("Cursos encontrados:", courses.length);
+    console.log("Total de cursos:", count);
 
     res.status(200).json({
       courses,

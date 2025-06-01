@@ -144,7 +144,7 @@ function Navbar() {
                             className="d-flex justify-content-between align-items-center w-100"
                             onClick={() => {
                               navigate(
-                                `/categorias/${categoria.ID_CATEGORIA__PK___}`
+                                `/find-courses?category=${categoria.ID_CATEGORIA__PK___}`
                               );
                               setShowMenu(false);
                             }}
@@ -171,7 +171,15 @@ function Navbar() {
                                 activeArea === area.ID_AREA ? "active" : ""
                               }`}
                               onClick={() => {
-                                navigate(`/areas/${area.ID_AREA}`);
+                                const categoriaId = categorias.find((cat) =>
+                                  cat.AREAs?.some(
+                                    (a) => a.ID_AREA === area.ID_AREA
+                                  )
+                                )?.ID_CATEGORIA__PK___;
+
+                                navigate(
+                                  `/find-courses?category=${categoriaId}&area=${area.ID_AREA}`
+                                );
                                 setShowMenu(false);
                               }}
                               onMouseEnter={() => {
@@ -198,7 +206,27 @@ function Navbar() {
                                 key={topic.ID_TOPICO}
                                 className="topic-item"
                                 onClick={() => {
-                                  navigate(`/topicos/${topic.ID_TOPICO}`);
+                                  const areaDoTopico = categorias
+                                    .flatMap((cat) => cat.AREAs || [])
+                                    .find((area) =>
+                                      topics.some(
+                                        (t) =>
+                                          t.ID_TOPICO === topic.ID_TOPICO &&
+                                          t.ID_AREA === area.ID_AREA
+                                      )
+                                    );
+
+                                  const categoriaDoTopico = categorias.find(
+                                    (cat) =>
+                                      cat.AREAs?.some(
+                                        (a) =>
+                                          a.ID_AREA === areaDoTopico?.ID_AREA
+                                      )
+                                  );
+
+                                  navigate(
+                                    `/find-courses?category=${categoriaDoTopico?.ID_CATEGORIA__PK___}&area=${areaDoTopico?.ID_AREA}&topic=${topic.ID_TOPICO}`
+                                  );
                                   setShowMenu(false);
                                 }}
                                 title={topic.TITULO}

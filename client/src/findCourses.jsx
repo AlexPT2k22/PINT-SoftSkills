@@ -62,6 +62,26 @@ function FindCoursesPage() {
     fetchFilterOptions();
   }, []);
 
+  // Escutar mudanças nos parâmetros da URL
+  useEffect(() => {
+    const searchFromUrl = searchParams.get("search") || "";
+    const categoryFromUrl = searchParams.get("category") || "";
+    const areaFromUrl = searchParams.get("area") || "";
+    const topicFromUrl = searchParams.get("topic") || "";
+    const difficultyFromUrl = searchParams.get("difficulty") || "";
+    const typeFromUrl = searchParams.get("type") || "";
+    const sortFromUrl = searchParams.get("sortBy") || "newest";
+
+    // Atualizar estados se os valores da URL forem diferentes
+    setSearchTerm(searchFromUrl);
+    setSelectedCategory(categoryFromUrl);
+    setSelectedArea(areaFromUrl);
+    setSelectedTopic(topicFromUrl);
+    setSelectedDifficulty(difficultyFromUrl);
+    setSelectedType(typeFromUrl);
+    setSortBy(sortFromUrl);
+  }, [searchParams]);
+
   // Buscar cursos
   const fetchCourses = useCallback(
     async (resetPage = false) => {
@@ -132,6 +152,27 @@ function FindCoursesPage() {
     sortBy,
   ]);
 
+  useEffect(() => {
+    // Só buscar se tiver pelo menos as categorias carregadas
+    if (
+      categories.length > 0 ||
+      searchTerm ||
+      selectedDifficulty ||
+      selectedType
+    ) {
+      fetchCourses(true);
+    }
+  }, [
+    searchTerm,
+    selectedCategory,
+    selectedArea,
+    selectedTopic,
+    selectedDifficulty,
+    selectedType,
+    sortBy,
+    categories.length, // Adicionar isto para garantir que só pesquisa após carregar as opções
+  ]);
+
   // Atualizar URL com parâmetros de pesquisa
   useEffect(() => {
     const params = new URLSearchParams();
@@ -163,6 +204,7 @@ function FindCoursesPage() {
     setSelectedDifficulty("");
     setSelectedType("");
     setSortBy("newest");
+    setSearchParams({});
   };
 
   const handleLoadMore = () => {
@@ -172,7 +214,10 @@ function FindCoursesPage() {
   };
 
   const filteredAreas = selectedCategory
-    ? areas.filter((area) => area.Categoria.ID_CATEGORIA__PK___ === parseInt(selectedCategory))
+    ? areas.filter(
+        (area) =>
+          area.Categoria.ID_CATEGORIA__PK___ === parseInt(selectedCategory)
+      )
     : areas;
 
   const filteredTopics = selectedArea
@@ -435,7 +480,45 @@ function FindCoursesPage() {
                           }
                           <button
                             className="find-courses-filter-tag-close"
-                            onClick={() => setSelectedCategory("")}
+                            onClick={() => {
+                              setSelectedCategory("");
+                              setSelectedArea("");
+                              setSelectedTopic("");
+                            }}
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      )}
+                      {selectedArea && (
+                        <span className="find-courses-filter-tag find-courses-filter-tag-warning">
+                          Área:{" "}
+                          {
+                            areas.find((area) => area.ID_AREA == selectedArea)
+                              ?.NOME
+                          }
+                          <button
+                            className="find-courses-filter-tag-close"
+                            onClick={() => {
+                              setSelectedArea("");
+                              setSelectedTopic("");
+                            }}
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      )}
+                      {selectedTopic && (
+                        <span className="find-courses-filter-tag find-courses-filter-tag-dark">
+                          Tópico:{" "}
+                          {
+                            topics.find(
+                              (topic) => topic.ID_TOPICO == selectedTopic
+                            )?.TITULO
+                          }
+                          <button
+                            className="find-courses-filter-tag-close"
+                            onClick={() => setSelectedTopic("")}
                           >
                             <X size={12} />
                           </button>
@@ -466,6 +549,15 @@ function FindCoursesPage() {
                           </button>
                         </span>
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Loading indicator para lazy loading */}
+                {loading && courses.length > 0 && (
+                  <div className="find-courses-loading">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">A carregar...</span>
                     </div>
                   </div>
                 )}
@@ -526,15 +618,6 @@ function FindCoursesPage() {
                     </div>
                   )}
                 </div>
-
-                {/* Loading indicator para lazy loading */}
-                {loading && courses.length > 0 && (
-                  <div className="find-courses-loading">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">A carregar...</span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
