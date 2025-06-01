@@ -9,6 +9,7 @@ const {
   getCursosInscritos,
   updateUser,
   getUsers,
+  getProfiles,
 } = require("../controllers/user.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
@@ -21,5 +22,6 @@ router.get("/student-courses", authenticateToken, getCursosInscritos);
 router.post("/enter-course/:courseId", authenticateToken, inscreverEmCurso);
 router.post("/verify-course/:courseId", authenticateToken, verificarInscricao);
 router.post("/change-name", authenticateToken, updateUser);
+router.get("/profiles", authenticateToken, getProfiles);
 
 module.exports = router;

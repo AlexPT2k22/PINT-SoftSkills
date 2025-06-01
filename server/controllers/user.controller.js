@@ -473,6 +473,36 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getProfiles = async (req, res) => {
+  try {
+    const userId = req.user.ID_UTILIZADOR;
+
+    // Verifica se o utilizador tem o perfil de gestor
+    const userIsAdmin = await UtilizadorTemPerfil.findOne({
+      where: {
+        ID_UTILIZADOR: userId,
+        ID_PERFIL: 3, // ID do perfil de gestor
+      },
+    });
+
+    if (!userIsAdmin) {
+      return res.status(403).json({
+        message: "Acesso negado. Apenas gestores podem ver esta lista.",
+      });
+    }
+
+    // Busca todos os perfis
+    const perfis = await Perfil.findAll({
+      attributes: ["ID_PERFIL", "PERFIL"],
+    });
+
+    res.status(200).json(perfis);
+  } catch (error) {
+    console.error("Erro ao buscar perfis:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getTeachers,
   getCursosAssociados,
@@ -481,4 +511,5 @@ module.exports = {
   getCursosInscritos,
   updateUser,
   getUsers,
+  getProfiles,
 };

@@ -46,7 +46,7 @@ function GerirUsers() {
   // Buscar perfis disponíveis
   const getProfiles = async () => {
     try {
-      const response = await axios.get(`${URL}/api/perfis`, {
+      const response = await axios.get(`${URL}/api/user/profiles`, {
         withCredentials: true,
       });
       setProfiles(response.data);
@@ -69,19 +69,17 @@ function GerirUsers() {
 
     const matchesProfile =
       filterProfile === "" ||
-      user.UTILIZADOR_TEM_PERFILs?.some(
-        (profile) => profile.PERFIL?.PERFIL === filterProfile
-      );
+      (user.PERFILs &&
+        user.PERFILs.length > 0 &&
+        user.PERFILs[0].PERFIL === filterProfile);
 
     return matchesSearch && matchesProfile;
   });
 
-  // Função para editar utilizador
   const handleEditUser = (user) => {
     setEditingUser({
       ...user,
-      selectedProfiles:
-        user.UTILIZADOR_TEM_PERFILs?.map((p) => p.ID_PERFIL) || [],
+      selectedProfile: user.PERFILs?.[0]?.ID_PERFIL || null,
     });
   };
 
@@ -92,7 +90,7 @@ function GerirUsers() {
         NOME: editingUser.NOME,
         EMAIL: editingUser.EMAIL,
         LINKEDIN: editingUser.LINKEDIN,
-        profiles: editingUser.selectedProfiles,
+        profileId: editingUser.selectedProfile, // Enviar apenas um perfil
       };
 
       await axios.put(
@@ -207,7 +205,7 @@ function GerirUsers() {
                       <th>Utilizador</th>
                       <th>Email</th>
                       <th>LinkedIn</th>
-                      <th>Perfil(s)</th>
+                      <th>Perfil</th>
                       <th>Ações</th>
                     </tr>
                   </thead>
@@ -216,9 +214,6 @@ function GerirUsers() {
                       <tr key={user.ID_UTILIZADOR}>
                         <td>
                           <div className="user-info d-flex align-items-center">
-                            <div className="me-3">
-                              <User size={20} />
-                            </div>
                             <div className="user-details">
                               <div className="user-name">
                                 {user?.NOME || "Sem nome"}
@@ -231,7 +226,6 @@ function GerirUsers() {
                         </td>
                         <td>
                           <div className="d-flex align-items-center">
-                            <Mail size={16} className="me-2 text-muted" />
                             {user.EMAIL}
                           </div>
                         </td>
@@ -243,7 +237,6 @@ function GerirUsers() {
                               rel="noopener noreferrer"
                               className="linkedin-link"
                             >
-                              <Linkedin size={16} className="me-1" />
                               Ver Perfil
                             </a>
                           ) : (
@@ -252,16 +245,13 @@ function GerirUsers() {
                         </td>
                         <td>
                           <div className="user-profiles">
-                            {user.UTILIZADOR_TEM_PERFILs?.map(
-                              (profile, index) => (
-                                <span
-                                  key={index}
-                                  className={`badge profile-badge profile-${profile.PERFIL?.PERFIL?.toLowerCase()}`}
-                                >
-                                  {profile.PERFIL?.PERFIL}
-                                </span>
-                              )
-                            ) || (
+                            {user.PERFILs && user.PERFILs.length > 0 ? (
+                              <span
+                                className={`badge profile-badge profile-${user.PERFILs[0].PERFIL.toLowerCase()}`}
+                              >
+                                {user.PERFILs[0].PERFIL}
+                              </span>
+                            ) : (
                               <span className="badge bg-secondary">
                                 Sem perfil
                               </span>
@@ -379,46 +369,29 @@ function GerirUsers() {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Perfis</label>
-                    <div className="profiles-checkboxes">
+                    <label className="form-label">Perfil</label>
+                    <select
+                      className="form-select"
+                      value={editingUser.selectedProfile || ""}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          selectedProfile: e.target.value
+                            ? parseInt(e.target.value)
+                            : null,
+                        })
+                      }
+                    >
+                      <option value="">Selecionar perfil</option>
                       {profiles.map((profile) => (
-                        <div key={profile.ID_PERFIL} className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`profile-${profile.ID_PERFIL}`}
-                            checked={editingUser.selectedProfiles.includes(
-                              profile.ID_PERFIL
-                            )}
-                            onChange={(e) => {
-                              const profileId = profile.ID_PERFIL;
-                              let newProfiles = [
-                                ...editingUser.selectedProfiles,
-                              ];
-
-                              if (e.target.checked) {
-                                newProfiles.push(profileId);
-                              } else {
-                                newProfiles = newProfiles.filter(
-                                  (id) => id !== profileId
-                                );
-                              }
-
-                              setEditingUser({
-                                ...editingUser,
-                                selectedProfiles: newProfiles,
-                              });
-                            }}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor={`profile-${profile.ID_PERFIL}`}
-                          >
-                            {profile.PERFIL}
-                          </label>
-                        </div>
+                        <option
+                          key={profile.ID_PERFIL}
+                          value={profile.ID_PERFIL}
+                        >
+                          {profile.PERFIL}
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
                 </form>
               </div>
