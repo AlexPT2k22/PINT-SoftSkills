@@ -30,6 +30,7 @@ import ChangePasswordPage from "./ChangePasswordPage.jsx";
 import SettingsPage from "./settings.jsx";
 import GerirCategorias from "./gerirCategorias.jsx";
 import FindCoursesPage from "./findCourses.jsx";
+import GerirUsers from "./gerirUsers.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -104,6 +105,14 @@ function App() {
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
         <Route path="/find-courses" element={<FindCoursesPage />} />
+        <Route
+          path="/dashboard/users"
+          element={
+            <ProtectedRoute>
+              <GerirUsers />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/categories"
           element={

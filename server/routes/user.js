@@ -8,13 +8,12 @@ const {
   verificarInscricao,
   getCursosInscritos,
   updateUser,
+  getUsers,
 } = require("../controllers/user.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
 // rota para /user/*
-router.get("/", async (req, res) => {
-  res.send("lista de users"); //teste
-});
+router.get("/", authenticateToken, getUsers);
 
 router.get("/teachers", getTeachers);
 router.get("/teacher-courses", authenticateToken, getCursosAssociados);

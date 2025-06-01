@@ -15,6 +15,7 @@ import {
   UserRoundCheck,
   ShieldAlert,
   LogOut,
+  UsersRound,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 
@@ -212,6 +213,19 @@ function Sidebar({ onToggle }) {
                       >
                         <FolderCog size={20} className="me-3" />
                         {!collapsed && <span>Gerir categorias</span>}
+                      </Link>
+                    </li>
+
+                    <li className="nav-item">
+                      <Link
+                        to="/dashboard/users"
+                        className={`nav-link ${
+                          isActive("/dashboard/users") ? "active" : ""
+                        }`}
+                        onClick={() => mobileView && setCollapsed(true)}
+                      >
+                        <UsersRound size={20} className="me-3" />
+                        {!collapsed && <span>Gerir utilizadores</span>}
                       </Link>
                     </li>
                   </>
