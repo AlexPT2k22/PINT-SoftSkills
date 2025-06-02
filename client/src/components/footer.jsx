@@ -5,15 +5,18 @@ function Footer() {
     <>
       <footer className="mt-5 pt-5 pb-4">
         <div className="container">
-          <div className="row">
+          <div className="row justify-content-between">
             <div className="col-lg-4 col-md-6 mb-4 mb-md-0">
-              <h5 className="mb-3">SoftSkills</h5>
+              <h5 className="mb-3">SoftSkills by SOFTINSA</h5>
               <p className="text-muted">
                 Plataforma de aprendizagem online para desenvolvimento de
                 competências transversais.
               </p>
               <div className="d-flex gap-3 mt-3">
-                <a href="#" className="text-decoration-none text-secondary">
+                <a
+                  href="https://www.facebook.com/Softinsa"
+                  className="text-decoration-none text-secondary"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -28,22 +31,10 @@ function Footer() {
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                   </svg>
                 </a>
-                <a href="#" className="text-decoration-none text-secondary">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
-                  </svg>
-                </a>
-                <a href="#" className="text-decoration-none text-secondary">
+                <a
+                  href="https://www.instagram.com/softinsa/"
+                  className="text-decoration-none text-secondary"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -67,7 +58,10 @@ function Footer() {
                     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                   </svg>
                 </a>
-                <a href="#" className="text-decoration-none text-secondary">
+                <a
+                  href="https://www.linkedin.com/company/softinsa/"
+                  className="text-decoration-none text-secondary"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -87,27 +81,17 @@ function Footer() {
               </div>
             </div>
 
+            <div className="col-lg-2 col-md-6 mb-4 mb-md-0"></div>
+
             <div className="col-lg-2 col-md-6 mb-4 mb-md-0">
               <h5 className="mb-3">Recursos</h5>
               <ul className="list-unstyled">
                 <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
+                  <a
+                    href="/find-courses"
+                    className="text-decoration-none text-secondary"
+                  >
                     Cursos
-                  </a>
-                </li>
-                <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
-                    Tutoriais
-                  </a>
-                </li>
-                <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
-                    Webinars
-                  </a>
-                </li>
-                <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
-                    Comunidade
                   </a>
                 </li>
               </ul>
@@ -117,44 +101,30 @@ function Footer() {
               <h5 className="mb-3">Empresa</h5>
               <ul className="list-unstyled">
                 <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
+                  <a
+                    href="https://www.softinsa.pt/pt/softinsa/"
+                    className="text-decoration-none text-secondary"
+                  >
                     Sobre nós
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
+                  <a
+                    href="https://www.softinsa.pt/pt/contactos/"
+                    className="text-decoration-none text-secondary"
+                  >
                     Contacto
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
+                  <a
+                    href="https://www.softinsa.pt/pt/carreiras/"
+                    className="text-decoration-none text-secondary"
+                  >
                     Carreiras
                   </a>
                 </li>
-                <li className="mb-2">
-                  <a href="#" className="text-decoration-none text-secondary">
-                    Blog
-                  </a>
-                </li>
               </ul>
-            </div>
-
-            <div className="col-lg-4 col-md-6 mb-4 mb-md-0">
-              <h5 className="mb-3">Subscreva a nossa newsletter</h5>
-              <div className="input-group mb-3">
-                <input
-                  type="email"
-                  className="form-control"
-                  placeholder="O seu email"
-                  aria-label="Email"
-                />
-                <button className="btn btn-primary" type="button">
-                  Subscrever
-                </button>
-              </div>
-              <p className="text-muted small">
-                Receba as últimas novidades e conteúdos exclusivos.
-              </p>
             </div>
           </div>
 
@@ -166,12 +136,15 @@ function Footer() {
             </div>
             <div className="col-md-6 text-center text-md-end">
               <a
-                href="#"
+                href="https://www.softinsa.pt/pt/condicoes-de-utilizacao/"
                 className="text-decoration-none text-secondary small me-3"
               >
                 Termos de Serviço
               </a>
-              <a href="#" className="text-decoration-none text-secondary small">
+              <a
+                href="https://www.softinsa.pt/pt/politica-de-privacidade/"
+                className="text-decoration-none text-secondary small"
+              >
                 Política de Privacidade
               </a>
             </div>
