@@ -22,8 +22,7 @@ import "./styles/userPage.css";
 function UserPage() {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
-  const [completedCourses, setCompletedCourses] = useState([]);
-  const [certificates, setCertificates] = useState([]);
+  const [statistics, setStatistics] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -36,6 +35,12 @@ function UserPage() {
         const userResponse = await axios.get(
           `http://localhost:4000/api/user/${userId}`
         );
+
+        const statisticsResponse = await axios.get(
+          `http://localhost:4000/api/user/statistics/${userId}`
+        );
+
+        setStatistics(statisticsResponse.data);
         setUser(userResponse.data);
       } catch (err) {
         console.error("Erro ao carregar dados do utilizador:", err);
@@ -147,7 +152,7 @@ function UserPage() {
               <div className="about-section">
                 <div className="row">
                   <div className="col-md-8">
-                    <h5 className="fw-bold mb-3">Biografia</h5>
+                    <h5 className="fw-bold mb-3">Estatísticas</h5>
                     {user.bio ? (
                       <p className="text-muted">{user.bio}</p>
                     ) : (
