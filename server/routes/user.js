@@ -11,6 +11,7 @@ const {
   getUsers,
   getProfiles,
   changeUser,
+  getUser
 } = require("../controllers/user.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
@@ -25,5 +26,6 @@ router.post("/verify-course/:courseId", authenticateToken, verificarInscricao);
 router.post("/change-name", authenticateToken, updateUser);
 router.get("/profiles", authenticateToken, getProfiles);
 router.put("/:id", authenticateToken, changeUser);
+router.get("/:id", getUser);
 
 module.exports = router;
