@@ -51,6 +51,19 @@ function CourseCard({ course }) {
     }
   };
 
+  const dificuldadeBadge = (dificuldade) => {
+    switch (dificuldade) {
+      case "Iniciante":
+        return "bg-success";
+      case "Intermédio":
+        return "bg-warning";
+      case "Difícil":
+        return "bg-danger";
+      default:
+        return "bg-secondary";
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { month: "numeric", day: "numeric" };
     return new Date(dateString).toLocaleDateString("pt-PT", options);
@@ -80,6 +93,15 @@ function CourseCard({ course }) {
           {calculateStatus(course)
             ? calculateStatus(course)
             : "Status desconhecido"}
+        </span>
+        <span
+          className={`badge ${dificuldadeBadge(
+            course.DIFICULDADE_CURSO__
+          )} fs-6 ms-2`}
+        >
+          {course.DIFICULDADE_CURSO__
+            ? course.DIFICULDADE_CURSO__
+            : "Sem dificuldade"}
         </span>
       </div>
       <img

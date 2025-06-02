@@ -12,6 +12,7 @@ import { MessagesSquare } from "lucide-react";
 import { User } from "lucide-react";
 import { Star } from "lucide-react";
 import Footer from "./components/footer.jsx";
+import { useNavigate } from "react-router-dom";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -24,6 +25,7 @@ function WelcomePage() {
   const [isloadingCourses, setIsLoadingCourses] = useState(false);
   const [error, setError] = useState(null);
   const [activeFeature, setActiveFeature] = useState("certification");
+  const navigate = useNavigate();
 
   const featureImages = {
     certification: "./images/undraw_certificate.svg",
@@ -130,7 +132,14 @@ function WelcomePage() {
           </div>
         </div>
         <div className="d-flex justify-content-start mb-3 mt-3">
-          <button className="btn btn-primary fs-5">Ver todos os cursos</button>
+          <button
+            className="btn btn-primary fs-5"
+            onClick={() => {
+              navigate("/find-courses");
+            }}
+          >
+            Ver todos os cursos
+          </button>
         </div>
 
         <div className="container mt-5 p-0">

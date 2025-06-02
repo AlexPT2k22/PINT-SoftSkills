@@ -17,14 +17,14 @@
   height: 4.5rem;
 }
 
-.search-input {
+.search-input-navbar {
   border-radius: 1.25rem;
   border: 1px solid #39639c;
   background: #fff;
   max-width: 65rem;
 }
 
-.search-input:focus {
+.search-input-navbar:focus {
   box-shadow: none !important;
   outline: none !important;
   border-color: #39639c;

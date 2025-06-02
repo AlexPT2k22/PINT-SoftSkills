@@ -537,6 +537,25 @@ const changeUser = async (req, res) => {
       utilizador.NOME = NOME;
     }
 
+    if (LINKEDIN) {
+      utilizador.LINKEDIN = LINKEDIN;
+    }
+
+    if (EMAIL) {
+      // Verifica se o email já está em uso por outro utilizador
+      const emailExistente = await Utilizador.findOne({
+        where: {
+          EMAIL: EMAIL,
+          ID_UTILIZADOR: { [Op.ne]: userId }, // Exclui o utilizador atual
+        },
+      });
+
+      if (emailExistente) {
+        return res.status(400).json({ message: "Email já está em uso" });
+      }
+      utilizador.EMAIL = EMAIL;
+    }
+
     // Atualiza o perfil se fornecido
     if (profileId) {
       const perfilExistente = await Perfil.findByPk(profileId);

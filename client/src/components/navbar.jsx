@@ -244,12 +244,12 @@ function Navbar() {
 
           <form className="d-flex flex-grow-1 mx-4" onSubmit={handleSearch}>
             <div className="input-group">
-              <span className="input-group-text bg-white border-end-0 search-input">
+              <span className="input-group-text bg-white border-end-0 search-input-navbar">
                 <Search strokeWidth={1.5} color="#39639C" />
               </span>
               <input
                 type="search"
-                className="form-control border-start-0 ps-0 search-input"
+                className="form-control border-start-0 ps-0 search-input-navbar"
                 placeholder="Procure por um curso"
                 aria-label="Search"
                 value={searchTerm}
