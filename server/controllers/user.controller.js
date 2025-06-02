@@ -581,48 +581,6 @@ const changeUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
-  try {
-    const adminId = req.user.ID_UTILIZADOR;
-    const userId = req.params.id;
-
-    // Verifica se o utilizador tem o perfil de gestor
-    const userIsAdmin = await UtilizadorTemPerfil.findOne({
-      where: {
-        ID_UTILIZADOR: adminId,
-        ID_PERFIL: 3, // ID do perfil de gestor
-      },
-    });
-
-    if (!userIsAdmin) {
-      return res.status(403).json({
-        message: "Acesso negado. Apenas gestores podem excluir utilizadores.",
-      });
-    }
-
-    // Verifica se o ID do utilizador a ser excluído é válido
-    if (!userId || isNaN(userId)) {
-      return res.status(400).json({ message: "ID de utilizador inválido" });
-    }
-
-    // Verifica se o utilizador existe
-    const utilizador = await Utilizador.findByPk(userId);
-    if (!utilizador) {
-      return res.status(404).json({ message: "Utilizador não encontrado" });
-    }
-
-    // Exclui o utilizador
-    await utilizador.destroy();
-
-    res.status(200).json({
-      success: true,
-      message: "Utilizador excluído com sucesso",
-    });
-  } catch (error) {
-    console.error("Erro ao excluir utilizador:", error);
-    res.status(500).json({ message: error.message });
-  }
-};
 
 module.exports = {
   getTeachers,
@@ -634,5 +592,4 @@ module.exports = {
   getUsers,
   getProfiles,
   changeUser,
-  deleteUser,
 };

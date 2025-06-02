@@ -8,8 +8,8 @@ function CourseCard({ course }) {
   const navigate = useNavigate();
 
   const calculateStatus = (course) => {
-    if (course.CURSO_ASSINCRONO) {
-      const { DATA_INICIO, DATA_FIM } = course.CURSO_ASSINCRONO;
+    if (course.CURSO_SINCRONO) {
+      const { DATA_INICIO, DATA_FIM } = course.CURSO_SINCRONO;
       const now = new Date();
       if (now < new Date(DATA_INICIO)) {
         return "Brevemente";
@@ -18,8 +18,8 @@ function CourseCard({ course }) {
       } else {
         return "Terminado";
       }
-    } else if (course.CURSO_SINCRONO) {
-      const { DATA_INICIO, DATA_FIM } = course.CURSO_SINCRONO;
+    } else if (course.CURSO_ASSINCRONO) {
+      const { DATA_INICIO, DATA_FIM } = course.CURSO_ASSINCRONO;
       const now = new Date();
       if (
         now < new Date(DATA_INICIO) ||

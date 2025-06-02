@@ -1,0 +1,160 @@
+.verify-certificate-page {
+  min-height: 100vh;
+}
+
+.verification-card {
+  border-radius: 16px;
+  margin-top: 2rem;
+}
+
+.verification-card .card-header {
+  background: #d6dee8;
+  border-radius: 16px 16px 0 0;
+  padding: 3rem 2rem;
+}
+
+.verification-input {
+  box-shadow: 0 4px 20px rgba(57, 99, 156, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.verification-input input {
+  font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+}
+
+.verification-result {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.certificate-details {
+  background: #f8f9fd;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.detail-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.detail-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(57, 99, 156, 0.15) !important;
+}
+
+.detail-icon {
+  background: linear-gradient(135deg, #39639c 0%, #2c5aa0 100%);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1e293b;
+  word-break: break-word;
+}
+
+.titulo {
+  color: #39639c;
+}
+
+.verification-code {
+  font-family: "Courier New", monospace;
+  background: #f1f5f9;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}
+
+.verification-instructions {
+  background: #f8f9fd;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.instruction-item {
+  padding: 1rem;
+}
+
+.verification-footer {
+  color: #64748b;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .verification-card .card-header {
+    padding: 2rem 1rem;
+  }
+
+  .certificate-details {
+    padding: 1.5rem 1rem;
+  }
+
+  .verification-instructions {
+    padding: 1.5rem 1rem;
+  }
+
+  .verification-input {
+    flex-direction: column;
+  }
+
+  .verification-input .input-group-text,
+  .verification-input .form-control,
+  .verification-input .btn {
+    border-radius: 0;
+  }
+
+  .verification-input .input-group-text {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+
+  .verification-input .btn {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+}

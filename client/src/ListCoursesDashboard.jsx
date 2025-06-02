@@ -81,8 +81,39 @@ function ListCoursesDashboard() {
 
     const courseStatus =
       course.CURSO_SINCRONO === null
-        ? course.CURSO_ASSINCRONO?.ESTADO
-        : course.CURSO_SINCRONO?.ESTADO;
+        ? (() => {
+            const today = new Date();
+            const dataFim = course.CURSO_ASSINCRONO?.DATA_FIM
+              ? new Date(course.CURSO_ASSINCRONO.DATA_FIM)
+              : null;
+
+            if (dataFim && dataFim < today) {
+              return "Terminado";
+            } else {
+              return "Ativo";
+            }
+          })()
+        : (() => {
+            const today = new Date();
+            const dataInicio = course.CURSO_SINCRONO?.DATA_INICIO
+              ? new Date(course.CURSO_SINCRONO.DATA_INICIO)
+              : null;
+            const dataFim = course.CURSO_SINCRONO?.DATA_FIM
+              ? new Date(course.CURSO_SINCRONO.DATA_FIM)
+              : null;
+
+            if (dataInicio && dataFim) {
+              if (today < dataInicio) {
+                return "Brevemente";
+              } else if (today >= dataInicio && today <= dataFim) {
+                return "Em curso";
+              } else {
+                return "Terminado";
+              }
+            } else {
+              return "Brevemente";
+            }
+          })();
     const matchesStatus = filterStatus === "" || courseStatus === filterStatus;
 
     const matchesCategory =
@@ -115,11 +146,42 @@ function ListCoursesDashboard() {
   const uniqueStatuses = [
     ...new Set(
       courses
-        .map((course) =>
-          course.CURSO_SINCRONO === null
-            ? course.CURSO_ASSINCRONO?.ESTADO
-            : course.CURSO_SINCRONO?.ESTADO
-        )
+        .map((course) => {
+          if (course.CURSO_SINCRONO === null) {
+            // Curso assíncrono
+            const today = new Date();
+            const dataFim = course.CURSO_ASSINCRONO?.DATA_FIM
+              ? new Date(course.CURSO_ASSINCRONO.DATA_FIM)
+              : null;
+
+            if (dataFim && dataFim < today) {
+              return "Terminado";
+            } else {
+              return "Ativo";
+            }
+          } else {
+            // Curso síncrono
+            const today = new Date();
+            const dataInicio = course.CURSO_SINCRONO?.DATA_INICIO
+              ? new Date(course.CURSO_SINCRONO.DATA_INICIO)
+              : null;
+            const dataFim = course.CURSO_SINCRONO?.DATA_FIM
+              ? new Date(course.CURSO_SINCRONO.DATA_FIM)
+              : null;
+
+            if (dataInicio && dataFim) {
+              if (today < dataInicio) {
+                return "Brevemente";
+              } else if (today >= dataInicio && today <= dataFim) {
+                return "Em curso";
+              } else {
+                return "Terminado";
+              }
+            } else {
+              return "Brevemente";
+            }
+          }
+        })
         .filter(Boolean)
     ),
   ];
@@ -132,29 +194,48 @@ function ListCoursesDashboard() {
 
   // Função para obter status badge
   const getStatusBadge = (course) => {
-    const status =
-      course.CURSO_SINCRONO === null
-        ? course.CURSO_ASSINCRONO?.ESTADO
-        : course.CURSO_SINCRONO?.ESTADO;
+    let status;
+    let badgeClass;
 
-    let badgeClass = "badge ";
-    switch (status?.toLowerCase()) {
-      case "ativo":
-      case "disponível":
-        badgeClass += "bg-success";
-        break;
-      case "inativo":
-      case "cancelado":
-        badgeClass += "bg-danger";
-        break;
-      case "programado":
-        badgeClass += "bg-primary";
-        break;
-      case "em andamento":
-        badgeClass += "bg-warning";
-        break;
-      default:
-        badgeClass += "bg-secondary";
+    if (course.CURSO_SINCRONO === null) {
+      // Curso assíncrono
+      const today = new Date();
+      const dataFim = course.CURSO_ASSINCRONO?.DATA_FIM
+        ? new Date(course.CURSO_ASSINCRONO.DATA_FIM)
+        : null;
+
+      if (dataFim && dataFim < today) {
+        status = "Terminado";
+        badgeClass = "badge bg-danger";
+      } else {
+        status = "Ativo";
+        badgeClass = "badge bg-success";
+      }
+    } else {
+      // Curso síncrono
+      const today = new Date();
+      const dataInicio = course.CURSO_SINCRONO?.DATA_INICIO
+        ? new Date(course.CURSO_SINCRONO.DATA_INICIO)
+        : null;
+      const dataFim = course.CURSO_SINCRONO?.DATA_FIM
+        ? new Date(course.CURSO_SINCRONO.DATA_FIM)
+        : null;
+
+      if (dataInicio && dataFim) {
+        if (today < dataInicio) {
+          status = "Brevemente";
+          badgeClass = "badge bg-info";
+        } else if (today >= dataInicio && today <= dataFim) {
+          status = "Em curso";
+          badgeClass = "badge bg-primary";
+        } else {
+          status = "Terminado";
+          badgeClass = "badge bg-danger";
+        }
+      } else {
+        status = "Brevemente";
+        badgeClass = "badge bg-info";
+      }
     }
 
     return <span className={badgeClass}>{status || "Sem estado"}</span>;
@@ -164,7 +245,7 @@ function ListCoursesDashboard() {
     <>
       <NavbarDashboard />
       <Sidebar />
-      <div className="container mt-4 p-4"> 
+      <div className="container mt-4 p-4">
         <div className="container-fluid">
           {showSuccessMessage && (
             <SuccessMessage
@@ -181,9 +262,7 @@ function ListCoursesDashboard() {
 
           {/* Header */}
           <div className="courses-management-header">
-            <h2 className="courses-title">
-              Gerir Cursos
-            </h2>
+            <h2 className="courses-title">Gerir Cursos</h2>
           </div>
 
           {/* Filtros e Pesquisa */}

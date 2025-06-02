@@ -98,7 +98,6 @@ const gerarCertificado = async (req, res) => {
     );
     const pdfUrl = `/certificates/${certificado.CODIGO_VERIFICACAO}.pdf`;
 
-
     // Create PDF with better styling
     const doc = new PDFDocument({
       layout: "landscape",
@@ -186,14 +185,9 @@ const gerarCertificado = async (req, res) => {
       .font("Helvetica")
       .fontSize(16)
       .fillColor("#373737")
-      .text(
-        "Este certificado é conferido a",
-        0,
-        centerY + 70,
-        {
-          align: "center",
-        }
-      );
+      .text("Este certificado é conferido a", 0, centerY + 70, {
+        align: "center",
+      });
 
     doc
       .font("Helvetica-Bold")
@@ -207,14 +201,9 @@ const gerarCertificado = async (req, res) => {
       .font("Helvetica")
       .fontSize(16)
       .fillColor("#373737")
-      .text(
-        "pela conclusão com êxito do curso",
-        0,
-        centerY + 150,
-        {
-          align: "center",
-        }
-      );
+      .text("pela conclusão com êxito do curso", 0, centerY + 150, {
+        align: "center",
+      });
 
     doc
       .font("Helvetica-Bold")
@@ -252,7 +241,7 @@ const gerarCertificado = async (req, res) => {
 
     // Generate QR code with verification URL
     const qrCodeDataUrl = await QRCode.toDataURL(
-      `http://localhost:4000/api/certificados/verificar/${certificado.CODIGO_VERIFICACAO}`,
+      `http://localhost:4000/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
       qrOptions
     );
 
@@ -302,7 +291,7 @@ const verificarCertificado = async (req, res) => {
     const certificado = await Certificado.findOne({
       where: { CODIGO_VERIFICACAO: codigo },
       include: [
-        { model: Utilizador, attributes: ["USERNAME"] },
+        { model: Utilizador, attributes: ["NOME"] },
         { model: Curso, attributes: ["NOME"] },
       ],
     });
@@ -321,7 +310,7 @@ const verificarCertificado = async (req, res) => {
       certificado: {
         codigo: certificado.CODIGO_VERIFICACAO,
         dataEmissao: certificado.DATA_EMISSAO,
-        aluno: certificado.UTILIZADOR.USERNAME,
+        aluno: certificado.UTILIZADOR.NOME,
         curso: certificado.CURSO.NOME,
       },
     });
