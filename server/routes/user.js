@@ -11,7 +11,8 @@ const {
   getUsers,
   getProfiles,
   changeUser,
-  getUser
+  getUser,
+  getUserStatistics,
 } = require("../controllers/user.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
@@ -27,5 +28,7 @@ router.post("/change-name", authenticateToken, updateUser);
 router.get("/profiles", authenticateToken, getProfiles);
 router.put("/:id", authenticateToken, changeUser);
 router.get("/:id", getUser);
+router.get("/:id/statistics", getUserStatistics);
+
 
 module.exports = router;

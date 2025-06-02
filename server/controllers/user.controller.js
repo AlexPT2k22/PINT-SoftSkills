@@ -599,6 +599,8 @@ const getUser = async (req, res) => {
         "LINKEDIN",
         "DATA_CRIACAO",
         "ULTIMO_LOGIN",
+        "EMAIL",
+        "XP",
       ],
       include: [
         {
@@ -623,6 +625,207 @@ const getUser = async (req, res) => {
   }
 };
 
+// server/controllers/user.controller.js - Adicione esta função
+
+const getUserStatistics = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Verifica se o ID do utilizador é válido
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: "ID de utilizador inválido" });
+    }
+
+    // Buscar o utilizador
+    const utilizador = await Utilizador.findByPk(userId);
+    if (!utilizador) {
+      return res.status(404).json({ message: "Utilizador não encontrado" });
+    }
+
+    // 1. Buscar cursos síncronos inscritos
+    const cursosSincronosInscritos = await InscricaoSincrono.findAll({
+      where: { ID_UTILIZADOR: userId },
+      include: [
+        {
+          model: CursoSincrono,
+          include: [
+            {
+              model: Curso,
+              attributes: ["ID_CURSO", "NOME"],
+            },
+          ],
+        },
+      ],
+    });
+
+    // 2. Buscar cursos assíncronos inscritos
+    const cursosAssincronosInscritos = await InscricaoAssincrono.findAll({
+      where: { ID_UTILIZADOR: userId },
+      include: [
+        {
+          model: CursoAssincrono,
+          include: [
+            {
+              model: Curso,
+              attributes: ["ID_CURSO", "NOME"],
+            },
+          ],
+        },
+      ],
+    });
+
+    // 3. Total de cursos
+    const totalCursos = cursosSincronosInscritos.length + cursosAssincronosInscritos.length;
+
+    // 4. Buscar todas as submissões de avaliações do utilizador para calcular nota média
+    const { SubmissaoAvaliacao } = require("../models/index.js");
+    const submissoes = await SubmissaoAvaliacao.findAll({
+      where: {
+        ID_UTILIZADOR: userId,
+        NOTA: { [Op.ne]: null }, // Só submissões que já foram avaliadas
+      },
+      attributes: ["NOTA"],
+    });
+
+    // Calcular nota média
+    let notaMedia = 0;
+    if (submissoes.length > 0) {
+      const somaNotas = submissoes.reduce(
+        (soma, submissao) => soma + parseFloat(submissao.NOTA),
+        0
+      );
+      notaMedia = parseFloat((somaNotas / submissoes.length).toFixed(1));
+    }
+
+    // 5. Extrair IDs dos cursos de forma mais robusta
+    const { ProgressoModulo, Modulos } = require("../models/index.js");
+
+    // Tentar diferentes formas de extrair os IDs
+    let cursosIdsSincronos = [];
+    let cursosIdsAssincronos = [];
+
+    // Para cursos síncronos
+    cursosSincronosInscritos.forEach(inscricao => {
+      
+      // Tentar diferentes caminhos para o ID do curso
+      let cursoId = null;
+      if (inscricao.CursoSincrono?.Curso?.ID_CURSO) {
+        cursoId = inscricao.CursoSincrono.Curso.ID_CURSO;
+      } else if (inscricao.CursoSincrono?.ID_CURSO) {
+        cursoId = inscricao.CursoSincrono.ID_CURSO;
+      } else if (inscricao.ID_CURSO_SINCRONO) {
+        // Se não conseguir pelo include, usar o ID do curso síncrono diretamente
+        cursoId = inscricao.ID_CURSO_SINCRONO;
+      }
+      
+      if (cursoId) {
+        cursosIdsSincronos.push(cursoId);
+      }
+    });
+
+    // Para cursos assíncronos
+    cursosAssincronosInscritos.forEach(inscricao => {
+      // Tentar diferentes caminhos para o ID do curso
+      let cursoId = null;
+      if (inscricao.CursoAssincrono?.Curso?.ID_CURSO) {
+        cursoId = inscricao.CursoAssincrono.Curso.ID_CURSO;
+      } else if (inscricao.CursoAssincrono?.ID_CURSO) {
+        cursoId = inscricao.CursoAssincrono.ID_CURSO;
+      }
+      
+      if (cursoId) {
+        cursosIdsAssincronos.push(cursoId);
+      }
+    });
+
+    // Se ainda não conseguiu os IDs, tentar uma abordagem alternativa
+    if (cursosIdsSincronos.length === 0 && cursosSincronosInscritos.length > 0) {
+      
+      for (const inscricao of cursosSincronosInscritos) {
+        const cursoSincrono = await CursoSincrono.findByPk(inscricao.ID_CURSO_SINCRONO);
+        if (cursoSincrono && cursoSincrono.ID_CURSO) {
+          cursosIdsSincronos.push(cursoSincrono.ID_CURSO);
+
+        }
+      }
+    }
+
+    if (cursosIdsAssincronos.length === 0 && cursosAssincronosInscritos.length > 0) {
+      
+      for (const inscricao of cursosAssincronosInscritos) {
+        const cursoAssincrono = await CursoAssincrono.findByPk(inscricao.ID_CURSO_ASSINCRONO);
+        if (cursoAssincrono && cursoAssincrono.ID_CURSO) {
+          cursosIdsAssincronos.push(cursoAssincrono.ID_CURSO);
+        }
+      }
+    }
+
+    const cursosIds = [...cursosIdsSincronos, ...cursosIdsAssincronos];
+
+    let cursosCompletados = 0;
+
+    for (const cursoId of cursosIds) {
+
+      // Contar total de módulos do curso
+      const totalModulos = await Modulos.count({
+        where: { ID_CURSO: cursoId },
+      });
+
+      if (totalModulos === 0) {
+        console.log(`Curso ${cursoId} não tem módulos registados`);
+        continue;
+      }
+
+      // Contar módulos completados pelo utilizador
+      const modulosCompletos = await ProgressoModulo.count({
+        where: {
+          ID_UTILIZADOR: userId,
+          ID_CURSO: cursoId,
+          COMPLETO: true,
+        },
+      });
+
+
+      const detalhe = {
+        cursoId,
+        totalModulos,
+        modulosCompletos,
+        percentualCompleto:
+          totalModulos > 0
+            ? Math.round((modulosCompletos / totalModulos) * 100)
+            : 0,
+        completo: totalModulos > 0 && modulosCompletos === totalModulos,
+      };
+
+
+      // Se completou todos os módulos, conta como curso completado
+      if (totalModulos > 0 && modulosCompletos === totalModulos) {
+        cursosCompletados++;
+      }
+    }
+
+    //console.log(`\nTotal de cursos completados: ${cursosCompletados}`);
+    //console.log("Detalhes de completude:", detalhesCompletude);
+
+    // 6. XP atual do utilizador
+    const xpAtual = utilizador.XP || 0;
+
+    const estatisticas = {
+      xp: xpAtual,
+      notaMedia: notaMedia,
+      totalCursos: totalCursos,
+      cursosCompletados: cursosCompletados,
+      totalAvaliacoes: submissoes.length,
+      cursosAtivos: totalCursos - cursosCompletados,
+    };
+
+    res.status(200).json(estatisticas);
+  } catch (error) {
+    console.error("Erro ao buscar estatísticas do utilizador:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getTeachers,
   getCursosAssociados,
@@ -634,4 +837,5 @@ module.exports = {
   getProfiles,
   changeUser,
   getUser,
+  getUserStatistics,
 };

@@ -1,5 +1,5 @@
 .user-page-container {
-  min-height: calc(100vh - 200px);
+  min-height: calc(100vh - 390px);
 }
 
 .user-header-card {
@@ -30,14 +30,7 @@
 
 .stat-card {
   border-radius: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(57, 99, 156, 0.15) !important;
-}
-
 
 .info-list .info-item {
   font-size: 0.9rem;
@@ -95,5 +88,81 @@
   
   .profile-tabs .nav-link {
     text-align: center;
+  }
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.badge.bg-gold {
+  background-color: #ffd700 !important;
+  color: #000 !important;
+}
+
+.badge.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+.badge.bg-outline-gold {
+  border: 1px solid #ffd700;
+  color: #ffd700;
+  background-color: transparent;
+}
+
+.badge.bg-outline-purple {
+  border: 1px solid #6f42c1;
+  color: #6f42c1;
+  background-color: transparent;
+}
+
+.badge.bg-outline-blue {
+  border: 1px solid #0d6efd;
+  color: #0d6efd;
+  background-color: transparent;
+}
+
+.badge.bg-outline-green {
+  border: 1px solid #198754;
+  color: #198754;
+  background-color: transparent;
+}
+
+.info-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.progress {
+  border-radius: 10px;
+  background-color: #f8f9fa;
+}
+
+.progress-bar {
+  border-radius: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stat-card {
+    margin-bottom: 1rem;
+  }
+  
+  .user-header-card .row {
+    text-align: center;
+  }
+  
+  .user-links {
+    justify-content: center;
   }
 }

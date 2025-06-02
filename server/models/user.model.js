@@ -30,6 +30,11 @@ const Utilizador = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    XP: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+    },
     CC: {
       type: DataTypes.STRING(8),
       allowNull: true,
