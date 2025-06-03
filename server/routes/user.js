@@ -13,12 +13,20 @@ const {
   changeUser,
   getUser,
   getUserStatistics,
+  completeModule,
+  updateEvaluationGrade,
 } = require("../controllers/user.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
 // rota para /user/*
 router.get("/", authenticateToken, getUsers);
 
+router.post("/complete-module", authenticateToken, completeModule);
+router.post(
+  "/update-evaluation-grade",
+  authenticateToken,
+  updateEvaluationGrade
+);
 router.get("/teachers", getTeachers);
 router.get("/teacher-courses", authenticateToken, getCursosAssociados);
 router.get("/student-courses", authenticateToken, getCursosInscritos);
@@ -29,6 +37,5 @@ router.get("/profiles", authenticateToken, getProfiles);
 router.put("/:id", authenticateToken, changeUser);
 router.get("/:id", getUser);
 router.get("/:id/statistics", getUserStatistics);
-
 
 module.exports = router;

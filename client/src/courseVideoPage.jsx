@@ -95,25 +95,29 @@ function CourseVideoPage() {
   const markModuleAsCompleted = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/progress/courses/${courseId}/modules/${moduleId}/complete`,
-        {},
+        `http://localhost:4000/api/user/complete-module`,
+        {
+          cursoId: parseInt(courseId),
+          moduloId: parseInt(moduleId),
+        },
         { withCredentials: true }
       );
 
       if (response.data.success) {
-        // Immediately mark as completed in the UI
+        // Imediatamente marcar como completado na UI
         setModuleCompleted(true);
 
-        // Update the progress map with the new completed module
+        // Atualizar o mapa de progresso com o módulo completado
         setModuleProgress((prev) => ({
           ...prev,
           [moduleId]: true,
         }));
 
+        // Atualizar progresso do curso
         fetchCourseProgress();
 
         console.log(
-          `Module ${moduleId} completed! Course progress: ${response.data.progress}%`
+          `Module ${moduleId} completed! XP gained: ${response.data.xpGanho}`
         );
       }
     } catch (error) {

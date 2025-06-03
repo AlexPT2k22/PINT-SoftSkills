@@ -625,8 +625,6 @@ const getUser = async (req, res) => {
   }
 };
 
-// server/controllers/user.controller.js - Adicione esta função
-
 const getUserStatistics = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -675,7 +673,8 @@ const getUserStatistics = async (req, res) => {
     });
 
     // 3. Total de cursos
-    const totalCursos = cursosSincronosInscritos.length + cursosAssincronosInscritos.length;
+    const totalCursos =
+      cursosSincronosInscritos.length + cursosAssincronosInscritos.length;
 
     // 4. Buscar todas as submissões de avaliações do utilizador para calcular nota média
     const { SubmissaoAvaliacao } = require("../models/index.js");
@@ -705,8 +704,7 @@ const getUserStatistics = async (req, res) => {
     let cursosIdsAssincronos = [];
 
     // Para cursos síncronos
-    cursosSincronosInscritos.forEach(inscricao => {
-      
+    cursosSincronosInscritos.forEach((inscricao) => {
       // Tentar diferentes caminhos para o ID do curso
       let cursoId = null;
       if (inscricao.CursoSincrono?.Curso?.ID_CURSO) {
@@ -717,14 +715,14 @@ const getUserStatistics = async (req, res) => {
         // Se não conseguir pelo include, usar o ID do curso síncrono diretamente
         cursoId = inscricao.ID_CURSO_SINCRONO;
       }
-      
+
       if (cursoId) {
         cursosIdsSincronos.push(cursoId);
       }
     });
 
     // Para cursos assíncronos
-    cursosAssincronosInscritos.forEach(inscricao => {
+    cursosAssincronosInscritos.forEach((inscricao) => {
       // Tentar diferentes caminhos para o ID do curso
       let cursoId = null;
       if (inscricao.CursoAssincrono?.Curso?.ID_CURSO) {
@@ -732,28 +730,35 @@ const getUserStatistics = async (req, res) => {
       } else if (inscricao.CursoAssincrono?.ID_CURSO) {
         cursoId = inscricao.CursoAssincrono.ID_CURSO;
       }
-      
+
       if (cursoId) {
         cursosIdsAssincronos.push(cursoId);
       }
     });
 
     // Se ainda não conseguiu os IDs, tentar uma abordagem alternativa
-    if (cursosIdsSincronos.length === 0 && cursosSincronosInscritos.length > 0) {
-      
+    if (
+      cursosIdsSincronos.length === 0 &&
+      cursosSincronosInscritos.length > 0
+    ) {
       for (const inscricao of cursosSincronosInscritos) {
-        const cursoSincrono = await CursoSincrono.findByPk(inscricao.ID_CURSO_SINCRONO);
+        const cursoSincrono = await CursoSincrono.findByPk(
+          inscricao.ID_CURSO_SINCRONO
+        );
         if (cursoSincrono && cursoSincrono.ID_CURSO) {
           cursosIdsSincronos.push(cursoSincrono.ID_CURSO);
-
         }
       }
     }
 
-    if (cursosIdsAssincronos.length === 0 && cursosAssincronosInscritos.length > 0) {
-      
+    if (
+      cursosIdsAssincronos.length === 0 &&
+      cursosAssincronosInscritos.length > 0
+    ) {
       for (const inscricao of cursosAssincronosInscritos) {
-        const cursoAssincrono = await CursoAssincrono.findByPk(inscricao.ID_CURSO_ASSINCRONO);
+        const cursoAssincrono = await CursoAssincrono.findByPk(
+          inscricao.ID_CURSO_ASSINCRONO
+        );
         if (cursoAssincrono && cursoAssincrono.ID_CURSO) {
           cursosIdsAssincronos.push(cursoAssincrono.ID_CURSO);
         }
@@ -765,7 +770,6 @@ const getUserStatistics = async (req, res) => {
     let cursosCompletados = 0;
 
     for (const cursoId of cursosIds) {
-
       // Contar total de módulos do curso
       const totalModulos = await Modulos.count({
         where: { ID_CURSO: cursoId },
@@ -785,7 +789,6 @@ const getUserStatistics = async (req, res) => {
         },
       });
 
-
       const detalhe = {
         cursoId,
         totalModulos,
@@ -796,7 +799,6 @@ const getUserStatistics = async (req, res) => {
             : 0,
         completo: totalModulos > 0 && modulosCompletos === totalModulos,
       };
-
 
       // Se completou todos os módulos, conta como curso completado
       if (totalModulos > 0 && modulosCompletos === totalModulos) {
@@ -826,6 +828,254 @@ const getUserStatistics = async (req, res) => {
   }
 };
 
+const addXPToUserInternal = async (
+  userId,
+  xpAmount,
+  reason = "Atividade completada"
+) => {
+  try {
+    const utilizador = await Utilizador.findByPk(userId);
+    if (!utilizador) {
+      console.log(`Utilizador ${userId} não encontrado para atualizar XP`);
+      return false;
+    }
+
+    const xpAtual = utilizador.XP || 0;
+    const novoXP = xpAtual + parseInt(xpAmount);
+
+    await utilizador.update({ XP: novoXP });
+
+    console.log(
+      `✅ ${xpAmount} XP adicionado ao utilizador ${userId}: ${xpAtual} → ${novoXP} (${reason})`
+    );
+    return {
+      xpAnterior: xpAtual,
+      xpNovo: novoXP,
+      xpAdicionado: parseInt(xpAmount),
+    };
+  } catch (error) {
+    console.error("❌ Erro ao adicionar XP:", error);
+    return false;
+  }
+};
+
+const XP_VALUES = {
+  MODULO_COMPLETO: 10, // XP por completar um módulo
+  CURSO_COMPLETO: 50, // XP bônus por completar curso inteiro
+  NOTA_EXCELENTE: 25, // XP bônus por nota >= 18
+  NOTA_BOA: 15, // XP bônus por nota >= 15
+  NOTA_SATISFATORIA: 5, // XP bônus por nota >= 10
+};
+
+const completeModule = async (req, res) => {
+  try {
+    const userId = req.user?.ID_UTILIZADOR || req.body.userId;
+    const { cursoId, moduloId } = req.body;
+
+    console.log(
+      `Tentando completar módulo ${moduloId} do curso ${cursoId} para utilizador ${userId}`
+    );
+
+    // Verificar se o módulo existe
+    const modulo = await Modulos.findOne({
+      where: {
+        ID_MODULO: moduloId,
+        ID_CURSO: cursoId,
+      },
+    });
+
+    if (!modulo) {
+      return res.status(404).json({
+        success: false,
+        message: "Módulo não encontrado",
+      });
+    }
+
+    // Verificar se já existe progresso para este módulo
+    const { ProgressoModulo } = require("../models/index.js");
+    let progressoExistente = await ProgressoModulo.findOne({
+      where: {
+        ID_UTILIZADOR: userId,
+        ID_CURSO: cursoId,
+        ID_MODULO: moduloId,
+      },
+    });
+
+    let xpGanho = 0;
+    let jaCompleto = false;
+    let cursoCompleto = false;
+
+    if (progressoExistente) {
+      if (progressoExistente.COMPLETO) {
+        jaCompleto = true;
+        console.log(`Módulo ${moduloId} já estava completo`);
+      } else {
+        // Marcar como completo
+        await progressoExistente.update({
+          COMPLETO: true,
+          DATA_COMPLETO: new Date(),
+        });
+        xpGanho += XP_VALUES.MODULO_COMPLETO;
+        console.log(`Módulo ${moduloId} marcado como completo`);
+      }
+    } else {
+      // Criar novo registo de progresso
+      await ProgressoModulo.create({
+        ID_UTILIZADOR: userId,
+        ID_CURSO: cursoId,
+        ID_MODULO: moduloId,
+        COMPLETO: true,
+        DATA_COMPLETO: new Date(),
+      });
+      xpGanho += XP_VALUES.MODULO_COMPLETO;
+      console.log(`Novo progresso criado para módulo ${moduloId}`);
+    }
+
+    // Verificar se completou o curso inteiro (só se não estava já completo)
+    if (!jaCompleto) {
+      const totalModulos = await Modulos.count({
+        where: { ID_CURSO: cursoId },
+      });
+
+      const modulosCompletos = await ProgressoModulo.count({
+        where: {
+          ID_UTILIZADOR: userId,
+          ID_CURSO: cursoId,
+          COMPLETO: true,
+        },
+      });
+
+      console.log(
+        `Progresso do curso ${cursoId}: ${modulosCompletos}/${totalModulos} módulos`
+      );
+
+      if (totalModulos > 0 && modulosCompletos === totalModulos) {
+        cursoCompleto = true;
+        xpGanho += XP_VALUES.CURSO_COMPLETO;
+        console.log(
+          `Curso ${cursoId} COMPLETADO! Bônus de ${XP_VALUES.CURSO_COMPLETO} XP`
+        );
+      }
+    }
+
+    // Atualizar XP do utilizador
+    let resultadoXP = null;
+    if (xpGanho > 0) {
+      const reason = cursoCompleto
+        ? `Módulo completado + Curso "${modulo.NOME}" finalizado`
+        : `Módulo "${modulo.NOME}" completado`;
+
+      resultadoXP = await addXPToUserInternal(userId, xpGanho, reason);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: jaCompleto
+        ? "Módulo já estava completo"
+        : "Módulo completado com sucesso",
+      xpGanho,
+      cursoCompleto,
+      jaCompleto,
+      resultadoXP,
+    });
+  } catch (error) {
+    console.error("Erro ao completar módulo:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const updateEvaluationGrade = async (req, res) => {
+  try {
+    const { submissaoId, nota } = req.body;
+    const professorId = req.user.ID_UTILIZADOR;
+
+    console.log(`📝 Atualizando nota da submissão ${submissaoId} para ${nota}`);
+
+    // Verificar se o utilizador é um professor
+    const isProfessor = await UtilizadorTemPerfil.findOne({
+      where: {
+        ID_UTILIZADOR: professorId,
+        ID_PERFIL: { [Op.in]: [2, 3] }, // ID do perfil de formador
+      },
+    });
+
+    // Buscar a submissão
+    const { SubmissaoAvaliacao } = require("../models/index.js");
+    const submissao = await SubmissaoAvaliacao.findByPk(submissaoId);
+
+    if (!submissao) {
+      return res.status(404).json({
+        success: false,
+        message: "Submissão não encontrada",
+      });
+    }
+
+    const notaAnterior = submissao.NOTA;
+    const notaNumerica = parseFloat(nota);
+
+    // Atualizar a nota
+    await submissao.update({
+      NOTA: notaNumerica,
+      DATA_AVALIACAO: new Date(),
+    });
+
+    // Calcular XP por nota (só se não tinha nota antes)
+    let xpGanho = 0;
+    if (notaAnterior === null) {
+      if (notaNumerica >= 18) {
+        xpGanho = XP_VALUES.NOTA_EXCELENTE;
+        console.log(`🌟 Nota excelente (${notaNumerica}/20)! ${xpGanho} XP`);
+      } else if (notaNumerica >= 15) {
+        xpGanho = XP_VALUES.NOTA_BOA;
+        console.log(`⭐ Boa nota (${notaNumerica}/20)! ${xpGanho} XP`);
+      } else if (notaNumerica >= 10) {
+        xpGanho = XP_VALUES.NOTA_SATISFATORIA;
+        console.log(`✅ Nota satisfatória (${notaNumerica}/20)! ${xpGanho} XP`);
+      }
+
+      // Dar XP ao utilizador
+      if (xpGanho > 0) {
+        const resultadoXP = await addXPToUserInternal(
+          submissao.ID_UTILIZADOR,
+          xpGanho,
+          `Avaliação com nota ${notaNumerica}/20`
+        );
+
+        res.status(200).json({
+          success: true,
+          message: "Nota atualizada e XP atribuído com sucesso",
+          nota: notaNumerica,
+          xpGanho,
+          resultadoXP,
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: "Nota atualizada com sucesso",
+          nota: notaNumerica,
+          xpGanho: 0,
+        });
+      }
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "Nota atualizada (sem XP adicional - já havia nota anterior)",
+        nota: notaNumerica,
+        xpGanho: 0,
+      });
+    }
+  } catch (error) {
+    console.error("❌ Erro ao atualizar nota:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getTeachers,
   getCursosAssociados,
@@ -838,4 +1088,7 @@ module.exports = {
   changeUser,
   getUser,
   getUserStatistics,
+  completeModule,
+  updateEvaluationGrade,
+  addXPToUserInternal,
 };

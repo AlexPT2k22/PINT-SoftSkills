@@ -191,6 +191,13 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
         novaNotaSubmissao,
         { withCredentials: true }
       );
+      await axios.post(
+        "http://localhost:4000/api/user/update-evaluation-grade",
+        {
+          submissaoId: novaNotaSubmissao.ID_SUBMISSAO,
+          nota: novaNotaSubmissao.NOTA,
+        }
+      );
 
       fetchSubmissoesPorAvaliacao(avaliacaoAtual.ID_AVALIACAO_SINCRONA);
       setNovaNotaSubmissao({

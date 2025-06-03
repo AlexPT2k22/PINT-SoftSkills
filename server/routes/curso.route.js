@@ -17,8 +17,10 @@ const {
   checkAreaAssociation,
   checkTopicoAssociation,
   searchCursos,
+  verifyTeacher,
 } = require("../controllers/curso.controller.js");
 const multer = require("multer");
+const { authenticateToken } = require("../middlewares/authmiddleware.js");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -39,5 +41,6 @@ router.get("/:id/alunos", getInscritos);
 router.get("/check-categoria/:categoriaId", checkCategoriaAssociation);
 router.get("/check-area/:areaId", checkAreaAssociation);
 router.get("/check-topico/:topicoId", checkTopicoAssociation);
+router.get("/verify-teacher/:courseId", authenticateToken, verifyTeacher); // verificar se o usuário é formador do curso
 
 module.exports = router;

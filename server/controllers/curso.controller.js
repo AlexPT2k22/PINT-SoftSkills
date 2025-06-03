@@ -20,6 +20,8 @@ const {
   InscricaoSincronoCurso,
   ProgressoModulo,
   Notas,
+  UtilizadorTemPerfil,
+  Perfil,
 } = require("../models/index.js");
 const { sequelize } = require("../database/database.js");
 const cloudinary = require("cloudinary").v2;
@@ -248,6 +250,60 @@ const getCursosPopulares = async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar os cursos populares:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+const verifyTeacher = async (req, res) => {
+  const { courseId } = req.params;
+  const userId = req.user.ID_UTILIZADOR;
+
+  try {
+    // Verificar se o curso existe
+    const curso = await Curso.findByPk(courseId);
+    if (!curso) {
+      return res.status(404).json({
+        success: false,
+        message: "Curso não encontrado",
+        isTeacher: false,
+      });
+    }
+
+    // Verificar se é um curso síncrono (só cursos síncronos têm formador)
+    const cursoSincrono = await CursoSincrono.findOne({
+      where: { ID_CURSO: courseId },
+      include: [
+        {
+          model: Utilizador,
+          attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
+        },
+      ],
+    });
+
+    if (!cursoSincrono) {
+      // Curso assíncrono - não tem formador específico
+      return res.status(200).json({
+        success: true,
+        message: "Curso assíncrono - sem formador específico",
+        isTeacher: false,
+        courseType: "assincrono",
+      });
+    }
+
+    // Verificar se o utilizador é o formador do curso síncrono
+    const isTeacher = cursoSincrono.ID_UTILIZADOR === userId;
+
+    res.status(200).json({
+      success: true,
+      isTeacher: isTeacher,
+      courseType: "sincrono",
+    });
+  } catch (error) {
+    console.error("Erro ao verificar formador:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      isTeacher: false,
+    });
   }
 };
 
@@ -1711,4 +1767,5 @@ module.exports = {
   checkAreaAssociation,
   checkTopicoAssociation,
   searchCursos,
+  verifyTeacher,
 };

@@ -15,7 +15,6 @@ const SynchronousCourseView = () => {
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore.getState();
-  const Teacher = user?.perfil === 2 || user?.perfil === 3;
   const tab = searchParams.get("tab");
 
   const handleSidebarToggle = (newCollapsedState) => {
@@ -34,10 +33,21 @@ const SynchronousCourseView = () => {
         );
         setCurso(response.data);
 
-        if (Teacher) {
+        const teacherResponse = await axios.get(
+          `http://localhost:4000/api/cursos/verify-teacher/${courseId}`,
+          {
+            withCredentials: true,
+          }
+        );
+
+        console.log("Resposta do servidor:", teacherResponse.data);
+
+        if (teacherResponse.data.success && teacherResponse.data.isTeacher) {
           setIsTeacher(true);
+          console.log("Utilizador é formador do curso");
         } else {
           setIsTeacher(false);
+          console.log("Utilizador NÃO é formador do curso");
         }
 
         setLoading(false);
