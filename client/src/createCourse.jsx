@@ -171,22 +171,55 @@ function CreateCourse() {
     // Get form values
     const moduleDescription = e.target.moduleDescription.value;
     const moduleVideoInput = e.target.moduleVideo;
+    const moduleVideoURL = e.target.moduleVideoURL.value;
     const moduleContentInput = e.target.moduleContent;
     const moduleDuration = e.target.moduleDuration.value;
 
-    // Use the new uploaded files or keep existing ones if no new files selected
-    const moduleVideo =
-      moduleVideoInput.files.length > 0
-        ? moduleVideoInput.files[0]
-        : currentModuleData?.videoFile;
+    // Validar que pelo menos uma opção de vídeo foi escolhida
+    const hasVideoFile = moduleVideoInput.files.length > 0;
+    const hasVideoURL = moduleVideoURL.trim() !== "";
+    const hasExistingVideo =
+      currentModuleData?.videoFile || currentModuleData?.videoURL;
 
-    const moduleContent =
-      moduleContentInput.files.length > 0
-        ? moduleContentInput.files[0]
-        : currentModuleData?.contentFile;
+    if (!hasVideoFile && !hasVideoURL && !hasExistingVideo) {
+      setError(true);
+      setMessage("Por favor, adicione um vídeo (upload ou link do YouTube).");
+      return;
+    }
 
+    // Validar que apenas uma opção foi escolhida (se ambas foram preenchidas)
+    if (hasVideoFile && hasVideoURL) {
+      setError(true);
+      setMessage(
+        "Escolha apenas uma opção: upload de vídeo OU link do YouTube."
+      );
+      return;
+    }
+
+    // Validar URL do YouTube se fornecida
+    if (
+      hasVideoURL &&
+      !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(moduleVideoURL)
+    ) {
+      setError(true);
+      setMessage("Por favor, insira uma URL válida do YouTube.");
+      return;
+    }
+
+    // Determinar qual fonte de vídeo usar
+    let videoSource = null;
+    if (hasVideoFile) {
+      videoSource = { type: "file", data: moduleVideoInput.files[0] };
+    } else if (hasVideoURL) {
+      videoSource = { type: "url", data: moduleVideoURL };
+    } else if (currentModuleData?.videoFile) {
+      videoSource = { type: "file", data: currentModuleData.videoFile };
+    } else if (currentModuleData?.videoURL) {
+      videoSource = { type: "url", data: currentModuleData.videoURL };
+    }
+
+    // Handle content files
     let contentFile = [];
-
     if (
       moduleContentInput.files.length === 0 &&
       currentModuleData?.contentFile
@@ -213,7 +246,8 @@ function CreateCourse() {
       const moduleData = {
         name: currentModule,
         description: moduleDescription,
-        videoFile: moduleVideo,
+        videoFile: videoSource.type === "file" ? videoSource.data : null,
+        videoURL: videoSource.type === "url" ? videoSource.data : null,
         contentFile: contentFile,
         duration: moduleDuration,
       };
@@ -231,7 +265,7 @@ function CreateCourse() {
       // Use setTimeout to ensure modal close logic completes before state update
       setTimeout(() => {
         setCourseModules(updatedModules);
-        setCurrentModuleData(null); // Reset current module data
+        setCurrentModuleData(null);
       }, 50);
     } else {
       handleClose();
@@ -372,9 +406,7 @@ function CreateCourse() {
     }
 
     const ID_FORMADOR =
-      selectedType === "Síncrono"
-        ? e.target.courseTeacher?.value
-        : null;
+      selectedType === "Síncrono" ? e.target.courseTeacher?.value : null;
     const vagas = selectedType === "Síncrono" ? e.target.seats.value : null;
     const formData = new FormData();
     formData.append("NOME", courseName);
@@ -419,6 +451,7 @@ function CreateCourse() {
             DESCRICAO: module.data.description,
             DURACAO: module.data.duration,
             VIDEO: module.data.videoFile ? true : false,
+            VIDEO_URL: module.data.videoURL || null,
             CONTEUDO: module.data.contentFile
               ? module.data.contentFile.length
               : 0,
@@ -557,8 +590,13 @@ function CreateCourse() {
                     type="file"
                     className="form-control mb-2"
                     id="moduleVideo"
-                    required={!currentModuleData?.videoFile}
                     accept="video/mp4, video/mkv, video/avi"
+                    onChange={(e) => {
+                      // Limpar YouTube URL quando um arquivo é selecionado
+                      if (e.target.files.length > 0) {
+                        document.getElementById("moduleVideoURL").value = "";
+                      }
+                    }}
                   />
                   {currentModuleData?.videoFile && (
                     <div className="current-file">
@@ -578,6 +616,45 @@ function CreateCourse() {
                     Formatos suportados: MP4, MKV, AVI. Tamanho máximo: 500MB.
                   </small>
                 </div>
+                <div className="mb-3 ">OU</div>
+                <div className="mb-0">
+                  <label htmlFor="moduleVideoURL" className="form-label">
+                    Link do YouTube:
+                  </label>
+                  <input
+                    type="url"
+                    className="form-control mb-2"
+                    id="moduleVideoURL"
+                    placeholder="https://www.youtube.com/watch?v=example"
+                    defaultValue={currentModuleData?.videoURL || ""}
+                    onChange={(e) => {
+                      const url = e.target.value;
+
+                      // Limpar upload quando URL é inserida
+                      if (url) {
+                        document.getElementById("moduleVideo").value = "";
+                      }
+
+                      // Validar URL do YouTube
+                      if (
+                        url &&
+                        !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(url)
+                      ) {
+                        setError(true);
+                        setMessage(
+                          "Por favor, insira uma URL válida do YouTube."
+                        );
+                      } else {
+                        setError(false);
+                        setMessage("");
+                      }
+                    }}
+                  />
+                </div>
+                <small className="text-muted">
+                  * Escolha apenas uma opção: upload de arquivo OU link do
+                  YouTube
+                </small>
                 <div className="mb-3">
                   <label htmlFor="moduleContent" className="form-label">
                     Conteúdo do módulo:

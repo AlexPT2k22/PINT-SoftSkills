@@ -892,7 +892,7 @@ const createAssincrono = async (req, res) => {
         (file) => file.fieldname === `module_${i}_video`
       );
 
-      // MODIFICAÇÃO: Procurar múltiplos arquivos de conteúdo
+      // Procurar múltiplos arquivos de conteúdo
       const contentFiles = req.files.filter((file) => {
         return file.fieldname.startsWith(`module_${i}_content_`);
       });
@@ -900,12 +900,13 @@ const createAssincrono = async (req, res) => {
       let videoUrl = null;
       let contentUrls = []; // Array para guardar múltiplas URLs
 
-      // Upload do vídeo para o Cloudinary
+      // Determinar fonte do vídeo: arquivo upload OU URL do YouTube
       if (videoFile) {
+        // CASO 1: Upload de arquivo de vídeo
         const result = await streamUpload(
           videoFile.buffer,
           `cursos/${NOME}/modulos/videos`,
-          "auto"
+          "video" // Especificar que é vídeo
         );
         videoUrl = result.secure_url;
 
@@ -913,12 +914,29 @@ const createAssincrono = async (req, res) => {
           originalname: videoFile.originalname,
           url: result.secure_url,
           public_id: result.public_id,
-          type: "video",
+          type: "video_upload",
           module: modulo.NOME,
         });
+
+        console.log(
+          `Vídeo uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
+        );
+      } else if (modulo.VIDEO_URL) {
+        // CASO 2: URL do YouTube
+        videoUrl = modulo.VIDEO_URL;
+
+        uploadedFiles.push({
+          url: modulo.VIDEO_URL,
+          type: "video_youtube",
+          module: modulo.NOME,
+        });
+
+        console.log(
+          `URL do YouTube para módulo ${modulo.NOME}: ${modulo.VIDEO_URL}`
+        );
       }
 
-      // Upload dos conteúdos (pdf/doc/etc.) para o Cloudinary
+      // Upload dos conteúdos (pdf/doc/etc.) para o servidor local
       if (contentFiles && contentFiles.length > 0) {
         for (const contentFile of contentFiles) {
           try {
@@ -944,14 +962,19 @@ const createAssincrono = async (req, res) => {
         }
       }
 
+      // Criar o módulo na base de dados
       await Modulos.create({
         ID_CURSO: curso.ID_CURSO,
         NOME: modulo.NOME,
         DESCRICAO: modulo.DESCRICAO,
-        VIDEO_URL: videoUrl,
+        VIDEO_URL: videoUrl, // Pode ser URL do Cloudinary ou URL do YouTube
         FILE_URL: JSON.stringify(contentUrls), // Guardar como JSON string
         TEMPO_ESTIMADO_MIN: modulo.DURACAO,
       });
+
+      console.log(
+        `Módulo criado: ${modulo.NOME} com vídeo: ${videoUrl ? "SIM" : "NÃO"}`
+      );
     }
 
     const cursoAssincrono = await CursoAssincrono.create({
@@ -1083,12 +1106,13 @@ const createSincrono = async (req, res) => {
       let videoUrl = null;
       let contentUrls = [];
 
-      // Upload do vídeo para o Cloudinary
+      // Determinar fonte do vídeo: arquivo upload OU URL do YouTube
       if (videoFile) {
+        // CASO 1: Upload de arquivo de vídeo
         const result = await streamUpload(
           videoFile.buffer,
           `cursos/${NOME}/modulos/videos`,
-          "auto"
+          "video"
         );
         videoUrl = result.secure_url;
 
@@ -1096,12 +1120,29 @@ const createSincrono = async (req, res) => {
           originalname: videoFile.originalname,
           url: result.secure_url,
           public_id: result.public_id,
-          type: "video",
+          type: "video_upload",
           module: modulo.NOME,
         });
+
+        console.log(
+          `Vídeo uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
+        );
+      } else if (modulo.VIDEO_URL) {
+        // CASO 2: URL do YouTube
+        videoUrl = modulo.VIDEO_URL;
+
+        uploadedFiles.push({
+          url: modulo.VIDEO_URL,
+          type: "video_youtube",
+          module: modulo.NOME,
+        });
+
+        console.log(
+          `URL do YouTube para módulo ${modulo.NOME}: ${modulo.VIDEO_URL}`
+        );
       }
 
-      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
+      // Upload do conteúdo (pdf/doc/etc.) para o servidor local
       if (contentFiles && contentFiles.length > 0) {
         for (const contentFile of contentFiles) {
           try {
@@ -1131,7 +1172,7 @@ const createSincrono = async (req, res) => {
         ID_CURSO: curso.ID_CURSO,
         NOME: modulo.NOME,
         DESCRICAO: modulo.DESCRICAO,
-        VIDEO_URL: videoUrl,
+        VIDEO_URL: videoUrl, // Pode ser URL do Cloudinary ou URL do YouTube
         FILE_URL: JSON.stringify(contentUrls),
         TEMPO_ESTIMADO_MIN: modulo.DURACAO,
       });

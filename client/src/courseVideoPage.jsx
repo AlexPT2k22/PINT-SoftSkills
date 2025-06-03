@@ -24,7 +24,7 @@ function CourseVideoPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const videoIframeRef = useRef(null);
   const cloudinaryPlayerRef = useRef(null);
-  const videoRef = useRef(null);
+  const [videoType, setVideoType] = useState("cloudinary");
 
   const handleTimeUpdate = (time) => {
     setCurrentTime(time);
@@ -167,26 +167,39 @@ function CourseVideoPage() {
     const fetchCourseData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `http://localhost:4000/api/cursos/${courseId}`,
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`http://localhost:4000/api/cursos/${courseId}`, {
+          withCredentials: true,
+        });
+
         if (response.status !== 200) {
           throw new Error("Failed to fetch course data");
         }
-        const data = await response.data;
+
+        const data = response.data;
         const currentModule = data.MODULOS.find(
           (modulo) => modulo.ID_MODULO.toString() === moduleId
         );
 
-        if (currentModule) {
-          const resourceId = extractCloudinaryResourceId(
-            currentModule.VIDEO_URL
-          );
-          if (resourceId) {
-            setVideoID(resourceId);
+        if (currentModule && currentModule.VIDEO_URL) {
+          // Verificar se é URL do YouTube ou Cloudinary
+          if (currentModule.VIDEO_URL.includes("youtube.com")) {
+            // É URL do YouTube - extrair video ID
+            const youtubeVideoId = extractYouTubeVideoId(
+              currentModule.VIDEO_URL
+            );
+            if (youtubeVideoId) {
+              setVideoID(youtubeVideoId);
+              setVideoType("youtube");
+            }
+          } else {
+            // É URL do Cloudinary - extrair resource ID
+            const resourceId = extractCloudinaryResourceId(
+              currentModule.VIDEO_URL
+            );
+            if (resourceId) {
+              setVideoID(resourceId);
+              setVideoType("cloudinary");
+            }
           }
         }
 
@@ -245,6 +258,12 @@ function CourseVideoPage() {
     return null;
   };
 
+  const extractYouTubeVideoId = (url) => {
+    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+
   const totalDuration = courseData.MODULOS?.reduce((acc, modulo) => {
     const duration = parseInt(modulo.TEMPO_ESTIMADO_MIN, 10);
     return acc + (isNaN(duration) ? 0 : duration);
@@ -284,13 +303,27 @@ function CourseVideoPage() {
                     height: window.innerHeight <= 900 ? "450px" : "610px",
                   }}
                 >
-                  <VideoPlayer
-                    id={"video-player"}
-                    publicId={videoID}
-                    onTimeUpdate={handleTimeUpdate}
-                    onPause={handlePauseVideo}
-                    onPlay={handleResumeVideo}
-                  />
+                  {videoType === "youtube" ? (
+                    // Player do YouTube
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://www.youtube.com/embed/${videoID}`}
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    // Player do Cloudinary
+                    <VideoPlayer
+                      id={"video-player"}
+                      publicId={videoID}
+                      onTimeUpdate={handleTimeUpdate}
+                      onPause={handlePauseVideo}
+                      onPlay={handleResumeVideo}
+                    />
+                  )}
                 </div>
               )}
 
