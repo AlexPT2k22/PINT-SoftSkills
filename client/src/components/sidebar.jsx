@@ -8,7 +8,6 @@ import {
   FolderCog,
   NotebookPen,
   Settings,
-  HelpCircle,
   Menu,
   X,
   ChevronRight,
@@ -246,19 +245,6 @@ function Sidebar({ onToggle }) {
               >
                 <Settings size={20} className="me-3" />
                 {!collapsed && <span>Definições</span>}
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link
-                to="/dashboard/ajuda"
-                className={`nav-link ${
-                  isActive("/dashboard/ajuda") ? "active" : ""
-                }`}
-                onClick={() => mobileView && setCollapsed(true)}
-              >
-                <HelpCircle size={20} className="me-3" />
-                {!collapsed && <span>Ajuda</span>}
               </Link>
             </li>
 
