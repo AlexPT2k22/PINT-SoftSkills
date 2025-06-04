@@ -37,10 +37,10 @@ const createCategoria = async (req, res) => {
   try {
     const { NOME__, DESCRICAO__ } = req.body;
 
-    if (!NOME__ || !DESCRICAO__) {
+    if (!NOME__) {
       return res
         .status(400)
-        .json({ message: "Nome e descrição são obrigatórios" });
+        .json({ message: "Nome é obrigatório" });
     }
 
     // Check if the category already exists

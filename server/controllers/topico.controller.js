@@ -104,10 +104,10 @@ const updateTopico = async (req, res) => {
     const { user } = req.user;
     const { NOME, DESCRICAO } = req.body;
 
-    if (!NOME || !DESCRICAO) {
+    if (!NOME) {
       return res
         .status(400)
-        .json({ message: "Título e descrição são obrigatórios" });
+        .json({ message: "Nome é obrigatório" });
     }
     const topicoExistente = await Topico.findOne({
       where: { TITULO: NOME, ID_TOPICO: { [Op.ne]: id } },
