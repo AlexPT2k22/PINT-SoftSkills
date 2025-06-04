@@ -81,7 +81,7 @@ function Login() {
         setShowSuccess(true);
         setTimeout(() => {
           navigate("/auth?email=" + EMAIL);
-        }, 3000);
+        }, 500);
       }
       if (Login === 1) {
         await login(EMAIL, PASSWORD);

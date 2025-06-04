@@ -22,7 +22,7 @@ function Auth() {
     if (showSuccess) {
       const timer = setTimeout(() => {
         navigate("/login");
-      }, 3000); // Redireciona após 2 segundos
+      }, 500); // Redireciona após 0.5 segundos
       return () => clearTimeout(timer); // Limpa o timer se o componente for desmontado
     }
   }, [showSuccess, navigate]);
@@ -40,7 +40,7 @@ function Auth() {
     if (resendSuccess) {
       const timer = setTimeout(() => {
         setResendSuccess(false);
-      }, 3000); // Mostra a mensagem por 5 segundos
+      }, 500); // Mostra a mensagem por 5 segundos
       return () => clearTimeout(timer);
     }
   }, [resendSuccess]);
