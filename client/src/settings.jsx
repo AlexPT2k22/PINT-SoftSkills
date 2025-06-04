@@ -175,7 +175,9 @@ function SettingsPage() {
                       <User size={50} color="#39639C" />
                     </div>
                   </div>
-                  <h4 className="mb-1">{userData?.NOME || userData?.USERNAME}</h4>
+                  <h4 className="mb-1">
+                    {userData?.NOME || userData?.USERNAME}
+                  </h4>
                   <p className="text-muted mb-2">@{userData?.USERNAME}</p>
 
                   {userData?.LINKEDIN && (
@@ -190,7 +192,16 @@ function SettingsPage() {
                       </span>
                     </a>
                   )}
-
+                  <a
+                    href={`http://localhost:5173/user/${userData?.ID_UTILIZADOR}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-primary btn-sm ms-2"
+                  >
+                    <span className="d-flex align-items-center">
+                      Ver perfil público
+                    </span>
+                  </a>
                   <hr className="my-4" />
 
                   <div className="text-start">
