@@ -17,7 +17,8 @@ function Login() {
   const [USERNAME, setUSERNAME] = useState("");
   const [NOME, setNOME] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const { signup, login, error, isLoading } = useAuthStore();
+  const [Error, setError] = useState(null);
+  const { signup, login, isLoading } = useAuthStore();
   const redirectURL =
     import.meta.env.PROD === "production"
       ? "https://pint-softskills-api.onrender.com"
@@ -76,12 +77,14 @@ function Login() {
     }
 
     try {
+      setError(null);
+      setShowSuccess(false);
       if (Login === 0) {
         await signup(USERNAME, NOME, EMAIL);
         setShowSuccess(true);
         setTimeout(() => {
           navigate("/auth?email=" + EMAIL);
-        }, 500);
+        }, 1000);
       }
       if (Login === 1) {
         await login(EMAIL, PASSWORD);
@@ -96,7 +99,6 @@ function Login() {
         }
       }
       if (Login === 2) {
-        useAuthStore.setState({ isLoading: true });
         try {
           const response = await fetch(url, {
             method: method,
@@ -108,20 +110,19 @@ function Login() {
           if (!response.ok) {
             const error = await response.json();
             console.log(error);
-            useAuthStore.setState({ error: error.error });
           } else {
             setShowSuccess(true);
           }
-          useAuthStore.setState({ isLoading: false });
         } catch (error) {
-          //console.log(error);
-          useAuthStore.setState({ error: error.error });
-          useAuthStore.setState({ isLoading: false });
+          console.log(error);
         }
       }
     } catch (error) {
-      //console.log(error.response.data.error);
-      useAuthStore.setState({ error: error.error });
+      console.log(error.response.data.error);
+      setError(error.response.data.error);
+      setTimeout(() => {
+        setError(null);
+      }, 1000);
     }
   };
 
@@ -148,11 +149,8 @@ function Login() {
             onClose={() => setShowSuccess(false)}
           />
         )}
-        {error && (
-          <ErrorMessage
-            message={error}
-            onClose={() => useAuthStore.setState({ error: null })}
-          />
+        {Error && (
+          <ErrorMessage message={Error} onClose={() => setError(null)} />
         )}
         {Login !== 2 && (
           <>

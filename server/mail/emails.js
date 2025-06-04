@@ -24,7 +24,8 @@ const sendVerificationEmail = async (
         .replace("{nome}", nome)
         .replace("{password}", password)
         .replace("{verification_token}", verificationToken)
-        .replace("{email}", email),
+        .replace("{email}", email)
+        .replace("{auth_url}", "http://localhost:5173/auth?email=" + email),
       category: "Email verification",
     });
     response.statusCode = 200;

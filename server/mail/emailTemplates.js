@@ -103,6 +103,9 @@ const VERIFICATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
                           <a style="width: 100%; background:rgb(255, 255, 255); text-decoration: none; display: inline-block; padding: 10px 0; color: #39639C; font-size: 25px; line-height: 21px; text-align: center; font-weight: bold; border-radius: 7px;">{verification_token}</a>
                         </td>
                       </tr>
+                        <td style="padding: 0 0 24px 0; display: flex; justify-content: center; allign-itens: center;">
+                            <a class="button" href="{auth_url}" title="Verificar conta" style=" background: #39639C; text-decoration: none; display: inline-block; padding: 10px 15px; color: #ffffff; font-size: 18px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">Verificar conta</a>
+                          </td>
                           </a>
                         </td>
                       </tr>
