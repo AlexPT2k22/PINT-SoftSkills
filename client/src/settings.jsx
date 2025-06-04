@@ -23,8 +23,10 @@ function SettingsPage() {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    emailNotifications: true,
   });
+  const userId = user.id;
+  const [loadingData, setLoadingData] = useState(true);
+  const [userData, setUserData] = useState(null);
 
   const checkLinkedInUrl = (url) => {
     const regex =
@@ -32,17 +34,37 @@ function SettingsPage() {
     return regex.test(url);
   };
 
-  useEffect(() => {
-    // Carregar dados do usuário ao inicializar
-    if (user) {
+  const fetchUserData = async () => {
+    try {
+      setLoadingData(true);
+      const response = await axios.get(
+        `http://localhost:4000/api/user/${userId}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      const userData = response.data;
+      setUserData(userData);
+
+      // Preencher formulário com dados da base de dados
       setFormData((prev) => ({
         ...prev,
-        nome: user.nome || "",
-        linkedIn: user.linkedIn || "",
-        email: user.email || "",
+        nome: userData.NOME || "",
+        linkedIn: userData.LINKEDIN || "",
+        email: userData.EMAIL || "",
       }));
+    } catch (error) {
+      console.error("Erro ao carregar dados do utilizador:", error);
+      setError("Erro ao carregar dados do utilizador");
+    } finally {
+      setLoadingData(false);
     }
-  }, [user]);
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, [userId]);
 
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
@@ -86,7 +108,6 @@ function SettingsPage() {
         {
           nome: formData.nome,
           linkedIn: formData.linkedIn,
-          emailNotifications: formData.emailNotifications,
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,
           confirmPassword: formData.confirmPassword,
@@ -99,26 +120,16 @@ function SettingsPage() {
         }
       );
 
-      // Atualizar o estado do usuário no store
-      useAuthStore.setState((state) => ({
-        user: {
-          ...state.user,
-          nome: formData.nome,
-          linkedIn: formData.linkedIn,
-          emailNotifications: formData.emailNotifications,
-        },
-      }));
+      // Recarregar dados da base de dados após salvar
+      await fetchUserData();
 
-      // Redefinir o formulário após salvar
-      setFormData({
-        nome: formData.nome,
-        linkedIn: formData.linkedIn,
-        email: formData.email,
+      // Redefinir campos de password
+      setFormData((prev) => ({
+        ...prev,
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
-        emailNotifications: formData.emailNotifications,
-      });
+      }));
 
       // Exibir mensagem de sucesso
       setSuccess(true);
@@ -160,16 +171,16 @@ function SettingsPage() {
                 <div className="card-body text-center">
                   <div className="user-avatar mx-auto mb-3">
                     {/* Placeholder para imagem do utilizador */}
-                    <div className="avatar-placeholder">
+                    <div className="avatar-placeholder-settings">
                       <User size={50} color="#39639C" />
                     </div>
                   </div>
-                  <h4 className="mb-1">{user?.nome || user?.username}</h4>
-                  <p className="text-muted mb-2">@{user?.username}</p>
+                  <h4 className="mb-1">{userData?.NOME || userData?.USERNAME}</h4>
+                  <p className="text-muted mb-2">@{userData?.USERNAME}</p>
 
-                  {user?.linkedIn && (
+                  {userData?.LINKEDIN && (
                     <a
-                      href={user.linkedIn}
+                      href={userData.LINKEDIN}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-primary btn-sm"
@@ -188,7 +199,7 @@ function SettingsPage() {
                     </p>
                     <p className="text-muted">
                       {new Date(
-                        user?.dataCriacao || new Date()
+                        userData?.DATA_CRIACAO || new Date()
                       ).toLocaleDateString("pt-PT")}
                     </p>
                   </div>
@@ -196,16 +207,16 @@ function SettingsPage() {
                     <p className="mb-1">
                       <strong>XP:</strong>
                     </p>
-                    <p className="text-muted">{user?.xp || "N/A"} pontos</p>
+                    <p className="text-muted">{userData?.XP || "N/A"} pontos</p>
                   </div>
                   <div className="text-start">
                     <p className="mb-1">
                       <strong>Perfil:</strong>
                     </p>
                     <p className="text-muted">
-                      {user?.perfil === 3
+                      {userData?.PERFILs[0].ID_PERFIL === 3
                         ? "Gestor"
-                        : user?.perfil === 2
+                        : userData?.PERFILs[0].ID_PERFIL === 2
                         ? "Formador"
                         : "Formando"}{" "}
                     </p>
@@ -323,32 +334,6 @@ function SettingsPage() {
                           value={formData.confirmPassword}
                           onChange={handleInputChange}
                         />
-                      </div>
-                    </div>
-
-                    <hr className="my-4" />
-                    <h5 className="card-title mb-4">
-                      Preferências de Notificações
-                    </h5>
-
-                    <div className="form-check form-switch mb-4">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="emailNotifications"
-                        name="emailNotifications"
-                        checked={formData.emailNotifications}
-                        onChange={handleInputChange}
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="emailNotifications"
-                      >
-                        Receber notificações por email
-                      </label>
-                      <div className="text-muted small">
-                        Receba emails sobre atualizações de cursos, novas aulas
-                        e avisos importantes
                       </div>
                     </div>
 

@@ -1095,7 +1095,7 @@ const createSincrono = async (req, res) => {
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
 
-      // Procurar vídeo e conteúdo pelo nome que definiste no formData
+      // Procurar vídeo e conteúdo pelo nome no formData
       const videoFile = req.files.find(
         (file) => file.fieldname === `module_${i}_video`
       );
