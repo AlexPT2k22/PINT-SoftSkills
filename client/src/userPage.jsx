@@ -150,15 +150,6 @@ function UserPage() {
                           LinkedIn
                         </a>
                       )}
-                      {user.EMAIL && (
-                        <a
-                          href={`mailto:${user.EMAIL}`}
-                          className="btn btn-outline-secondary btn-sm"
-                        >
-                          <Mail size={16} className="me-1" />
-                          Email
-                        </a>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -341,11 +332,11 @@ function UserPage() {
                       </div>
                     )}
 
-                    {/* Perfis do utilizador */}
+                    {/* Perfil do utilizador */}
                     {user.PERFILs && user.PERFILs.length > 0 && (
                       <div className="info-item">
                         <small className="text-muted d-block mb-2">
-                          Perfis
+                          Perfil
                         </small>
                         <div className="d-flex flex-wrap gap-1">
                           {user.PERFILs.map((perfil) => (

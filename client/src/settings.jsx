@@ -160,231 +160,242 @@ function SettingsPage() {
           duration={3000}
         />
       )}
-      <div className={`container mt-4 p-4 `}>
-        <div className="settings-container">
-          <h2 className="mb-4">Definições</h2>
 
-          <div className="row">
-            {/* Perfil do utilizador */}
-            <div className="col-lg-4">
-              <div className="card h-100">
-                <div className="card-body text-center">
-                  <div className="user-avatar mx-auto mb-3">
-                    {/* Placeholder para imagem do utilizador */}
-                    <div className="avatar-placeholder-settings">
-                      <User size={50} color="#39639C" />
+      {loadingData ? (
+        <div className="d-flex justify-content-center align-items-center vh-100">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Carregando...</span>
+          </div>
+        </div>
+      ) : (
+        <div className={`container mt-4 p-4 `}>
+          <div className="settings-container">
+            <h2 className="mb-4">Definições</h2>
+
+            <div className="row">
+              {/* Perfil do utilizador */}
+              <div className="col-lg-4">
+                <div className="card h-100">
+                  <div className="card-body text-center">
+                    <div className="user-avatar mx-auto mb-3">
+                      {/* Placeholder para imagem do utilizador */}
+                      <div className="avatar-placeholder-settings">
+                        <User size={50} color="#39639C" />
+                      </div>
                     </div>
-                  </div>
-                  <h4 className="mb-1">
-                    {userData?.NOME || userData?.USERNAME}
-                  </h4>
-                  <p className="text-muted mb-2">@{userData?.USERNAME}</p>
+                    <h4 className="mb-1">
+                      {userData?.NOME || userData?.USERNAME}
+                    </h4>
+                    <p className="text-muted mb-2">@{userData?.USERNAME}</p>
 
-                  {userData?.LINKEDIN && (
+                    {userData?.LINKEDIN && (
+                      <a
+                        href={userData.LINKEDIN}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary btn-sm"
+                      >
+                        <span className="d-flex align-items-center">
+                          Ver perfil LinkedIn
+                        </span>
+                      </a>
+                    )}
                     <a
-                      href={userData.LINKEDIN}
+                      href={`http://localhost:5173/user/${userData?.ID_UTILIZADOR}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-primary btn-sm"
+                      className="btn btn-outline-primary btn-sm ms-2"
                     >
                       <span className="d-flex align-items-center">
-                        Ver perfil LinkedIn
+                        Ver perfil público
                       </span>
                     </a>
-                  )}
-                  <a
-                    href={`http://localhost:5173/user/${userData?.ID_UTILIZADOR}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline-primary btn-sm ms-2"
-                  >
-                    <span className="d-flex align-items-center">
-                      Ver perfil público
-                    </span>
-                  </a>
-                  <hr className="my-4" />
+                    <hr className="my-4" />
 
-                  <div className="text-start">
-                    <p className="mb-1">
-                      <strong>Membro desde:</strong>
-                    </p>
-                    <p className="text-muted">
-                      {new Date(
-                        userData?.DATA_CRIACAO || new Date()
-                      ).toLocaleDateString("pt-PT")}
-                    </p>
-                  </div>
-                  <div className="text-start">
-                    <p className="mb-1">
-                      <strong>XP:</strong>
-                    </p>
-                    <p className="text-muted">{userData?.XP || "N/A"} pontos</p>
-                  </div>
-                  <div className="text-start">
-                    <p className="mb-1">
-                      <strong>Perfil:</strong>
-                    </p>
-                    <p className="text-muted">
-                      {userData?.PERFILs[0].ID_PERFIL === 3
-                        ? "Gestor"
-                        : userData?.PERFILs[0].ID_PERFIL === 2
-                        ? "Formador"
-                        : "Formando"}{" "}
-                    </p>
+                    <div className="text-start">
+                      <p className="mb-1">
+                        <strong>Membro desde:</strong>
+                      </p>
+                      <p className="text-muted">
+                        {new Date(
+                          userData?.DATA_CRIACAO || new Date()
+                        ).toLocaleDateString("pt-PT")}
+                      </p>
+                    </div>
+                    <div className="text-start">
+                      <p className="mb-1">
+                        <strong>XP:</strong>
+                      </p>
+                      <p className="text-muted">
+                        {userData?.XP || "N/A"} pontos
+                      </p>
+                    </div>
+                    <div className="text-start">
+                      <p className="mb-1">
+                        <strong>Perfil:</strong>
+                      </p>
+                      <p className="text-muted">
+                        {userData?.PERFILs[0].ID_PERFIL === 3
+                          ? "Gestor"
+                          : userData?.PERFILs[0].ID_PERFIL === 2
+                          ? "Formador"
+                          : "Formando"}{" "}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Formulário de configurações */}
-            <div className="col-lg-8">
-              <div className="card">
-                <div className="card-body">
-                  <form onSubmit={handleSaveChanges}>
-                    <h5 className="card-title mb-4">Informações da Conta</h5>
+              {/* Formulário de configurações */}
+              <div className="col-lg-8">
+                <div className="card">
+                  <div className="card-body">
+                    <form onSubmit={handleSaveChanges}>
+                      <h5 className="card-title mb-4">Informações da Conta</h5>
 
-                    <div className="mb-4">
-                      <label className="form-label">Nome</label>
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <User size={18} />
-                        </span>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="nome"
-                          value={formData.nome}
-                          onChange={handleInputChange}
-                        />
+                      <div className="mb-4">
+                        <label className="form-label">Nome</label>
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <User size={18} />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="nome"
+                            value={formData.nome}
+                            onChange={handleInputChange}
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mb-4">
-                      <label className="form-label">LinkedIn</label>
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <Linkedin size={18} />
-                        </span>
-                        <input
-                          type="url"
-                          className="form-control"
-                          name="linkedIn"
-                          value={formData.linkedIn}
-                          onChange={handleInputChange}
-                        />
+                      <div className="mb-4">
+                        <label className="form-label">LinkedIn</label>
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <Linkedin size={18} />
+                          </span>
+                          <input
+                            type="url"
+                            className="form-control"
+                            name="linkedIn"
+                            value={formData.linkedIn}
+                            onChange={handleInputChange}
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mb-4">
-                      <label className="form-label">Email</label>
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <Mail size={18} />
-                        </span>
-                        <input
-                          type="email"
-                          className="form-control"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          disabled
-                        />
+                      <div className="mb-4">
+                        <label className="form-label">Email</label>
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <Mail size={18} />
+                          </span>
+                          <input
+                            type="email"
+                            className="form-control"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            disabled
+                          />
+                        </div>
+                        <small className="text-muted">
+                          O email não pode ser alterado
+                        </small>
                       </div>
-                      <small className="text-muted">
-                        O email não pode ser alterado
-                      </small>
-                    </div>
 
-                    <hr className="my-4" />
-                    <h5 className="card-title mb-4">Alterar Password</h5>
+                      <hr className="my-4" />
+                      <h5 className="card-title mb-4">Alterar Password</h5>
 
-                    <div className="mb-3">
-                      <label className="form-label">Password atual</label>
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <Lock size={18} />
-                        </span>
-                        <input
-                          type="password"
-                          className="form-control"
-                          name="currentPassword"
-                          value={formData.currentPassword}
-                          onChange={handleInputChange}
-                        />
+                      <div className="mb-3">
+                        <label className="form-label">Password atual</label>
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <Lock size={18} />
+                          </span>
+                          <input
+                            type="password"
+                            className="form-control"
+                            name="currentPassword"
+                            value={formData.currentPassword}
+                            onChange={handleInputChange}
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mb-3">
-                      <label className="form-label">Nova password</label>
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <Lock size={18} />
-                        </span>
-                        <input
-                          type="password"
-                          className="form-control"
-                          name="newPassword"
-                          value={formData.newPassword}
-                          onChange={handleInputChange}
-                        />
+                      <div className="mb-3">
+                        <label className="form-label">Nova password</label>
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <Lock size={18} />
+                          </span>
+                          <input
+                            type="password"
+                            className="form-control"
+                            name="newPassword"
+                            value={formData.newPassword}
+                            onChange={handleInputChange}
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mb-4">
-                      <label className="form-label">
-                        Confirmar nova password
-                      </label>
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <Lock size={18} />
-                        </span>
-                        <input
-                          type="password"
-                          className="form-control"
-                          name="confirmPassword"
-                          value={formData.confirmPassword}
-                          onChange={handleInputChange}
-                        />
+                      <div className="mb-4">
+                        <label className="form-label">
+                          Confirmar nova password
+                        </label>
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <Lock size={18} />
+                          </span>
+                          <input
+                            type="password"
+                            className="form-control"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="d-flex justify-content-end mt-4">
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary me-2"
-                        onClick={() => navigate("/dashboard")}
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="submit"
-                        className="btn btn-primary d-flex align-items-center"
-                        disabled={loading}
-                      >
-                        {loading ? (
-                          <>
-                            <span
-                              className="spinner-border spinner-border-sm me-2"
-                              role="status"
-                              aria-hidden="true"
-                            ></span>
-                            A guardar...
-                          </>
-                        ) : (
-                          <>
-                            <Save size={18} className="me-2" />
-                            Guardar alterações
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </form>
+                      <div className="d-flex justify-content-end mt-4">
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary me-2"
+                          onClick={() => navigate("/dashboard")}
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          className="btn btn-primary d-flex align-items-center"
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <span
+                                className="spinner-border spinner-border-sm me-2"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                              A guardar...
+                            </>
+                          ) : (
+                            <>
+                              <Save size={18} className="me-2" />
+                              Guardar alterações
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
