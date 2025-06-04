@@ -18,22 +18,6 @@ const QuizzAssincrono = sequelize.define(
         key: "ID_UTILIZADOR",
       },
     },
-    UTI_ID_UTILIZADOR: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "UTILIZADOR",
-        key: "ID_UTILIZADOR",
-      },
-    },
-    UTI_ID_UTILIZADOR2: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "UTILIZADOR",
-        key: "ID_UTILIZADOR",
-      },
-    },
     ID_OCORRENCIA: {
       type: DataTypes.INTEGER,
       allowNull: true,

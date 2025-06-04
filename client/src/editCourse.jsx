@@ -1,13 +1,13 @@
 import React from "react";
 import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ButtonWithLoader from "./components/butao_loader";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
-import { XCircle } from "lucide-react";
+import { XCircle, Pen } from "lucide-react";
 
 function EditCourse() {
   const { courseId } = useParams();
@@ -32,6 +32,13 @@ function EditCourse() {
   const [courseHabilities, setCourseHabilities] = useState([""]);
   const [selectedTopic, setSelectedTopic] = useState("");
   const [topics, setTopics] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const [courseModules, setCourseModules] = useState([""]);
+  const [selectedModule, setSelectedModule] = useState(null);
+  const [currentModuleData, setCurrentModuleData] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const moduleContentInputRef = useRef(null);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +52,60 @@ function EditCourse() {
   // Data fetched from API
   const [category, setCategory] = useState([]);
   const [Formador, setFormador] = useState([]);
+
+  const modalStyles = {
+    modalOverlay: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1050,
+    },
+    modalContent: {
+      backgroundColor: "white",
+      borderRadius: "8px",
+      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
+      width: "100%",
+      maxWidth: "600px",
+      maxHeight: "95vh",
+      overflowY: "auto",
+    },
+    modalHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "16px 20px",
+      borderBottom: "1px solid #dee2e6",
+    },
+    modalTitle: {
+      fontSize: "1.25rem",
+      margin: 0,
+      fontWeight: 500,
+    },
+    closeButton: {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      fontSize: "1.5rem",
+      padding: "0",
+      color: "#6c757d",
+    },
+    modalBody: {
+      padding: "20px",
+    },
+    modalFooter: {
+      borderTop: "1px solid #dee2e6",
+      paddingTop: "20px",
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "8px",
+    },
+  };
 
   // Handler for sidebar toggle
   const handleSidebarToggle = (newCollapsedState) => {
@@ -60,6 +121,18 @@ function EditCourse() {
     } else if (name === "courseType") {
       setSelectedRadio(value);
       setCourseType(value);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCourseImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -120,6 +193,11 @@ function EditCourse() {
         setCourseDescription(response.data.DESCRICAO_OBJETIVOS__ || "");
         setCourseDifficulty(response.data.DIFICULDADE_CURSO__ || "");
 
+        // Set image preview se existir
+        if (response.data.IMAGEM) {
+          setImagePreview(response.data.IMAGEM);
+        }
+
         // Set course type
         const isSynchronous = response.data.CURSO_SINCRONO != null;
         setCourseType(isSynchronous ? "Síncrono" : "Assíncrono");
@@ -129,23 +207,18 @@ function EditCourse() {
           setSelectedTopic(response.data.ID_TOPICO.toString());
         }
 
-        // Set teacher if available - note we need to get ID separately
+        // Set teacher if available
         if (response.data.CURSO_SINCRONO) {
-          // Since your API response doesn't include ID_UTILIZADOR in the UTILIZADOR object
-          // Use the ID_UTILIZADOR from CURSO_SINCRONO instead
           setSelectedTeacher(response.data.CURSO_SINCRONO.ID_UTILIZADOR);
         }
 
         // Set available seats
-        if (response.data.CURSO_SINCRONO?.INSCRICAO_SINCRONO) {
-          setAvailableSeats(
-            response.data.CURSO_SINCRONO.INSCRICAO_SINCRONO.LIMITE_VAGAS_INT__
-          );
+        if (response.data.CURSO_SINCRONO?.VAGAS) {
+          setAvailableSeats(response.data.CURSO_SINCRONO.VAGAS);
         }
 
         // Set dates
         if (response.data.CURSO_SINCRONO) {
-          // Format dates properly from ISO string to YYYY-MM-DD for input type="date"
           const startDateISO = response.data.CURSO_SINCRONO.DATA_INICIO;
           const endDateISO = response.data.CURSO_SINCRONO.DATA_FIM;
 
@@ -158,9 +231,7 @@ function EditCourse() {
           }
         }
 
-        // Set dates
         if (response.data.CURSO_ASSINCRONO) {
-          // Format dates properly from ISO string to YYYY-MM-DD for input type="date"
           const startDateISO = response.data.CURSO_ASSINCRONO.DATA_INICIO;
           const endDateISO = response.data.CURSO_ASSINCRONO.DATA_FIM;
 
@@ -173,29 +244,48 @@ function EditCourse() {
           }
         }
 
-        // set course objectives and habilities
+        // Set course objectives and habilities
         if (response.data.OBJETIVOS && response.data.OBJETIVOS.length > 0) {
-          // First extract the objectives array
           const extractedObjectives = response.data.OBJETIVOS.map((obj) =>
             obj.DESCRICAO?.trim()
           ).filter(Boolean);
-
-          // Set state once with an empty string at position 0 for the input field
           setCourseObjectives(["", ...extractedObjectives]);
         } else {
           setCourseObjectives([""]);
         }
 
         if (response.data.HABILIDADES && response.data.HABILIDADES.length > 0) {
-          // First extract the abilities array
           const extractedAbilities = response.data.HABILIDADES.map((hab) =>
             hab.DESCRICAO?.trim()
           ).filter(Boolean);
-
-          // Set state once with an empty string at position 0 for the input field
           setCourseHabilities(["", ...extractedAbilities]);
         } else {
           setCourseHabilities([""]);
+        }
+
+        // Set modules
+        // Set modules
+        if (response.data.MODULOS && response.data.MODULOS.length > 0) {
+          const modulesList = [
+            "",
+            ...response.data.MODULOS.map((modulo) => ({
+              name: modulo.NOME,
+              data: {
+                name: modulo.NOME,
+                description: modulo.DESCRICAO || "",
+                videoFile: null,
+                videoURL: modulo.VIDEO_URL || null,
+                // não criar objetos fake para arquivos existentes
+                contentFile: [], // Deixar vazio para arquivos existentes
+                existingContentUrls: modulo.FILE_URL_ARRAY || [], // Guardar URLs existentes separadamente
+                duration: modulo.TEMPO_ESTIMADO_MIN || 30,
+                hasExistingContent: modulo.HAS_CONTENT || false, // Flag para indicar se tem conteúdo existente
+              },
+            })),
+          ];
+          setCourseModules(modulesList);
+        } else {
+          setCourseModules([""]);
         }
 
         setIsLoading(false);
@@ -253,27 +343,175 @@ function EditCourse() {
     }
   }, [category, courseData]);
 
-  const handleDelete = async (e) => {
+  // Funções para modal
+  const handleShow = () => {
+    setShowModal(true);
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedModule(null);
+    setCurrentModuleData(null);
+    document.body.style.overflow = "";
+  };
+
+  // Função para validar arquivos
+  const validateFiles = (files, maxTotalSizeMB = 50) => {
+    const totalSizeBytes = Array.from(files).reduce(
+      (sum, file) => sum + file.size,
+      0
+    );
+    const totalSizeMB = totalSizeBytes / (1024 * 1024);
+
+    if (totalSizeMB > maxTotalSizeMB) {
+      return {
+        valid: false,
+        message: `O tamanho total dos arquivos (${totalSizeMB.toFixed(
+          1
+        )} MB) excede o limite de ${maxTotalSizeMB} MB.`,
+      };
+    }
+
+    return { valid: true };
+  };
+
+  // Função para adicionar novo módulo
+  const handleNovoModulo = () => {
+    const novoModulo = courseModules[0].trim();
+
+    const jaExiste = courseModules.some(
+      (m, i) =>
+        i > 0 &&
+        (typeof m === "string" ? m === novoModulo : m.name === novoModulo)
+    );
+
+    if (novoModulo !== "" && !jaExiste) {
+      const newModules = [...courseModules];
+      newModules.push(novoModulo);
+      newModules[0] = "";
+      setCourseModules(newModules);
+    }
+  };
+
+  // Função para submeter conteúdo do módulo
+  const handleModuleContentSubmit = (e) => {
     e.preventDefault();
-    const URL = `http://localhost:4000/api/cursos/${courseId}`;
-    setIsDeleting(true);
-    try {
-      const response = await axios.delete(URL, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 200) {
-        setShowSuccess(true);
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 2000); // Redirect after 2 seconds
+
+    const moduleDescription = e.target.moduleDescription.value;
+    const moduleVideoInput = e.target.moduleVideo;
+    const moduleVideoURL = e.target.moduleVideoURL.value;
+    const moduleContentInput = e.target.moduleContent;
+    const moduleDuration = e.target.moduleDuration.value;
+
+    // Validações
+    const hasVideoFile = moduleVideoInput.files.length > 0;
+    const hasVideoURL = moduleVideoURL.trim() !== "";
+    const hasContentFiles = moduleContentInput.files.length > 0;
+    const hasExistingVideo =
+      currentModuleData?.videoFile || currentModuleData?.videoURL;
+
+    // ✅ Corrigir: verificar conteúdo existente corretamente
+    const hasExistingContent =
+      currentModuleData?.hasExistingContent ||
+      (currentModuleData?.existingContentUrls &&
+        currentModuleData.existingContentUrls.length > 0);
+
+    const totalOptions = [
+      hasVideoFile || hasExistingVideo,
+      hasVideoURL,
+      hasContentFiles || hasExistingContent,
+    ].filter(Boolean).length;
+
+    if (totalOptions === 0) {
+      setError(
+        "Por favor, adicione pelo menos uma das seguintes opções: vídeo, link do YouTube ou arquivo de conteúdo."
+      );
+      return;
+    }
+
+    if (hasVideoFile && hasVideoURL) {
+      setError("Escolha apenas uma opção: upload de vídeo OU link do YouTube.");
+      return;
+    }
+
+    if (
+      hasVideoURL &&
+      !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(moduleVideoURL)
+    ) {
+      setError("Por favor, insira uma URL válida do YouTube.");
+      return;
+    }
+
+    if (!moduleDescription.trim()) {
+      setError("A descrição do módulo é obrigatória.");
+      return;
+    }
+
+    if (!moduleDuration || moduleDuration < 1 || moduleDuration > 300) {
+      setError("A duração deve estar entre 1 e 300 minutos.");
+      return;
+    }
+
+    // Determinar fonte de vídeo
+    let videoSource = null;
+    if (hasVideoFile) {
+      videoSource = { type: "file", data: moduleVideoInput.files[0] };
+    } else if (hasVideoURL) {
+      videoSource = { type: "url", data: moduleVideoURL };
+    } else if (currentModuleData?.videoFile) {
+      videoSource = { type: "file", data: currentModuleData.videoFile };
+    } else if (currentModuleData?.videoURL) {
+      videoSource = { type: "url", data: currentModuleData.videoURL };
+    }
+
+    // ✅ Corrigir: lidar com arquivos de conteúdo adequadamente
+    let contentFile = [];
+    let existingContentUrls = [];
+
+    if (hasContentFiles) {
+      // Se novos arquivos foram selecionados, usar os novos
+      contentFile = Array.from(moduleContentInput.files);
+    } else if (hasExistingContent) {
+      // Se mantendo conteúdo existente, preservar as URLs
+      existingContentUrls = currentModuleData.existingContentUrls || [];
+    }
+
+    const currentModule = selectedModule;
+    const moduleIndex = courseModules.findIndex((module, i) => {
+      if (i > 0) {
+        const moduleName = typeof module === "string" ? module : module.name;
+        return moduleName === currentModule;
       }
-    } catch (error) {
-      console.log(error);
-      setError(error);
-    } finally {
-      setIsDeleting(false);
+      return false;
+    });
+
+    if (moduleIndex !== -1) {
+      const moduleData = {
+        name: currentModule,
+        description: moduleDescription,
+        videoFile: videoSource?.type === "file" ? videoSource.data : null,
+        videoURL: videoSource?.type === "url" ? videoSource.data : null,
+        contentFile: contentFile, // ✅ Agora só contém arquivos reais
+        existingContentUrls: existingContentUrls, // ✅ URLs existentes separadas
+        duration: moduleDuration,
+        hasExistingContent: existingContentUrls.length > 0,
+      };
+
+      const updatedModules = [...courseModules];
+      updatedModules[moduleIndex] = {
+        name: currentModule,
+        data: moduleData,
+      };
+
+      handleClose();
+      setTimeout(() => {
+        setCourseModules(updatedModules);
+        setCurrentModuleData(null);
+      }, 50);
+    } else {
+      handleClose();
+      setCurrentModuleData(null);
     }
   };
 
@@ -303,21 +541,24 @@ function EditCourse() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Determinar se o tipo mudou
     const originalType = courseData.CURSO_SINCRONO ? "Síncrono" : "Assíncrono";
     const isTypeChanged = originalType !== selectedRadio;
 
-    const URL = isTypeChanged
-      ? `http://localhost:4000/api/cursos/convert/${courseId}`
-      : selectedRadio === "Síncrono"
-      ? `http://localhost:4000/api/cursos/sincrono/${courseId}`
-      : `http://localhost:4000/api/cursos/assincrono/${courseId}`;
+    // Validações específicas para cada tipo
+    if (selectedRadio === "Síncrono" && (!selectedTeacher || !availableSeats)) {
+      setError(
+        "Para cursos síncronos, é obrigatório selecionar um formador e definir o número de vagas."
+      );
+      return;
+    }
 
     if (
       courseObjectives.length <= 1 ||
       courseObjectives.every((obj) => obj.trim() === "")
     ) {
       setError("Adicione pelo menos um objetivo.");
-      setIsLoading(false);
       return;
     }
 
@@ -326,7 +567,6 @@ function EditCourse() {
       courseHabilities.every((ability) => ability.trim() === "")
     ) {
       setError("Adicione pelo menos uma habilidade.");
-      setIsLoading(false);
       return;
     }
 
@@ -344,39 +584,119 @@ function EditCourse() {
       formData.append("DATA_FIM", endDate);
       formData.append("ID_CATEGORIA", selectedCategory);
       formData.append("ID_TOPICO", selectedTopic);
-      formData.append("imagem", e.target.courseImage.files[0]);
-      // Add objectives (filtering out the first empty input and empty strings)
+
+      // Adicionar objetivos e habilidades
       const filteredObjectives = courseObjectives
         .slice(1)
         .filter((obj) => obj.trim() !== "");
-      formData.append("OBJETIVOS", filteredObjectives);
+      formData.append("OBJETIVOS", filteredObjectives.join(","));
 
-      // Add abilities (filtering out the first empty input and empty strings)
       const filteredHabilities = courseHabilities
         .slice(1)
         .filter((ability) => ability.trim() !== "");
-      formData.append("HABILIDADES", filteredHabilities);
+      formData.append("HABILIDADES", filteredHabilities.join(","));
 
-      // Add synchronous course specific data
+      // Adicionar módulos
+      const modulesToSend = courseModules
+        .slice(1)
+        .filter(
+          (module) =>
+            module &&
+            (typeof module === "string"
+              ? module.trim() !== ""
+              : module.name.trim() !== "")
+        )
+        .map((module) => {
+          if (typeof module === "string") {
+            return { NOME: module };
+          } else {
+            return {
+              NOME: module.name,
+              DESCRICAO: module.data.description,
+              DURACAO: module.data.duration,
+              VIDEO: module.data.videoFile ? true : false,
+              VIDEO_URL: module.data.videoURL || null,
+              CONTEUDO: module.data.contentFile
+                ? module.data.contentFile.length
+                : 0,
+            };
+          }
+        });
+
+      formData.append("MODULOS", JSON.stringify(modulesToSend));
+
+      // Anexar arquivos de vídeo e conteúdo
+      courseModules.slice(1).forEach((module, index) => {
+        if (module && typeof module !== "string" && module.data) {
+          // Anexar vídeo se existir
+          if (module.data.videoFile && module.data.videoFile instanceof File) {
+            formData.append(`module_${index}_video`, module.data.videoFile);
+          }
+
+          // ✅ Corrigir: só anexar arquivos reais, não objetos fake
+          if (module.data.contentFile && module.data.contentFile.length > 0) {
+            module.data.contentFile.forEach((file, fileIndex) => {
+              // Verificar se é um arquivo real antes de anexar
+              if (file instanceof File) {
+                formData.append(
+                  `module_${index}_content_${fileIndex}`,
+                  file,
+                  file.name
+                );
+              }
+            });
+          }
+        }
+      });
+
+      // Adicionar dados específicos do tipo de curso
       if (selectedRadio === "Síncrono") {
         formData.append("ID_UTILIZADOR", selectedTeacher);
         formData.append("VAGAS", availableSeats);
+        formData.append("COURSE_TYPE", "Síncrono");
+      } else {
+        formData.append("COURSE_TYPE", "Assíncrono");
       }
-      // Add image if selected
+
+      // Adicionar imagem se selecionada
       if (courseImage) {
         formData.append("imagem", courseImage);
       }
 
-      console.log("Form data:", formData);
-      // Update the course
-      const response = await axios.put(URL, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      // ✅ ESCOLHER O ENDPOINT CORRETO baseado na conversão
+      let endpoint;
+      if (isTypeChanged) {
+        // Se mudou o tipo, usar endpoint de conversão
+        endpoint = `http://localhost:4000/api/cursos/convert/${courseId}`;
+        formData.append("NEW_TYPE", selectedRadio);
+        formData.append("OLD_TYPE", originalType);
+      } else {
+        // Se não mudou, usar endpoint de atualização normal
+        endpoint = `http://localhost:4000/api/cursos/${courseId}/completo`;
+      }
+
+      console.log("🚀 Enviando para:", endpoint);
+      console.log(
+        "📦 Tipo original:",
+        originalType,
+        "Novo tipo:",
+        selectedRadio
+      );
+      console.log("🔄 Conversão?", isTypeChanged ? "SIM" : "NÃO");
+
+      const response = await axios.put(endpoint, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (response.status === 200) {
         setShowSuccess(true);
+        // Opcional: Atualizar dados do curso após conversão
+        if (isTypeChanged) {
+          setTimeout(() => {
+            window.location.reload(); // Recarregar para mostrar nova estrutura
+          }, 2000);
+        }
       }
     } catch (error) {
       console.error("Error updating course:", error);
@@ -418,18 +738,6 @@ function EditCourse() {
                   onClick={() => navigate("/dashboard")}
                 >
                   Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger me-2"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? (
-                    <ButtonWithLoader isLoading={isDeleting} />
-                  ) : (
-                    "Apagar curso"
-                  )}
                 </button>
                 <button
                   type="submit"
@@ -500,14 +808,35 @@ function EditCourse() {
                           <label htmlFor="courseImage" className="form-label">
                             Imagem do Curso:
                           </label>
+                          {imagePreview && (
+                            <div className="mb-3">
+                              <img
+                                src={imagePreview}
+                                alt="Preview do curso"
+                                className="img-fluid rounded"
+                                style={{
+                                  maxHeight: "200px",
+                                  width: "100%",
+                                  objectFit: "cover",
+                                }}
+                              />
+                              <small className="text-muted d-block mt-1">
+                                {courseImage
+                                  ? "Nova imagem selecionada"
+                                  : "Imagem atual"}
+                              </small>
+                            </div>
+                          )}
                           <input
                             type="file"
                             className="form-control mb-3"
                             id="courseImage"
                             accept="image/png, image/jpeg, image/jpg"
+                            onChange={handleImageChange}
                           />
                           <small className="form-text text-muted">
-                            Formatos suportados: PNG, JPEG, JPG.
+                            Formatos suportados: PNG, JPEG, JPG. Deixe em branco
+                            para manter a imagem atual.
                           </small>
                         </div>
                       </>
@@ -958,10 +1287,133 @@ function EditCourse() {
                   <div className="card-header">
                     <h5 className="card-title mb-0">Módulos e Conteúdo</h5>
                   </div>
-                  <div className="card-body d-flex flex-column justify-content-center align-items-center">
-                    <h6 className="mb-0">
-                      Carregue aqui para editar os módulos e conteúdo dos mesmos
-                    </h6>
+                  <div className="card-body">
+                    <div>
+                      <label className="form-label" htmlFor="courseModules">
+                        Crie módulos e adicione conteúdo aos mesmos
+                      </label>
+                      <div className="d-flex flex-row gap-2">
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="courseModules"
+                          placeholder="Ex. Introdução ao React"
+                          value={courseModules[0] || ""}
+                          onChange={(e) =>
+                            atualizarCampo(
+                              setCourseModules,
+                              courseModules,
+                              0,
+                              e.target.value
+                            )
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleNovoModulo}
+                        >
+                          Adicionar
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="modules-list mt-3">
+                      {courseModules.slice(1).map((module, index) => {
+                        const isString = typeof module === "string";
+                        const moduleName = isString ? module : module.name;
+                        const hasContent = !isString && module.data;
+
+                        let contentTypes = [];
+                        if (hasContent) {
+                          if (module.data.videoFile) contentTypes.push("Vídeo");
+                          if (module.data.videoURL)
+                            contentTypes.push("YouTube");
+
+                          // ✅ Corrigir: contar arquivos novos e existentes
+                          const newFiles = module.data.contentFile
+                            ? module.data.contentFile.length
+                            : 0;
+                          const existingFiles = module.data.existingContentUrls
+                            ? module.data.existingContentUrls.length
+                            : 0;
+                          const totalFiles = newFiles + existingFiles;
+
+                          if (totalFiles > 0) {
+                            contentTypes.push(`${totalFiles} arquivo(s)`);
+                          }
+                        }
+
+                        return (
+                          moduleName.trim() !== "" && (
+                            <div
+                              key={index}
+                              className={`module-item d-flex align-items-center justify-content-between rounded px-3 py-2 mb-2 ${
+                                hasContent && contentTypes.length > 0
+                                  ? "bg-success-subtle border border-success"
+                                  : "bg-light border"
+                              }`}
+                            >
+                              <div className="d-flex flex-column">
+                                <span className="fw-medium">{moduleName}</span>
+                                {hasContent && contentTypes.length > 0 && (
+                                  <small className="text-muted">
+                                    {contentTypes.join(" • ")}
+                                  </small>
+                                )}
+                                {hasContent && contentTypes.length === 0 && (
+                                  <small className="text-warning">
+                                    Sem conteúdo
+                                  </small>
+                                )}
+                                {!hasContent && (
+                                  <small className="text-warning">
+                                    Sem conteúdo
+                                  </small>
+                                )}
+                              </div>
+                              <div className="d-inline-flex">
+                                <button
+                                  type="button"
+                                  className="btn btn-sm text-primary ms-2 p-0 border-0"
+                                  onClick={() => {
+                                    setSelectedModule(moduleName);
+                                    if (!isString && module.data) {
+                                      setCurrentModuleData(module.data);
+                                    } else {
+                                      setCurrentModuleData(null);
+                                    }
+                                    handleShow();
+                                  }}
+                                  title="Editar módulo"
+                                >
+                                  <Pen size={16} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm text-danger ms-2 p-0 border-0"
+                                  onClick={() =>
+                                    removerCampo(
+                                      setCourseModules,
+                                      courseModules,
+                                      index + 1
+                                    )
+                                  }
+                                  title="Remover módulo"
+                                >
+                                  <XCircle size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        );
+                      })}
+                    </div>
+                    {courseModules.length <= 1 && (
+                      <div className="text-muted small mt-2">
+                        Nenhum módulo adicionado ainda.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1017,6 +1469,232 @@ function EditCourse() {
           </form>
         </div>
       </div>
+
+      {/* Modal de Edição de Módulo */}
+      {showModal && (
+        <div
+          style={modalStyles.modalOverlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleClose();
+            }
+          }}
+        >
+          <div
+            style={modalStyles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={modalStyles.modalHeader}>
+              <h3 style={modalStyles.modalTitle}>
+                Editar Módulo: {selectedModule}
+              </h3>
+              <button
+                style={modalStyles.closeButton}
+                onClick={handleClose}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div style={modalStyles.modalBody}>
+              <form
+                className="content-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleModuleContentSubmit(e);
+                }}
+              >
+                <div className="mb-3">
+                  <label htmlFor="moduleDescription" className="form-label">
+                    Descrição do módulo *
+                  </label>
+                  <textarea
+                    id="moduleDescription"
+                    className="form-control"
+                    placeholder="Ex. Aprenda a programar do zero com este curso de programação."
+                    required
+                    defaultValue={currentModuleData?.description || ""}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="alert alert-info mb-3">
+                  <strong>Conteúdo do módulo:</strong>
+                  <br />
+                  Adicione pelo menos <strong>uma</strong> das opções abaixo:
+                  <ul className="mb-0 mt-2">
+                    <li>Upload de vídeo</li>
+                    <li>Link do YouTube</li>
+                    <li>Arquivos de conteúdo (PDF/DOCX/PPTX)</li>
+                  </ul>
+                </div>
+
+                {/* Upload de Vídeo */}
+                <div className="mb-3">
+                  <label htmlFor="moduleVideo" className="form-label">
+                    Upload de vídeo (opcional):
+                  </label>
+                  <input
+                    type="file"
+                    className="form-control mb-2"
+                    id="moduleVideo"
+                    accept="video/mp4, video/mkv, video/avi"
+                    onChange={(e) => {
+                      if (e.target.files.length > 0) {
+                        document.getElementById("moduleVideoURL").value = "";
+                      }
+                    }}
+                  />
+                  {currentModuleData?.videoFile && (
+                    <div className="current-file">
+                      <span
+                        className="badge bg-info text-dark"
+                        style={{ fontSize: "14px" }}
+                      >
+                        Arquivo atual:{" "}
+                        {currentModuleData.videoFile.name || "video.mp4"}
+                      </span>
+                      <small className="d-block text-muted mt-1">
+                        Selecione um novo arquivo para substituir o atual
+                      </small>
+                    </div>
+                  )}
+                  <small className="form-text text-muted">
+                    Formatos suportados: MP4, MKV, AVI. Tamanho máximo: 500MB.
+                  </small>
+                </div>
+
+                <div className="text-center my-2">
+                  <span className="badge bg-secondary">OU</span>
+                </div>
+
+                {/* URL do YouTube */}
+                <div className="mb-3">
+                  <label htmlFor="moduleVideoURL" className="form-label">
+                    Link do YouTube (opcional):
+                  </label>
+                  <input
+                    type="url"
+                    className="form-control mb-2"
+                    id="moduleVideoURL"
+                    placeholder="https://www.youtube.com/watch?v=example"
+                    defaultValue={currentModuleData?.videoURL || ""}
+                    onChange={(e) => {
+                      const url = e.target.value;
+                      if (url) {
+                        document.getElementById("moduleVideo").value = "";
+                      }
+                      if (
+                        url &&
+                        !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(url)
+                      ) {
+                        setError(
+                          "Por favor, insira uma URL válida do YouTube."
+                        );
+                      } else {
+                        setError(null);
+                      }
+                    }}
+                  />
+                  <small className="form-text text-muted">
+                    Cole aqui o link completo do vídeo no YouTube
+                  </small>
+                </div>
+
+                <div className="text-center my-2">
+                  <span className="badge bg-secondary">E/OU</span>
+                </div>
+
+                {/* Conteúdo do módulo */}
+                <div className="mb-3">
+                  <label htmlFor="moduleContent" className="form-label">
+                    Conteúdo do módulo (opcional):
+                  </label>
+                  <input
+                    type="file"
+                    ref={moduleContentInputRef}
+                    className="form-control mb-2"
+                    id="moduleContent"
+                    accept=".pdf, .docx, .pptx"
+                    multiple
+                    onChange={(e) => {
+                      const validation = validateFiles(e.target.files);
+                      if (!validation.valid) {
+                        setError(validation.message);
+                        e.target.value = "";
+                      } else {
+                        setError(null);
+                      }
+                    }}
+                  />
+
+                  {/* ✅ Mostrar conteúdo existente corretamente */}
+                  {currentModuleData?.existingContentUrls &&
+                    currentModuleData.existingContentUrls.length > 0 && (
+                      <div className="current-file mb-2">
+                        <span
+                          className="badge bg-info text-dark"
+                          style={{ fontSize: "14px" }}
+                        >
+                          {currentModuleData.existingContentUrls.length}{" "}
+                          arquivo(s) existente(s)
+                        </span>
+                        <small className="d-block text-muted mt-1">
+                          Selecione novos arquivos para substituir os atuais
+                        </small>
+                        <div className="mt-1">
+                          {currentModuleData.existingContentUrls.map(
+                            (url, index) => (
+                              <small key={index} className="d-block text-muted">
+                                • Arquivo {index + 1}
+                              </small>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  <small className="form-text text-muted">
+                    Formatos suportados: PDF, DOCX, PPTX. Tamanho máximo: 50MB.
+                    Máximo 5 arquivos
+                  </small>
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="moduleDuration" className="form-label">
+                    Duração do módulo (em minutos) *:
+                  </label>
+                  <input
+                    type="number"
+                    id="moduleDuration"
+                    className="form-control mb-3"
+                    required
+                    min={1}
+                    max={300}
+                    defaultValue={currentModuleData?.duration || ""}
+                  />
+                  <small className="form-text text-muted">
+                    Duração entre 1 e 300 minutos.
+                  </small>
+                </div>
+
+                <div style={modalStyles.modalFooter}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary me-2"
+                    onClick={handleClose}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Guardar módulo
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

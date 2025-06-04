@@ -40,7 +40,19 @@ const savePdfToServer = (buffer, fileName) => {
       }
 
       // Generate unique filename
-      const uniqueFileName = `${Date.now()}-$${fileName}`;
+      let cleanFileName = fileName;
+
+      // Normalizar caracteres Unicode (remove acentos problemáticos)
+      cleanFileName = cleanFileName
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+      // Remover caracteres especiais mantendo apenas letras, números, pontos e hífens
+      cleanFileName = cleanFileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+
+      // Garantir que não há espaços ou caracteres problemáticos
+      cleanFileName = cleanFileName.replace(/\s+/g, "_");
+      const uniqueFileName = `${Date.now()}-$${cleanFileName}`;
       const filePath = path.join(uploadsDir, uniqueFileName);
 
       // Write file
@@ -177,38 +189,44 @@ const getCursoById = async (req, res) => {
         },
         {
           model: CursoAssincrono,
+          attributes: ["DATA_INICIO", "DATA_FIM", "NUMERO_CURSOS_ASSINCRONOS"],
         },
         {
           model: CursoSincrono,
+          attributes: ["DATA_INICIO", "DATA_FIM", "VAGAS", "ID_UTILIZADOR"],
           include: [
-            { model: ConteudoSincrono },
+            {
+              model: ConteudoSincrono,
+              required: false,
+            },
             {
               model: Utilizador,
-              attributes: ["USERNAME", "NOME", "LINKEDIN"],
+              attributes: ["ID_UTILIZADOR", "USERNAME", "NOME", "LINKEDIN"],
             },
           ],
         },
         {
           model: Objetivos,
-          attributes: ["DESCRICAO"],
+          attributes: ["ID_OBJETIVO", "DESCRICAO"],
           as: "OBJETIVOS",
         },
         {
           model: Habilidades,
-          attributes: ["DESCRICAO"],
+          attributes: ["ID_HABILIDADE", "DESCRICAO"],
           as: "HABILIDADES",
         },
         {
           model: Modulos,
           attributes: [
+            "ID_MODULO",
             "NOME",
             "DESCRICAO",
             "TEMPO_ESTIMADO_MIN",
             "VIDEO_URL",
             "FILE_URL",
-            "ID_MODULO",
           ],
           as: "MODULOS",
+          order: [["ID_MODULO", "ASC"]], // Ordenar módulos por ID para manter consistência
         },
       ],
     });
@@ -217,10 +235,59 @@ const getCursoById = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    res.status(200).json(curso);
+    // Processar dados dos módulos para o frontend
+    const cursoProcesado = curso.toJSON();
+
+    if (cursoProcesado.MODULOS) {
+      cursoProcesado.MODULOS = cursoProcesado.MODULOS.map((modulo) => {
+        // Processar FILE_URL se for JSON string
+        let fileUrls = [];
+        if (modulo.FILE_URL) {
+          try {
+            // Tentar fazer parse se for JSON
+            if (
+              typeof modulo.FILE_URL === "string" &&
+              modulo.FILE_URL.startsWith("[")
+            ) {
+              fileUrls = JSON.parse(modulo.FILE_URL);
+            } else if (typeof modulo.FILE_URL === "string") {
+              fileUrls = [modulo.FILE_URL];
+            } else if (Array.isArray(modulo.FILE_URL)) {
+              fileUrls = modulo.FILE_URL;
+            }
+          } catch (e) {
+            console.warn(
+              `Erro ao processar FILE_URL do módulo ${modulo.NOME}:`,
+              e
+            );
+            fileUrls = [];
+          }
+        }
+
+        return {
+          ...modulo,
+          FILE_URL_ARRAY: fileUrls, // Adicionar versão processada para o frontend
+          HAS_VIDEO: !!modulo.VIDEO_URL,
+          HAS_CONTENT: fileUrls.length > 0,
+          VIDEO_TYPE: modulo.VIDEO_URL
+            ? modulo.VIDEO_URL.includes("youtube.com")
+              ? "youtube"
+              : "upload"
+            : null,
+        };
+      });
+    }
+
+    console.log(
+      `Curso ${id} encontrado com ${cursoProcesado.MODULOS?.length || 0} módulos`
+    );
+
+    res.status(200).json(cursoProcesado);
   } catch (error) {
     console.error(`Erro ao buscar curso com id ${id}:`, error);
-    res.status(500).json({ error: "Erro ao buscar curso" });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar curso", details: error.message });
   }
 };
 
@@ -812,6 +879,238 @@ const updateCursoAssincrono = async (req, res) => {
   }
 };
 
+const updateCursoCompleto = async (req, res) => {
+  const { id } = req.params;
+  const {
+    NOME,
+    DESCRICAO_OBJETIVOS__,
+    DIFICULDADE_CURSO__,
+    ID_AREA,
+    DATA_INICIO,
+    DATA_FIM,
+    HABILIDADES,
+    OBJETIVOS,
+    ID_TOPICO,
+    ID_UTILIZADOR, // Para cursos síncronos
+    VAGAS, // Para cursos síncronos
+  } = req.body;
+
+  let transaction;
+
+  try {
+    transaction = await sequelize.transaction();
+
+    // Buscar o curso
+    const curso = await Curso.findByPk(id, { transaction });
+    if (!curso) {
+      await transaction.rollback();
+      return res.status(404).json({ error: "Curso não encontrado" });
+    }
+
+    // Verificar se é síncrono ou assíncrono
+    const cursoSincrono = await CursoSincrono.findOne({
+      where: { ID_CURSO: id },
+      transaction,
+    });
+    const cursoAssincrono = await CursoAssincrono.findOne({
+      where: { ID_CURSO: id },
+      transaction,
+    });
+
+    // Processar imagem se fornecida
+    let imagemUrl = curso.IMAGEM;
+    let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
+
+    const imagem = req.files?.find((file) => file.fieldname === "imagem");
+    if (imagem) {
+      const result = await streamUpload(
+        imagem.buffer,
+        `cursos/${NOME}`,
+        "auto"
+      );
+      imagemUrl = result.secure_url;
+      imagemPublicId = result.public_id;
+    }
+
+    // Atualizar curso base
+    await curso.update(
+      {
+        NOME,
+        DESCRICAO_OBJETIVOS__,
+        DIFICULDADE_CURSO__,
+        IMAGEM: imagemUrl,
+        IMAGEM_PUBLIC_ID: imagemPublicId,
+        ID_AREA,
+        ID_TOPICO,
+      },
+      { transaction }
+    );
+
+    // Processar habilidades e objetivos
+    if (HABILIDADES && OBJETIVOS) {
+      const habilidadesArray = HABILIDADES.split(",")
+        .map((habilidade) => ({ DESCRICAO: habilidade.trim() }))
+        .filter((h) => h.DESCRICAO);
+
+      const objetivosArray = OBJETIVOS.split(",")
+        .map((objetivo) => ({ DESCRICAO: objetivo.trim() }))
+        .filter((o) => o.DESCRICAO);
+
+      // Remover existentes
+      await Promise.all([
+        Habilidades.destroy({
+          where: { ID_CURSO: curso.ID_CURSO },
+          transaction,
+        }),
+        Objetivos.destroy({ where: { ID_CURSO: curso.ID_CURSO }, transaction }),
+      ]);
+
+      // Criar novos
+      await Promise.all([
+        Habilidades.bulkCreate(
+          habilidadesArray.map((habilidade) => ({
+            ...habilidade,
+            ID_CURSO: curso.ID_CURSO,
+          })),
+          { transaction }
+        ),
+        Objetivos.bulkCreate(
+          objetivosArray.map((objetivo) => ({
+            ...objetivo,
+            ID_CURSO: curso.ID_CURSO,
+          })),
+          { transaction }
+        ),
+      ]);
+    }
+
+    // Processar módulos se fornecidos
+    if (req.body.MODULOS) {
+      const modulos = JSON.parse(req.body.MODULOS);
+
+      // Remover módulos existentes
+      await Modulos.destroy({
+        where: { ID_CURSO: curso.ID_CURSO },
+        transaction,
+      });
+
+      // Criar novos módulos
+      const uploadedFiles = [];
+
+      for (let i = 0; i < modulos.length; i++) {
+        const modulo = modulos[i];
+
+        const videoFile = req.files?.find(
+          (file) => file.fieldname === `module_${i}_video`
+        );
+        const contentFiles =
+          req.files?.filter((file) =>
+            file.fieldname.startsWith(`module_${i}_content_`)
+          ) || [];
+
+        let videoUrl = null;
+        let contentUrls = [];
+
+        // Processar vídeo
+        if (videoFile) {
+          const result = await streamUpload(
+            videoFile.buffer,
+            `cursos/${NOME}/modulos/videos`,
+            "video"
+          );
+          videoUrl = result.secure_url;
+          uploadedFiles.push({
+            originalname: videoFile.originalname,
+            url: result.secure_url,
+            type: "video_upload",
+            module: modulo.NOME,
+          });
+        } else if (modulo.VIDEO_URL) {
+          videoUrl = modulo.VIDEO_URL;
+          uploadedFiles.push({
+            url: modulo.VIDEO_URL,
+            type: "video_youtube",
+            module: modulo.NOME,
+          });
+        }
+
+        // Processar arquivos de conteúdo
+        for (const contentFile of contentFiles) {
+          try {
+            const filePath = await savePdfToServer(
+              contentFile.buffer,
+              contentFile.originalname
+            );
+            const fileUrl = `http://localhost:4000${filePath}`;
+            contentUrls.push(fileUrl);
+
+            uploadedFiles.push({
+              originalname: contentFile.originalname,
+              url: fileUrl,
+              type: "document",
+              module: modulo.NOME,
+            });
+          } catch (error) {
+            console.error("Erro ao upload do arquivo:", error);
+          }
+        }
+
+        // Criar módulo
+        await Modulos.create(
+          {
+            ID_CURSO: curso.ID_CURSO,
+            NOME: modulo.NOME,
+            DESCRICAO: modulo.DESCRICAO,
+            VIDEO_URL: videoUrl,
+            FILE_URL: JSON.stringify(contentUrls),
+            TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+          },
+          { transaction }
+        );
+      }
+    }
+
+    // Atualizar dados específicos do tipo de curso
+    if (cursoSincrono) {
+      await cursoSincrono.update(
+        {
+          ID_UTILIZADOR: ID_UTILIZADOR || cursoSincrono.ID_UTILIZADOR,
+          VAGAS: VAGAS || cursoSincrono.VAGAS,
+          DATA_INICIO: DATA_INICIO || cursoSincrono.DATA_INICIO,
+          DATA_FIM: DATA_FIM || cursoSincrono.DATA_FIM,
+        },
+        { transaction }
+      );
+    }
+
+    if (cursoAssincrono) {
+      await cursoAssincrono.update(
+        {
+          DATA_INICIO: DATA_INICIO || cursoAssincrono.DATA_INICIO,
+          DATA_FIM: DATA_FIM || cursoAssincrono.DATA_FIM,
+        },
+        { transaction }
+      );
+    }
+
+    await transaction.commit();
+
+    res.status(200).json({
+      success: true,
+      message: "Curso atualizado com sucesso",
+      curso: curso,
+    });
+  } catch (error) {
+    if (transaction) await transaction.rollback();
+    console.error("Erro ao atualizar curso:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erro ao atualizar curso",
+      error: error.message,
+    });
+  }
+};
+
 const createAssincrono = async (req, res) => {
   const {
     NOME,
@@ -1305,103 +1604,218 @@ const convertCursoType = async (req, res) => {
     DESCRICAO_OBJETIVOS__,
     DIFICULDADE_CURSO__,
     ID_AREA,
-    ID_UTILIZADOR,
     DATA_INICIO,
     DATA_FIM,
-    VAGAS,
+    HABILIDADES,
+    OBJETIVOS,
     ID_TOPICO,
+    ID_UTILIZADOR, // Para conversão para síncrono
+    VAGAS, // Para conversão para síncrono
+    NEW_TYPE,
+    OLD_TYPE,
   } = req.body;
 
+  let transaction;
+
   try {
-    // Find the course
-    const curso = await Curso.findByPk(id);
+    transaction = await sequelize.transaction();
+
+    // Buscar o curso
+    const curso = await Curso.findByPk(id, { transaction });
     if (!curso) {
+      await transaction.rollback();
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    // Handle image update if needed (similar to your other update functions)
+    console.log(`🔄 Convertendo curso ${id} de ${OLD_TYPE} para ${NEW_TYPE}`);
+
+    // Processar imagem se fornecida
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
-    if (req.file) {
+
+    const imagem = req.files?.find((file) => file.fieldname === "imagem");
+    if (imagem) {
       const result = await streamUpload(
-        req.file.buffer,
+        imagem.buffer,
         `cursos/${NOME}`,
         "auto"
       );
-
       imagemUrl = result.secure_url;
       imagemPublicId = result.public_id;
     }
 
-    // Update the base course
-    await curso.update({
-      NOME,
-      DESCRICAO_OBJETIVOS__,
-      DIFICULDADE_CURSO__,
-      IMAGEM: imagemUrl,
-      IMAGEM_PUBLIC_ID: imagemPublicId,
-      ID_AREA,
-      ID_TOPICO,
-    });
+    // Atualizar curso base
+    await curso.update(
+      {
+        NOME,
+        DESCRICAO_OBJETIVOS__,
+        DIFICULDADE_CURSO__,
+        IMAGEM: imagemUrl,
+        IMAGEM_PUBLIC_ID: imagemPublicId,
+        ID_AREA,
+        ID_TOPICO,
+      },
+      { transaction }
+    );
 
-    // Check if we already have async or sync version
-    const existingAsync = await CursoAssincrono.findOne({
-      where: { ID_CURSO: id },
-    });
-    const existingSync = await CursoSincrono.findOne({
-      where: { ID_CURSO: id },
-    });
-
-    // Converting to synchronous
-    if (!existingSync && ID_UTILIZADOR) {
-      // Create synchronous course
-      const cursoSincrono = await CursoSincrono.create({
-        ID_CURSO: curso.ID_CURSO,
-        ID_UTILIZADOR,
-        VAGAS,
-        DATA_INICIO,
-        DATA_FIM,
-      });
-
-      // Remove asynchronous if it exists
-      if (existingAsync) {
-        await existingAsync.destroy();
-      }
-
-      return res.status(200).json({
-        message: "Curso convertido para síncrono com sucesso",
-        curso,
-      });
+    // ✅ REMOVER TIPO ANTIGO
+    if (OLD_TYPE === "Síncrono") {
+      await CursoSincrono.destroy({ where: { ID_CURSO: id }, transaction });
+      console.log("🗑️ Removido dados de curso síncrono");
+    } else if (OLD_TYPE === "Assíncrono") {
+      await CursoAssincrono.destroy({ where: { ID_CURSO: id }, transaction });
+      console.log("🗑️ Removido dados de curso assíncrono");
     }
 
-    // Converting to asynchronous
-    if (!existingAsync) {
-      const NUMERO_CURSOS_ASSINCRONOS = await CursoAssincrono.count();
-      const ADD_COURSE = NUMERO_CURSOS_ASSINCRONOS + 1;
-
-      // Create asynchronous course
-      const cursoAssincrono = await CursoAssincrono.create({
-        ID_CURSO: curso.ID_CURSO,
-        NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
-        DATA_INICIO,
-        DATA_FIM,
-      });
-
-      // Remove synchronous if it exists
-      if (existingSync) {
-        await existingSync.destroy();
-      }
-
-      return res.status(200).json({
-        message: "Curso convertido para assíncrono com sucesso",
-        curso,
-      });
+    // ✅ CRIAR NOVO TIPO
+    if (NEW_TYPE === "Síncrono") {
+      const numeroSincronos = await CursoSincrono.count({ transaction });
+      await CursoSincrono.create(
+        {
+          ID_CURSO: curso.ID_CURSO,
+          ID_UTILIZADOR: ID_UTILIZADOR,
+          VAGAS: VAGAS,
+          DATA_INICIO: DATA_INICIO,
+          DATA_FIM: DATA_FIM,
+        },
+        { transaction }
+      );
+      console.log("✅ Criado como curso síncrono");
+    } else if (NEW_TYPE === "Assíncrono") {
+      const numeroAssincronos = await CursoAssincrono.count({ transaction });
+      await CursoAssincrono.create(
+        {
+          ID_CURSO: curso.ID_CURSO,
+          NUMERO_CURSOS_ASSINCRONOS: numeroAssincronos + 1,
+          DATA_INICIO: DATA_INICIO,
+          DATA_FIM: DATA_FIM,
+        },
+        { transaction }
+      );
+      console.log("✅ Criado como curso assíncrono");
     }
 
-    res.status(400).json({ error: "Erro na conversão do curso" });
+    // Processar habilidades e objetivos
+    if (HABILIDADES && OBJETIVOS) {
+      const habilidadesArray = HABILIDADES.split(",")
+        .map((habilidade) => ({ DESCRICAO: habilidade.trim() }))
+        .filter((h) => h.DESCRICAO);
+
+      const objetivosArray = OBJETIVOS.split(",")
+        .map((objetivo) => ({ DESCRICAO: objetivo.trim() }))
+        .filter((o) => o.DESCRICAO);
+
+      // Remover existentes
+      await Promise.all([
+        Habilidades.destroy({
+          where: { ID_CURSO: curso.ID_CURSO },
+          transaction,
+        }),
+        Objetivos.destroy({ where: { ID_CURSO: curso.ID_CURSO }, transaction }),
+      ]);
+
+      // Criar novos
+      await Promise.all([
+        Habilidades.bulkCreate(
+          habilidadesArray.map((habilidade) => ({
+            ...habilidade,
+            ID_CURSO: curso.ID_CURSO,
+          })),
+          { transaction }
+        ),
+        Objetivos.bulkCreate(
+          objetivosArray.map((objetivo) => ({
+            ...objetivo,
+            ID_CURSO: curso.ID_CURSO,
+          })),
+          { transaction }
+        ),
+      ]);
+    }
+
+    // Processar módulos se fornecidos
+    if (req.body.MODULOS) {
+      const modulos = JSON.parse(req.body.MODULOS);
+
+      // Remover módulos existentes
+      await Modulos.destroy({
+        where: { ID_CURSO: curso.ID_CURSO },
+        transaction,
+      });
+
+      // Criar novos módulos
+      for (let i = 0; i < modulos.length; i++) {
+        const modulo = modulos[i];
+
+        const videoFile = req.files?.find(
+          (file) => file.fieldname === `module_${i}_video`
+        );
+        const contentFiles =
+          req.files?.filter((file) =>
+            file.fieldname.startsWith(`module_${i}_content_`)
+          ) || [];
+
+        let videoUrl = null;
+        let contentUrls = [];
+
+        // Processar vídeo
+        if (videoFile) {
+          const result = await streamUpload(
+            videoFile.buffer,
+            `cursos/${NOME}/modulos/videos`,
+            "video"
+          );
+          videoUrl = result.secure_url;
+        } else if (modulo.VIDEO_URL) {
+          videoUrl = modulo.VIDEO_URL;
+        }
+
+        // Processar arquivos de conteúdo
+        for (const contentFile of contentFiles) {
+          try {
+            const filePath = await savePdfToServer(
+              contentFile.buffer,
+              contentFile.originalname
+            );
+            const fileUrl = `http://localhost:4000${filePath}`;
+            contentUrls.push(fileUrl);
+          } catch (error) {
+            console.error("Erro ao upload do arquivo:", error);
+          }
+        }
+
+        // Criar módulo
+        await Modulos.create(
+          {
+            ID_CURSO: curso.ID_CURSO,
+            NOME: modulo.NOME,
+            DESCRICAO: modulo.DESCRICAO,
+            VIDEO_URL: videoUrl,
+            FILE_URL: JSON.stringify(contentUrls),
+            TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+          },
+          { transaction }
+        );
+      }
+    }
+
+    await transaction.commit();
+
+    res.status(200).json({
+      success: true,
+      message: `Curso convertido de ${OLD_TYPE} para ${NEW_TYPE} com sucesso!`,
+      oldType: OLD_TYPE,
+      newType: NEW_TYPE,
+      curso: curso,
+    });
   } catch (error) {
+    if (transaction) await transaction.rollback();
     console.error("Erro ao converter curso:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Erro ao converter curso",
+      error: error.message,
+    });
   }
 };
 
@@ -1904,4 +2318,5 @@ module.exports = {
   checkTopicoAssociation,
   searchCursos,
   verifyTeacher,
+  updateCursoCompleto,
 };
