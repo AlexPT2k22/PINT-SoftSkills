@@ -175,15 +175,28 @@ function CreateCourse() {
     const moduleContentInput = e.target.moduleContent;
     const moduleDuration = e.target.moduleDuration.value;
 
-    // Validar que pelo menos uma opção de vídeo foi escolhida
+    // Verificar que opções estão preenchidas
     const hasVideoFile = moduleVideoInput.files.length > 0;
     const hasVideoURL = moduleVideoURL.trim() !== "";
+    const hasContentFiles = moduleContentInput.files.length > 0;
     const hasExistingVideo =
       currentModuleData?.videoFile || currentModuleData?.videoURL;
+    const hasExistingContent =
+      currentModuleData?.contentFile &&
+      currentModuleData.contentFile.length > 0;
 
-    if (!hasVideoFile && !hasVideoURL && !hasExistingVideo) {
+    // Validar que pelo menos UMA das três opções está presente
+    const totalOptions = [
+      hasVideoFile || hasExistingVideo,
+      hasVideoURL,
+      hasContentFiles || hasExistingContent,
+    ].filter(Boolean).length;
+
+    if (totalOptions === 0) {
       setError(true);
-      setMessage("Por favor, adicione um vídeo (upload ou link do YouTube).");
+      setMessage(
+        "Por favor, adicione pelo menos uma das seguintes opções:\n- Upload de vídeo\n- Link do YouTube\n- Arquivo de conteúdo (PDF/DOCX/PPTX)"
+      );
       return;
     }
 
@@ -206,6 +219,20 @@ function CreateCourse() {
       return;
     }
 
+    // Validar descrição
+    if (!moduleDescription.trim()) {
+      setError(true);
+      setMessage("A descrição do módulo é obrigatória.");
+      return;
+    }
+
+    // Validar duração
+    if (!moduleDuration || moduleDuration < 1 || moduleDuration > 300) {
+      setError(true);
+      setMessage("A duração deve estar entre 1 e 300 minutos.");
+      return;
+    }
+
     // Determinar qual fonte de vídeo usar
     let videoSource = null;
     if (hasVideoFile) {
@@ -220,13 +247,10 @@ function CreateCourse() {
 
     // Handle content files
     let contentFile = [];
-    if (
-      moduleContentInput.files.length === 0 &&
-      currentModuleData?.contentFile
-    ) {
-      contentFile = currentModuleData.contentFile;
-    } else {
+    if (hasContentFiles) {
       contentFile = Array.from(moduleContentInput.files);
+    } else if (hasExistingContent) {
+      contentFile = currentModuleData.contentFile;
     }
 
     // Store current module name before resetting state
@@ -246,8 +270,8 @@ function CreateCourse() {
       const moduleData = {
         name: currentModule,
         description: moduleDescription,
-        videoFile: videoSource.type === "file" ? videoSource.data : null,
-        videoURL: videoSource.type === "url" ? videoSource.data : null,
+        videoFile: videoSource?.type === "file" ? videoSource.data : null,
+        videoURL: videoSource?.type === "url" ? videoSource.data : null,
         contentFile: contentFile,
         duration: moduleDuration,
       };
@@ -266,6 +290,10 @@ function CreateCourse() {
       setTimeout(() => {
         setCourseModules(updatedModules);
         setCurrentModuleData(null);
+
+        // Mostrar mensagem de sucesso
+        setError(false);
+        setMessage("");
       }, 50);
     } else {
       handleClose();
@@ -539,7 +567,6 @@ function CreateCourse() {
         <div
           style={modalStyles.modalOverlay}
           onClick={(e) => {
-            // Close modal when clicking outside
             if (e.target === e.currentTarget) {
               handleClose();
             }
@@ -571,7 +598,7 @@ function CreateCourse() {
               >
                 <div className="mb-3">
                   <label htmlFor="moduleDescription" className="form-label">
-                    Descrição do módulo
+                    Descrição do módulo *
                   </label>
                   <textarea
                     id="moduleDescription"
@@ -582,9 +609,23 @@ function CreateCourse() {
                     rows={3}
                   />
                 </div>
+
+                {/* Aviso sobre as opções */}
+                <div className="alert alert-info mb-3">
+                  <strong>Conteúdo do módulo:</strong>
+                  <br />
+                  Adicione pelo menos <strong>uma</strong> das opções abaixo:
+                  <ul className="mb-0 mt-2">
+                    <li>Upload de vídeo</li>
+                    <li>Link do YouTube</li>
+                    <li>Arquivos de conteúdo (PDF/DOCX/PPTX)</li>
+                  </ul>
+                </div>
+
+                {/* Seção de Vídeo - Upload */}
                 <div className="mb-3">
                   <label htmlFor="moduleVideo" className="form-label">
-                    Vídeo do módulo:
+                    Upload de vídeo (opcional):
                   </label>
                   <input
                     type="file"
@@ -616,10 +657,15 @@ function CreateCourse() {
                     Formatos suportados: MP4, MKV, AVI. Tamanho máximo: 500MB.
                   </small>
                 </div>
-                <div className="mb-3 ">OU</div>
-                <div className="mb-0">
+
+                <div className="text-center my-2">
+                  <span className="badge bg-secondary">OU</span>
+                </div>
+
+                {/* URL do YouTube */}
+                <div className="mb-3">
                   <label htmlFor="moduleVideoURL" className="form-label">
-                    Link do YouTube:
+                    Link do YouTube (opcional):
                   </label>
                   <input
                     type="url"
@@ -650,21 +696,25 @@ function CreateCourse() {
                       }
                     }}
                   />
+                  <small className="form-text text-muted">
+                    Coloque aqui o link completo do vídeo no YouTube
+                  </small>
                 </div>
-                <small className="text-muted">
-                  * Escolha apenas uma opção: upload de arquivo OU link do
-                  YouTube
-                </small>
+
+                <div className="text-center my-2">
+                  <span className="badge bg-secondary">E/OU</span>
+                </div>
+
+                {/* Conteúdo do módulo */}
                 <div className="mb-3">
                   <label htmlFor="moduleContent" className="form-label">
-                    Conteúdo do módulo:
+                    Conteúdo do módulo (opcional):
                   </label>
                   <input
                     type="file"
                     ref={moduleContentInputRef}
                     className="form-control mb-2"
                     id="moduleContent"
-                    required={!currentModuleData?.contentFile?.length}
                     accept=".pdf, .docx, .pptx"
                     multiple
                     onChange={(e) => {
@@ -672,7 +722,7 @@ function CreateCourse() {
                       if (!validation.valid) {
                         setError(true);
                         setMessage(validation.message);
-                        e.target.value = ""; // Clear the input
+                        e.target.value = "";
                       }
                     }}
                   />
@@ -698,9 +748,10 @@ function CreateCourse() {
                     Máximo 5 arquivos
                   </small>
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="moduleDuration" className="form-label">
-                    Duração do módulo (em minutos):
+                    Duração do módulo (em minutos) *:
                   </label>
                   <input
                     type="number"
@@ -712,9 +763,10 @@ function CreateCourse() {
                     defaultValue={currentModuleData?.duration || ""}
                   />
                   <small className="form-text text-muted">
-                    Duração máxima: 300 minutos.
+                    Duração entre 1 e 300 minutos.
                   </small>
                 </div>
+
                 <div style={modalStyles.modalFooter}>
                   <button
                     type="button"
@@ -724,7 +776,7 @@ function CreateCourse() {
                     Cancelar
                   </button>
                   <button type="submit" className="btn btn-primary">
-                    Adicionar
+                    Guardar módulo
                   </button>
                 </div>
               </form>
@@ -1291,20 +1343,46 @@ function CreateCourse() {
                         const moduleName = isString ? module : module.name;
                         const hasContent = !isString && module.data;
 
+                        // Verificar que tipo de conteúdo tem
+                        let contentTypes = [];
+                        if (hasContent) {
+                          if (module.data.videoFile)
+                            contentTypes.push("Vídeo");
+                          if (module.data.videoURL)
+                            contentTypes.push("YouTube");
+                          if (
+                            module.data.contentFile &&
+                            module.data.contentFile.length > 0
+                          ) {
+                            contentTypes.push(
+                              `${module.data.contentFile.length} arquivo(s)`
+                            );
+                          }
+                        }
+
                         return (
                           moduleName.trim() !== "" && (
                             <div
                               key={index}
-                              className={`module-item d-flex align-items-center justify-content-between rounded-pill px-3 py-2 me-2 mb-2 ${
-                                hasContent ? "bg-success-subtle" : "bg-light"
+                              className={`module-item d-flex align-items-center justify-content-between rounded px-3 py-2 me-2 mb-2 ${
+                                hasContent
+                                  ? "bg-success-subtle border border-success"
+                                  : "bg-light border"
                               }`}
-                              style={{
-                                backgroundColor: hasContent
-                                  ? "#e0f7e9"
-                                  : "#f8f9fa",
-                              }}
                             >
-                              <span>{moduleName}</span>
+                              <div className="d-flex flex-column">
+                                <span className="fw-medium">{moduleName}</span>
+                                {hasContent && contentTypes.length > 0 && (
+                                  <small className="text-muted">
+                                    {contentTypes.join(" • ")}
+                                  </small>
+                                )}
+                                {!hasContent && (
+                                  <small className="text-warning">
+                                    Sem conteúdo
+                                  </small>
+                                )}
+                              </div>
                               <div className="d-inline-flex">
                                 <button
                                   type="button"
@@ -1317,6 +1395,7 @@ function CreateCourse() {
                                     setSelectedModule(moduleName);
                                     handleShow();
                                   }}
+                                  title="Editar módulo"
                                 >
                                   <Pen size={16} />
                                 </button>
@@ -1331,6 +1410,7 @@ function CreateCourse() {
                                     )
                                   }
                                   aria-label="Remover Módulo"
+                                  title="Remover módulo"
                                 >
                                   <XCircle size={16} />
                                 </button>

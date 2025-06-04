@@ -187,7 +187,10 @@ function CoursePage() {
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
                       <a
-                        href="#"
+                        href={
+                          "/find-courses?category=" +
+                          course.AREA.Categoria.ID_CATEGORIA__PK___
+                        }
                         className="text-decoration-none"
                         style={{ color: "#39639C", fontWeight: "500" }}
                       >
@@ -196,7 +199,12 @@ function CoursePage() {
                     </li>
                     <li className="breadcrumb-item">
                       <a
-                        href="#"
+                        href={
+                          "/find-courses?category=" +
+                          course.AREA.Categoria.ID_CATEGORIA__PK___ +
+                          "&area=" +
+                          course.AREA.ID_AREA
+                        }
                         className="text-decoration-none"
                         style={{ color: "#39639C", fontWeight: "500" }}
                       >
@@ -205,7 +213,14 @@ function CoursePage() {
                     </li>
                     <li className="breadcrumb-item" aria-current="page">
                       <a
-                        href="#"
+                        href={
+                          "/find-courses?category=" +
+                          course.AREA.Categoria.ID_CATEGORIA__PK___ +
+                          "&area=" +
+                          course.AREA.ID_AREA +
+                          "&topic=" +
+                          course.Topico.ID_TOPICO
+                        }
                         className="text-decoration-none"
                         style={{ color: "#39639C", fontWeight: "500" }}
                       >
@@ -303,6 +318,12 @@ function CoursePage() {
                             course.CURSO_SINCRONO.DATA_INICIO,
                             course.CURSO_SINCRONO.DATA_FIM
                           ) === "O curso está em andamento" &&
+                          inscrito === false) ||
+                        (course.CURSO_ASSINCRONO &&
+                          checkDates(
+                            course.CURSO_ASSINCRONO.DATA_INICIO,
+                            course.CURSO_ASSINCRONO.DATA_FIM
+                          ) === "O curso já terminou" &&
                           inscrito === false)
                       }
                     >

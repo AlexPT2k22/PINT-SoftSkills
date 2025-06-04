@@ -161,7 +161,7 @@ const getCursoById = async (req, res) => {
         {
           model: Area,
           as: "AREA",
-          attributes: ["NOME"],
+          attributes: ["NOME", "ID_AREA"],
           include: [
             {
               model: Categoria,
@@ -900,6 +900,30 @@ const createAssincrono = async (req, res) => {
       let videoUrl = null;
       let contentUrls = []; // Array para guardar múltiplas URLs
 
+      // Verificar se o módulo tem pelo menos uma das três opções
+      const hasVideoFile = videoFile ? true : false;
+      const hasVideoURL = modulo.VIDEO_URL ? true : false;
+      const hasContentFiles = contentFiles && contentFiles.length > 0;
+
+      // ✅ NOVA VALIDAÇÃO: Verificar se tem pelo menos uma opção
+      if (!hasVideoFile && !hasVideoURL && !hasContentFiles) {
+        console.warn(
+          `Módulo "${modulo.NOME}" não tem conteúdo. Criando apenas estrutura...`
+        );
+
+        // Criar módulo mesmo sem conteúdo (apenas com descrição e duração)
+        await Modulos.create({
+          ID_CURSO: curso.ID_CURSO,
+          NOME: modulo.NOME,
+          DESCRICAO: modulo.DESCRICAO,
+          VIDEO_URL: null,
+          FILE_URL: JSON.stringify([]),
+          TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+        });
+
+        continue; // Pular para o próximo módulo
+      }
+
       // Determinar fonte do vídeo: arquivo upload OU URL do YouTube
       if (videoFile) {
         // CASO 1: Upload de arquivo de vídeo
@@ -973,7 +997,9 @@ const createAssincrono = async (req, res) => {
       });
 
       console.log(
-        `Módulo criado: ${modulo.NOME} com vídeo: ${videoUrl ? "SIM" : "NÃO"}`
+        `Módulo criado: ${modulo.NOME} com conteúdo: ${
+          videoUrl || contentUrls.length > 0 ? "SIM" : "Apenas descrição"
+        }`
       );
     }
 
@@ -985,15 +1011,26 @@ const createAssincrono = async (req, res) => {
     });
 
     res.status(201).json({
+      success: true,
+      message: "Curso assíncrono criado com sucesso!",
       Curso: curso,
       "Curso Assincrono": cursoAssincrono,
       HABILIDADES: habilidadesArray,
       OBJETIVOS: objetivosArray,
       MODULOS: modulos,
       ARQUIVOS_ENVIADOS: uploadedFiles,
+      ESTATISTICAS: {
+        total_modulos: modulos.length,
+        modulos_com_video: uploadedFiles.filter((f) => f.type.includes("video"))
+          .length,
+        modulos_com_conteudo: uploadedFiles.filter((f) => f.type === "document")
+          .length,
+        modulos_youtube: uploadedFiles.filter((f) => f.type === "video_youtube")
+          .length,
+      },
     });
   } catch (error) {
-    console.error("Erro ao criar curso:", error);
+    console.error("Erro ao criar curso assíncrono:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -1078,20 +1115,21 @@ const createSincrono = async (req, res) => {
         habilidadesArray.map((habilidade) => ({
           ...habilidade,
           ID_CURSO: curso.ID_CURSO,
-        }))
+        })),
+        { transaction }
       ),
       Objetivos.bulkCreate(
         objetivosArray.map((objetivo) => ({
           ...objetivo,
           ID_CURSO: curso.ID_CURSO,
-        }))
+        })),
+        { transaction }
       ),
     ]);
 
     // Adicionar módulos ao curso
     const uploadedFiles = []; // Track all uploaded files
 
-    // Adicionar módulos ao curso
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
 
@@ -1105,6 +1143,32 @@ const createSincrono = async (req, res) => {
 
       let videoUrl = null;
       let contentUrls = [];
+
+      // Verificar se o módulo tem pelo menos uma das três opções
+      const hasVideoFile = videoFile ? true : false;
+      const hasVideoURL = modulo.VIDEO_URL ? true : false;
+      const hasContentFiles = contentFiles && contentFiles.length > 0;
+
+      // ✅ NOVA VALIDAÇÃO para cursos síncronos também
+      if (!hasVideoFile && !hasVideoURL && !hasContentFiles) {
+        console.warn(
+          `Módulo síncrono "${modulo.NOME}" sem conteúdo. Criando apenas estrutura...`
+        );
+
+        await Modulos.create(
+          {
+            ID_CURSO: curso.ID_CURSO,
+            NOME: modulo.NOME,
+            DESCRICAO: modulo.DESCRICAO,
+            VIDEO_URL: null,
+            FILE_URL: JSON.stringify([]),
+            TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+          },
+          { transaction }
+        );
+
+        continue;
+      }
 
       // Determinar fonte do vídeo: arquivo upload OU URL do YouTube
       if (videoFile) {
@@ -1125,7 +1189,7 @@ const createSincrono = async (req, res) => {
         });
 
         console.log(
-          `Vídeo uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
+          `Vídeo síncrono uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
         );
       } else if (modulo.VIDEO_URL) {
         // CASO 2: URL do YouTube
@@ -1138,15 +1202,15 @@ const createSincrono = async (req, res) => {
         });
 
         console.log(
-          `URL do YouTube para módulo ${modulo.NOME}: ${modulo.VIDEO_URL}`
+          `URL do YouTube síncrono para módulo ${modulo.NOME}: ${modulo.VIDEO_URL}`
         );
       }
 
-      // Upload do conteúdo (pdf/doc/etc.) para o servidor local
+      // Upload dos conteúdos (pdf/doc/etc.) para o servidor local
       if (contentFiles && contentFiles.length > 0) {
         for (const contentFile of contentFiles) {
           try {
-            console.log("Uploading file:", contentFile.originalname);
+            console.log("Uploading sync file:", contentFile.originalname);
 
             const filePath = await savePdfToServer(
               contentFile.buffer,
@@ -1163,42 +1227,73 @@ const createSincrono = async (req, res) => {
               module: modulo.NOME,
             });
           } catch (error) {
-            console.error("Error uploading file:", error);
+            console.error("Error uploading sync file:", error);
           }
         }
       }
 
-      await Modulos.create({
-        ID_CURSO: curso.ID_CURSO,
-        NOME: modulo.NOME,
-        DESCRICAO: modulo.DESCRICAO,
-        VIDEO_URL: videoUrl, // Pode ser URL do Cloudinary ou URL do YouTube
-        FILE_URL: JSON.stringify(contentUrls),
-        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
-      });
+      await Modulos.create(
+        {
+          ID_CURSO: curso.ID_CURSO,
+          NOME: modulo.NOME,
+          DESCRICAO: modulo.DESCRICAO,
+          VIDEO_URL: videoUrl,
+          FILE_URL: JSON.stringify(contentUrls),
+          TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+        },
+        { transaction }
+      );
+
+      console.log(
+        `Módulo síncrono criado: ${modulo.NOME} com conteúdo: ${
+          videoUrl || contentUrls.length > 0 ? "SIM" : "Apenas descrição"
+        }`
+      );
     }
 
-    if (ID_FORMADOR === 0) {
-      ID_FORMADOR = null; // Se não houver formador, definir como null
+    // Lidar com formador
+    let formadorId = ID_FORMADOR;
+    if (ID_FORMADOR === 0 || ID_FORMADOR === "0") {
+      formadorId = null; // Se não houver formador, definir como null
     }
-    const cursoSincrono = await CursoSincrono.create({
-      ID_CURSO: curso.ID_CURSO,
-      ID_UTILIZADOR: ID_FORMADOR,
-      VAGAS,
-      DATA_INICIO,
-      DATA_FIM,
-    });
+
+    const cursoSincrono = await CursoSincrono.create(
+      {
+        ID_CURSO: curso.ID_CURSO,
+        ID_UTILIZADOR: formadorId,
+        VAGAS,
+        DATA_INICIO,
+        DATA_FIM,
+      },
+      { transaction }
+    );
+
+    // Commit transaction
+    await transaction.commit();
 
     res.status(201).json({
+      success: true,
+      message: "Curso síncrono criado com sucesso!",
       "Curso: ": curso,
       "Curso Sincrono: ": cursoSincrono,
       HABILIDADES: habilidadesArray,
       OBJETIVOS: objetivosArray,
       MODULOS: modulos,
       ARQUIVOS_ENVIADOS: uploadedFiles,
+      ESTATISTICAS: {
+        total_modulos: modulos.length,
+        modulos_com_video: uploadedFiles.filter((f) => f.type.includes("video"))
+          .length,
+        modulos_com_conteudo: uploadedFiles.filter((f) => f.type === "document")
+          .length,
+        modulos_youtube: uploadedFiles.filter((f) => f.type === "video_youtube")
+          .length,
+      },
     });
   } catch (error) {
-    console.error("Erro ao criar curso:", error);
+    // Rollback transaction on error
+    if (transaction) await transaction.rollback();
+    console.error("Erro ao criar curso síncrono:", error);
     res.status(500).json({ message: error.message });
   }
 };

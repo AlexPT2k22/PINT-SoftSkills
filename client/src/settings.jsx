@@ -227,7 +227,7 @@ function SettingsPage() {
                         <strong>XP:</strong>
                       </p>
                       <p className="text-muted">
-                        {userData?.XP || "N/A"} pontos
+                        {userData?.XP} pontos
                       </p>
                     </div>
                     <div className="text-start">
