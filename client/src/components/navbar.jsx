@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import "../styles/navbar.css";
 import {
   Search,
-  Bell,
   Settings,
   CircleUserRound,
   ChevronDown,
@@ -274,11 +273,6 @@ function Navbar() {
             </li>
             {isAuthenticated ? (
               <>
-                <li className="nav-item">
-                  <a className="nav-link" href="#">
-                    <Bell strokeWidth={1.5} color="#39639C" size={22} />
-                  </a>
-                </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/dashboard/settings">
                     <Settings strokeWidth={1.5} color="#39639C" size={22} />

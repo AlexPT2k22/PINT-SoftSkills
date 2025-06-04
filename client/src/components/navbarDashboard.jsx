@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Bell, CircleUserRound, ChevronDown } from "lucide-react";
+import {  CircleUserRound, ChevronDown } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 
@@ -31,11 +31,6 @@ function NavbarDashboard({ showIcons = true }) {
         <div className="d-flex align-items-center me-5">
           {showIcons && (
             <ul className="navbar-nav flex-row">
-              <li className="nav-item">
-                <a className="nav-link" href="#">
-                  <Bell strokeWidth={1.5} color="#39639C" size={22} />
-                </a>
-              </li>
               <li className="nav-item dropdown">
                 <a
                   className="nav-link d-flex align-items-center"
