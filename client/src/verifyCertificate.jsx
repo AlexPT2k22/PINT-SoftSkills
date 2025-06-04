@@ -15,7 +15,7 @@ import Navbar from "./components/navbar";
 import "./styles/verifyCertificate.css";
 
 function VerifyCertificate() {
-  const { certificateId } = useParams(); // For URL like /verificar-certificado/:certificateId
+  const { certificateId } = useParams();
 
   const [codigo, setCodigo] = useState("");
   const [certificado, setCertificado] = useState(null);
@@ -193,7 +193,7 @@ function VerifyCertificate() {
                     <div className="alert alert-success border-0 d-flex align-items-center mb-4">
                       <CheckCircle size={24} className="me-3 flex-shrink-0" />
                       <div>
-                        <h6 className="mb-1 text-white">
+                        <h6 className="mb-0 text-white">
                           Certificado Autêntico!
                         </h6>
                       </div>

@@ -94,6 +94,14 @@ function Footer() {
                     Cursos
                   </a>
                 </li>
+                <li className="mb-2">
+                  <a
+                    href="/verify-certificate"
+                    className="text-decoration-none text-secondary"
+                  >
+                    Verificar certificado
+                  </a>
+                </li>
               </ul>
             </div>
 

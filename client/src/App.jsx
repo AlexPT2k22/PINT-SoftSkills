@@ -108,7 +108,7 @@ function App() {
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
         <Route path="/find-courses" element={<FindCoursesPage />} />
         <Route
-          path="/verify-certificate/:certificateId"
+          path="/verify-certificate"
           element={<VerifyCertificate />}
         />
         <Route
