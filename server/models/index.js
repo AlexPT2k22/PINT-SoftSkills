@@ -23,7 +23,7 @@ const Notificacao = require("./notificacao.model.js");
 const OcorrenciaAssincrona = require("./ocorrenciaassincrona.model.js");
 const PedidoTopico = require("./pedidotopico.model.js");
 const Perfil = require("./perfil.model.js");
-const QuizzAssincrono = require("./quizzassincrono.model.js");
+const QuizAssincrono = require("./quizzassincrono.model.js");
 const Resposta = require("./resposta.model.js");
 const Topico = require("./topico.model.js");
 const TrabalhoCursoSincrono = require("./trabalhocursosincrono.model.js");
@@ -38,6 +38,7 @@ const Certificado = require("./certificado.model.js");
 const AulaSincrona = require("./aulaSincrona.model.js");
 const PresencaAula = require("./presenca.model.js");
 const SubmissaoAvaliacao = require("./submissaoAvaliacao.model.js");
+const RespostaQuizAssincrono = require("./respostaquizassincrono.model.js");
 
 CursoSincrono.hasMany(AulaSincrona, { foreignKey: "ID_CURSO" });
 AulaSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
@@ -303,44 +304,39 @@ AvaliacaoFinalSincrona.belongsTo(Utilizador, {
 });
 
 // QuizzAssincrono associations
-Utilizador.hasMany(QuizzAssincrono, {
-  foreignKey: "ID_UTILIZADOR",
-  as: "Quizzes_Formando",
+Curso.hasOne(QuizAssincrono, { 
+  foreignKey: "ID_CURSO", 
+  as: "QUIZ_ASSINCRONO" 
 });
-QuizzAssincrono.belongsTo(Utilizador, {
-  foreignKey: "ID_UTILIZADOR",
-  as: "Formando",
-});
-
-Utilizador.hasMany(QuizzAssincrono, {
-  foreignKey: "UTI_ID_UTILIZADOR",
-  as: "Quizzes_Formador",
-});
-QuizzAssincrono.belongsTo(Utilizador, {
-  foreignKey: "UTI_ID_UTILIZADOR",
-  as: "Formador",
+QuizAssincrono.belongsTo(Curso, { 
+  foreignKey: "ID_CURSO" 
 });
 
-Utilizador.hasMany(QuizzAssincrono, {
-  foreignKey: "UTI_ID_UTILIZADOR2",
-  as: "Quizzes_Criados",
+Utilizador.hasMany(QuizAssincrono, { 
+  foreignKey: "CRIADO_POR", 
+  as: "QUIZZES_CRIADOS" 
 });
-QuizzAssincrono.belongsTo(Utilizador, {
-  foreignKey: "UTI_ID_UTILIZADOR2",
-  as: "Criador",
-});
-
-OcorrenciaAssincrona.hasMany(QuizzAssincrono, { foreignKey: "ID_OCORRENCIA" });
-QuizzAssincrono.belongsTo(OcorrenciaAssincrona, {
-  foreignKey: "ID_OCORRENCIA",
+QuizAssincrono.belongsTo(Utilizador, { 
+  foreignKey: "CRIADO_POR", 
+  as: "CRIADOR" 
 });
 
-// AvaliacaoFinalAssincrona associations
-QuizzAssincrono.hasMany(AvaliacaoFinalAssincrona, {
-  foreignKey: "ID_QUIZZ_ASSINCRONO",
+// Associations para Respostas
+QuizAssincrono.hasMany(RespostaQuizAssincrono, { 
+  foreignKey: "ID_QUIZ", 
+  as: "RESPOSTAS" 
 });
-AvaliacaoFinalAssincrona.belongsTo(QuizzAssincrono, {
-  foreignKey: "ID_QUIZZ_ASSINCRONO",
+RespostaQuizAssincrono.belongsTo(QuizAssincrono, { 
+  foreignKey: "ID_QUIZ" 
+});
+
+Utilizador.hasMany(RespostaQuizAssincrono, { 
+  foreignKey: "ID_UTILIZADOR", 
+  as: "RESPOSTAS_QUIZ" 
+});
+RespostaQuizAssincrono.belongsTo(Utilizador, { 
+  foreignKey: "ID_UTILIZADOR", 
+  as: "UTILIZADOR" 
 });
 
 // TrabalhoCursoSincrono associations
@@ -389,7 +385,8 @@ module.exports = {
   OcorrenciaAssincrona,
   PedidoTopico,
   Perfil,
-  QuizzAssincrono,
+  QuizAssincrono,
+  RespostaQuizAssincrono,
   Resposta,
   Topico,
   TrabalhoCursoSincrono,

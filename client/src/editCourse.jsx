@@ -8,10 +8,15 @@ import ButtonWithLoader from "./components/butao_loader";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
 import { XCircle, Pen } from "lucide-react";
+import QuizManager from "./components/QuizManager";
+import useAuthStore from "./store/authStore";
 
 function EditCourse() {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const isGestor = user?.perfil === 3;
+  console.log("User perfil:", isGestor);
 
   // State variables
   const [collapsed, setCollapsed] = useState(false);
@@ -1464,6 +1469,15 @@ function EditCourse() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-12">
+                <QuizManager
+                  courseId={courseId}
+                  courseType={selectedRadio}
+                  userRole={isGestor} // se nao for gestor, nao mostrar
+                />
               </div>
             </div>
           </form>

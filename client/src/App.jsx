@@ -33,6 +33,7 @@ import FindCoursesPage from "./findCourses.jsx";
 import GerirUsers from "./gerirUsers.jsx";
 import VerifyCertificate from "./verifyCertificate.jsx";
 import UserPage from "./userPage.jsx";
+import QuizPage from "./quizPage.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -107,6 +108,14 @@ function App() {
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
         <Route path="/find-courses" element={<FindCoursesPage />} />
+        <Route
+          path="/dashboard/courses/:courseId/quiz"
+          element={
+            <ProtectedRoute>
+              <QuizPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/verify-certificate/:certificateId"
           element={<VerifyCertificate />}

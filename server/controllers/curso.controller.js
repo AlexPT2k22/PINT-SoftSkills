@@ -22,6 +22,7 @@ const {
   Notas,
   UtilizadorTemPerfil,
   Perfil,
+  QuizAssincrono,
 } = require("../models/index.js");
 const { sequelize } = require("../database/database.js");
 const cloudinary = require("cloudinary").v2;
@@ -228,6 +229,27 @@ const getCursoById = async (req, res) => {
           as: "MODULOS",
           order: [["ID_MODULO", "ASC"]], // Ordenar módulos por ID para manter consistência
         },
+        {
+          model: QuizAssincrono,
+          as: "QUIZ_ASSINCRONO",
+          required: false,
+          attributes: [
+            "ID_QUIZ",
+            "TITULO",
+            "DESCRICAO",
+            "TEMPO_LIMITE_MIN",
+            "NOTA_MINIMA",
+            "ATIVO",
+            "DATA_CRIACAO",
+          ],
+          include: [
+            {
+              model: Utilizador,
+              as: "CRIADOR",
+              attributes: ["NOME", "USERNAME"],
+            },
+          ],
+        },
       ],
     });
 
@@ -277,6 +299,7 @@ const getCursoById = async (req, res) => {
         };
       });
     }
+    cursoProcesado.HAS_QUIZ = !!cursoProcesado.QUIZ_ASSINCRONO;
 
     console.log(
       `Curso ${id} encontrado com ${cursoProcesado.MODULOS?.length || 0} módulos`

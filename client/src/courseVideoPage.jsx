@@ -6,7 +6,7 @@ import "./styles/CourseSidebar.css";
 import Loader from "./components/loader";
 import axios from "axios";
 import "./styles/CourseVideoPage.css";
-import { Check, Info } from "lucide-react";
+import { Check, Info, SquareArrowOutUpRight } from "lucide-react";
 import NotesPanel from "./components/NotesPanel";
 import VideoPlayer from "./components/video_player";
 
@@ -167,9 +167,12 @@ function CourseVideoPage() {
     const fetchCourseData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`http://localhost:4000/api/cursos/${courseId}`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `http://localhost:4000/api/cursos/${courseId}`,
+          {
+            withCredentials: true,
+          }
+        );
 
         if (response.status !== 200) {
           throw new Error("Failed to fetch course data");
@@ -567,6 +570,23 @@ function CourseVideoPage() {
                     </div>
                   </li>
                 ))}
+                {courseData.HAS_QUIZ && (
+                  <li
+                    className={`module-item ${
+                      moduleId === "quiz" ? "active" : ""
+                    }`}
+                    onClick={() =>
+                      navigate(`/dashboard/courses/${courseId}/quiz`)
+                    }
+                  >
+                    <div className="module-content">
+                      <div className="module-title">
+                        Quiz do curso <SquareArrowOutUpRight size={14} />{" "}
+                      </div>
+                      <div className="module-duration">Teste final</div>
+                    </div>
+                  </li>
+                )}
               </ul>
             </div>
           </div>

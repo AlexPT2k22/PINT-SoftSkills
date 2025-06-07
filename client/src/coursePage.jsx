@@ -2,7 +2,13 @@ import { React, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "./components/navbar.jsx";
 import Footer from "./components/footer.jsx";
-import { Star, User, Check, SquareArrowOutUpRight } from "lucide-react";
+import {
+  Star,
+  User,
+  Check,
+  SquareArrowOutUpRight,
+  CheckCircle,
+} from "lucide-react";
 import "./styles/coursePage.css";
 import axios from "axios";
 import Loader from "./components/loader.jsx";
@@ -405,9 +411,38 @@ function CoursePage() {
                 </p>
               </div>
             </div>
+            <div className="container d-flex flex-column align-items-center justify-content-center border-start">
+              <h1 className="fs-5 m-0 text-center">Certificado disponível</h1>
+              <div className="d-flex align-items-center justify-content-center">
+                <p className="m-0 fs-6 text-center">
+                  A conclusão deste curso<br></br> garante um certificado
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="container d-flex flex-column mt-5 p-0">
+          <div className="container d-flex flex-column mt-1 p-0">
+            {course.HAS_QUIZ && (
+              <div className="card mt-4">
+                <div className="card-body">
+                  <div className="row align-items-center">
+                    <div className="col-md-8">
+                      <h5 className="card-title">
+                        <CheckCircle size={20} className="text-success me-2" />
+                        Quiz Disponível
+                      </h5>
+                      <p className="card-text">
+                        Este curso inclui um quiz para avaliar os seus
+                        conhecimentos.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="container d-flex flex-column mt-3 p-0">
             <div className="container justify-content-start d-flex align-items-center">
               <ul className="list-group list-group-horizontal">
                 <a
