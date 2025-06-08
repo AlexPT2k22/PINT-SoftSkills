@@ -240,7 +240,7 @@ const gerarCertificado = async (req, res) => {
     };
 
     // Generate QR code with verification URL
-    const qrCodeDataUrl = QRCode.toDataURL(
+    const qrCodeDataUrl = await QRCode.toDataURL( // é necessario o await!
       `http://localhost:4000/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
       qrOptions
     );

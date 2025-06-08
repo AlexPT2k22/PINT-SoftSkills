@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
-import { Pen, Eye, Download, GraduationCap } from "lucide-react";
+import { Pen, Eye, Download, GraduationCap, Brain } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import axios from "axios";
 
@@ -14,6 +14,58 @@ function CourseCardDashboard({
 }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
+  
+  // Estados para controlar quiz
+  const [hasQuiz, setHasQuiz] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [loadingQuizStatus, setLoadingQuizStatus] = useState(true);
+
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
+  // Verificar status do quiz ao carregar o componente
+  useEffect(() => {
+    checkQuizStatus();
+  }, [course.ID_CURSO]);
+
+  const checkQuizStatus = async () => {
+    try {
+      setLoadingQuizStatus(true);
+
+      // Verificar se o curso tem quiz
+      const quizResponse = await axios.get(
+        `${URL}/api/quiz/curso/${course.ID_CURSO}`,
+        { withCredentials: true }
+      );
+
+      if (quizResponse.data.hasQuiz) {
+        setHasQuiz(true);
+
+        // Verificar se o usuário já completou o quiz
+        try {
+          const resultResponse = await axios.get(
+            `${URL}/api/quiz/${quizResponse.data.quiz.ID_QUIZ}/resultado`,
+            { withCredentials: true }
+          );
+
+          if (resultResponse.data.hasResponse) {
+            setQuizCompleted(true);
+          }
+        } catch (resultError) {
+          // Usuário ainda não fez o quiz
+          if (resultError.response?.status !== 404) {
+            console.error("Erro ao verificar resultado do quiz:", resultError);
+          }
+        }
+      }
+    } catch (error) {
+      // Curso não tem quiz
+      if (error.response?.status !== 404) {
+        console.error("Erro ao verificar quiz:", error);
+      }
+    } finally {
+      setLoadingQuizStatus(false);
+    }
+  };
 
   const handleClick = () => {
     // If user has progress, navigate to the first incomplete module
@@ -45,7 +97,7 @@ function CourseCardDashboard({
     try {
       // Get the certificate
       const response = await axios.get(
-        `http://localhost:4000/api/certificados/gerar/${course.ID_CURSO}`,
+        `${URL}/api/certificados/gerar/${course.ID_CURSO}`,
         {
           withCredentials: true,
         }
@@ -69,6 +121,10 @@ function CourseCardDashboard({
     }
   };
 
+  const handleClickQuiz = () => {
+    navigate(`/dashboard/courses/${course.ID_CURSO}/quiz`);
+  };
+
   // Get user data from auth store
   const user = useAuthStore((state) => state.user);
   const userType = user?.perfil;
@@ -83,13 +139,32 @@ function CourseCardDashboard({
 
   const DATA_INICIO = CURSO_SINCRONO?.DATA_INICIO || "N/A";
   const DATA_FIM = CURSO_SINCRONO?.DATA_FIM || "N/A";
-  const VAGAS = CURSO_SINCRONO?.VAGAS || "N/A";
 
   const tipo = CURSO_ASSINCRONO
     ? "Assíncrono"
     : CURSO_SINCRONO
     ? "Síncrono"
     : "Não especificado";
+
+  // Determinar se deve mostrar o botão do certificado
+  const shouldShowCertificateButton = () => {
+    // Se o curso está 100% completo
+    if (progress === 100) {
+      // Se tem quiz, só mostra certificado se quiz foi completado
+      if (hasQuiz) {
+        return quizCompleted;
+      }
+      // Se não tem quiz, mostra certificado
+      return true;
+    }
+    return false;
+  };
+
+  // Determinar se deve mostrar o botão do quiz
+  const shouldShowQuizButton = () => {
+    // Só mostra se tem quiz, curso está completo e quiz ainda não foi feito
+    return hasQuiz && progress === 100 && !quizCompleted;
+  };
 
   return (
     <div className="card h-100 course-card">
@@ -137,6 +212,23 @@ function CourseCardDashboard({
                 />
               </div>
             </div>
+
+            {/* Indicadores de quiz */}
+            {!loadingQuizStatus && hasQuiz && (
+              <div className="mt-2">
+                <div className="d-flex align-items-center">
+                  <Brain size={14} className="me-1" />
+                  <small className="text-muted">
+                    Quiz: {quizCompleted ? 
+                      <span className="text-success">Completo</span> : 
+                      progress === 100 ? 
+                        <span className="text-info">Disponível</span> :
+                        <span className="text-muted">Complete todos os módulos</span>
+                    }
+                  </small>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -151,6 +243,7 @@ function CourseCardDashboard({
                 ? "Continuar"
                 : "Abrir curso"}
             </button>
+
             {CURSO_SINCRONO && (
               <button
                 className="btn btn-outline-primary"
@@ -162,10 +255,25 @@ function CourseCardDashboard({
                 <span className="ms-2">Aulas</span>
               </button>
             )}
-            {progress === 100 && (
+
+            {/* Botão do Quiz - aparece quando curso está completo mas quiz não foi feito */}
+            {!loadingQuizStatus && shouldShowQuizButton() && (
               <button
-                className="btn btn-secondary align-items-center"
+                className="btn btn-info"
+                onClick={handleClickQuiz}
+                title="Fazer Quiz Final"
+              >
+                <Brain size={20} />
+                <span className="ms-2">Quiz</span>
+              </button>
+            )}
+
+            {/* Botão do Certificado - aparece quando condições são atendidas */}
+            {!loadingQuizStatus && shouldShowCertificateButton() && (
+              <button
+                className="btn btn-success"
                 onClick={handleClickCertificado}
+                title="Baixar Certificado"
               >
                 <Download size={20} />
                 <span className="ms-2">Certificado</span>

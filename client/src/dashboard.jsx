@@ -5,7 +5,7 @@ import useAuthStore from "./store/authStore";
 import CourseCardDashboard from "./components/courseCardDashboard";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Book, Clock, Files, File, GraduationCap } from "lucide-react";
+import { Book, Clock, Files, File, GraduationCap, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
@@ -20,6 +20,13 @@ function Dashboard() {
     videosAssistidos: 0,
     progressoGeral: 0,
     notaMedia: 0,
+  });
+
+  const [notaMedia, setNotaMedia] = useState({
+    notaMediaGeral: 0,
+    totalAvaliacoes: 0,
+    trabalhos: { count: 0, media: 0 },
+    quizzes: { count: 0, media: 0 },
   });
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
@@ -39,15 +46,28 @@ function Dashboard() {
         setCourses(cursosData);
 
         // aulas dos cursos síncronos
-        const [aulasResponse, trabalhosResponse] = await Promise.all([
+        const [
+          aulasResponse,
+          trabalhosResponse,
+          quizzesResponse,
+          notaMediaResponse,
+        ] = await Promise.all([
           axios.get("http://localhost:4000/api/aulas/all", {
             withCredentials: true,
           }),
           axios.get("http://localhost:4000/api/avaliacoes/proximas", {
             withCredentials: true,
           }),
+          axios.get("http://localhost:4000/api/quiz/pendentes", {
+            withCredentials: true,
+          }),
+          // Nova chamada para nota média
+          axios.get("http://localhost:4000/api/user/nota-media", {
+            withCredentials: true,
+          }),
         ]);
-        console.log("Dados recebidos da API:", aulasResponse.data);
+
+        setNotaMedia(notaMediaResponse.data);
 
         // Calcular progresso geral
         const progressMap = {};
@@ -147,23 +167,22 @@ function Dashboard() {
           setProximasAulas([]);
         }
 
+        let trabalhosFormatados = [];
         if (trabalhosResponse.data && Array.isArray(trabalhosResponse.data)) {
-          const trabalhosFormatados = trabalhosResponse.data
-            // Ordenar por data de entrega
+          trabalhosFormatados = trabalhosResponse.data
             .sort((a, b) => {
               const dataA = new Date(a.DATA_LIMITE_REALIZACAO);
               const dataB = new Date(b.DATA_LIMITE_REALIZACAO);
               return dataA - dataB;
             })
-            // Mapear para o formato do componente
             .map((trabalho) => {
-              // Verificar se o usuário já submeteu este trabalho
               const jaSubmetido =
                 trabalho.SUBMISSAO_AVALIACAOs &&
                 trabalho.SUBMISSAO_AVALIACAOs.length > 0;
 
               return {
                 id: trabalho.ID_AVALIACAO_SINCRONA,
+                tipo: "trabalho", // ✅ Adicionar tipo
                 titulo: trabalho.TITULO,
                 descricao: trabalho.DESCRICAO,
                 dataLimite: new Date(trabalho.DATA_LIMITE_REALIZACAO),
@@ -186,13 +205,43 @@ function Dashboard() {
                 nota: jaSubmetido && trabalho.SUBMISSAO_AVALIACAOs[0]?.NOTA,
               };
             })
-            // Filtrar apenas trabalhos em aberto e limitar a 5
             .filter((trabalho) => trabalho.status === "Aberto");
-
-          setProximosTrabalhos(trabalhosFormatados);
-        } else {
-          setProximosTrabalhos([]);
         }
+
+        // ✅ Processar quizzes pendentes
+        let quizzesFormatados = [];
+        if (quizzesResponse.data && Array.isArray(quizzesResponse.data)) {
+          quizzesFormatados = quizzesResponse.data.map((quiz) => ({
+            id: quiz.ID_QUIZ,
+            tipo: "quiz", // ✅ Adicionar tipo
+            titulo: quiz.TITULO,
+            descricao: quiz.DESCRICAO || "Quiz do curso",
+            dataLimite: null, // Quizzes geralmente não têm data limite
+            dataFormatada: "Disponível", // Texto indicativo
+            cursoId: quiz.ID_CURSO,
+            cursoNome: quiz.CURSO?.NOME || "Curso não especificado",
+            status: "Aberto",
+            jaSubmetido: false, // Já filtrados os não submetidos
+            nota: null,
+            tempoLimite: quiz.TEMPO_LIMITE_MIN,
+            notaMinima: quiz.NOTA_MINIMA,
+          }));
+        }
+
+        // ✅ Combinar trabalhos e quizzes
+        const todosItens = [...trabalhosFormatados, ...quizzesFormatados].sort(
+          (a, b) => {
+            // Priorizar por data limite (trabalhos primeiro, depois quizzes)
+            if (a.dataLimite && b.dataLimite) {
+              return a.dataLimite - b.dataLimite;
+            }
+            if (a.dataLimite && !b.dataLimite) return -1;
+            if (!a.dataLimite && b.dataLimite) return 1;
+            return 0;
+          }
+        );
+
+        setProximosTrabalhos(todosItens);
 
         // Atualizar métricas
         setMetricas((prev) => ({
@@ -202,6 +251,7 @@ function Dashboard() {
             cursosData.length > 0
               ? Math.round(totalProgresso / cursosData.length)
               : 0,
+          notaMedia: notaMediaResponse.data.notaMediaGeral || 0,
         }));
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -260,7 +310,7 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Cursos ativos
+                        Cursos inscritos
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {metricas.cursosAtivos}
@@ -295,10 +345,23 @@ function Dashboard() {
                 <div className="card h-100">
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
-                      <h6 className="card-subtitle mb-2 text-muted">
+                      <h6 className="card-subtitle mb-2 text-muted d-flex align-items-center">
                         Nota média
+                        {notaMedia.totalAvaliacoes > 0 && (
+                          <span
+                            className="ms-2 text-primary"
+                            style={{ cursor: "help" }}
+                            title={`Trabalhos: ${notaMedia.trabalhos.count} (média: ${notaMedia.trabalhos.media}/20)\nQuizzes: ${notaMedia.quizzes.count} (média: ${notaMedia.quizzes.media}/20)`}
+                          >
+                            <Info size={16} />
+                          </span>
+                        )}
                       </h6>
-                      <h3 className="card-title mb-0 text-primary">NOTA</h3>
+                      <h3 className="card-title mb-0 text-primary">
+                        {notaMedia.totalAvaliacoes > 0
+                          ? `${notaMedia.notaMediaGeral}`
+                          : "N/A"}
+                      </h3>
                     </div>
                     <div className="bg-light rounded-circle p-3">
                       <GraduationCap size={24} className="text-primary" />
@@ -312,11 +375,13 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Próximo trabalho até
+                        Próximo trabalho/quiz
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {proximosTrabalhos.length > 0
-                          ? proximosTrabalhos[0].dataFormatada
+                          ? proximosTrabalhos[0].tipo === "quiz"
+                            ? "Quiz disponível"
+                            : proximosTrabalhos[0].dataFormatada
                           : "N/A"}
                       </h3>
                     </div>
@@ -418,12 +483,13 @@ function Dashboard() {
                 </div>
               </div>
 
-              {/* Próximos trabalhos */}
+              {/* Próximos trabalhos e quizzes */}
               <div className="col-md-6">
                 <div className="card h-100">
                   <div className="card-header bg-white">
                     <h5 className="card-title mb-0 d-flex align-items-center">
-                      <Files size={18} className="me-2" /> Próximos trabalhos
+                      <Files size={18} className="me-2" /> Próximos
+                      trabalhos/quizzes
                     </h5>
                   </div>
                   <div
@@ -431,44 +497,88 @@ function Dashboard() {
                     style={{ maxHeight: "500px" }}
                   >
                     {proximosTrabalhos.length > 0 ? (
-                      proximosTrabalhos.map((trabalho, index, array) => (
+                      proximosTrabalhos.map((item, index, array) => (
                         <div
-                          key={trabalho.id}
+                          key={`${item.tipo}-${item.id}`}
                           className={`d-flex align-items-center justify-content-between pt-3 pb-3 ${
                             index !== array.length - 1 ? "border-bottom" : ""
                           }`}
                         >
                           <div className="d-flex align-items-center">
                             <div className="me-4">
-                              <h5 className="mb-0">{trabalho.titulo}</h5>
+                              <div className="d-flex align-items-center">
+                                <h5 className="mb-0 me-2">{item.titulo}</h5>
+                                {/* Badge para identificar tipo */}
+                                <span
+                                  className={`badge ${
+                                    item.tipo === "quiz"
+                                      ? "bg-info"
+                                      : "bg-warning"
+                                  } me-2`}
+                                  style={{ fontSize: "0.7em" }}
+                                >
+                                  {item.tipo === "quiz" ? "Quiz" : "Trabalho"}
+                                </span>
+                              </div>
                               <small className="text-muted">
-                                {trabalho.cursoNome}
+                                {item.cursoNome}
                               </small>
+                              {/* Informações específicas do quiz */}
+                              {item.tipo === "quiz" && (
+                                <div>
+                                  <small className="text-muted d-block">
+                                    {item.tempoLimite} min - Mín:{" "}
+                                    {item.notaMinima}%
+                                  </small>
+                                </div>
+                              )}
                             </div>
                             <div className="me-4">
-                              <h6 className="mb-0">Data limite</h6>
+                              <h6 className="mb-0">
+                                {item.tipo === "quiz"
+                                  ? "Status"
+                                  : "Data limite"}
+                              </h6>
                               <small className="text-muted">
-                                {trabalho.dataFormatada}
+                                {item.dataFormatada}
                               </small>
                             </div>
                           </div>
                           <div>
-                            {trabalho.jaSubmetido ? (
+                            {item.jaSubmetido ? (
                               <span className="badge bg-success me-2">
-                                Submetido
-                                {trabalho.nota !== null &&
-                                  ` (${trabalho.nota}/20)`}
+                                {item.tipo === "quiz"
+                                  ? "Completo"
+                                  : "Submetido"}
+                                {item.nota !== null &&
+                                  ` (${item.nota}${
+                                    item.tipo === "quiz" ? "%" : "/20"
+                                  })`}
                               </span>
                             ) : (
                               <button
-                                className="btn btn-primary"
-                                onClick={() =>
-                                  navigate(
-                                    `/dashboard/synchronous-course/${trabalho.cursoId}?tab=avaliacoes`
-                                  )
-                                }
+                                className={`btn ${
+                                  item.tipo === "quiz"
+                                    ? "btn-info"
+                                    : "btn-primary"
+                                }`}
+                                onClick={() => {
+                                  if (item.tipo === "quiz") {
+                                    // Navegar para página do quiz
+                                    navigate(
+                                      `/dashboard/courses/${item.cursoId}/quiz`
+                                    );
+                                  } else {
+                                    // Navegar para página de trabalhos
+                                    navigate(
+                                      `/dashboard/synchronous-course/${item.cursoId}?tab=avaliacoes`
+                                    );
+                                  }
+                                }}
                               >
-                                Submeter
+                                {item.tipo === "quiz"
+                                  ? "Fazer Quiz"
+                                  : "Submeter"}
                               </button>
                             )}
                           </div>
@@ -476,7 +586,7 @@ function Dashboard() {
                       ))
                     ) : (
                       <p className="text-center mb-0">
-                        Não há trabalhos para submeter.
+                        Não há trabalhos ou quizzes para submeter.
                       </p>
                     )}
                   </div>

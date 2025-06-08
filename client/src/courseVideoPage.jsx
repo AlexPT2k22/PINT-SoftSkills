@@ -6,7 +6,7 @@ import "./styles/CourseSidebar.css";
 import Loader from "./components/loader";
 import axios from "axios";
 import "./styles/CourseVideoPage.css";
-import { Check, Info, SquareArrowOutUpRight } from "lucide-react";
+import { Check, Info, SquareArrowOutUpRight, LockKeyhole } from "lucide-react";
 import NotesPanel from "./components/NotesPanel";
 import VideoPlayer from "./components/video_player";
 
@@ -25,6 +25,7 @@ function CourseVideoPage() {
   const videoIframeRef = useRef(null);
   const cloudinaryPlayerRef = useRef(null);
   const [videoType, setVideoType] = useState("cloudinary");
+  const [quiz, setQuiz] = useState(false);
 
   const handleTimeUpdate = (time) => {
     setCurrentTime(time);
@@ -245,8 +246,47 @@ function CourseVideoPage() {
       }
     };
 
+    const getQuizScore = async () => {
+      try {
+        // Primeiro, verificar se existe quiz para o curso
+        const response = await axios.get(
+          `http://localhost:4000/api/quiz/curso/${courseId}`,
+          { withCredentials: true }
+        );
+
+        // Se não há quiz para o curso
+        if (!response.data.quiz) {
+          console.log("Nenhum quiz encontrado para este curso");
+          setQuiz(false);
+          return;
+        }
+
+        // Se existe quiz, verificar se o utilizador já respondeu
+        try {
+          const getQuizResult = await axios.get(
+            `http://localhost:4000/api/quiz/${response.data.quiz.ID_QUIZ}/resultado`,
+            { withCredentials: true }
+          );
+
+          // Verificar se o utilizador já respondeu ao quiz
+          if (getQuizResult.data && getQuizResult.data.hasResponse === true) {
+            setQuiz(true); // Quiz completo
+          } else {
+            setQuiz(false); // Quiz pendente
+          }
+        } catch (resultError) {
+          console.log("Utilizador ainda não respondeu ao quiz");
+          setQuiz(false);
+        }
+      } catch (error) {
+        console.error("Erro ao obter informações do quiz:", error);
+        setQuiz(false);
+      }
+    };
+
     setModuleCompleted(false);
 
+    getQuizScore();
     fetchCourseProgress();
     checkModuleProgress();
     fetchCourseData();
@@ -284,6 +324,9 @@ function CourseVideoPage() {
 
     return null;
   };
+
+  const inscritos = courseData?.INSCRITOS || 0;
+  const totalReviews = courseData?.REVIEWS || 0;
 
   const formattedDuration = totalDuration
     ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`
@@ -574,16 +617,41 @@ function CourseVideoPage() {
                   <li
                     className={`module-item ${
                       moduleId === "quiz" ? "active" : ""
+                    } ${
+                      (courseProgress?.percentualProgresso || 0) < 100
+                        ? "disabled"
+                        : ""
                     }`}
-                    onClick={() =>
-                      navigate(`/dashboard/courses/${courseId}/quiz`)
-                    }
+                    onClick={() => {
+                      if ((courseProgress?.percentualProgresso || 0) >= 100) {
+                        navigate(`/dashboard/courses/${courseId}/quiz`);
+                      }
+                    }}
                   >
+                    <div
+                      className={`module-status ${
+                        quiz === true ? "completed" : ""
+                      }`}
+                    >
+                      {(courseProgress?.percentualProgresso || 0) < 100 ? (
+                        <LockKeyhole size={14} color="#6c757d" />
+                      ) : quiz === true ? (
+                        <Check size={14} color="#fff" />
+                      ) : (
+                        <Info size={14} color="#007bff" />
+                      )}
+                    </div>
                     <div className="module-content">
                       <div className="module-title">
-                        Quiz do curso <SquareArrowOutUpRight size={14} />{" "}
+                        Quiz do curso <SquareArrowOutUpRight size={14} />
                       </div>
-                      <div className="module-duration">Teste final</div>
+                      <div className="module-duration">
+                        {(courseProgress?.percentualProgresso || 0) < 100
+                          ? "Complete todos os módulos primeiro"
+                          : quiz === true
+                          ? "Quiz completo"
+                          : "Teste final pendente"}
+                      </div>
                     </div>
                   </li>
                 )}

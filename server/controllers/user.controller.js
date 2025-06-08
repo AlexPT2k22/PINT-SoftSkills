@@ -992,8 +992,6 @@ const updateEvaluationGrade = async (req, res) => {
     const { submissaoId, nota } = req.body;
     const professorId = req.user.ID_UTILIZADOR;
 
-    console.log(`📝 Atualizando nota da submissão ${submissaoId} para ${nota}`);
-
     // Verificar se o utilizador é um professor
     const isProfessor = await UtilizadorTemPerfil.findOne({
       where: {
@@ -1027,13 +1025,13 @@ const updateEvaluationGrade = async (req, res) => {
     if (notaAnterior === null) {
       if (notaNumerica >= 18) {
         xpGanho = XP_VALUES.NOTA_EXCELENTE;
-        console.log(`🌟 Nota excelente (${notaNumerica}/20)! ${xpGanho} XP`);
+        console.log(`Nota excelente (${notaNumerica}/20)! ${xpGanho} XP`);
       } else if (notaNumerica >= 15) {
         xpGanho = XP_VALUES.NOTA_BOA;
-        console.log(`⭐ Boa nota (${notaNumerica}/20)! ${xpGanho} XP`);
+        console.log(`Boa nota (${notaNumerica}/20)! ${xpGanho} XP`);
       } else if (notaNumerica >= 10) {
         xpGanho = XP_VALUES.NOTA_SATISFATORIA;
-        console.log(`✅ Nota satisfatória (${notaNumerica}/20)! ${xpGanho} XP`);
+        console.log(`Nota satisfatória (${notaNumerica}/20)! ${xpGanho} XP`);
       }
 
       // Dar XP ao utilizador
@@ -1068,10 +1066,111 @@ const updateEvaluationGrade = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("❌ Erro ao atualizar nota:", error);
+    console.error("Erro ao atualizar nota:", error);
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+const getNotaMediaCompleta = async (req, res) => {
+  try {
+    const userId = req.user.ID_UTILIZADOR;
+
+    // 1. Buscar notas de trabalhos (avaliações síncronas)
+    const { SubmissaoAvaliacao } = require("../models/index.js");
+    const submissoesTrabalhos = await SubmissaoAvaliacao.findAll({
+      where: {
+        ID_UTILIZADOR: userId,
+        NOTA: { [Op.ne]: null }, // Só submissões que já foram avaliadas
+      },
+      attributes: ["NOTA"],
+    });
+
+    // 2. Buscar notas de quizzes
+    const { RespostaQuizAssincrono } = require("../models/index.js");
+    const respostasQuizzes = await RespostaQuizAssincrono.findAll({
+      where: {
+        ID_UTILIZADOR: userId,
+      },
+      attributes: ["NOTA"],
+    });
+
+    // 3. Calcular nota média geral
+    let notaMediaGeral = 0;
+    let totalAvaliacoes = 0;
+    let somaNotas = 0;
+
+    // Somar notas dos trabalhos (escala 0-20)
+    if (submissoesTrabalhos.length > 0) {
+      const somaTrabalhos = submissoesTrabalhos.reduce(
+        (soma, submissao) => soma + parseFloat(submissao.NOTA),
+        0
+      );
+
+      // Adicionar diretamente a soma dos trabalhos
+      somaNotas += somaTrabalhos;
+      totalAvaliacoes += submissoesTrabalhos.length;
+    }
+
+    // Somar notas dos quizzes (escala 0-100, converter para 0-20)
+    if (respostasQuizzes.length > 0) {
+      const somaQuizzes = respostasQuizzes.reduce(
+        (soma, resposta) => soma + (parseFloat(resposta.NOTA) * 20 / 100),
+        0
+      );
+      somaNotas += somaQuizzes;
+      totalAvaliacoes += respostasQuizzes.length;
+    }
+
+    // Calcular média geral
+    if (totalAvaliacoes > 0) {
+      notaMediaGeral = somaNotas / totalAvaliacoes;
+    }
+
+    // 4. Calcular estatísticas detalhadas
+    const estatisticas = {
+      notaMediaGeral: parseFloat(notaMediaGeral.toFixed(1)),
+      totalAvaliacoes: totalAvaliacoes,
+      trabalhos: {
+        count: submissoesTrabalhos.length,
+        media:
+          submissoesTrabalhos.length > 0
+            ? parseFloat(
+                (
+                  submissoesTrabalhos.reduce(
+                    (soma, s) => soma + parseFloat(s.NOTA),
+                    0
+                  ) / submissoesTrabalhos.length
+                ).toFixed(1)
+              )
+            : 0,
+        escala: "0-20",
+      },
+      quizzes: {
+        count: respostasQuizzes.length,
+        media:
+          respostasQuizzes.length > 0
+            ? parseFloat(
+                (
+                  respostasQuizzes.reduce(
+                    (soma, r) => soma + (parseFloat(r.NOTA) * 20 / 100),
+                    0
+                  ) / respostasQuizzes.length
+                ).toFixed(1)
+              )
+            : 0,
+        escala: "0-20",
+      },
+    };
+
+    res.status(200).json(estatisticas);
+  } catch (error) {
+    console.error("Erro ao calcular nota média completa:", error);
+    res.status(500).json({
+      message: "Erro ao calcular nota média",
+      error: error.message,
     });
   }
 };
@@ -1091,4 +1190,5 @@ module.exports = {
   completeModule,
   updateEvaluationGrade,
   addXPToUserInternal,
+  getNotaMediaCompleta,
 };

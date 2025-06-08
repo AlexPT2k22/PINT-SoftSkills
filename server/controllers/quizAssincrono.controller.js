@@ -454,6 +454,67 @@ const deleteQuiz = async (req, res) => {
   }
 };
 
+const getProximosQuizzes = async (req, res) => {
+  try {
+    const userId = req.user.ID_UTILIZADOR;
+
+    // Buscar cursos assíncronos em que o usuário está inscrito
+    const inscricoes = await InscricaoAssincrono.findAll({
+      where: { ID_UTILIZADOR: userId },
+      attributes: ["ID_CURSO_ASSINCRONO"],
+    });
+
+    const cursoAssincronoIds = inscricoes.map((insc) => insc.ID_CURSO_ASSINCRONO);
+
+    // Buscar cursos assíncronos com seus respectivos cursos base
+    const cursosAssincronos = await CursoAssincrono.findAll({
+      where: { ID_CURSO_ASSINCRONO: { [Op.in]: cursoAssincronoIds } },
+      include: [
+        {
+          model: Curso,
+          attributes: ["ID_CURSO", "NOME"],
+        }
+      ]
+    });
+
+    const cursoIds = cursosAssincronos.map((ca) => ca.ID_CURSO);
+
+    // Buscar quizzes ativos desses cursos
+    const quizzes = await QuizAssincrono.findAll({
+      where: {
+        ID_CURSO: { [Op.in]: cursoIds },
+        ATIVO: true,
+      },
+      include: [
+        {
+          model: Curso,
+          attributes: ["NOME"],
+        },
+        {
+          model: RespostaQuizAssincrono,
+          as: "RESPOSTAS",
+          where: { ID_UTILIZADOR: userId },
+          required: false, // LEFT JOIN - incluir quizzes mesmo sem resposta
+          attributes: ["ID_RESPOSTA", "NOTA", "DATA_SUBMISSAO"],
+        },
+      ],
+      order: [["DATA_CRIACAO", "ASC"]],
+    });
+
+    // Filtrar apenas quizzes não respondidos ou que o usuário pode refazer
+    const quizzesPendentes = quizzes.filter(quiz => {
+      // Se não tem respostas, está pendente
+      return quiz.RESPOSTAS.length === 0;
+    });
+
+    res.status(200).json(quizzesPendentes);
+  } catch (error) {
+    console.error("Erro ao buscar próximos quizzes:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 module.exports = {
   createQuiz,
   getQuizByCurso,
@@ -462,4 +523,5 @@ module.exports = {
   getUserQuizResult,
   getQuizStats,
   deleteQuiz,
+  getProximosQuizzes,
 };

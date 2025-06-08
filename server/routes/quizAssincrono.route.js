@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateToken } = require("../middlewares/authMiddleware.js");
+const { authenticateToken } = require("../middlewares/authmiddleware.js");
 const {
   createQuiz,
   getQuizByCurso,
@@ -9,6 +9,7 @@ const {
   getUserQuizResult,
   getQuizStats,
   deleteQuiz,
+  getProximosQuizzes,
 } = require("../controllers/quizAssincrono.controller.js");
 
 // Criar quiz para curso
@@ -31,5 +32,8 @@ router.get("/:quizId/stats", authenticateToken, getQuizStats);
 
 // Deletar quiz
 router.delete("/:quizId", authenticateToken, deleteQuiz);
+
+// Obter próximos quizzes (gestores)
+router.get("/pendentes", authenticateToken, getProximosQuizzes);
 
 module.exports = router;
