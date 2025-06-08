@@ -16,7 +16,6 @@ import useAuthStore from "./store/authStore";
 function QuizPage() {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
 
   // Estados principais
   const [quiz, setQuiz] = useState(null);
@@ -253,7 +252,7 @@ function QuizPage() {
           <div className="row justify-content-center">
             <div className="col-md-8">
               <div className="card">
-                <div className="card-header text-center bg-primary text-white">
+                <div className="card-header text-center text-white">
                   <h3>Resultado do Quiz</h3>
                   <h5>{quiz.TITULO}</h5>
                 </div>
@@ -273,7 +272,7 @@ function QuizPage() {
 
                     <p className="lead">
                       {result.passou
-                        ? "Parabéns! Você foi aprovado!"
+                        ? "Parabéns!"
                         : "Não foi desta vez..."}
                     </p>
                   </div>
@@ -339,7 +338,7 @@ function QuizPage() {
           <div className="row justify-content-center">
             <div className="col-md-8">
               <div className="card">
-                <div className="card-header text-center bg-primary text-white">
+                <div className="card-header text-center text-white">
                   <h3 className="mb-0">{quiz.TITULO}</h3>
                 </div>
                 <div className="card-body">
