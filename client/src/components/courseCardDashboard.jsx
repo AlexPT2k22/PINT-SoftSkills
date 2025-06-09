@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
-import { Pen, Eye, Download, GraduationCap, Brain } from "lucide-react";
+import { Pen, Eye, Download, GraduationCap } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import axios from "axios";
 
@@ -217,7 +217,6 @@ function CourseCardDashboard({
             {!loadingQuizStatus && hasQuiz && (
               <div className="mt-2">
                 <div className="d-flex align-items-center">
-                  <Brain size={14} className="me-1" />
                   <small className="text-muted">
                     Quiz: {quizCompleted ? 
                       <span className="text-success">Completo</span> : 
@@ -263,7 +262,6 @@ function CourseCardDashboard({
                 onClick={handleClickQuiz}
                 title="Fazer Quiz Final"
               >
-                <Brain size={20} />
                 <span className="ms-2">Quiz</span>
               </button>
             )}
