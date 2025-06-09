@@ -556,6 +556,16 @@ function EditCourse() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+
+    if (startDateObj > endDateObj) {
+      setError(
+        "A data de início não pode ser posterior à data de fim do curso."
+      );
+      return;
+    }
+
     // Determinar se o tipo mudou
     const originalType = courseData.CURSO_SINCRONO ? "Síncrono" : "Assíncrono";
     const isTypeChanged = originalType !== selectedRadio;

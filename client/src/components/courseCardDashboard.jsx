@@ -27,6 +27,67 @@ function CourseCardDashboard({
     checkQuizStatus();
   }, [course.ID_CURSO]);
 
+  const getCourseStatus = () => {
+    if (CURSO_ASSINCRONO) {
+      return CURSO_ASSINCRONO.ESTADO === "Ativo" ? "Ativo" : "Inativo";
+    }
+
+    if (CURSO_SINCRONO) {
+      return CURSO_SINCRONO.ESTADO;
+    }
+
+    return "Não disponível";
+  };
+
+  const getStatusClass = () => {
+    const status = getCourseStatus();
+    switch (status) {
+      case "Em curso":
+        return "bg-primary";
+      case "Ativo":
+        // Para cursos síncronos que ainda não começaram
+        if (CURSO_SINCRONO) {
+          const hoje = new Date();
+          const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
+
+          // Se é síncrono e ainda não começou, mostrar "Brevemente"
+          if (hoje < dataInicio) {
+            return "bg-info";
+          }
+        }
+        // Se chegou aqui, não mostrar badge
+        return null;
+      case "Terminado":
+        return "bg-danger";
+      default:
+        return null; //
+    }
+  };
+
+  const getStatusText = () => {
+    const status = getCourseStatus();
+
+    if (status === "Em curso") {
+      return "Em curso";
+    }
+
+    if (status === "Ativo" && CURSO_SINCRONO) {
+      const hoje = new Date();
+      const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
+
+      // Se é síncrono e ainda não começou
+      if (hoje < dataInicio) {
+        return "Brevemente";
+      }
+    }
+
+    if (status === "Terminado") {
+      return "Terminado";
+    }
+
+    return null; // Não mostrar badge
+  };
+
   const checkQuizStatus = async () => {
     try {
       setLoadingQuizStatus(true);
@@ -175,6 +236,13 @@ function CourseCardDashboard({
 
   return (
     <div className="card h-100 course-card">
+      <div className="z-1 position-absolute p-2">
+        {getStatusClass() && (
+          <span className={`badge ${getStatusClass()} fs-6`}>
+            {getStatusText()}
+          </span>
+        )}
+      </div>
       <img
         src={
           IMAGEM
@@ -220,7 +288,6 @@ function CourseCardDashboard({
               </div>
             </div>
 
-            {/* Indicadores de quiz */}
             {!loadingQuizStatus && hasQuiz && (
               <div className="mt-2">
                 <div className="d-flex align-items-center">
@@ -246,7 +313,10 @@ function CourseCardDashboard({
       <div className="coursecard-footer d-flex justify-content-between align-items-center p-2 m-2 mt-0">
         {showStartButton && (
           <div className="d-flex flex-row align-items-center gap-2">
-            {(CURSO_ASSINCRONO || (CURSO_SINCRONO && checkDate())) && (
+            {(CURSO_ASSINCRONO ||
+              (CURSO_SINCRONO &&
+                (checkDate() ||
+                  new Date() > new Date(CURSO_SINCRONO?.DATA_FIM)))) && (
               <button className="btn btn-primary" onClick={handleClick}>
                 {progress === 0
                   ? "Começar"
@@ -256,21 +326,24 @@ function CourseCardDashboard({
               </button>
             )}
 
-            {CURSO_SINCRONO && checkDate() && (
-              <button
-                className="btn btn-outline-primary"
-                onClick={() =>
-                  navigate(`/dashboard/synchronous-course/${course.ID_CURSO}`)
-                }
-              >
-                <GraduationCap size={20} />
-                <span className="ms-2">Aulas</span>
-              </button>
-            )}
+            {CURSO_SINCRONO &&
+              (checkDate() ||
+                new Date() > new Date(CURSO_SINCRONO?.DATA_FIM)) && (
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={() =>
+                    navigate(`/dashboard/synchronous-course/${course.ID_CURSO}`)
+                  }
+                >
+                  <GraduationCap size={20} />
+                  <span className="ms-2">Aulas</span>
+                </button>
+              )}
 
-            {CURSO_SINCRONO && !checkDate() && (
-              <span className="text-muted">O curso ainda não começou</span>
-            )}
+            {CURSO_SINCRONO &&
+              new Date() < new Date(CURSO_SINCRONO?.DATA_INICIO) && (
+                <span className="text-muted">O curso ainda não começou</span>
+              )}
 
             {/* Botão do Quiz - aparece quando curso está completo mas quiz não foi feito */}
             {!loadingQuizStatus && shouldShowQuizButton() && (

@@ -83,12 +83,21 @@ function ListCoursesDashboard() {
       course.CURSO_SINCRONO === null
         ? (() => {
             const today = new Date();
+            const dataInicio = course.CURSO_ASSINCRONO?.DATA_INICIO
+              ? new Date(course.CURSO_ASSINCRONO.DATA_INICIO)
+              : null;
             const dataFim = course.CURSO_ASSINCRONO?.DATA_FIM
               ? new Date(course.CURSO_ASSINCRONO.DATA_FIM)
               : null;
 
-            if (dataFim && dataFim < today) {
-              return "Terminado";
+            if (dataInicio && dataFim) {
+              if (today < dataInicio) {
+                return "Brevemente";
+              } else if (today >= dataInicio && today <= dataFim) {
+                return "Em curso";
+              } else {
+                return "Terminado";
+              }
             } else {
               return "Ativo";
             }
@@ -155,7 +164,7 @@ function ListCoursesDashboard() {
               : null;
 
             if (dataFim && dataFim < today) {
-              return "Terminado";
+              return "Inativo";
             } else {
               return "Ativo";
             }
@@ -200,19 +209,30 @@ function ListCoursesDashboard() {
     if (course.CURSO_SINCRONO === null) {
       // Curso assíncrono
       const today = new Date();
+      const dataInicio = course.CURSO_ASSINCRONO?.DATA_INICIO
+        ? new Date(course.CURSO_ASSINCRONO.DATA_INICIO)
+        : null;
       const dataFim = course.CURSO_ASSINCRONO?.DATA_FIM
         ? new Date(course.CURSO_ASSINCRONO.DATA_FIM)
         : null;
 
-      if (dataFim && dataFim < today) {
-        status = "Terminado";
-        badgeClass = "badge bg-danger";
+      if (dataInicio && dataFim) {
+        if (today < dataInicio) {
+          status = "Brevemente";
+          badgeClass = "badge bg-info";
+        } else if (today >= dataInicio && today <= dataFim) {
+          status = "Em curso";
+          badgeClass = "badge bg-primary";
+        } else {
+          status = "Terminado";
+          badgeClass = "badge bg-danger";
+        }
       } else {
         status = "Ativo";
         badgeClass = "badge bg-success";
       }
     } else {
-      // Curso síncrono
+      // Curso síncrono (código existente)
       const today = new Date();
       const dataInicio = course.CURSO_SINCRONO?.DATA_INICIO
         ? new Date(course.CURSO_SINCRONO.DATA_INICIO)

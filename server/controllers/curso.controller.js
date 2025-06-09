@@ -122,6 +122,22 @@ const streamUpload = (
   });
 };
 
+const determineCoursesStatus = (startDate, endDate) => {
+  const today = new Date();
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (end < today) {
+    return "Terminado";
+  } else if (start <= today && end >= today) {
+    return "Em curso";
+  } else if (start > today) {
+    return "Ativo"; // Future course
+  }
+
+  return "Ativo"; // Default
+};
+
 // para ir buscar todos os cursos
 const getCursos = async (_, res) => {
   try {
@@ -897,6 +913,23 @@ const updateCursoAssincrono = async (req, res) => {
       });
     }
 
+    const today = new Date();
+    const novaDataInicio = DATA_INICIO
+      ? new Date(DATA_INICIO)
+      : cursoAssincrono.DATA_INICIO;
+    const novaDataFim = DATA_FIM
+      ? new Date(DATA_FIM)
+      : cursoAssincrono.DATA_FIM;
+
+    let novoEstado;
+    if (novaDataFim < today) {
+      novoEstado = "Terminado";
+    } else if (novaDataInicio <= today && novaDataFim >= today) {
+      novoEstado = "Em curso";
+    } else if (novaDataInicio > today) {
+      novoEstado = "Ativo"; // Course hasn't started yet
+    }
+
     await cursoAssincrono.update({
       NOME,
       DESCRICAO_OBJETIVOS__,
@@ -904,6 +937,7 @@ const updateCursoAssincrono = async (req, res) => {
       ID_AREA,
       DATA_INICIO,
       DATA_FIM,
+      ESTADO: novoEstado,
     });
     res.status(200).json({
       Curso: curso,
@@ -1377,11 +1411,14 @@ const createAssincrono = async (req, res) => {
       );
     }
 
+    const novoEstado = determineCoursesStatus(DATA_INICIO, DATA_FIM);
+
     const cursoAssincrono = await CursoAssincrono.create({
       ID_CURSO: curso.ID_CURSO,
       NUMERO_CURSOS_ASSINCRONOS: ADD_COURSE,
       DATA_INICIO,
       DATA_FIM,
+      ESTADO: novoEstado,
     });
 
     res.status(201).json({
@@ -2376,7 +2413,7 @@ const searchCursos = async (req, res) => {
     // FILTRAR os cursos para mostrar apenas os ativos
     const coursesAtivos = allCourses.filter((curso) => {
       // Verificar se é assíncrono ativo
-      if (curso.CURSO_ASSINCRONO && curso.CURSO_ASSINCRONO.ESTADO === "Ativo") {
+      if (curso.CURSO_ASSINCRONO && (curso.CURSO_ASSINCRONO.ESTADO === "Ativo" || curso.CURSO_ASSINCRONO.ESTADO === "Em curso")) {
         return true;
       }
 

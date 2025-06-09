@@ -335,6 +335,9 @@ const getCursosInscritos = async (req, res) => {
           attributes: [],
         },
       ],
+      where: {
+        ESTADO: "Ativo", // Filtrar apenas cursos ativos
+      },
     });
 
     const idsCursosAssincronos = cursosAssincronosComInscricao
@@ -363,6 +366,9 @@ const getCursosInscritos = async (req, res) => {
         },
         {
           model: CursoAssincrono,
+          where: {
+            ESTADO: "Ativo", // Filtrar apenas cursos assíncronos ativos
+          },
           required: false,
         },
         {

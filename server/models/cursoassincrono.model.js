@@ -19,7 +19,7 @@ const CursoAssincrono = sequelize.define(
       },
     },
     ESTADO: {
-      type: DataTypes.ENUM("Ativo", "Inativo"),
+      type: DataTypes.ENUM("Ativo", "Inativo", "Em curso", "Terminado"),
       defaultValue: "Ativo",
       allowNull: false,
     },
