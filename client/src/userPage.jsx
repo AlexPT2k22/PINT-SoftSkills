@@ -198,11 +198,13 @@ function UserPage() {
                           <div>
                             <h6 className="mb-0 text-success">Nota Média</h6>
                             <h4 className="mb-0 fw-bold">
-                              {statistics?.notaMedia || 0}
-                              <small className="text-muted">/20</small>
+                              {statistics?.notaMedia
+                                ? `${statistics.notaMedia.toFixed(1)}/20`
+                                : "N/A"}
                             </h4>
                             <small className="text-muted">
-                              {statistics?.totalAvaliacoes || 0} avaliações
+                              {statistics?.totalAvaliacoes || 0} avaliação
+                              {statistics?.totalAvaliacoes !== 1 ? "ões" : ""}
                             </small>
                           </div>
                         </div>

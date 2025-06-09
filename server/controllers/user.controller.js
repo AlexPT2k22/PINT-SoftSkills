@@ -10,6 +10,9 @@ const {
   InscricaoSincrono,
   InscricaoAssincrono,
   Modulos,
+  SubmissaoAvaliacao,
+  RespostaQuizAssincrono,
+  ProgressoModulo,
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
@@ -635,192 +638,253 @@ const getUserStatistics = async (req, res) => {
       return res.status(400).json({ message: "ID de utilizador inválido" });
     }
 
-    // Buscar o utilizador
-    const utilizador = await Utilizador.findByPk(userId);
+    // ✅ OTIMIZADO: Fazer todas as consultas em paralelo
+    const [
+      utilizador,
+      cursosSincronosInscritos,
+      cursosAssincronosInscritos,
+      submissoesTrabalhos,
+      respostasQuizzes,
+    ] = await Promise.all([
+      // Buscar o utilizador
+      Utilizador.findByPk(userId),
+
+      // Buscar cursos síncronos inscritos
+      InscricaoSincrono.findAll({
+        where: { ID_UTILIZADOR: userId },
+        include: [
+          {
+            model: CursoSincrono,
+            include: [
+              {
+                model: Curso,
+                attributes: ["ID_CURSO", "NOME"],
+              },
+            ],
+          },
+        ],
+      }),
+
+      // Buscar cursos assíncronos inscritos
+      InscricaoAssincrono.findAll({
+        where: { ID_UTILIZADOR: userId },
+        include: [
+          {
+            model: CursoAssincrono,
+            include: [
+              {
+                model: Curso,
+                attributes: ["ID_CURSO", "NOME"],
+              },
+            ],
+          },
+        ],
+      }),
+
+      // ✅ Buscar notas de trabalhos
+      SubmissaoAvaliacao.findAll({
+        where: {
+          ID_UTILIZADOR: userId,
+          NOTA: { [Op.ne]: null },
+        },
+        attributes: ["NOTA"],
+      }),
+
+      // ✅ Buscar notas de quizzes
+      RespostaQuizAssincrono.findAll({
+        where: {
+          ID_UTILIZADOR: userId,
+        },
+        attributes: ["NOTA"],
+      }),
+    ]);
+
     if (!utilizador) {
       return res.status(404).json({ message: "Utilizador não encontrado" });
     }
 
-    // 1. Buscar cursos síncronos inscritos
-    const cursosSincronosInscritos = await InscricaoSincrono.findAll({
-      where: { ID_UTILIZADOR: userId },
-      include: [
-        {
-          model: CursoSincrono,
-          include: [
-            {
-              model: Curso,
-              attributes: ["ID_CURSO", "NOME"],
-            },
-          ],
-        },
-      ],
-    });
+    // ✅ Calcular nota média unificada (escala 0-20)
+    let notaMediaCompleta = 0;
+    let totalAvaliacoes = 0;
+    let somaNotas = 0;
 
-    // 2. Buscar cursos assíncronos inscritos
-    const cursosAssincronosInscritos = await InscricaoAssincrono.findAll({
-      where: { ID_UTILIZADOR: userId },
-      include: [
-        {
-          model: CursoAssincrono,
-          include: [
-            {
-              model: Curso,
-              attributes: ["ID_CURSO", "NOME"],
-            },
-          ],
-        },
-      ],
-    });
-
-    // 3. Total de cursos
-    const totalCursos =
-      cursosSincronosInscritos.length + cursosAssincronosInscritos.length;
-
-    // 4. Buscar todas as submissões de avaliações do utilizador para calcular nota média
-    const { SubmissaoAvaliacao } = require("../models/index.js");
-    const submissoes = await SubmissaoAvaliacao.findAll({
-      where: {
-        ID_UTILIZADOR: userId,
-        NOTA: { [Op.ne]: null }, // Só submissões que já foram avaliadas
-      },
-      attributes: ["NOTA"],
-    });
-
-    // Calcular nota média
-    let notaMedia = 0;
-    if (submissoes.length > 0) {
-      const somaNotas = submissoes.reduce(
+    // Somar trabalhos (já em escala 0-20)
+    if (submissoesTrabalhos.length > 0) {
+      const somaTrabalhos = submissoesTrabalhos.reduce(
         (soma, submissao) => soma + parseFloat(submissao.NOTA),
         0
       );
-      notaMedia = parseFloat((somaNotas / submissoes.length).toFixed(1));
+      somaNotas += somaTrabalhos;
+      totalAvaliacoes += submissoesTrabalhos.length;
     }
 
-    // 5. Extrair IDs dos cursos de forma mais robusta
-    const { ProgressoModulo, Modulos } = require("../models/index.js");
+    // Somar quizzes (converter de 0-100 para 0-20)
+    if (respostasQuizzes.length > 0) {
+      const somaQuizzesConvertida = respostasQuizzes.reduce(
+        (soma, resposta) => {
+          const notaConvertida = (parseFloat(resposta.NOTA) * 20) / 100;
+          return soma + notaConvertida;
+        },
+        0
+      );
+      somaNotas += somaQuizzesConvertida;
+      totalAvaliacoes += respostasQuizzes.length;
+    }
 
-    // Tentar diferentes formas de extrair os IDs
-    let cursosIdsSincronos = [];
-    let cursosIdsAssincronos = [];
+    if (totalAvaliacoes > 0) {
+      notaMediaCompleta = somaNotas / totalAvaliacoes;
+    }
 
-    // Para cursos síncronos
-    cursosSincronosInscritos.forEach((inscricao) => {
-      // Tentar diferentes caminhos para o ID do curso
-      let cursoId = null;
-      if (inscricao.CursoSincrono?.Curso?.ID_CURSO) {
-        cursoId = inscricao.CursoSincrono.Curso.ID_CURSO;
-      } else if (inscricao.CursoSincrono?.ID_CURSO) {
-        cursoId = inscricao.CursoSincrono.ID_CURSO;
-      } else if (inscricao.ID_CURSO_SINCRONO) {
-        // Se não conseguir pelo include, usar o ID do curso síncrono diretamente
-        cursoId = inscricao.ID_CURSO_SINCRONO;
-      }
-
-      if (cursoId) {
-        cursosIdsSincronos.push(cursoId);
-      }
+    const cursosIds = [];
+    const progressoExistente = await ProgressoModulo.findAll({
+      attributes: ["ID_CURSO"],
+      where: {
+        ID_UTILIZADOR: userId,
+      },
+      group: ["ID_CURSO"],
     });
 
-    // Para cursos assíncronos
-    cursosAssincronosInscritos.forEach((inscricao) => {
-      // Tentar diferentes caminhos para o ID do curso
-      let cursoId = null;
-      if (inscricao.CursoAssincrono?.Curso?.ID_CURSO) {
-        cursoId = inscricao.CursoAssincrono.Curso.ID_CURSO;
-      } else if (inscricao.CursoAssincrono?.ID_CURSO) {
-        cursoId = inscricao.CursoAssincrono.ID_CURSO;
-      }
+    const cursosIdsFromProgresso = progressoExistente
+      .map((p) => p.ID_CURSO)
+      .filter(Boolean);
+    console.log(
+      "IDs recuperados da tabela de progresso:",
+      cursosIdsFromProgresso
+    );
 
-      if (cursoId) {
-        cursosIdsAssincronos.push(cursoId);
-      }
-    });
-
-    // Se ainda não conseguiu os IDs, tentar uma abordagem alternativa
-    if (
-      cursosIdsSincronos.length === 0 &&
-      cursosSincronosInscritos.length > 0
-    ) {
-      for (const inscricao of cursosSincronosInscritos) {
-        const cursoSincrono = await CursoSincrono.findByPk(
-          inscricao.ID_CURSO_SINCRONO
-        );
-        if (cursoSincrono && cursoSincrono.ID_CURSO) {
-          cursosIdsSincronos.push(cursoSincrono.ID_CURSO);
-        }
-      }
+    if (cursosIdsFromProgresso.length > 0) {
+      cursosIds.push(...cursosIdsFromProgresso);
+      console.log("IDs de cursos atualizados:", cursosIds);
     }
 
-    if (
-      cursosIdsAssincronos.length === 0 &&
-      cursosAssincronosInscritos.length > 0
-    ) {
-      for (const inscricao of cursosAssincronosInscritos) {
-        const cursoAssincrono = await CursoAssincrono.findByPk(
-          inscricao.ID_CURSO_ASSINCRONO
-        );
-        if (cursoAssincrono && cursoAssincrono.ID_CURSO) {
-          cursosIdsAssincronos.push(cursoAssincrono.ID_CURSO);
-        }
-      }
-    }
-
-    const cursosIds = [...cursosIdsSincronos, ...cursosIdsAssincronos];
+    console.log(cursosIds ? cursosIds : "Sem cursos IDS");
 
     let cursosCompletados = 0;
+    if (cursosIds.length > 0) {
+      const {
+        ProgressoModulo,
+        Modulos,
+        QuizAssincrono,
+        RespostaQuizAssincrono,
+      } = require("../models/index.js");
 
-    for (const cursoId of cursosIds) {
-      // Contar total de módulos do curso
-      const totalModulos = await Modulos.count({
-        where: { ID_CURSO: cursoId },
-      });
+      // Para cada curso, verificar completude
+      for (const cursoId of cursosIds) {
+        console.log(
+          `Verificando completude do curso ${cursoId} para usuário ${userId}...`
+        );
 
-      if (totalModulos === 0) {
-        console.log(`Curso ${cursoId} não tem módulos registados`);
-        continue;
-      }
+        // 1. Verificar módulos
+        const totalModulos = await Modulos.count({
+          where: { ID_CURSO: cursoId },
+        });
 
-      // Contar módulos completados pelo utilizador
-      const modulosCompletos = await ProgressoModulo.count({
-        where: {
-          ID_UTILIZADOR: userId,
-          ID_CURSO: cursoId,
-          COMPLETO: true,
-        },
-      });
+        const modulosCompletos = await ProgressoModulo.count({
+          where: {
+            ID_UTILIZADOR: userId,
+            ID_CURSO: cursoId,
+            COMPLETO: true,
+          },
+        });
 
-      const detalhe = {
-        cursoId,
-        totalModulos,
-        modulosCompletos,
-        percentualCompleto:
-          totalModulos > 0
-            ? Math.round((modulosCompletos / totalModulos) * 100)
-            : 0,
-        completo: totalModulos > 0 && modulosCompletos === totalModulos,
-      };
+        // 2. Verificar quiz (se existir)
+        const quiz = await QuizAssincrono.findOne({
+          where: { ID_CURSO: cursoId, ATIVO: true },
+        });
 
-      // Se completou todos os módulos, conta como curso completado
-      if (totalModulos > 0 && modulosCompletos === totalModulos) {
-        cursosCompletados++;
+        let quizCompleto = true; // Se não tiver quiz, considera completo
+
+        if (quiz) {
+          // Se tiver quiz, verifica se foi completado
+          const respostaQuiz = await RespostaQuizAssincrono.findOne({
+            where: {
+              ID_UTILIZADOR: userId,
+              ID_QUIZ: quiz.ID_QUIZ,
+            },
+          });
+
+          quizCompleto = !!respostaQuiz; // Converter para booleano
+
+          console.log(
+            `Curso ${cursoId}: Quiz ${quiz.ID_QUIZ} ${quizCompleto ? "completado" : "não completado"}`
+          );
+        }
+
+        // Se todos os módulos estão completos E o quiz (se existir) também está completo
+        if (
+          totalModulos > 0 &&
+          modulosCompletos === totalModulos &&
+          quizCompleto
+        ) {
+          console.log(
+            `Curso ${cursoId} COMPLETADO: ${modulosCompletos}/${totalModulos} módulos e quiz ${quizCompleto ? "completo" : "N/A"}`
+          );
+          cursosCompletados++;
+        } else {
+          console.log(
+            `Curso ${cursoId} NÃO completado: ${modulosCompletos}/${totalModulos} módulos e quiz ${quizCompleto ? "completo" : "incompleto/não existe"}`
+          );
+        }
       }
     }
 
-    //console.log(`\nTotal de cursos completados: ${cursosCompletados}`);
-    //console.log("Detalhes de completude:", detalhesCompletude);
-
-    // 6. XP atual do utilizador
-    const xpAtual = utilizador.XP || 0;
+    // Total de cursos
+    const totalCursos =
+      cursosSincronosInscritos.length + cursosAssincronosInscritos.length;
 
     const estatisticas = {
-      xp: xpAtual,
-      notaMedia: notaMedia,
+      xp: utilizador.XP || 0,
+      notaMedia: parseFloat(notaMediaCompleta.toFixed(1)),
       totalCursos: totalCursos,
       cursosCompletados: cursosCompletados,
-      totalAvaliacoes: submissoes.length,
+      totalAvaliacoes: totalAvaliacoes,
       cursosAtivos: totalCursos - cursosCompletados,
+      detalhesNotas: {
+        trabalhos: {
+          count: submissoesTrabalhos.length,
+          mediaOriginal:
+            submissoesTrabalhos.length > 0
+              ? parseFloat(
+                  (
+                    submissoesTrabalhos.reduce(
+                      (soma, s) => soma + parseFloat(s.NOTA),
+                      0
+                    ) / submissoesTrabalhos.length
+                  ).toFixed(1)
+                )
+              : 0,
+        },
+        quizzes: {
+          count: respostasQuizzes.length,
+          mediaOriginal:
+            respostasQuizzes.length > 0
+              ? parseFloat(
+                  (
+                    respostasQuizzes.reduce(
+                      (soma, r) => soma + parseFloat(r.NOTA),
+                      0
+                    ) / respostasQuizzes.length
+                  ).toFixed(1)
+                )
+              : 0,
+          mediaConvertida:
+            respostasQuizzes.length > 0
+              ? parseFloat(
+                  (
+                    respostasQuizzes.reduce(
+                      (soma, r) => soma + (parseFloat(r.NOTA) * 20) / 100,
+                      0
+                    ) / respostasQuizzes.length
+                  ).toFixed(1)
+                )
+              : 0,
+        },
+      },
     };
+
+    console.log(
+      `Estatísticas para usuário ${userId}: Total=${totalCursos}, Completos=${cursosCompletados}, Ativos=${totalCursos - cursosCompletados}`
+    );
 
     res.status(200).json(estatisticas);
   } catch (error) {
