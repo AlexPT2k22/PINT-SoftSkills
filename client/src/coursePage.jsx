@@ -271,33 +271,28 @@ function CoursePage() {
                   <div className="d-flex flex-row justify-content-between">
                     <h1 className="course-text-h1">
                       {course.CURSO_SINCRONO ? (
-                        course.CURSO_SINCRONO.UTILIZADOR?.LINKEDIN ? (
-                          <>
-                            Lecionado por:{" "}
-                            <a
-                              href={course.CURSO_SINCRONO.UTILIZADOR.LINKEDIN}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-decoration-none"
-                              style={{ color: "#39639c" }}
-                            >
-                              {course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
-                                course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME ||
-                                "Sem formador"}{" "}
+                        <>
+                          Lecionado por:{" "}
+                          <a
+                            href={`/user/${course?.CURSO_SINCRONO?.UTILIZADOR?.ID_UTILIZADOR}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-decoration-none"
+                            style={{ color: "#39639c" }}
+                          >
+                            {course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
+                              course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME ||
+                              "Sem formador"}{" "}
+                            {(course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
+                              course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME) && (
                               <SquareArrowOutUpRight
                                 color="#39639C"
                                 size={14}
-                                className="ms-1"
+                                className="ms-0"
                               />
-                            </a>
-                          </>
-                        ) : (
-                          `Lecionado por: ${
-                            course?.CURSO_SINCRONO?.UTILIZADOR?.NOME ||
-                            course?.CURSO_SINCRONO?.UTILIZADOR?.USERNAME ||
-                            "Sem formador"
-                          }`
-                        )
+                            )}
+                          </a>
+                        </>
                       ) : (
                         `Curso assíncrono`
                       )}
