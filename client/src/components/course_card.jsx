@@ -7,45 +7,29 @@ function CourseCard({ course }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
 
-  const calculateStatus = (course) => {
-    if (course.CURSO_SINCRONO) {
-      const { DATA_INICIO, DATA_FIM } = course.CURSO_SINCRONO;
-      const now = new Date();
-      if (now < new Date(DATA_INICIO)) {
-        return "Brevemente";
-      } else if (now >= new Date(DATA_INICIO) && now <= new Date(DATA_FIM)) {
-        return "Em curso";
-      } else {
-        return "Terminado";
-      }
-    } else if (course.CURSO_ASSINCRONO) {
-      const { DATA_INICIO, DATA_FIM } = course.CURSO_ASSINCRONO;
-      const now = new Date();
-      if (
-        now < new Date(DATA_INICIO) ||
-        (now >= new Date(DATA_INICIO) && now <= new Date(DATA_FIM))
-      ) {
-        return "Ativo";
-      } else {
-        return "Terminado";
-      }
-    } else {
-      return "Não especificado";
+  const getCourseStatus = () => {
+    if (CURSO_ASSINCRONO) {
+      return CURSO_ASSINCRONO.ESTADO === "Ativo" ? "Ativo" : "Inativo";
     }
+
+    if (CURSO_SINCRONO) {
+      return CURSO_SINCRONO.ESTADO;
+    }
+
+    return "Não disponível";
   };
 
-  const statusBadgeClass = (status) => {
+  const getStatusClass = () => {
+    const status = getCourseStatus();
     switch (status) {
       case "Ativo":
         return "bg-success";
       case "Em curso":
         return "bg-primary";
-      case "Inativo":
-        return "bg-secondary";
       case "Terminado":
         return "bg-danger";
-      case "Brevemente":
-        return "bg-warning";
+      case "Inativo":
+        return "bg-secondary";
       default:
         return "bg-secondary";
     }
@@ -87,12 +71,8 @@ function CourseCard({ course }) {
   return (
     <div className="card h-100 course-card" onClick={handleClick}>
       <div className="z-1 position-absolute p-2">
-        <span
-          className={`badge ${statusBadgeClass(calculateStatus(course))} fs-6`}
-        >
-          {calculateStatus(course)
-            ? calculateStatus(course)
-            : "Status desconhecido"}
+        <span className={`badge ${getStatusClass()} fs-6`}>
+          {getCourseStatus()}
         </span>
         <span
           className={`badge ${dificuldadeBadge(

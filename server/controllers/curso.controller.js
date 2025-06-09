@@ -140,21 +140,31 @@ const getCursos = async (_, res) => {
         },
         {
           model: CursoAssincrono,
+          where: {
+            ESTADO: "Ativo",
+          },
+          required: false,
         },
         {
           model: CursoSincrono,
+          where: {
+            ESTADO: ["Ativo", "Em curso"],
+          },
+          required: false,
           include: [
             {
               model: Utilizador,
               attributes: ["USERNAME", "NOME"],
             },
-            {
-              model: EstadoCursoSincrono,
-              attributes: ["ESTADO"],
-            },
           ],
         },
       ],
+      where: {
+        [Op.or]: [
+          { "$CURSO_ASSINCRONO.ESTADO$": "Ativo" },
+          { "$CURSO_SINCRONO.ESTADO$": ["Ativo", "Em curso"] },
+        ],
+      },
     });
     res.status(200).json(cursos);
   } catch (error) {
@@ -194,7 +204,13 @@ const getCursoById = async (req, res) => {
         },
         {
           model: CursoSincrono,
-          attributes: ["DATA_INICIO", "DATA_FIM", "VAGAS", "ID_UTILIZADOR", "DATA_LIMITE_INSCRICAO_S"],
+          attributes: [
+            "DATA_INICIO",
+            "DATA_FIM",
+            "VAGAS",
+            "ID_UTILIZADOR",
+            "DATA_LIMITE_INSCRICAO_S",
+          ],
           include: [
             {
               model: ConteudoSincrono,
@@ -1096,6 +1112,24 @@ const updateCursoCompleto = async (req, res) => {
 
     // Atualizar dados específicos do tipo de curso
     if (cursoSincrono) {
+      const today = new Date();
+      const novaDataInicio = DATA_INICIO
+        ? new Date(DATA_INICIO)
+        : cursoSincrono.DATA_INICIO;
+      const novaDataFim = DATA_FIM
+        ? new Date(DATA_FIM)
+        : cursoSincrono.DATA_FIM;
+
+      // Determinar o estado com base nas novas datas
+      let novoEstado = cursoSincrono.ESTADO;
+
+      if (novaDataFim < today) {
+        novoEstado = "Terminado";
+      } else if (novaDataInicio <= today && novaDataFim >= today) {
+        novoEstado = "Em curso";
+      } else if (novaDataInicio > today) {
+        novoEstado = "Ativo"; // Curso ainda não começou
+      }
       await cursoSincrono.update(
         {
           ID_UTILIZADOR: ID_UTILIZADOR || cursoSincrono.ID_UTILIZADOR,
@@ -1104,16 +1138,31 @@ const updateCursoCompleto = async (req, res) => {
           DATA_FIM: DATA_FIM || cursoSincrono.DATA_FIM,
           DATA_LIMITE_INSCRICAO_S:
             DATA_LIMITE_INSCRICAO || cursoSincrono.DATA_LIMITE_INSCRICAO_S,
+          ESTADO: novoEstado,
         },
         { transaction }
       );
     }
 
     if (cursoAssincrono) {
+      const today = new Date();
+      const novaDataInicio = DATA_INICIO
+        ? new Date(DATA_INICIO)
+        : cursoAssincrono.DATA_INICIO;
+      const novaDataFim = DATA_FIM
+        ? new Date(DATA_FIM)
+        : cursoAssincrono.DATA_FIM;
+
+      // Determinar estado
+      let novoEstado = "Inativo";
+      if (novaDataInicio <= today && novaDataFim >= today) {
+        novoEstado = "Ativo";
+      }
       await cursoAssincrono.update(
         {
           DATA_INICIO: DATA_INICIO || cursoAssincrono.DATA_INICIO,
           DATA_FIM: DATA_FIM || cursoAssincrono.DATA_FIM,
+          ESTADO: novoEstado,
         },
         { transaction }
       );

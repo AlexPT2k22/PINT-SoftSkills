@@ -20,6 +20,10 @@ const avaliacaoSincronaRoutes = require("./routes/avaliacaoSincrona.route.js");
 const aulaSincronaRoutes = require("./routes/aulaSincrona.route.js");
 const presencaRoutes = require("./routes/presenca.route");
 const quizzassincronoRoutes = require("./routes/quizAssincrono.route.js");
+const {
+  updateAsyncCoursesStatus,
+  updateSyncCoursesStatus,
+} = require("./jobs/courseStatusUpdater.js");
 const path = require("path");
 const port = process.env.PORT || 4000;
 
@@ -33,6 +37,15 @@ app.use(
   })
 ); // Permitir cookies e credenciais
 app.use(cookieparser()); // Para ler cookies
+
+// Executar atualização a cada hora
+setInterval(
+  async () => {
+    await updateAsyncCoursesStatus();
+    await updateSyncCoursesStatus();
+  },
+  60 * 60 * 1000
+);
 
 app.use("/api/areas", areaRoute); // Rota para áreas
 app.use("/api/user", userRoute); // Rota para usuários
@@ -64,6 +77,8 @@ app.get("/api", (_, res) => {
 
 connectDB(); // Conectar ao banco de dados
 connectCloudinary(); // Conectar ao Cloudinary
+updateAsyncCoursesStatus();
+updateSyncCoursesStatus();
 
 // Sincronizar os modelos com o banco de dados
 (async () => {
