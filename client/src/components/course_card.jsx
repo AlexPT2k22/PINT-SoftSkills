@@ -22,17 +22,44 @@ function CourseCard({ course }) {
   const getStatusClass = () => {
     const status = getCourseStatus();
     switch (status) {
-      case "Ativo":
-        return "bg-success";
       case "Em curso":
         return "bg-primary";
-      case "Terminado":
-        return "bg-danger";
-      case "Inativo":
-        return "bg-secondary";
+      case "Ativo":
+        // Para cursos síncronos que ainda não começaram
+        if (CURSO_SINCRONO) {
+          const hoje = new Date();
+          const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
+
+          // Se é síncrono e ainda não começou, mostrar "Brevemente"
+          if (hoje < dataInicio) {
+            return "bg-info";
+          }
+        }
+        // Se chegou aqui, não mostrar badge
+        return null;
       default:
-        return "bg-secondary";
+        return null; // ✅ Não mostrar outros badges
     }
+  };
+
+  const getStatusText = () => {
+    const status = getCourseStatus();
+
+    if (status === "Em curso") {
+      return "Em curso";
+    }
+
+    if (status === "Ativo" && CURSO_SINCRONO) {
+      const hoje = new Date();
+      const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
+
+      // Se é síncrono e ainda não começou
+      if (hoje < dataInicio) {
+        return "Brevemente";
+      }
+    }
+
+    return null; // Não mostrar badge
   };
 
   const dificuldadeBadge = (dificuldade) => {
@@ -71,9 +98,11 @@ function CourseCard({ course }) {
   return (
     <div className="card h-100 course-card" onClick={handleClick}>
       <div className="z-1 position-absolute p-2">
-        <span className={`badge ${getStatusClass()} fs-6`}>
-          {getCourseStatus()}
-        </span>
+        {getStatusClass() && (
+          <span className={`badge ${getStatusClass()} fs-6`}>
+            {getStatusText()}
+          </span>
+        )}
         <span
           className={`badge ${dificuldadeBadge(
             course.DIFICULDADE_CURSO__

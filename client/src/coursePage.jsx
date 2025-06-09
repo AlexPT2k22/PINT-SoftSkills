@@ -359,7 +359,7 @@ function CoursePage() {
                           inscrito === false) ||
                         course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
                           ? !checkEnrollmentDeadline(
-                              course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S
+                              course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
                             )
                           : false
                       }

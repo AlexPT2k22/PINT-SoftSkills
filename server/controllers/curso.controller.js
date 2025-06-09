@@ -140,16 +140,10 @@ const getCursos = async (_, res) => {
         },
         {
           model: CursoAssincrono,
-          where: {
-            ESTADO: "Ativo",
-          },
           required: false,
         },
         {
           model: CursoSincrono,
-          where: {
-            ESTADO: ["Ativo", "Em curso"],
-          },
           required: false,
           include: [
             {
@@ -159,12 +153,6 @@ const getCursos = async (_, res) => {
           ],
         },
       ],
-      where: {
-        [Op.or]: [
-          { "$CURSO_ASSINCRONO.ESTADO$": "Ativo" },
-          { "$CURSO_SINCRONO.ESTADO$": ["Ativo", "Em curso"] },
-        ],
-      },
     });
     res.status(200).json(cursos);
   } catch (error) {
@@ -341,14 +329,26 @@ const getCursosPopulares = async (req, res) => {
         },
         {
           model: CursoAssincrono,
+          where: {
+            ESTADO: "Ativo",
+          },
           required: false, // Use LEFT JOIN
         },
         {
           model: CursoSincrono,
+          where: {
+            ESTADO: ["Ativo", "Em curso"],
+          },
           attributes: ["VAGAS", "DATA_INICIO", "DATA_FIM", "ESTADO"],
           required: false, // Use LEFT JOIN
         },
       ],
+      where: {
+        [Op.or]: [
+          { "$CURSO_ASSINCRONO.ESTADO$": "Ativo" },
+          { "$CURSO_SINCRONO.ESTADO$": "Ativo" },
+        ],
+      },
       limit: 8,
     });
 
@@ -2227,7 +2227,7 @@ const searchCursos = async (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    // Construir condições WHERE
+    // Construir condições WHERE para o curso principal (sem filtrar por ESTADO ainda)
     const whereConditions = {};
 
     // Pesquisa por nome e descrição
@@ -2240,20 +2240,21 @@ const searchCursos = async (req, res) => {
 
     // Filtros específicos
     if (difficulty) {
-      whereConditions.DIFICULDADE_CURSO__ = difficulty;
+      whereConditions[Op.and] = whereConditions[Op.and] || [];
+      whereConditions[Op.and].push({ DIFICULDADE_CURSO__: difficulty });
     }
 
     if (area) {
-      whereConditions.ID_AREA = area;
+      whereConditions[Op.and] = whereConditions[Op.and] || [];
+      whereConditions[Op.and].push({ ID_AREA: area });
     }
 
     if (topic) {
-      whereConditions.ID_TOPICO = topic;
+      whereConditions[Op.and] = whereConditions[Op.and] || [];
+      whereConditions[Op.and].push({ ID_TOPICO: topic });
     }
 
-    console.log("Condições WHERE construídas:", whereConditions);
-
-    // Incluir relacionamentos
+    // Configurar includes
     const includeArray = [
       {
         model: Area,
@@ -2277,12 +2278,23 @@ const searchCursos = async (req, res) => {
       {
         model: CursoAssincrono,
         required: false,
-        attributes: ["DATA_INICIO", "DATA_FIM"],
+        attributes: [
+          "DATA_INICIO",
+          "DATA_FIM",
+          "ESTADO",
+          "NUMERO_CURSOS_ASSINCRONOS",
+        ],
       },
       {
         model: CursoSincrono,
         required: false,
-        attributes: ["DATA_INICIO", "DATA_FIM", "VAGAS"],
+        attributes: [
+          "DATA_INICIO",
+          "DATA_FIM",
+          "VAGAS",
+          "ESTADO",
+          "ID_UTILIZADOR",
+        ],
         include: [
           {
             model: Utilizador,
@@ -2299,11 +2311,11 @@ const searchCursos = async (req, res) => {
 
     // Filtro por tipo de curso
     if (type === "sincrono") {
-      includeArray[2].required = false;
-      includeArray[3].required = true;
+      includeArray[2].required = false; // CursoAssincrono não obrigatório
+      includeArray[3].required = true; // CursoSincrono obrigatório
     } else if (type === "assincrono") {
-      includeArray[2].required = true;
-      includeArray[3].required = false;
+      includeArray[2].required = true; // CursoAssincrono obrigatório
+      includeArray[3].required = false; // CursoSincrono não obrigatório
     }
 
     // Definir ordem
@@ -2346,32 +2358,59 @@ const searchCursos = async (req, res) => {
           ],
         ];
         break;
-      default: // newest
-        orderClause = [["DATA_CRIACAO__", "DESC"]];
+      default:
+        orderClause = [["DATA_CRIACAO__", "DESC"]]; // newest
     }
 
-    // Buscar cursos
-    const { count, rows: courses } = await Curso.findAndCountAll({
+    // Buscar todos os cursos primeiro
+    const { rows: allCourses } = await Curso.findAndCountAll({
       where: whereConditions,
       include: includeArray,
       order: orderClause,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
       distinct: true,
       col: "ID_CURSO",
     });
 
-    const hasMore = offset + courses.length < count;
+    console.log(`Encontrados ${allCourses.length} cursos no total`);
 
-    console.log("Cursos encontrados:", courses.length);
-    console.log("Total de cursos:", count);
+    // FILTRAR os cursos para mostrar apenas os ativos
+    const coursesAtivos = allCourses.filter((curso) => {
+      // Verificar se é assíncrono ativo
+      if (curso.CURSO_ASSINCRONO && curso.CURSO_ASSINCRONO.ESTADO === "Ativo") {
+        return true;
+      }
+
+      // Verificar se é síncrono ativo ou em curso
+      if (
+        curso.CURSO_SINCRONO &&
+        (curso.CURSO_SINCRONO.ESTADO === "Ativo" ||
+          curso.CURSO_SINCRONO.ESTADO === "Em curso")
+      ) {
+        return true;
+      }
+
+      // Se não tem nenhum tipo ativo, não mostrar
+      return false;
+    });
+
+    console.log(
+      `Após filtrar por estado: ${coursesAtivos.length} cursos ativos`
+    );
+
+    // Aplicar paginação nos cursos já filtrados
+    const totalCount = coursesAtivos.length;
+    const paginatedCourses = coursesAtivos.slice(
+      offset,
+      offset + parseInt(limit)
+    );
+    const hasMore = offset + paginatedCourses.length < totalCount;
 
     res.status(200).json({
-      courses,
-      totalCount: count,
+      courses: paginatedCourses,
+      totalCount: totalCount,
       currentPage: parseInt(page),
-      totalPages: Math.ceil(count / limit),
-      hasMore,
+      totalPages: Math.ceil(totalCount / parseInt(limit)),
+      hasMore: hasMore,
     });
   } catch (error) {
     console.error("Erro na pesquisa de cursos:", error);
