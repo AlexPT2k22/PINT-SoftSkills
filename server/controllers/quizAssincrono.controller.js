@@ -86,7 +86,7 @@ const createQuiz = async (req, res) => {
       DESCRICAO,
       PERGUNTAS,
       TEMPO_LIMITE_MIN: TEMPO_LIMITE_MIN || 30,
-      NOTA_MINIMA: NOTA_MINIMA || 50.0,
+      NOTA_MINIMA: (NOTA_MINIMA * 100) / 20 || 50, // Convertendo para escala de 0 a 100
       CRIADO_POR: userId,
     });
 
@@ -195,7 +195,7 @@ const updateQuiz = async (req, res) => {
       DESCRICAO: DESCRICAO || quiz.DESCRICAO,
       PERGUNTAS: PERGUNTAS || quiz.PERGUNTAS,
       TEMPO_LIMITE_MIN: TEMPO_LIMITE_MIN || quiz.TEMPO_LIMITE_MIN,
-      NOTA_MINIMA: NOTA_MINIMA || quiz.NOTA_MINIMA,
+      NOTA_MINIMA: NOTA_MINIMA ? (NOTA_MINIMA * 100) / 20 : quiz.NOTA_MINIMA,
       ATIVO: ATIVO !== undefined ? ATIVO : quiz.ATIVO,
     });
 
@@ -287,7 +287,7 @@ const submitQuizResponse = async (req, res) => {
       success: true,
       message: passou
         ? "Quiz concluído com sucesso!"
-        : `Nota insuficiente. Mínimo: ${quiz.NOTA_MINIMA}%`,
+        : `Nota insuficiente. Mínimo: ${quiz.NOTA_MINIMA} valores`,
       nota,
       acertos,
       totalPerguntas: perguntas.length,
@@ -381,8 +381,9 @@ const getQuizStats = async (req, res) => {
 
     const respostas = quiz.RESPOSTAS;
     const totalRespostas = respostas.length;
-    const aprovados = respostas.filter((r) => r.NOTA >= quiz.NOTA_MINIMA)
-      .length;
+    const aprovados = respostas.filter(
+      (r) => r.NOTA >= quiz.NOTA_MINIMA
+    ).length;
     const reprovados = totalRespostas - aprovados;
 
     const notaMedia =
@@ -395,7 +396,8 @@ const getQuizStats = async (req, res) => {
       aprovados,
       reprovados,
       notaMedia: Math.round(notaMedia * 100) / 100,
-      taxaAprovacao: totalRespostas > 0 ? (aprovados / totalRespostas) * 100 : 0,
+      taxaAprovacao:
+        totalRespostas > 0 ? (aprovados / totalRespostas) * 100 : 0,
       respostas: respostas.map((r) => ({
         utilizador: r.UTILIZADOR.NOME || r.UTILIZADOR.USERNAME,
         nota: r.NOTA,
@@ -436,7 +438,7 @@ const deleteQuiz = async (req, res) => {
       });
     }
 
-    // Deletar respostas primeiro (referência estrangeira)
+    // Deletar respostas primeiro
     await RespostaQuizAssincrono.destroy({
       where: { ID_QUIZ: quizId },
     });
@@ -464,7 +466,9 @@ const getProximosQuizzes = async (req, res) => {
       attributes: ["ID_CURSO_ASSINCRONO"],
     });
 
-    const cursoAssincronoIds = inscricoes.map((insc) => insc.ID_CURSO_ASSINCRONO);
+    const cursoAssincronoIds = inscricoes.map(
+      (insc) => insc.ID_CURSO_ASSINCRONO
+    );
 
     // Buscar cursos assíncronos com seus respectivos cursos base
     const cursosAssincronos = await CursoAssincrono.findAll({
@@ -473,8 +477,8 @@ const getProximosQuizzes = async (req, res) => {
         {
           model: Curso,
           attributes: ["ID_CURSO", "NOME"],
-        }
-      ]
+        },
+      ],
     });
 
     const cursoIds = cursosAssincronos.map((ca) => ca.ID_CURSO);
@@ -502,7 +506,7 @@ const getProximosQuizzes = async (req, res) => {
     });
 
     // Filtrar apenas quizzes não respondidos ou que o usuário pode refazer
-    const quizzesPendentes = quizzes.filter(quiz => {
+    const quizzesPendentes = quizzes.filter((quiz) => {
       // Se não tem respostas, está pendente
       return quiz.RESPOSTAS.length === 0;
     });
@@ -513,7 +517,6 @@ const getProximosQuizzes = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 module.exports = {
   createQuiz,

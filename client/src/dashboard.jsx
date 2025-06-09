@@ -61,7 +61,6 @@ function Dashboard() {
           axios.get("http://localhost:4000/api/quiz/pendentes", {
             withCredentials: true,
           }),
-          // Nova chamada para nota média
           axios.get("http://localhost:4000/api/user/nota-media", {
             withCredentials: true,
           }),
@@ -528,7 +527,8 @@ function Dashboard() {
                                 <div>
                                   <small className="text-muted d-block">
                                     {item.tempoLimite} min - Mín:{" "}
-                                    {item.notaMinima}%
+                                    {((item.notaMinima * 20) / 100).toFixed(1)}
+                                    /20
                                   </small>
                                 </div>
                               )}

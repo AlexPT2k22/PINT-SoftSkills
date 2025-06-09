@@ -254,7 +254,7 @@ function QuizPage() {
               <div className="card">
                 <div className="card-header text-center text-white">
                   <h3>Resultado do Quiz</h3>
-                  <h5>{quiz.TITULO}</h5>
+                  <h5 className="mb-0">{quiz.TITULO}</h5>
                 </div>
                 <div className="card-body text-center">
                   <div className="mb-4">
@@ -267,40 +267,40 @@ function QuizPage() {
                     <h2
                       className={result.passou ? "text-success" : "text-danger"}
                     >
-                      {result.nota?.toFixed(1)}%
+                      {((result.nota * 20) / 100).toFixed(1)} valores
                     </h2>
 
                     <p className="lead">
-                      {result.passou
-                        ? "Parabéns!"
-                        : "Não foi desta vez..."}
+                      {result.passou ? "Parabéns!" : "Não foi desta vez..."}
                     </p>
                   </div>
 
                   <div className="row text-center mb-4">
                     <div className="col-md-3">
                       <h6>Nota Obtida</h6>
-                      <span className="h4">{result.nota?.toFixed(1)}%</span>
+                      <span className="h4">
+                        {((result.nota * 20) / 100).toFixed(1)} valores
+                      </span>
                     </div>
                     <div className="col-md-3">
                       <h6>Nota Mínima</h6>
-                      <span className="h4">{result.notaMinima}%</span>
+                      <span className="h4">
+                        {((result.notaMinima * 20) / 100).toFixed(1)} valores
+                      </span>
                     </div>
                     <div className="col-md-3">
                       <h6>Acertos</h6>
                       <span className="h4">
                         {result.acertos ||
                           Math.round(
-                            (result.nota / 100) * quiz.PERGUNTAS.length
+                            (result.nota / 20) * quiz.PERGUNTAS.length
                           )}{" "}
                         / {quiz.PERGUNTAS.length}
                       </span>
                     </div>
                     <div className="col-md-3">
                       <h6>Tempo Gasto</h6>
-                      <span className="h4">
-                        {result.tempoGasto || quiz.TEMPO_LIMITE_MIN} min
-                      </span>
+                      <span className="h4">{result.tempoGasto || "1"} min</span>
                     </div>
                   </div>
 
@@ -358,7 +358,9 @@ function QuizPage() {
                     <div className="col-md-4 text-center">
                       <CheckCircle size={32} className="text-success mb-2" />
                       <h6>Nota Mínima</h6>
-                      <span>{quiz.NOTA_MINIMA}%</span>
+                      <span>
+                        {((quiz.NOTA_MINIMA * 20) / 100).toFixed(1)} valores
+                      </span>
                     </div>
                     <div className="col-md-4 text-center">
                       <div className="mb-2">
@@ -374,8 +376,7 @@ function QuizPage() {
                     <h6>Instruções:</h6>
                     <ul className="mb-0">
                       <li>
-                        {quiz.TEMPO_LIMITE_MIN} minutos para completar
-                        o quiz
+                        {quiz.TEMPO_LIMITE_MIN} minutos para completar o quiz
                       </li>
                       <li>Cada pergunta tem apenas uma resposta correta</li>
                       <li>É permitido navegar entre as perguntas</li>
@@ -447,9 +448,7 @@ function QuizPage() {
                       </span>
                     </div>
                     {timeLeft < 200 && (
-                      <small className="text-danger">
-                        Tempo quase no fim!
-                      </small>
+                      <small className="text-danger">Tempo quase no fim!</small>
                     )}
                   </div>
                 </div>

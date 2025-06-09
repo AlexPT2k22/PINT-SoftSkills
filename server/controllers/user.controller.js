@@ -15,7 +15,7 @@ const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const {EmailFormadorNovo} = require("../mail/emails.js")
+const { EmailFormadorNovo } = require("../mail/emails.js");
 
 const getTeachers = async (req, res) => {
   try {
@@ -1115,17 +1115,21 @@ const getNotaMediaCompleta = async (req, res) => {
       totalAvaliacoes += submissoesTrabalhos.length;
     }
 
-    // Somar notas dos quizzes (escala 0-100, converter para 0-20)
+    // Somar notas dos quizzes (escala 0-20)
     if (respostasQuizzes.length > 0) {
-      const somaQuizzes = respostasQuizzes.reduce(
-        (soma, resposta) => soma + (parseFloat(resposta.NOTA) * 20) / 100,
+      const somaQuizzesConvertida = respostasQuizzes.reduce(
+        (soma, resposta) => {
+          const notaConvertida = (parseFloat(resposta.NOTA) * 20) / 100;
+          return soma + notaConvertida;
+        },
         0
       );
-      somaNotas += somaQuizzes;
+
+      somaNotas += somaQuizzesConvertida;
       totalAvaliacoes += respostasQuizzes.length;
     }
 
-    // Calcular média geral
+    // Calcular média geral na escala 0-20
     if (totalAvaliacoes > 0) {
       notaMediaGeral = somaNotas / totalAvaliacoes;
     }
@@ -1155,10 +1159,10 @@ const getNotaMediaCompleta = async (req, res) => {
           respostasQuizzes.length > 0
             ? parseFloat(
                 (
-                  respostasQuizzes.reduce(
-                    (soma, r) => soma + (parseFloat(r.NOTA) * 20) / 100,
-                    0
-                  ) / respostasQuizzes.length
+                  respostasQuizzes.reduce((soma, r) => {
+                    const notaConvertida = (parseFloat(r.NOTA) * 20) / 100;
+                    return soma + notaConvertida;
+                  }, 0) / respostasQuizzes.length
                 ).toFixed(1)
               )
             : 0,

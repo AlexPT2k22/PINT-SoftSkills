@@ -37,7 +37,7 @@ const QuizAssincrono = sequelize.define(
     NOTA_MINIMA: {
       type: DataTypes.FLOAT,
       allowNull: false,
-      defaultValue: 50.0,
+      defaultValue: 9.5,
     },
     ATIVO: {
       type: DataTypes.BOOLEAN,
