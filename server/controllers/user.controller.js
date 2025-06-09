@@ -15,6 +15,7 @@ const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const {EmailFormadorNovo} = require("../mail/emails.js")
 
 const getTeachers = async (req, res) => {
   try {
@@ -1117,7 +1118,7 @@ const getNotaMediaCompleta = async (req, res) => {
     // Somar notas dos quizzes (escala 0-100, converter para 0-20)
     if (respostasQuizzes.length > 0) {
       const somaQuizzes = respostasQuizzes.reduce(
-        (soma, resposta) => soma + (parseFloat(resposta.NOTA) * 20 / 100),
+        (soma, resposta) => soma + (parseFloat(resposta.NOTA) * 20) / 100,
         0
       );
       somaNotas += somaQuizzes;
@@ -1155,7 +1156,7 @@ const getNotaMediaCompleta = async (req, res) => {
             ? parseFloat(
                 (
                   respostasQuizzes.reduce(
-                    (soma, r) => soma + (parseFloat(r.NOTA) * 20 / 100),
+                    (soma, r) => soma + (parseFloat(r.NOTA) * 20) / 100,
                     0
                   ) / respostasQuizzes.length
                 ).toFixed(1)
@@ -1170,6 +1171,99 @@ const getNotaMediaCompleta = async (req, res) => {
     console.error("Erro ao calcular nota média completa:", error);
     res.status(500).json({
       message: "Erro ao calcular nota média",
+      error: error.message,
+    });
+  }
+};
+
+const addTeacher = async (req, res) => {
+  try {
+    const adminId = req.user.ID_UTILIZADOR;
+    const { NOME, EMAIL } = req.body;
+
+    // Verificar se é gestor
+    const userIsAdmin = await UtilizadorTemPerfil.findOne({
+      where: {
+        ID_UTILIZADOR: adminId,
+        ID_PERFIL: 3, // ID do perfil de gestor
+      },
+    });
+
+    if (!userIsAdmin) {
+      return res.status(403).json({
+        message: "Acesso negado. Apenas gestores podem adicionar formadores.",
+      });
+    }
+
+    // Validações
+    if (!NOME || !EMAIL) {
+      return res.status(400).json({
+        message: "Nome e email são obrigatórios",
+      });
+    }
+
+    // Verificar se o email já existe
+    const emailExistente = await Utilizador.findOne({
+      where: { EMAIL: EMAIL },
+    });
+
+    if (emailExistente) {
+      return res.status(400).json({
+        message: "Este email já está registado na plataforma",
+      });
+    }
+
+    // Gerar dados do utilizador
+    const USERNAME = EMAIL.split("@")[0]; // Username baseado no email
+    const PASSWORD = crypto.randomBytes(12).toString("hex"); // Password aleatória
+    const hashedPassword = await bcrypt.hash(PASSWORD, 10);
+    const verificationToken = Math.floor(100000 + Math.random() * 900000);
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+    // Criar utilizador
+    const utilizador = await Utilizador.create({
+      USERNAME: USERNAME,
+      NOME: NOME,
+      PASSWORD: hashedPassword,
+      EMAIL: EMAIL,
+      LINKEDIN: null,
+      VERIFICATIONTOKEN: verificationToken,
+      VERIFICATIONTOKENEXPIRES: verificationExpires,
+      ESTA_VERIFICADO: false,
+      PRIMEIRO_LOGIN: true,
+      DATA_CRIACAO: new Date(),
+    });
+
+    // Associar perfil de formador (ID_PERFIL = 2)
+    await UtilizadorTemPerfil.create({
+      ID_UTILIZADOR: utilizador.ID_UTILIZADOR,
+      ID_PERFIL: 2, // Formador
+    });
+
+    // Enviar email de boas-vindas específico para formadores
+    await EmailFormadorNovo(
+      utilizador.USERNAME,
+      utilizador.NOME,
+      utilizador.EMAIL,
+      PASSWORD,
+      verificationToken
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Formador adicionado com sucesso! Email de boas-vindas enviado.",
+      utilizador: {
+        ID_UTILIZADOR: utilizador.ID_UTILIZADOR,
+        USERNAME: utilizador.USERNAME,
+        NOME: utilizador.NOME,
+        EMAIL: utilizador.EMAIL,
+        PERFIL: "Formador",
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao adicionar formador:", error);
+    res.status(500).json({
+      message: "Erro interno do servidor",
       error: error.message,
     });
   }
@@ -1191,4 +1285,5 @@ module.exports = {
   updateEvaluationGrade,
   addXPToUserInternal,
   getNotaMediaCompleta,
+  addTeacher,
 };

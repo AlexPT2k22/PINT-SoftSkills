@@ -4,6 +4,7 @@ const {
   RESET_PASSWORD_EMAIL_TEMPLATE,
   PASSWORD_CHANGE_EMAIL_TEMPLATE,
   RESEND_EMAIL_TEMPLATE,
+  TEACHER_WELCOME_EMAIL_TEMPLATE,
 } = require("./emailTemplates.js");
 
 const sendVerificationEmail = async (
@@ -94,9 +95,39 @@ const sendConfirmationEmail = async (username, email, resetPasswordUrl) => {
   }
 };
 
+const EmailFormadorNovo = async (
+  username,
+  nome,
+  email,
+  password,
+  verificationToken
+) => {
+  const recipientString = email.toString();
+  try {
+    console.log(`a enviar mail para ${email}`);
+    const response = await resend.emails.send({
+      from: sender,
+      to: recipientString,
+      subject: "Bem-vindo à Equipa de Formadores - SoftSkills",
+      html: TEACHER_WELCOME_EMAIL_TEMPLATE.replace(/{user_name}/g, username)
+        .replace(/{nome}/g, nome)
+        .replace(/{email}/g, email)
+        .replace(/{password}/g, password)
+        .replace(/{verification_token}/g, verificationToken)
+        .replace(/{auth_url}/g, `http://localhost:5173/auth?email=${email}`),
+      category: "Registro de Formador",
+    });
+    response.statusCode = 200;
+    console.log("Email enviado com sucesso");
+  } catch (error) {
+    console.error("Erro:", error);
+  }
+};
+
 module.exports = {
   sendVerificationEmail,
   sendResetEmail,
   sendConfirmationEmail,
   resendEmail,
+  EmailFormadorNovo,
 };

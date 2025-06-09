@@ -544,9 +544,101 @@ Nesse caso, recomendamos que <strong>redefina imediatamente a sua palavra-passe<
 </html>
 `;
 
+const TEACHER_WELCOME_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    /* Estilos existentes... */
+  </style>
+</head>
+<body style="font-family: 'Inter', sans-serif; background: #E5E5E5;">
+  <table width="100%" cellspacing="0" cellpadding="0" border="0" align="center" bgcolor="#F6FAFB">
+    <tbody>
+      <tr>
+        <td valign="top" align="center">
+          <table class="container" width="600" cellspacing="0" cellpadding="0" border="0">
+            <tbody>
+              <tr>
+                <td style="padding:48px 0 30px 0; text-align: center; font-size: 14px; color: #4C83EE;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png"/>
+                </td>
+              </tr>
+              <tr>
+                <td class="main-content" style="padding: 48px 30px 40px; color: #000000;" bgcolor="#ffffff">
+                  <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                          Bem-vindo!
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          É com grande satisfação que o/a convidamos a juntar-se à nossa equipa de formadores na plataforma SoftSkills@SOFTINSA.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Dados da sua conta:</strong><br>
+                          Username: <strong>{user_name}</strong><br>
+                          Nome: <strong>{nome}</strong><br>
+                          Email: <strong>{email}</strong><br>
+                          Password temporária: <strong>{password}</strong><br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Como formador, poderá:</strong><br>
+                          • Criar e gerir cursos síncronos<br>
+                          • Adicionar módulos com vídeos e conteúdos<br>
+                          • Agendar aulas e gerir presenças<br>
+                          • Criar avaliações e corrigir trabalhos<br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Código de verificação:
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 24px 0;">
+                          <a style="width: 100%; background:rgb(255, 255, 255); text-decoration: none; display: inline-block; padding: 10px 0; color: #39639C; font-size: 25px; line-height: 21px; text-align: center; font-weight: bold; border-radius: 7px;">{verification_token}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; display: flex; justify-content: center; align-items: center;">
+                          <a class="button" href="{auth_url}" title="Verificar conta e começar" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Verificar Email e Começar
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Bem-vindo à nossa equipa!<br>
+                          <strong>Equipa SoftSkills@SOFTINSA</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
 module.exports = {
   VERIFICATION_EMAIL_TEMPLATE,
   RESET_PASSWORD_EMAIL_TEMPLATE,
   PASSWORD_CHANGE_EMAIL_TEMPLATE,
   RESEND_EMAIL_TEMPLATE,
+  TEACHER_WELCOME_EMAIL_TEMPLATE,
 };

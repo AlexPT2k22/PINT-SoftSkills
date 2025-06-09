@@ -12,6 +12,8 @@ import {
   Mail,
   User,
   AlertTriangle,
+  UserPlus,
+  Info,
 } from "lucide-react";
 import "./styles/gerirUsers.css";
 import SuccessMessage from "./components/sucess_message";
@@ -30,6 +32,13 @@ function GerirUsers() {
   const [filterProfile, setFilterProfile] = useState("");
   const [profiles, setProfiles] = useState([]);
   const [loadingButton, setLoadingButton] = useState(false);
+
+  const [showAddTeacher, setShowAddTeacher] = useState(false);
+  const [teacherForm, setTeacherForm] = useState({
+    NOME: "",
+    EMAIL: "",
+  });
+  const [addingTeacher, setAddingTeacher] = useState(false);
 
   // Estados para mensagens
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -65,6 +74,38 @@ function GerirUsers() {
       showError("Erro ao carregar utilizadores");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Função para adicionar formador
+  const handleAddTeacher = async (e) => {
+    e.preventDefault();
+
+    if (!teacherForm.NOME.trim() || !teacherForm.EMAIL.trim()) {
+      showError("Nome e email são obrigatórios");
+      return;
+    }
+
+    try {
+      setAddingTeacher(true);
+
+      const response = await axios.post(
+        `${URL}/api/user/add-teacher`,
+        teacherForm,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        showSuccess("Formador adicionado com sucesso! Email enviado.");
+        setTeacherForm({ NOME: "", EMAIL: "" });
+        setShowAddTeacher(false);
+        await getUsers(); // Refresh lista
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar formador:", error);
+      showError(error.response?.data?.message || "Erro ao adicionar formador");
+    } finally {
+      setAddingTeacher(false);
     }
   };
 
@@ -165,19 +206,14 @@ function GerirUsers() {
           )}
 
           <div className="users-management-header">
-            <h2 className="users-title">
-              <User className="me-2" size={28} />
-              Gerir Utilizadores
-            </h2>
-            <p className="users-subtitle">
-              Gerencie os utilizadores, perfis e permissões do sistema
-            </p>
+            <h2 className="users-title">Gerir Utilizadores</h2>
+            <p className="users-subtitle">Gerencie os utilizadores e perfis</p>
           </div>
 
           {/* Filtros e Pesquisa */}
           <div className="users-filters-section">
             <div className="row g-3">
-              <div className="col-md-6">
+              <div className="col-md-5">
                 <div className="search-box">
                   <input
                     type="text"
@@ -203,11 +239,14 @@ function GerirUsers() {
                 </select>
               </div>
               <div className="col-md-3">
-                <div className="users-stats">
-                  <span className="badge bg-primary">
-                    {filteredUsers.length} utilizadores
-                  </span>
-                </div>
+                <button
+                  className="btn btn-primary add-teacher-button"
+                  onClick={() => setShowAddTeacher(true)}
+                  disabled={loading}
+                >
+                  <UserPlus size={16} className="me-2" />
+                  Adicionar Formador
+                </button>
               </div>
             </div>
           </div>
@@ -311,6 +350,119 @@ function GerirUsers() {
           </div>
         </div>
       </div>
+
+      {showAddTeacher && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header text-white">
+                <h5 className="modal-title">Adicionar novo formador</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowAddTeacher(false)}
+                  disabled={addingTeacher}
+                ></button>
+              </div>
+
+              <form onSubmit={handleAddTeacher}>
+                <div className="modal-body">
+                  <div className="alert alert-info">
+                    <strong>Informação:</strong>
+                    <ul className="mb-0 mt-2">
+                      <li>
+                        O formador receberá um email com as credenciais de
+                        acesso
+                      </li>
+                      <li>
+                        Uma password temporária será gerada automaticamente
+                      </li>
+                      <li>
+                        O formador deve alterar a password no primeiro login
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">
+                      <strong>Nome Completo *</strong>
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={teacherForm.NOME}
+                      onChange={(e) =>
+                        setTeacherForm({ ...teacherForm, NOME: e.target.value })
+                      }
+                      placeholder="Ex: João Silva"
+                      required
+                      disabled={addingTeacher}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">
+                      <strong>Email *</strong>
+                    </label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      value={teacherForm.EMAIL}
+                      onChange={(e) =>
+                        setTeacherForm({
+                          ...teacherForm,
+                          EMAIL: e.target.value,
+                        })
+                      }
+                      placeholder="Ex: joao.silva@empresa.com"
+                      required
+                      disabled={addingTeacher}
+                    />
+                    <small className="text-muted">
+                      O username será gerado automaticamente baseado no email
+                    </small>
+                  </div>
+
+                  <div className="alert alert-warning">
+                    <strong>Importante:</strong> Certifique-se de que o email
+                    está correto, pois as credenciais de acesso serão enviadas
+                    para este endereço.
+                  </div>
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowAddTeacher(false)}
+                    disabled={addingTeacher}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={
+                      addingTeacher ||
+                      !teacherForm.NOME.trim() ||
+                      !teacherForm.EMAIL.trim()
+                    }
+                  >
+                    {addingTeacher ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" />
+                        A criar conta...
+                      </>
+                    ) : (
+                      <>Criar Formador</>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Edição */}
       {editingUser && (
