@@ -37,6 +37,10 @@ const CursoSincrono = sequelize.define(
         key: "ID_ESTADO_OCORRENCIA_ASSINCRONA2",
       },
     },
+    DATA_LIMITE_INSCRICAO_S: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     ESTADO: {
       type: DataTypes.ENUM("Ativo", "Inativo", "Em curso", "Terminado"),
       defaultValue: "Ativo",

@@ -117,6 +117,25 @@ function CoursePage() {
     verificarInscricao();
   }, [courseId, user]);
 
+  const checkEnrollmentDeadline = (enrollmentDeadline) => {
+    if (!enrollmentDeadline) return true; // Se não tiver deadline, pode inscrever
+
+    const today = new Date();
+    const deadline = new Date(enrollmentDeadline);
+
+    return today <= deadline;
+  };
+
+  const formatEnrollmentDeadline = (enrollmentDeadline) => {
+    if (!enrollmentDeadline) return null;
+
+    return new Date(enrollmentDeadline).toLocaleDateString("pt-PT", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
   const inscreverCurso = async (cursoId) => {
     try {
       setIsEnrolling(true);
@@ -143,7 +162,6 @@ function CoursePage() {
         "Erro ao inscrever:",
         error.response?.data?.message || error.message
       );
-      alert(error.response?.data?.message || "Erro ao realizar inscrição");
       setMessage(error.response?.data?.message || "Erro ao realizar inscrição");
       setError(true);
     } finally {
@@ -151,10 +169,14 @@ function CoursePage() {
     }
   };
 
-  const checkDates = (startDate, endDate) => {
+  const checkDates = (startDate, endDate, enrollmentDeadline = null) => {
     const today = new Date();
     const start = new Date(startDate);
     const end = new Date(endDate);
+
+    if (enrollmentDeadline && !checkEnrollmentDeadline(enrollmentDeadline)) {
+      return "Prazo de inscrição expirado";
+    }
 
     if (today < start) {
       return "Inscrever";
@@ -304,6 +326,15 @@ function CoursePage() {
                           })}`
                         : ``}
                     </h1>
+
+                    {course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S && (
+                      <h1 className="course-text-h1 mb-0">
+                        Inscrição até:{" "}
+                        {formatEnrollmentDeadline(
+                          course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S
+                        )}
+                      </h1>
+                    )}
                   </div>
                   <div className="d-flex justify-content-start mt-2">
                     <button
@@ -330,7 +361,12 @@ function CoursePage() {
                             course.CURSO_ASSINCRONO.DATA_INICIO,
                             course.CURSO_ASSINCRONO.DATA_FIM
                           ) === "O curso já terminou" &&
-                          inscrito === false)
+                          inscrito === false) ||
+                        course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
+                          ? !checkEnrollmentDeadline(
+                              course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S
+                            )
+                          : false
                       }
                     >
                       {isEnrolling ? (
@@ -344,15 +380,11 @@ function CoursePage() {
                         </span>
                       ) : inscrito ? (
                         "Ir para o curso"
-                      ) : checkDates(
-                          course.CURSO_SINCRONO?.DATA_INICIO,
-                          course.CURSO_SINCRONO?.DATA_FIM
-                        ) === "Inscrever" ? (
-                        "Inscrever"
                       ) : (
                         checkDates(
                           course.CURSO_SINCRONO?.DATA_INICIO,
-                          course.CURSO_SINCRONO?.DATA_FIM
+                          course.CURSO_SINCRONO?.DATA_FIM,
+                          course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
                         )
                       )}
                     </button>
@@ -401,14 +433,6 @@ function CoursePage() {
               <h1 className="fs-4 m-0">{course.DIFICULDADE_CURSO__}</h1>
               <div className="d-flex align-items-center justify-content-center">
                 <p className="m-0 fs-6">Nível de dificuldade</p>
-              </div>
-            </div>
-            <div className="container d-flex flex-column align-items-center justify-content-center border-start">
-              <h1 className="fs-5 m-0 text-center">Certificado disponível</h1>
-              <div className="d-flex align-items-center justify-content-center">
-                <p className="m-0 fs-6 text-center">
-                  A conclusão deste curso<br></br> garante um certificado
-                </p>
               </div>
             </div>
             <div className="container d-flex flex-column align-items-center justify-content-center border-start">

@@ -14,7 +14,7 @@ function CourseCardDashboard({
 }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
-  
+
   // Estados para controlar quiz
   const [hasQuiz, setHasQuiz] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
@@ -125,12 +125,19 @@ function CourseCardDashboard({
     navigate(`/dashboard/courses/${course.ID_CURSO}/quiz`);
   };
 
+  const checkDate = () => {
+    const today = new Date();
+    const startDate = new Date(CURSO_SINCRONO?.DATA_INICIO);
+    const endDate = new Date(CURSO_SINCRONO?.DATA_FIM);
+    return today >= startDate && today <= endDate;
+  };
+
   // Get user data from auth store
   const user = useAuthStore((state) => state.user);
   const userType = user?.perfil;
 
   // Check if user is admin or teacher
-  const isGestorOrFormador = userType === 3 || userType === 2; // Gestor (3) or Formador (2)
+  const isGestorOrFormador = userType === 3 || userType === 2;
 
   const formatDate = (dateString) => {
     const options = { month: "numeric", day: "numeric" };
@@ -218,12 +225,16 @@ function CourseCardDashboard({
               <div className="mt-2">
                 <div className="d-flex align-items-center">
                   <small className="text-muted">
-                    Quiz: {quizCompleted ? 
-                      <span className="text-success">Completo</span> : 
-                      progress === 100 ? 
-                        <span className="text-info">Disponível</span> :
-                        <span className="text-muted">Complete todos os módulos</span>
-                    }
+                    Quiz:{" "}
+                    {quizCompleted ? (
+                      <span className="text-success">Completo</span>
+                    ) : progress === 100 ? (
+                      <span className="text-info">Disponível</span>
+                    ) : (
+                      <span className="text-muted">
+                        Complete todos os módulos
+                      </span>
+                    )}
                   </small>
                 </div>
               </div>
@@ -235,15 +246,17 @@ function CourseCardDashboard({
       <div className="coursecard-footer d-flex justify-content-between align-items-center p-2 m-2 mt-0">
         {showStartButton && (
           <div className="d-flex flex-row align-items-center gap-2">
-            <button className="btn btn-primary" onClick={handleClick}>
-              {progress === 0
-                ? "Começar"
-                : progress < 100
-                ? "Continuar"
-                : "Abrir curso"}
-            </button>
+            {(CURSO_ASSINCRONO || (CURSO_SINCRONO && checkDate())) && (
+              <button className="btn btn-primary" onClick={handleClick}>
+                {progress === 0
+                  ? "Começar"
+                  : progress < 100
+                  ? "Continuar"
+                  : "Abrir curso"}
+              </button>
+            )}
 
-            {CURSO_SINCRONO && (
+            {CURSO_SINCRONO && checkDate() && (
               <button
                 className="btn btn-outline-primary"
                 onClick={() =>
@@ -253,6 +266,10 @@ function CourseCardDashboard({
                 <GraduationCap size={20} />
                 <span className="ms-2">Aulas</span>
               </button>
+            )}
+
+            {CURSO_SINCRONO && !checkDate() && (
+              <span className="text-muted">O curso ainda não começou</span>
             )}
 
             {/* Botão do Quiz - aparece quando curso está completo mas quiz não foi feito */}

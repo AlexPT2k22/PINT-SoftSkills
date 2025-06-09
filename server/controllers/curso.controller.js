@@ -194,7 +194,7 @@ const getCursoById = async (req, res) => {
         },
         {
           model: CursoSincrono,
-          attributes: ["DATA_INICIO", "DATA_FIM", "VAGAS", "ID_UTILIZADOR"],
+          attributes: ["DATA_INICIO", "DATA_FIM", "VAGAS", "ID_UTILIZADOR", "DATA_LIMITE_INSCRICAO_S"],
           include: [
             {
               model: ConteudoSincrono,
@@ -916,6 +916,7 @@ const updateCursoCompleto = async (req, res) => {
     ID_TOPICO,
     ID_UTILIZADOR, // Para cursos síncronos
     VAGAS, // Para cursos síncronos
+    DATA_LIMITE_INSCRICAO,
   } = req.body;
 
   let transaction;
@@ -1101,6 +1102,8 @@ const updateCursoCompleto = async (req, res) => {
           VAGAS: VAGAS || cursoSincrono.VAGAS,
           DATA_INICIO: DATA_INICIO || cursoSincrono.DATA_INICIO,
           DATA_FIM: DATA_FIM || cursoSincrono.DATA_FIM,
+          DATA_LIMITE_INSCRICAO_S:
+            DATA_LIMITE_INSCRICAO || cursoSincrono.DATA_LIMITE_INSCRICAO_S,
         },
         { transaction }
       );
@@ -1367,6 +1370,7 @@ const createSincrono = async (req, res) => {
     DATA_INICIO,
     DATA_FIM,
     VAGAS,
+    DATA_LIMITE_INSCRICAO,
     HABILIDADES,
     OBJETIVOS,
     ID_TOPICO,
@@ -1585,6 +1589,7 @@ const createSincrono = async (req, res) => {
         ID_UTILIZADOR: formadorId,
         VAGAS,
         DATA_INICIO,
+        DATA_LIMITE_INSCRICAO_S: DATA_LIMITE_INSCRICAO,
         DATA_FIM,
       },
       { transaction }
@@ -1636,6 +1641,7 @@ const convertCursoType = async (req, res) => {
     VAGAS, // Para conversão para síncrono
     NEW_TYPE,
     OLD_TYPE,
+    DATA_LIMITE_INSCRICAO,
   } = req.body;
 
   let transaction;
@@ -1650,7 +1656,7 @@ const convertCursoType = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    console.log(`🔄 Convertendo curso ${id} de ${OLD_TYPE} para ${NEW_TYPE}`);
+    console.log(`Convertendo curso ${id} de ${OLD_TYPE} para ${NEW_TYPE}`);
 
     // Processar imagem se fornecida
     let imagemUrl = curso.IMAGEM;
@@ -1681,13 +1687,13 @@ const convertCursoType = async (req, res) => {
       { transaction }
     );
 
-    // ✅ REMOVER TIPO ANTIGO
+    // REMOVER TIPO ANTIGO
     if (OLD_TYPE === "Síncrono") {
       await CursoSincrono.destroy({ where: { ID_CURSO: id }, transaction });
-      console.log("🗑️ Removido dados de curso síncrono");
+      console.log("Removido dados de curso síncrono");
     } else if (OLD_TYPE === "Assíncrono") {
       await CursoAssincrono.destroy({ where: { ID_CURSO: id }, transaction });
-      console.log("🗑️ Removido dados de curso assíncrono");
+      console.log("Removido dados de curso assíncrono");
     }
 
     // ✅ CRIAR NOVO TIPO
@@ -1700,6 +1706,7 @@ const convertCursoType = async (req, res) => {
           VAGAS: VAGAS,
           DATA_INICIO: DATA_INICIO,
           DATA_FIM: DATA_FIM,
+          DATA_LIMITE_INSCRICAO_S: DATA_LIMITE_INSCRICAO,
         },
         { transaction }
       );

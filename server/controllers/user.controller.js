@@ -131,6 +131,18 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       });
     }
 
+    if (curso.DATA_LIMITE_INSCRICAO_S) {
+      const dataLimite = new Date(curso.DATA_LIMITE_INSCRICAO_S);
+      const dataAtual = new Date();
+
+      if (dataAtual > dataLimite) {
+        return res.status(400).json({
+          success: false,
+          message: "O prazo para inscrição neste curso já expirou",
+        });
+      }
+    }
+
     // Verificar se o usuário já está inscrito
     const inscricaoExistente = await InscricaoSincrono.findOne({
       where: {
@@ -161,6 +173,7 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       DATA_INSCRICAO: new Date(),
       DATA_LIMITE_INSCRICAO_S: curso.DATA_INICIO,
       FORMULARIO_INSCRICAO: req.body.formulario || null,
+      DATA_LIMITE_INSCRICAO_S: curso.DATA_LIMITE_INSCRICAO_S,
     });
 
     // Atualizar número de vagas

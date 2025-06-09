@@ -38,6 +38,7 @@ function EditCourse() {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [topics, setTopics] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
+  const [enrollmentDeadline, setEnrollmentDeadline] = useState("");
 
   const [courseModules, setCourseModules] = useState([""]);
   const [selectedModule, setSelectedModule] = useState(null);
@@ -201,6 +202,14 @@ function EditCourse() {
         // Set image preview se existir
         if (response.data.IMAGEM) {
           setImagePreview(response.data.IMAGEM);
+        }
+
+        if (response.data.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S) {
+          const enrollmentDeadlineISO =
+            response.data.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S;
+          if (enrollmentDeadlineISO) {
+            setEnrollmentDeadline(enrollmentDeadlineISO.split("T")[0]);
+          }
         }
 
         // Set course type
@@ -559,6 +568,25 @@ function EditCourse() {
       return;
     }
 
+    if (selectedRadio === "Síncrono") {
+      const startDateObj = new Date(startDate);
+      const enrollmentDateObj = new Date(enrollmentDeadline);
+
+      if (!enrollmentDeadline) {
+        setError(
+          "A data limite de inscrição é obrigatória para cursos síncronos."
+        );
+        return;
+      }
+
+      if (enrollmentDateObj >= startDateObj) {
+        setError(
+          "A data limite de inscrição deve ser anterior à data de início do curso."
+        );
+        return;
+      }
+    }
+
     if (
       courseObjectives.length <= 1 ||
       courseObjectives.every((obj) => obj.trim() === "")
@@ -589,6 +617,9 @@ function EditCourse() {
       formData.append("DATA_FIM", endDate);
       formData.append("ID_CATEGORIA", selectedCategory);
       formData.append("ID_TOPICO", selectedTopic);
+      if (selectedRadio === "Síncrono") {
+        formData.append("DATA_LIMITE_INSCRICAO", enrollmentDeadline);
+      }
 
       // Adicionar objetivos e habilidades
       const filteredObjectives = courseObjectives
@@ -1331,11 +1362,21 @@ function EditCourse() {
 
                         let contentTypes = [];
                         if (hasContent) {
-                          if (module.data.videoFile) contentTypes.push("Vídeo");
-                          if (module.data.videoURL)
-                            contentTypes.push("YouTube");
+                          //Diferenciação entre tipos de vídeo
+                          if (module.data.videoURL) {
+                            // Verificar se é YouTube ou outro tipo de URL
+                            if (
+                              module.data.videoURL.startsWith(
+                                "https://www.youtube.com/watch?v="
+                              )
+                            ) {
+                              contentTypes.push("Vídeo (YouTube)");
+                            } else {
+                              contentTypes.push("Vídeo (Uploaded)");
+                            }
+                          }
 
-                          // ✅ Corrigir: contar arquivos novos e existentes
+                          // Contar arquivos novos e existentes
                           const newFiles = module.data.contentFile
                             ? module.data.contentFile.length
                             : 0;
@@ -1361,6 +1402,7 @@ function EditCourse() {
                             >
                               <div className="d-flex flex-column">
                                 <span className="fw-medium">{moduleName}</span>
+                                {/* ✅ MELHORADO: Exibição mais clara dos tipos de conteúdo */}
                                 {hasContent && contentTypes.length > 0 && (
                                   <small className="text-muted">
                                     {contentTypes.join(" • ")}
@@ -1464,6 +1506,29 @@ function EditCourse() {
                               />
                             </div>
                           </div>
+                          {selectedRadio === "Síncrono" && (
+                            <div className="col-md-6">
+                              <div className="mb-0">
+                                <label className="form-label">
+                                  Data limite de inscrição{" "}
+                                  <span className="text-danger">*</span>
+                                </label>
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  id="enrollmentDeadline"
+                                  value={enrollmentDeadline}
+                                  onChange={(e) =>
+                                    setEnrollmentDeadline(e.target.value)
+                                  }
+                                  required={selectedRadio === "Síncrono"}
+                                />
+                                <small className="form-text text-muted">
+                                  Deve ser anterior à data de início do curso
+                                </small>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </>
                     )}
@@ -1518,6 +1583,25 @@ function EditCourse() {
                   handleModuleContentSubmit(e);
                 }}
               >
+                <div className="alert alert-warning mb-3">
+                  <strong>Regras de conteúdo:</strong>
+                  <ul className="mb-0 mt-2">
+                    <li>
+                      Adicione pelo menos <strong>uma</strong> das opções abaixo
+                    </li>
+                    <li>
+                      <strong>Vídeo:</strong> Escolha apenas UMA opção (Upload
+                      OU YouTube)
+                    </li>
+                    <li>
+                      <strong>Arquivos:</strong> Opcional, mas recomendado
+                    </li>
+                    <li>
+                      <strong>Substituição:</strong> Novo conteúdo substitui o
+                      anterior
+                    </li>
+                  </ul>
+                </div>
                 <div className="mb-3">
                   <label htmlFor="moduleDescription" className="form-label">
                     Descrição do módulo *
@@ -1532,18 +1616,7 @@ function EditCourse() {
                   />
                 </div>
 
-                <div className="alert alert-info mb-3">
-                  <strong>Conteúdo do módulo:</strong>
-                  <br />
-                  Adicione pelo menos <strong>uma</strong> das opções abaixo:
-                  <ul className="mb-0 mt-2">
-                    <li>Upload de vídeo</li>
-                    <li>Link do YouTube</li>
-                    <li>Arquivos de conteúdo (PDF/DOCX/PPTX)</li>
-                  </ul>
-                </div>
-
-                {/* Upload de Vídeo */}
+                {/* ✅ MELHORADO: Upload de Vídeo com aviso */}
                 <div className="mb-3">
                   <label htmlFor="moduleVideo" className="form-label">
                     Upload de vídeo (opcional):
@@ -1555,34 +1628,49 @@ function EditCourse() {
                     accept="video/mp4, video/mkv, video/avi"
                     onChange={(e) => {
                       if (e.target.files.length > 0) {
+                        // Limpar URL do YouTube quando arquivo é selecionado
                         document.getElementById("moduleVideoURL").value = "";
+
+                        // Mostrar aviso se há conteúdo existente
+                        if (
+                          currentModuleData?.videoFile ||
+                          currentModuleData?.videoURL
+                        ) {
+                          const confirmReplace = window.confirm(
+                            "Isto irá substituir o vídeo atual. Deseja continuar?"
+                          );
+                          if (!confirmReplace) {
+                            e.target.value = "";
+                          }
+                        }
                       }
                     }}
                   />
+
                   {currentModuleData?.videoFile && (
-                    <div className="current-file">
-                      <span
-                        className="badge bg-info text-dark"
-                        style={{ fontSize: "14px" }}
-                      >
-                        Arquivo atual:{" "}
-                        {currentModuleData.videoFile.name || "video.mp4"}
-                      </span>
-                      <small className="d-block text-muted mt-1">
-                        Selecione um novo arquivo para substituir o atual
+                    <div className="current-file mb-2">
+                      <div className="d-flex align-items-center">
+                        <span className="badge bg-primary me-2">Atual</span>
+                        <small className="text-muted">
+                          {currentModuleData.videoFile.name || "video.mp4"}
+                        </small>
+                      </div>
+                      <small className="d-block text-warning mt-1">
+                        Selecionar novo arquivo irá substituir este
                       </small>
                     </div>
                   )}
+
                   <small className="form-text text-muted">
-                    Formatos suportados: MP4, MKV, AVI. Tamanho máximo: 500MB.
+                    Formatos: MP4, MKV, AVI • Máximo: 500MB
                   </small>
                 </div>
 
-                <div className="text-center my-2">
-                  <span className="badge bg-secondary">OU</span>
+                <div className="text-center my-3">
+                  <span className="badge bg-secondary fs-6">OU</span>
                 </div>
 
-                {/* URL do YouTube */}
+                {/* ✅ MELHORADO: URL do YouTube com aviso */}
                 <div className="mb-3">
                   <label htmlFor="moduleVideoURL" className="form-label">
                     Link do YouTube (opcional):
@@ -1592,12 +1680,35 @@ function EditCourse() {
                     className="form-control mb-2"
                     id="moduleVideoURL"
                     placeholder="https://www.youtube.com/watch?v=example"
-                    defaultValue={currentModuleData?.videoURL || ""}
+                    defaultValue={
+                      currentModuleData?.videoURL?.startsWith(
+                        "https://www.youtube.com/watch?v="
+                      )
+                        ? currentModuleData.videoURL
+                        : ""
+                    }
                     onChange={(e) => {
                       const url = e.target.value;
                       if (url) {
+                        // Limpar upload quando URL é inserida
                         document.getElementById("moduleVideo").value = "";
+
+                        // Mostrar aviso se há conteúdo existente
+                        if (
+                          currentModuleData?.videoFile ||
+                          currentModuleData?.videoURL
+                        ) {
+                          const confirmReplace = window.confirm(
+                            "Isto irá substituir o vídeo atual. Deseja continuar?"
+                          );
+                          if (!confirmReplace) {
+                            e.target.value = "";
+                            return;
+                          }
+                        }
                       }
+
+                      // Validar URL do YouTube
                       if (
                         url &&
                         !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(url)
@@ -1610,19 +1721,37 @@ function EditCourse() {
                       }
                     }}
                   />
+
+                  {currentModuleData?.videoURL?.startsWith(
+                    "https://www.youtube.com/watch?v="
+                  ) && (
+                    <div className="current-file mb-2">
+                      <div className="d-flex align-items-center">
+                        <span className="badge bg-danger me-2">Atual</span>
+                        <small className="text-muted">
+                          YouTube:{" "}
+                          {currentModuleData.videoURL.substring(32, 43)}...
+                        </small>
+                      </div>
+                      <small className="d-block text-warning mt-1">
+                        Inserir nova URL irá substituir esta
+                      </small>
+                    </div>
+                  )}
+
                   <small className="form-text text-muted">
-                    Cole aqui o link completo do vídeo no YouTube
+                    Cole o link completo do YouTube
                   </small>
                 </div>
 
-                <div className="text-center my-2">
-                  <span className="badge bg-secondary">E/OU</span>
+                <div className="text-center my-3">
+                  <span className="badge bg-secondary fs-6">E/OU</span>
                 </div>
 
-                {/* Conteúdo do módulo */}
+                {/* ✅ MELHORADO: Conteúdo do módulo com aviso */}
                 <div className="mb-3">
                   <label htmlFor="moduleContent" className="form-label">
-                    Conteúdo do módulo (opcional):
+                    Arquivos de conteúdo (opcional):
                   </label>
                   <input
                     type="file"
@@ -1636,47 +1765,71 @@ function EditCourse() {
                       if (!validation.valid) {
                         setError(validation.message);
                         e.target.value = "";
-                      } else {
-                        setError(null);
+                        return;
                       }
+
+                      // Mostrar aviso se há arquivos existentes
+                      if (
+                        e.target.files.length > 0 &&
+                        currentModuleData?.existingContentUrls &&
+                        currentModuleData.existingContentUrls.length > 0
+                      ) {
+                        const confirmReplace = window.confirm(
+                          `Isto irá substituir os ${currentModuleData.existingContentUrls.length} arquivos atuais. Deseja continuar?`
+                        );
+                        if (!confirmReplace) {
+                          e.target.value = "";
+                        }
+                      }
+
+                      setError(null);
                     }}
                   />
 
-                  {/* ✅ Mostrar conteúdo existente corretamente */}
                   {currentModuleData?.existingContentUrls &&
                     currentModuleData.existingContentUrls.length > 0 && (
                       <div className="current-file mb-2">
-                        <span
-                          className="badge bg-info text-dark"
-                          style={{ fontSize: "14px" }}
-                        >
-                          {currentModuleData.existingContentUrls.length}{" "}
-                          arquivo(s) existente(s)
-                        </span>
-                        <small className="d-block text-muted mt-1">
-                          Selecione novos arquivos para substituir os atuais
+                        <div className="d-flex align-items-center">
+                          <span className="badge bg-success me-2">
+                            {currentModuleData.existingContentUrls.length}{" "}
+                            atuais
+                          </span>
+                          <small className="text-muted">
+                            Arquivos existentes no módulo
+                          </small>
+                        </div>
+                        <small className="d-block text-warning mt-1">
+                          Selecionar novos arquivos irá substituir todos os
+                          atuais
                         </small>
                         <div className="mt-1">
-                          {currentModuleData.existingContentUrls.map(
-                            (url, index) => (
+                          {currentModuleData.existingContentUrls
+                            .slice(0, 3)
+                            .map((url, index) => (
                               <small key={index} className="d-block text-muted">
                                 • Arquivo {index + 1}
                               </small>
-                            )
+                            ))}
+                          {currentModuleData.existingContentUrls.length > 3 && (
+                            <small className="d-block text-muted">
+                              ... e mais{" "}
+                              {currentModuleData.existingContentUrls.length - 3}{" "}
+                              arquivo(s)
+                            </small>
                           )}
                         </div>
                       </div>
                     )}
 
                   <small className="form-text text-muted">
-                    Formatos suportados: PDF, DOCX, PPTX. Tamanho máximo: 50MB.
-                    Máximo 5 arquivos
+                    Formatos: PDF, DOCX, PPTX • Máximo: 50MB total • Máximo: 5
+                    arquivos
                   </small>
                 </div>
 
                 <div className="mb-3">
                   <label htmlFor="moduleDuration" className="form-label">
-                    Duração do módulo (em minutos) *:
+                    Duração do módulo (minutos) *:
                   </label>
                   <input
                     type="number"
@@ -1688,7 +1841,7 @@ function EditCourse() {
                     defaultValue={currentModuleData?.duration || ""}
                   />
                   <small className="form-text text-muted">
-                    Duração entre 1 e 300 minutos.
+                    Entre 1 e 300 minutos (estimativa de tempo de estudo)
                   </small>
                 </div>
 

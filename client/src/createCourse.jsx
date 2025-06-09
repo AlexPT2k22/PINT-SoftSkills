@@ -39,6 +39,7 @@ function CreateCourse() {
   const moduleContentInputRef = useRef(null);
   const [selectedTopic, setSelectedTopic] = useState("");
   const [topics, setTopics] = useState([]);
+  const [enrollmentDeadline, setEnrollmentDeadline] = useState("");
 
   // Add this to your component or create a new CSS file and import it
 
@@ -433,6 +434,28 @@ function CreateCourse() {
       return;
     }
 
+    if (selectedType === "Síncrono") {
+      const enrollmentDate = new Date(e.target.enrollmentDeadline.value);
+
+      if (!e.target.enrollmentDeadline.value) {
+        setError(true);
+        setMessage(
+          "A data limite de inscrição é obrigatória para cursos síncronos."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      if (enrollmentDate >= startDate) {
+        setError(true);
+        setMessage(
+          "A data limite de inscrição deve ser anterior à data de início do curso."
+        );
+        setIsLoading(false);
+        return;
+      }
+    }
+
     const ID_FORMADOR =
       selectedType === "Síncrono" ? e.target.courseTeacher?.value : null;
     const vagas = selectedType === "Síncrono" ? e.target.seats.value : null;
@@ -448,6 +471,12 @@ function CreateCourse() {
     formData.append("DATA_FIM", e.target.endDate.value);
     formData.append("VAGAS", vagas);
     formData.append("ID_TOPICO", e.target.courseTopic.value);
+    if (selectedType === "Síncrono") {
+      formData.append(
+        "DATA_LIMITE_INSCRICAO",
+        e.target.enrollmentDeadline.value
+      );
+    }
     // Add objectives (filtering out the first empty input and empty strings)
     const filteredObjectives = courseObjectives
       .slice(1)
@@ -529,6 +558,7 @@ function CreateCourse() {
         setSelectedCategory(null);
         setSelectedArea(null);
         setSelectedType(null);
+        setEnrollmentDeadline("");
       }
     } catch (error) {
       console.error("Error creating course:", error);
@@ -1346,8 +1376,7 @@ function CreateCourse() {
                         // Verificar que tipo de conteúdo tem
                         let contentTypes = [];
                         if (hasContent) {
-                          if (module.data.videoFile)
-                            contentTypes.push("Vídeo");
+                          if (module.data.videoFile) contentTypes.push("Vídeo");
                           if (module.data.videoURL)
                             contentTypes.push("YouTube");
                           if (
@@ -1429,7 +1458,7 @@ function CreateCourse() {
                 </div>
               </div>
 
-              <div className="col-md-6 mb-4" style={{ maxHeight: "182px" }}>
+              <div className="col-md-6 mb-4">
                 <div className="card h-100">
                   <div className="card-header">
                     <h5 className="card-title mb-0">Datas do curso</h5>
@@ -1458,6 +1487,28 @@ function CreateCourse() {
                           />
                         </div>
                       </div>
+                      {selectedType === "Síncrono" && (
+                        <div className="col-md-6">
+                          <div className="mb-0">
+                            <label className="form-label">
+                              Data limite de inscrição{" "}
+                            </label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              id="enrollmentDeadline"
+                              value={enrollmentDeadline}
+                              onChange={(e) =>
+                                setEnrollmentDeadline(e.target.value)
+                              }
+                              required={selectedType === "Síncrono"}
+                            />
+                            <small className="form-text text-muted">
+                              Deve ser anterior à data de início do curso
+                            </small>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
