@@ -178,8 +178,10 @@ function CoursePage() {
       return "Prazo de inscrição expirado";
     }
 
-    if (today < start) {
+    if (today < start && !inscrito) {
       return "Inscrever";
+    } else if (today < start && inscrito) {
+      return "O curso ainda não começou";
     } else if (today > end) {
       return "O curso já terminou";
     } else {
@@ -357,11 +359,17 @@ function CoursePage() {
                             course.CURSO_ASSINCRONO.DATA_FIM
                           ) === "O curso já terminou" &&
                           inscrito === false) ||
-                        course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
+                        (course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
                           ? !checkEnrollmentDeadline(
                               course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
                             )
-                          : false
+                          : false) ||
+                        (course.CURSO_SINCRONO &&
+                          checkDates(
+                            course.CURSO_SINCRONO.DATA_INICIO,
+                            course.CURSO_SINCRONO.DATA_FIM
+                          ) === "O curso ainda não começou" &&
+                          inscrito === true)
                       }
                     >
                       {isEnrolling ? (

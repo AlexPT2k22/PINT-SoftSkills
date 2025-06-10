@@ -635,10 +635,452 @@ const TEACHER_WELCOME_EMAIL_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
+const COURSE_ENROLLMENT_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmação de Inscrição</title>
+  <style>
+    /* Estilos CSS inline do email */
+  </style>
+</head>
+<body>
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; margin: 0 auto;">
+            <tbody>
+              <tr>
+                <td style="padding: 25px 0; text-align: center;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png" width="150" alt="SoftSkills@SOFTINSA Logo" style="border: none;">
+                </td>
+              </tr>
+              <tr>
+                <td class="body" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e8e5ef; border-radius: 2px; box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025); padding: 20px;">
+                  <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; margin: 0 auto; padding: 0;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                          Inscrição Confirmada!
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          A sua inscrição no curso <strong>{curso_nome}</strong> foi confirmada com sucesso!
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Detalhes do Curso:</strong><br>
+                          Curso: <strong>{curso_nome}</strong><br>
+                          {tipo_curso_info}
+                          Data de início: <strong>{data_inicio}</strong><br>
+                          Data de fim: <strong>{data_fim}</strong>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0; text-align: center;">
+                          <a class="button" href="{curso_url}" title="Ver Curso" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Ver Detalhes do Curso
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          SoftSkills@SOFTINSA
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+const COURSE_TEACHER_CHANGE_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alteração de Formador</title>
+  <style>
+    /* Estilos CSS inline do email */
+  </style>
+</head>
+<body>
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; margin: 0 auto;">
+            <tbody>
+              <tr>
+                <td style="padding: 25px 0; text-align: center;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png" width="150" alt="SoftSkills@SOFTINSA Logo" style="border: none;">
+                </td>
+              </tr>
+              <tr>
+                <td class="body" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e8e5ef; border-radius: 2px; box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025); padding: 20px;">
+                  <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; margin: 0 auto; padding: 0;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                          Alteração de Formador
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          Informamos que o formador do curso <strong>{curso_nome}</strong> foi alterado.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Detalhes da Alteração:</strong><br>
+                          Curso: <strong>{curso_nome}</strong><br>
+                          {formador_anterior_info}
+                          Novo Formador: <strong>{novo_formador}</strong><br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0; text-align: center;">
+                          <a class="button" href="{curso_url}" title="Ver Curso" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Ver Detalhes do Curso
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Obrigado pela sua compreensão!<br>
+                          <strong>SoftSkills@SOFTINSA</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+// Template para alteração de datas
+const COURSE_DATE_CHANGE_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alteração de Datas</title>
+  <style>
+    /* Estilos CSS inline do email */
+  </style>
+</head>
+<body>
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; margin: 0 auto;">
+            <tbody>
+              <tr>
+                <td style="padding: 25px 0; text-align: center;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png" width="150" alt="SoftSkills@SOFTINSA Logo" style="border: none;">
+                </td>
+              </tr>
+              <tr>
+                <td class="body" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e8e5ef; border-radius: 2px; box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025); padding: 20px;">
+                  <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; margin: 0 auto; padding: 0;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                          Alteração de Datas do Curso
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          Informamos que as datas do curso <strong>{curso_nome}</strong> foram alteradas.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Novas Datas:</strong><br>
+                          Curso: <strong>{curso_nome}</strong><br>
+                          {data_anterior_info}
+                          <span style="color: #28a745;">Nova Data de Início: <strong>{nova_data_inicio}</strong></span><br>
+                          <span style="color: #28a745;">Nova Data de Fim: <strong>{nova_data_fim}</strong></span><br>
+                          {formador_info}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0; text-align: center;">
+                          <a class="button" href="{curso_url}" title="Ver Curso" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Ver Detalhes do Curso
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Por favor, ajuste a sua agenda conforme as novas datas.<br>
+                          <strong>SoftSkills@SOFTINSA</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+// Template para alteração de link de aula
+const COURSE_LINK_CHANGE_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link de Aula Atualizado</title>
+  <style>
+    /* Estilos CSS inline do email */
+  </style>
+</head>
+<body>
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; margin: 0 auto;">
+            <tbody>
+              <tr>
+                <td style="padding: 25px 0; text-align: center;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png" width="150" alt="SoftSkills@SOFTINSA Logo" style="border: none;">
+                </td>
+              </tr>
+              <tr>
+                <td class="body" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e8e5ef; border-radius: 2px; box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025); padding: 20px;">
+                  <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; margin: 0 auto; padding: 0;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                          Link de Aula Atualizado
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          O link para a aula <strong>{aula_titulo}</strong> do curso <strong>{curso_nome}</strong> foi atualizado.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Detalhes da Aula:</strong><br>
+                          Curso: <strong>{curso_nome}</strong><br>
+                          Aula: <strong>{aula_titulo}</strong><br>
+                          Data: <strong>{data_aula}</strong><br>
+                          Horário: <strong>{horario_aula}</strong><br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0; text-align: center;">
+                          <a class="button" href="{link_aula}" title="Aceder à Aula" style="background: #28a745; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px; margin-bottom: 10px;">
+                            Aceder à Aula
+                          </a>
+                          <br>
+                          <a class="button" href="{curso_url}" title="Ver Curso" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Ver Detalhes do Curso
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Guarde este novo link para aceder à aula!<br>
+                          <strong>SoftSkills@SOFTINSA</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+// Template para novo conteúdo adicionado
+const COURSE_NEW_CONTENT_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Conteúdo Disponível</title>
+  <style>
+    /* Estilos CSS inline do email */
+  </style>
+</head>
+<body>
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; margin: 0 auto;">
+            <tbody>
+              <tr>
+                <td style="padding: 25px 0; text-align: center;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png" width="150" alt="SoftSkills@SOFTINSA Logo" style="border: none;">
+                </td>
+              </tr>
+              <tr>
+                <td class="body" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e8e5ef; border-radius: 2px; box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025); padding: 20px;">
+                  <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; margin: 0 auto; padding: 0;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                          Novo Conteúdo Disponível!
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          Novo conteúdo foi adicionado ao curso <strong>{curso_nome}</strong>!
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Novo Conteúdo:</strong><br>
+                          Curso: <strong>{curso_nome}</strong><br>
+                          {conteudo_info}
+                          Data de Adição: <strong>{data_adicao}</strong><br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0; text-align: center;">
+                          <a class="button" href="{curso_url}" title="Ver Novo Conteúdo" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Ver Novo Conteúdo
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Não perca este novo material de aprendizagem!<br>
+                          <strong>SoftSkills@SOFTINSA</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+// Template genérico para outras notificações
+const COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notificação do Curso</title>
+  <style>
+    /* Estilos CSS inline do email */
+  </style>
+</head>
+<body>
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; margin: 0 auto;">
+            <tbody>
+              <tr>
+                <td style="padding: 25px 0; text-align: center;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png" width="150" alt="SoftSkills@SOFTINSA Logo" style="border: none;">
+                </td>
+              </tr>
+              <tr>
+                <td class="body" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e8e5ef; border-radius: 2px; box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025); padding: 20px;">
+                  <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; margin: 0 auto; padding: 0;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 18px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em;">
+                          {notification_title}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          {notification_message}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          <strong>Detalhes:</strong><br>
+                          Curso: <strong>{curso_nome}</strong><br>
+                          {additional_info}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0; text-align: center;">
+                          <a class="button" href="{curso_url}" title="Ver Curso" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Ver Detalhes do Curso
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Obrigado pela sua atenção!<br>
+                          <strong>SoftSkills@SOFTINSA</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
 module.exports = {
   VERIFICATION_EMAIL_TEMPLATE,
   RESET_PASSWORD_EMAIL_TEMPLATE,
   PASSWORD_CHANGE_EMAIL_TEMPLATE,
   RESEND_EMAIL_TEMPLATE,
   TEACHER_WELCOME_EMAIL_TEMPLATE,
+  COURSE_ENROLLMENT_EMAIL_TEMPLATE,
+  COURSE_TEACHER_CHANGE_EMAIL_TEMPLATE,
+  COURSE_DATE_CHANGE_EMAIL_TEMPLATE,
+  COURSE_LINK_CHANGE_EMAIL_TEMPLATE,
+  COURSE_NEW_CONTENT_EMAIL_TEMPLATE,
+  COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE,
 };

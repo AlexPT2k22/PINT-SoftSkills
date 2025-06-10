@@ -58,8 +58,21 @@ LoginSocialMedia.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 Utilizador.hasMany(Certificado, { foreignKey: "ID_UTILIZADOR" });
 Certificado.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 
-Utilizador.hasMany(Notificacao, { foreignKey: "ID_UTILIZADOR" });
-Notificacao.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+Notificacao.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+});
+
+Notificacao.belongsTo(Curso, {
+  foreignKey: "ID_CURSO",
+});
+
+Utilizador.hasMany(Notificacao, {
+  foreignKey: "ID_UTILIZADOR",
+});
+
+Curso.hasMany(Notificacao, {
+  foreignKey: "ID_CURSO",
+});
 
 Utilizador.belongsToMany(Perfil, {
   through: UtilizadorTemPerfil,
@@ -304,39 +317,39 @@ AvaliacaoFinalSincrona.belongsTo(Utilizador, {
 });
 
 // QuizzAssincrono associations
-Curso.hasOne(QuizAssincrono, { 
-  foreignKey: "ID_CURSO", 
-  as: "QUIZ_ASSINCRONO" 
+Curso.hasOne(QuizAssincrono, {
+  foreignKey: "ID_CURSO",
+  as: "QUIZ_ASSINCRONO",
 });
-QuizAssincrono.belongsTo(Curso, { 
-  foreignKey: "ID_CURSO" 
+QuizAssincrono.belongsTo(Curso, {
+  foreignKey: "ID_CURSO",
 });
 
-Utilizador.hasMany(QuizAssincrono, { 
-  foreignKey: "CRIADO_POR", 
-  as: "QUIZZES_CRIADOS" 
+Utilizador.hasMany(QuizAssincrono, {
+  foreignKey: "CRIADO_POR",
+  as: "QUIZZES_CRIADOS",
 });
-QuizAssincrono.belongsTo(Utilizador, { 
-  foreignKey: "CRIADO_POR", 
-  as: "CRIADOR" 
+QuizAssincrono.belongsTo(Utilizador, {
+  foreignKey: "CRIADO_POR",
+  as: "CRIADOR",
 });
 
 // Associations para Respostas
-QuizAssincrono.hasMany(RespostaQuizAssincrono, { 
-  foreignKey: "ID_QUIZ", 
-  as: "RESPOSTAS" 
+QuizAssincrono.hasMany(RespostaQuizAssincrono, {
+  foreignKey: "ID_QUIZ",
+  as: "RESPOSTAS",
 });
-RespostaQuizAssincrono.belongsTo(QuizAssincrono, { 
-  foreignKey: "ID_QUIZ" 
+RespostaQuizAssincrono.belongsTo(QuizAssincrono, {
+  foreignKey: "ID_QUIZ",
 });
 
-Utilizador.hasMany(RespostaQuizAssincrono, { 
-  foreignKey: "ID_UTILIZADOR", 
-  as: "RESPOSTAS_QUIZ" 
+Utilizador.hasMany(RespostaQuizAssincrono, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "RESPOSTAS_QUIZ",
 });
-RespostaQuizAssincrono.belongsTo(Utilizador, { 
-  foreignKey: "ID_UTILIZADOR", 
-  as: "UTILIZADOR" 
+RespostaQuizAssincrono.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "UTILIZADOR",
 });
 
 // TrabalhoCursoSincrono associations

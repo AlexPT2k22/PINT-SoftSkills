@@ -18,7 +18,10 @@ const sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const { EmailFormadorNovo } = require("../mail/emails.js");
+const {
+  EmailFormadorNovo,
+  sendEnrollmentConfirmationEmail,
+} = require("../mail/emails.js");
 
 const getTeachers = async (req, res) => {
   try {
@@ -181,6 +184,25 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       VAGAS: curso.VAGAS - 1,
     });
 
+    // Buscar informações completas do curso e usuário para o email
+    const cursoCompleto = await Curso.findByPk(courseId, {
+      include: [{ model: CursoSincrono }],
+    });
+
+    const user = await Utilizador.findByPk(userId);
+    const formador = curso.ID_UTILIZADOR
+      ? await Utilizador.findByPk(curso.ID_UTILIZADOR)
+      : null;
+
+    // Enviar email de confirmação
+    await sendEnrollmentConfirmationEmail(
+      user.NOME || user.USERNAME,
+      user.EMAIL,
+      cursoCompleto,
+      "sincrono",
+      formador
+    );
+
     res.status(201).json({
       success: true,
       message: "Inscrição no curso síncrono realizada com sucesso",
@@ -231,6 +253,21 @@ const inscreverEmCursoAssincrono = async (userId, courseId, req, res) => {
       DATA_INSCRICAO: new Date(),
       ESTADO: "Ativo",
     });
+
+    // Buscar informações completas do curso e usuário para o email
+    const cursoCompleto = await Curso.findByPk(courseId, {
+      include: [{ model: CursoAssincrono }],
+    });
+
+    const user = await Utilizador.findByPk(userId);
+
+    // Enviar email de confirmação
+    await sendEnrollmentConfirmationEmail(
+      user.NOME || user.USERNAME,
+      user.EMAIL,
+      cursoCompleto,
+      "assincrono"
+    );
 
     res.status(201).json({
       success: true,

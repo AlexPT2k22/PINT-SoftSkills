@@ -30,6 +30,7 @@ const { Readable } = require("stream");
 const fs = require("fs");
 const path = require("path");
 const { Op } = require("sequelize");
+const { notifyAllEnrolled } = require("./notificacao.controller.js");
 
 const savePdfToServer = (buffer, fileName) => {
   return new Promise((resolve, reject) => {
@@ -619,151 +620,115 @@ const updateCursoSincrono = async (req, res) => {
     DIFICULDADE_CURSO__,
     ID_AREA,
     ID_UTILIZADOR,
-    ID_CATEGORIA,
     DATA_INICIO,
     DATA_FIM,
     VAGAS,
     HABILIDADES,
     OBJETIVOS,
+    DATA_LIMITE_INSCRICAO,
     ID_TOPICO,
   } = req.body;
 
-  const modulos = JSON.parse(req.body.MODULOS);
-
   try {
+    // Buscar dados anteriores para comparação
     const curso = await Curso.findByPk(id);
-    if (!curso) {
+    const cursoSincrono = await CursoSincrono.findOne({
+      where: { ID_CURSO: id },
+      include: [{ model: Utilizador, attributes: ["NOME", "USERNAME"] }],
+    });
+
+    if (!curso || !cursoSincrono) {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    let imagemUrl = curso.IMAGEM;
-    let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
+    // Verificar alterações e preparar dados para email
+    let formadorAlterado = false;
+    let datasAlteradas = false;
+    let emailData = {};
 
-    const imagem = req.files.find((file) => file.fieldname === "imagem");
+    // Verificar alteração do formador
+    if (ID_UTILIZADOR && ID_UTILIZADOR !== cursoSincrono.ID_UTILIZADOR) {
+      formadorAlterado = true;
+      const formadorAnterior =
+        cursoSincrono.UTILIZADOR?.NOME ||
+        cursoSincrono.UTILIZADOR?.USERNAME ||
+        "Não definido";
+      const novoFormador = await Utilizador.findByPk(ID_UTILIZADOR);
 
-    if (imagem) {
-      const result = await streamUpload(
-        imagem.buffer,
-        `cursos/${NOME}`,
-        "auto"
-      );
-      imagemUrl = result.secure_url;
-      imagemPublicId = result.public_id;
+      emailData.formadorAnterior = formadorAnterior;
+      emailData.novoFormador =
+        novoFormador?.NOME || novoFormador?.USERNAME || "Não definido";
     }
 
+    // Verificar alteração das datas
+    if (
+      (DATA_INICIO && DATA_INICIO !== cursoSincrono.DATA_INICIO) ||
+      (DATA_FIM && DATA_FIM !== cursoSincrono.DATA_FIM)
+    ) {
+      datasAlteradas = true;
+
+      emailData.dataAnteriorInicio = cursoSincrono.DATA_INICIO;
+      emailData.dataAnteriorFim = cursoSincrono.DATA_FIM;
+      emailData.novaDataInicio = DATA_INICIO || cursoSincrono.DATA_INICIO;
+      emailData.novaDataFim = DATA_FIM || cursoSincrono.DATA_FIM;
+      emailData.formador =
+        emailData.novoFormador ||
+        cursoSincrono.UTILIZADOR?.NOME ||
+        cursoSincrono.UTILIZADOR?.USERNAME ||
+        "Não definido";
+    }
+
+    // Realizar as atualizações (código existente)
     await curso.update({
       NOME,
       DESCRICAO_OBJETIVOS__,
       DIFICULDADE_CURSO__,
-      IMAGEM: imagemUrl,
-      IMAGEM_PUBLIC_ID: imagemPublicId,
       ID_AREA,
       ID_TOPICO,
-      DATA_CRIACAO__: new Date(),
     });
-    const cursoSincrono = await CursoSincrono.findOne({
-      where: {
-        ID_CURSO: id,
-      },
-    });
-    if (!cursoSincrono) {
-      return res.status(404).json({ error: "Curso Sincrono não encontrado" });
-    }
-
-    // Adicionar habilidades e objetivos ao curso
-    const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
-      return { DESCRICAO: habilidade.trim() };
-    });
-
-    const objetivosArray = OBJETIVOS.split(",").map((objetivo) => {
-      return { DESCRICAO: objetivo.trim() };
-    });
-
-    // Remover as habilidades existentes do curso
-    await Habilidades.destroy({
-      where: { ID_CURSO: curso.ID_CURSO },
-    });
-
-    // Remover os objetivos existentes do curso
-    await Objetivos.destroy({
-      where: { ID_CURSO: curso.ID_CURSO },
-    });
-
-    await Promise.all([
-      Habilidades.bulkCreate(
-        habilidadesArray.map((habilidade) => ({
-          ...habilidade,
-          ID_CURSO: curso.ID_CURSO,
-        }))
-      ),
-      Objetivos.bulkCreate(
-        objetivosArray.map((objetivo) => ({
-          ...objetivo,
-          ID_CURSO: curso.ID_CURSO,
-        }))
-      ),
-    ]);
-
-    //Destroy dos modulos existentes
-    await Modulos.destroy({
-      where: { ID_CURSO: curso.ID_CURSO },
-    });
-
-    // Adicionar módulos ao curso
-    for (let i = 0; i < modulos.length; i++) {
-      const modulo = modulos[i];
-
-      // Procurar vídeo e conteúdo pelo nome que definiste no formData
-      const videoFile = req.files.find(
-        (file) => file.fieldname === `module_${i}_video`
-      );
-      const contentFile = req.files.find(
-        (file) => file.fieldname === `module_${i}_content`
-      );
-
-      let videoUrl = null;
-      let contentUrl = null;
-
-      // Upload do vídeo para o Cloudinary
-      if (videoFile) {
-        const result = await streamUpload(
-          videoFile.buffer,
-          `cursos/${NOME}/modulos/videos`,
-          "auto"
-        );
-        videoUrl = result.secure_url;
-      }
-
-      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
-      if (contentFile) {
-        const result = await streamUpload(
-          contentFile.buffer,
-          `cursos/${NOME}/modulos/conteudos`,
-          "auto"
-        );
-        contentUrl = result.secure_url;
-      }
-
-      await Modulos.create({
-        ID_CURSO: curso.ID_CURSO,
-        NOME: modulo.NOME,
-        DESCRICAO: modulo.DESCRICAO,
-        VIDEO_URL: videoUrl,
-        FILE_URL: contentUrl,
-        TEMPO_ESTIMADO_MIN: modulo.DURACAO,
-      });
-    }
 
     await cursoSincrono.update({
-      NOME,
-      DESCRICAO_OBJETIVOS__,
-      DIFICULDADE_CURSO__,
-      ID_AREA,
       ID_UTILIZADOR,
       DATA_INICIO,
       DATA_FIM,
       VAGAS,
+      DATA_LIMITE_INSCRICAO_S: DATA_LIMITE_INSCRICAO,
     });
+
+    // Notificar alteração de formador
+    if (formadorAlterado) {
+      await notifyAllEnrolled(
+        id,
+        "Alteração de Formador",
+        `O formador do curso ${curso.NOME} foi alterado para ${emailData.novoFormador}.`,
+        "ALTERACAO_FORMADOR",
+        emailData
+      );
+    }
+
+    // Notificar alteração de datas
+    if (datasAlteradas) {
+      const novaDataInicio = new Date(
+        emailData.novaDataInicio
+      ).toLocaleDateString("pt-PT");
+      const novaDataFim = new Date(emailData.novaDataFim).toLocaleDateString(
+        "pt-PT"
+      );
+
+      let mensagem = `As datas do curso ${curso.NOME} foram alteradas.`;
+      if (emailData.novaDataInicio)
+        mensagem += ` Nova data de início: ${novaDataInicio}.`;
+      if (emailData.novaDataFim)
+        mensagem += ` Nova data de fim: ${novaDataFim}.`;
+
+      await notifyAllEnrolled(
+        id,
+        "Alteração de Datas",
+        mensagem,
+        "ALTERACAO_DATA",
+        emailData
+      );
+    }
 
     res.status(200).json({
       "Curso: ": curso,
@@ -827,6 +792,24 @@ const updateCursoAssincrono = async (req, res) => {
       return res.status(404).json({ error: "Curso Assincrono não encontrado" });
     }
 
+    // ✅ NOVO: Verificar alterações para notificações
+    let datasAlteradas = false;
+    let emailData = {};
+
+    // Verificar alteração das datas
+    if (
+      (DATA_INICIO && DATA_INICIO !== cursoAssincrono.DATA_INICIO) ||
+      (DATA_FIM && DATA_FIM !== cursoAssincrono.DATA_FIM)
+    ) {
+      datasAlteradas = true;
+
+      emailData.dataAnteriorInicio = cursoAssincrono.DATA_INICIO;
+      emailData.dataAnteriorFim = cursoAssincrono.DATA_FIM;
+      emailData.novaDataInicio = DATA_INICIO || cursoAssincrono.DATA_INICIO;
+      emailData.novaDataFim = DATA_FIM || cursoAssincrono.DATA_FIM;
+      emailData.formador = "Curso Assíncrono"; // Cursos assíncronos não têm formador específico
+    }
+
     // Adicionar habilidades e objetivos ao curso
     const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
       return { DESCRICAO: habilidade.trim() };
@@ -866,6 +849,9 @@ const updateCursoAssincrono = async (req, res) => {
       where: { ID_CURSO: curso.ID_CURSO },
     });
 
+    let novosModulosAdicionados = false;
+    let conteudoInfo = "";
+
     // Adicionar módulos ao curso
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
@@ -890,6 +876,7 @@ const updateCursoAssincrono = async (req, res) => {
         );
 
         videoUrl = result.secure_url;
+        novosModulosAdicionados = true;
       }
 
       // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
@@ -901,6 +888,7 @@ const updateCursoAssincrono = async (req, res) => {
         );
 
         contentUrl = result.secure_url;
+        novosModulosAdicionados = true;
       }
 
       await Modulos.create({
@@ -910,6 +898,13 @@ const updateCursoAssincrono = async (req, res) => {
         VIDEO_URL: videoUrl,
         FILE_URL: contentUrl,
         TEMPO_ESTIMADO_MIN: modulo.DURACAO,
+      });
+    }
+
+    if (novosModulosAdicionados) {
+      conteudoInfo = `Novos módulos adicionados:<br>`;
+      modulos.forEach((modulo) => {
+        conteudoInfo += `• <strong>${modulo.NOME}</strong><br>`;
       });
     }
 
@@ -927,7 +922,7 @@ const updateCursoAssincrono = async (req, res) => {
     } else if (novaDataInicio <= today && novaDataFim >= today) {
       novoEstado = "Em curso";
     } else if (novaDataInicio > today) {
-      novoEstado = "Ativo"; // Course hasn't started yet
+      novoEstado = "Brevemente";
     }
 
     await cursoAssincrono.update({
@@ -939,6 +934,42 @@ const updateCursoAssincrono = async (req, res) => {
       DATA_FIM,
       ESTADO: novoEstado,
     });
+
+    // Notificar alteração de datas
+    if (datasAlteradas) {
+      const novaDataInicioFormatada = new Date(
+        emailData.novaDataInicio
+      ).toLocaleDateString("pt-PT");
+      const novaDataFimFormatada = new Date(
+        emailData.novaDataFim
+      ).toLocaleDateString("pt-PT");
+
+      let mensagem = `As datas do curso assíncrono ${curso.NOME} foram alteradas.`;
+      if (emailData.novaDataInicio)
+        mensagem += ` Nova data de início: ${novaDataInicioFormatada}.`;
+      if (emailData.novaDataFim)
+        mensagem += ` Nova data de fim: ${novaDataFimFormatada}.`;
+
+      await notifyAllEnrolled(
+        id,
+        "Alteração de Datas",
+        mensagem,
+        "ALTERACAO_DATA",
+        emailData
+      );
+    }
+
+    // Notificar novo conteúdo adicionado
+    if (novosModulosAdicionados) {
+      await notifyAllEnrolled(
+        id,
+        "Novo Conteúdo Disponível",
+        `Novos módulos foram adicionados ao curso ${curso.NOME}. Confira o novo conteúdo disponível!`,
+        "NOVO_CONTEUDO",
+        { conteudoInfo }
+      );
+    }
+
     res.status(200).json({
       Curso: curso,
       CursoAssincrono: cursoAssincrono,
@@ -986,10 +1017,77 @@ const updateCursoCompleto = async (req, res) => {
       where: { ID_CURSO: id },
       transaction,
     });
+
+    if (cursoSincrono) {
+      const user = await Utilizador.findByPk(cursoSincrono.ID_UTILIZADOR, {
+        transaction,
+      });
+      const formador = user?.NOME || user?.USERNAME;
+    }
+
     const cursoAssincrono = await CursoAssincrono.findOne({
       where: { ID_CURSO: id },
       transaction,
     });
+
+    let formadorAlterado = false;
+    let datasAlteradas = false;
+    let novosModulosAdicionados = false;
+    let emailData = {};
+
+    // Verificar alteração do formador (apenas para cursos síncronos)
+    if (
+      cursoSincrono &&
+      ID_UTILIZADOR &&
+      parseInt(ID_UTILIZADOR) !== parseInt(cursoSincrono.ID_UTILIZADOR)
+    ) {
+      formadorAlterado = true;
+      const formadorAnterior = await Utilizador.findByPk(
+        cursoSincrono.ID_UTILIZADOR,
+        { transaction }
+      );
+      const novoFormador = await Utilizador.findByPk(ID_UTILIZADOR, {
+        transaction,
+      });
+
+      emailData.formadorAnterior =
+        formadorAnterior?.NOME || formadorAnterior?.USERNAME || "Sem formador";
+      emailData.novoFormador =
+        novoFormador?.NOME || novoFormador?.USERNAME || "Não definido";
+    }
+
+    const dataAnteriorInicio =
+      cursoSincrono?.DATA_INICIO || cursoAssincrono?.DATA_INICIO;
+    const dataAnteriorFim =
+      cursoSincrono?.DATA_FIM || cursoAssincrono?.DATA_FIM;
+
+    const dataInicioString = DATA_INICIO
+      ? new Date(DATA_INICIO).toISOString().split("T")[0]
+      : null;
+    const dataFimString = DATA_FIM
+      ? new Date(DATA_FIM).toISOString().split("T")[0]
+      : null;
+    const dataAnteriorInicioString = dataAnteriorInicio
+      ? new Date(dataAnteriorInicio).toISOString().split("T")[0]
+      : null;
+    const dataAnteriorFimString = dataAnteriorFim
+      ? new Date(dataAnteriorFim).toISOString().split("T")[0]
+      : null;
+
+    if (
+      (dataInicioString && dataInicioString !== dataAnteriorInicioString) ||
+      (dataFimString && dataFimString !== dataAnteriorFimString)
+    ) {
+      datasAlteradas = true;
+
+      emailData.dataAnteriorInicio = dataAnteriorInicio;
+      emailData.dataAnteriorFim = dataAnteriorFim;
+      emailData.novaDataInicio = DATA_INICIO || dataAnteriorInicio;
+      emailData.novaDataFim = DATA_FIM || dataAnteriorFim;
+      emailData.formador = cursoSincrono
+        ? emailData.novoFormador || formador || "Não definido"
+        : "Curso Assíncrono";
+    }
 
     // Processar imagem se fornecida
     let imagemUrl = curso.IMAGEM;
@@ -1058,9 +1156,29 @@ const updateCursoCompleto = async (req, res) => {
       ]);
     }
 
+    let conteudoInfo = "";
+
     // Processar módulos se fornecidos
     if (req.body.MODULOS) {
       const modulos = JSON.parse(req.body.MODULOS);
+
+      // Buscar módulos existentes para comparação
+      const modulosExistentes = await Modulos.findAll({
+        where: { ID_CURSO: curso.ID_CURSO },
+        transaction,
+      });
+
+      // Se há novos módulos ou módulos foram modificados
+      if (
+        modulos.length > modulosExistentes.length ||
+        req.files?.some((f) => f.fieldname.includes("module_"))
+      ) {
+        novosModulosAdicionados = true;
+        conteudoInfo = `Conteúdo atualizado:<br>`;
+        modulos.forEach((modulo) => {
+          conteudoInfo += `• <strong>${modulo.NOME}</strong><br>`;
+        });
+      }
 
       // Remover módulos existentes
       await Modulos.destroy({
@@ -1203,6 +1321,52 @@ const updateCursoCompleto = async (req, res) => {
     }
 
     await transaction.commit();
+
+    // Notificar alteração de formador
+    if (formadorAlterado) {
+      await notifyAllEnrolled(
+        id,
+        "Alteração de Formador",
+        `O formador do curso ${curso.NOME} foi alterado para ${emailData.novoFormador}.`,
+        "ALTERACAO_FORMADOR",
+        emailData
+      );
+    }
+
+    // Notificar alteração de datas
+    if (datasAlteradas) {
+      const novaDataInicio = new Date(
+        emailData.novaDataInicio
+      ).toLocaleDateString("pt-PT");
+      const novaDataFim = new Date(emailData.novaDataFim).toLocaleDateString(
+        "pt-PT"
+      );
+
+      let mensagem = `As datas do curso ${curso.NOME} foram alteradas.`;
+      if (emailData.novaDataInicio)
+        mensagem += ` Nova data de início: ${novaDataInicio}.`;
+      if (emailData.novaDataFim)
+        mensagem += ` Nova data de fim: ${novaDataFim}.`;
+
+      await notifyAllEnrolled(
+        id,
+        "Alteração de Datas",
+        mensagem,
+        "ALTERACAO_DATA",
+        emailData
+      );
+    }
+
+    // Notificar novo conteúdo
+    if (novosModulosAdicionados) {
+      await notifyAllEnrolled(
+        id,
+        "Conteúdo Atualizado",
+        `O conteúdo do curso ${curso.NOME} foi atualizado com novos módulos!`,
+        "NOVO_CONTEUDO",
+        { conteudoInfo }
+      );
+    }
 
     res.status(200).json({
       success: true,
@@ -2413,7 +2577,11 @@ const searchCursos = async (req, res) => {
     // FILTRAR os cursos para mostrar apenas os ativos
     const coursesAtivos = allCourses.filter((curso) => {
       // Verificar se é assíncrono ativo
-      if (curso.CURSO_ASSINCRONO && (curso.CURSO_ASSINCRONO.ESTADO === "Ativo" || curso.CURSO_ASSINCRONO.ESTADO === "Em curso")) {
+      if (
+        curso.CURSO_ASSINCRONO &&
+        (curso.CURSO_ASSINCRONO.ESTADO === "Ativo" ||
+          curso.CURSO_ASSINCRONO.ESTADO === "Em curso")
+      ) {
         return true;
       }
 
