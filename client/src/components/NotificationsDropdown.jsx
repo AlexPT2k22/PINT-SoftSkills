@@ -40,7 +40,7 @@ function NotificationsDropdown() {
       });
 
       if (response.data) {
-        setNotifications(response.data.slice(0, 5)); // Mostrar apenas as 5 mais recentes
+        setNotifications(response.data);
         setUnreadCount(response.data.filter((notif) => !notif.LIDA).length);
       }
     } catch (error) {
@@ -260,20 +260,6 @@ function NotificationsDropdown() {
               ))
             )}
           </div>
-
-          {notifications.length > 0 && (
-            <div className="notifications-footer">
-              <button
-                className="btn btn-link btn-sm w-100 text-primary"
-                onClick={() => {
-                  navigate("/dashboard/notifications");
-                  setShowDropdown(false);
-                }}
-              >
-                Ver todas as notificações
-              </button>
-            </div>
-          )}
         </div>
       )}
 

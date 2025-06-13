@@ -1018,11 +1018,13 @@ const updateCursoCompleto = async (req, res) => {
       transaction,
     });
 
+    let formador = "";
+
     if (cursoSincrono) {
       const user = await Utilizador.findByPk(cursoSincrono.ID_UTILIZADOR, {
         transaction,
       });
-      const formador = user?.NOME || user?.USERNAME;
+      formador = user?.NOME || user?.USERNAME;
     }
 
     const cursoAssincrono = await CursoAssincrono.findOne({
@@ -1085,7 +1087,9 @@ const updateCursoCompleto = async (req, res) => {
       emailData.novaDataInicio = DATA_INICIO || dataAnteriorInicio;
       emailData.novaDataFim = DATA_FIM || dataAnteriorFim;
       emailData.formador = cursoSincrono
-        ? emailData.novoFormador || formador || "Não definido"
+        ? emailData.novoFormador ||
+          (formador !== "" ? formador : "Não definido") ||
+          "Não definido"
         : "Curso Assíncrono";
     }
 
@@ -2586,10 +2590,7 @@ const searchCursos = async (req, res) => {
       }
 
       // Verificar se é síncrono ativo ou em curso
-      if (
-        curso.CURSO_SINCRONO &&
-        (curso.CURSO_SINCRONO.ESTADO === "Ativo")
-      ) {
+      if (curso.CURSO_SINCRONO && curso.CURSO_SINCRONO.ESTADO === "Ativo") {
         return true;
       }
 

@@ -7,14 +7,13 @@ import {
   Settings,
   CircleUserRound,
   ChevronDown,
-  ChevronRight,
   SquareArrowOutUpRight,
-  Bell,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import NotificationsDropdown from "./NotificationsDropdown";
 import "../styles/notifications.css";
+import "../styles/userdropdown.css";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -83,6 +82,17 @@ function Navbar() {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
+  const handleLogout = () => {
+    useAuthStore.getState().logout();
+    navigate("/");
+    setShowUserDropdown(false);
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    setShowUserDropdown(false);
+  };
 
   return (
     <nav className="navbar sticky-top navbar-expand-lg">
@@ -303,39 +313,50 @@ function Navbar() {
                     <ChevronDown className="ms-1" size={18} color="#39639c" />
                   </a>
                   {showUserDropdown && (
-                    <ul
-                      className="dropdown-menu dropdown-menu-end show"
-                      style={{ transform: "translatex(-20px)" }}
-                    >
-                      <li>
-                        <a className="dropdown-item" href="/dashboard">
-                          Dashboard
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="dropdown-item"
-                          href="/dashboard/my-courses"
+                    <div className="user-dropdown">
+                      <div className="user-dropdown-header">
+                        <div className="user-dropdown-info">
+                          <div className="user-dropdown-avatar">
+                            <CircleUserRound size={32} color="#39639C" />
+                          </div>
+                          <div className="user-dropdown-details">
+                            <h6 className="user-dropdown-name">
+                              @{user?.username}
+                            </h6>
+                            <small className="user-dropdown-email text-muted">
+                              {user?.email}
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="user-dropdown-list">
+                        <button
+                          className="user-dropdown-item"
+                          onClick={() => handleNavigation("/dashboard")}
                         >
-                          Os meus Cursos
-                        </a>
-                      </li>
-                      <li>
-                        <hr className="dropdown-divider" />
-                      </li>
-                      <li>
-                        <a
-                          className="dropdown-item"
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            useAuthStore.getState().logout();
-                          }}
+                          <span>Dashboard</span>
+                        </button>
+
+                        <button
+                          className="user-dropdown-item"
+                          onClick={() =>
+                            handleNavigation("/dashboard/my-courses")
+                          }
                         >
-                          Sair
-                        </a>
-                      </li>
-                    </ul>
+                          <span>Os meus Cursos</span>
+                        </button>
+
+                        <div className="user-dropdown-divider"></div>
+
+                        <button
+                          className="user-dropdown-item logout-item"
+                          onClick={handleLogout}
+                        >
+                          <span>Sair</span>
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </li>
               </>
