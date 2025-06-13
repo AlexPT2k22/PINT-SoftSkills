@@ -63,9 +63,9 @@ function UserPage() {
   };
 
   const getXPLevel = (xp) => {
-    if (xp >= 1000) return { level: Math.floor(xp / 1000) + 1, color: "gold" };
+    if (xp >= 1000) return { level: "✨Lendário✨", color: "gold" };
     if (xp >= 500) return { level: "Avançado", color: "purple" };
-    if (xp >= 200) return { level: "Intermédio", color: "blue" };
+    if (xp >= 250) return { level: "Intermédio", color: "blue" };
     return { level: "Iniciante", color: "green" };
   };
 
@@ -127,7 +127,7 @@ function UserPage() {
                     {/* XP e Level Badge */}
                     <div className="mt-2">
                       <span className={`badge bg-outline-${xpLevel.color}`}>
-                        Level: {xpLevel.level}
+                        Nível: {xpLevel.level}
                       </span>
                     </div>
                   </div>
