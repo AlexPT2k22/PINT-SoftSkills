@@ -3,19 +3,13 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import {
   User,
-  MapPin,
   Calendar,
-  Award,
   BookOpen,
   Star,
-  Mail,
   Linkedin,
   Users,
   Trophy,
   Clock,
-  ExternalLink,
-  Target,
-  TrendingUp,
   CheckCircle,
 } from "lucide-react";
 import Navbar from "./components/navbar";

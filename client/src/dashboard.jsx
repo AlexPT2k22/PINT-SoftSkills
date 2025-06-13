@@ -309,7 +309,7 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Cursos inscritos
+                        Cursos ativos
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {metricas.cursosAtivos}
