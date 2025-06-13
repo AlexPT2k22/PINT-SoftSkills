@@ -9,9 +9,12 @@ import {
   ChevronDown,
   ChevronRight,
   SquareArrowOutUpRight,
+  Bell,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import NotificationsDropdown from "./NotificationsDropdown";
+import "../styles/notifications.css";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -273,6 +276,9 @@ function Navbar() {
             </li>
             {isAuthenticated ? (
               <>
+                <li className="nav-item">
+                  <NotificationsDropdown />
+                </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/dashboard/settings">
                     <Settings strokeWidth={1.5} color="#39639C" size={22} />

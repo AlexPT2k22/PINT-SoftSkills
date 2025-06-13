@@ -2588,8 +2588,7 @@ const searchCursos = async (req, res) => {
       // Verificar se é síncrono ativo ou em curso
       if (
         curso.CURSO_SINCRONO &&
-        (curso.CURSO_SINCRONO.ESTADO === "Ativo" ||
-          curso.CURSO_SINCRONO.ESTADO === "Em curso")
+        (curso.CURSO_SINCRONO.ESTADO === "Ativo")
       ) {
         return true;
       }
