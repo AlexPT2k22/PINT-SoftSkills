@@ -401,14 +401,16 @@ function CourseVideoPage() {
                       >
                         Notas
                       </a>
-                      <a
-                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
-                          index === 3 ? "active" : ""
-                        }`}
-                        onClick={() => handleIndexChange(3)}
-                      >
-                        Anúncios
-                      </a>
+                      {courseData?.CURSO_SINCRONO && (
+                        <a
+                          className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                            index === 3 ? "active" : ""
+                          }`}
+                          onClick={() => handleIndexChange(3)}
+                        >
+                          Anúncios
+                        </a>
+                      )}
                     </ul>
                   </div>
                   <div className="container d-flex align-items-center p-0">
