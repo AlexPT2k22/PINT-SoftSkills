@@ -1071,6 +1071,117 @@ const COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// Template genérico para anuncios no curso
+const COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE = `<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Anúncio do Curso</title>
+  <style>
+    /* Estilos CSS inline do email */
+  </style>
+</head>
+<body>
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; margin: 0 auto;">
+            <tbody>
+              <tr>
+                <td style="padding: 25px 0; text-align: center;">
+                  <img src="https://mailsend-email-assets.mailtrap.io/g45ed5kx2fq1ua3rru806ysabnab.png" width="150" alt="SoftSkills@SOFTINSA Logo" style="border: none;">
+                </td>
+              </tr>
+              <tr>
+                <td class="body" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e8e5ef; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 150, 0.025); padding: 30px;">
+                  <table class="inner-body" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #ffffff; margin: 0 auto; padding: 0;">
+                    <tbody>
+                      <tr>
+                        <td style="text-align: center; padding-bottom: 20px;">
+                          <span class="announcement-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; display: inline-block;">
+                            {notification_title}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 24px 0; font-size: 20px; line-height: 150%; font-weight: bold; color: #000000; letter-spacing: 0.01em; text-align: center;">
+                          {anuncio_titulo}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 0 16px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
+                          Olá <strong>{nome}</strong>,<br><br>
+                          Um novo anúncio foi publicado no curso <strong>{curso_nome}</strong> pelo formador.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0;">
+                          <div class="announcement-content" style="background-color: #f8f9fa; border-left: 4px solid #39639C; padding: 20px; margin: 16px 0; border-radius: 4px;">
+                            <h3 style="margin: 0 0 12px 0; color: #39639C; font-size: 16px; font-weight: bold;">
+                              {anuncio_titulo}
+                            </h3>
+                            <p style="margin: 0; color: #555; line-height: 1.6; white-space: pre-line;">
+                              {anuncio_conteudo}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0;">
+                          <div class="formador-info" style="background-color: #e3f2fd; border-radius: 6px; padding: 12px; margin: 16px 0; border-left: 3px solid #2196f3;">
+                            <p style="margin: 0; font-size: 14px; color: #1976d2;">
+                              <strong>Publicado por:</strong> {formador_nome}<br>
+                              <strong>Data:</strong> {data_publicacao}<br>
+                              <strong>Curso:</strong> {curso_nome}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 24px 0; text-align: center;">
+                          <a class="button" href="{curso_url}" title="Ver Curso" style="background: #39639C; text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px; margin-right: 10px;">
+                            Ver Curso
+                          </a>
+                          <a class="button" href="{anuncios_url}" title="Ver Todos os Anúncios" style="background:rgb(30, 190, 196); text-decoration: none; display: inline-block; padding: 12px 20px; color: #ffffff; font-size: 16px; line-height: 25px; text-align: center; font-weight: bold; border-radius: 7px;">
+                            Ver Anúncios
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0 0 0; font-size: 13px; line-height: 170%; font-weight: 400; color: #666; text-align: center; border-top: 1px solid #eee;">
+                          <em>Mantenha-se atualizado com os anúncios do seu curso para não perder informações importantes!</em>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 20px 0 0 0; font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em; text-align: center;">
+                          Obrigado pela sua atenção!<br>
+                          <strong>Equipa SoftSkills@SOFTINSA</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 24px 0 48px; font-size: 0px;">
+                  <div style="padding: 0 0 20px 0; vertical-align: top; display: inline-block; text-align: center; width:100%;">
+                    <span style="padding: 0; font-size: 11px; line-height: 15px; font-weight: normal; color: #8B949F;">
+                      SOFTINSA<br>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>`;
+
 module.exports = {
   VERIFICATION_EMAIL_TEMPLATE,
   RESET_PASSWORD_EMAIL_TEMPLATE,
@@ -1083,4 +1194,5 @@ module.exports = {
   COURSE_LINK_CHANGE_EMAIL_TEMPLATE,
   COURSE_NEW_CONTENT_EMAIL_TEMPLATE,
   COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE,
+  COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE,
 };

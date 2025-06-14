@@ -13,7 +13,7 @@ const Anuncio = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Curso",
+        model: "CURSO",
         key: "ID_CURSO",
       },
     },
@@ -21,7 +21,7 @@ const Anuncio = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Utilizador",
+        model: "UTILIZADOR",
         key: "ID_UTILIZADOR",
       },
     },

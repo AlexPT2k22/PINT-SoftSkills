@@ -11,6 +11,7 @@ const {
   COURSE_LINK_CHANGE_EMAIL_TEMPLATE,
   COURSE_NEW_CONTENT_EMAIL_TEMPLATE,
   COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE,
+  COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE,
 } = require("./emailTemplates.js");
 
 const sendVerificationEmail = async (
@@ -218,6 +219,53 @@ const sendTeacherChangeNotificationEmail = async (
   }
 };
 
+const sendAnnouncementNotificationEmail = async (
+  nome,
+  email,
+  curso,
+  anuncio,
+  formadorNome
+) => {
+  const recipientString = email.toString();
+  try {
+    console.log(`Enviando notificação de novo anúncio para ${email}`);
+
+    const dataPublicacao = new Date(anuncio.DATA_CRIACAO).toLocaleDateString(
+      "pt-PT",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
+
+    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
+    const anunciosUrl = `http://localhost:5173/course/${curso.ID_CURSO}#anuncios`;
+
+    const response = await resend.emails.send({
+      from: sender,
+      to: recipientString,
+      subject: `📢 Novo Anúncio: ${anuncio.TITULO} | ${curso.NOME}`,
+      html: COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE.replace(/{nome}/g, nome)
+        .replace(/{curso_nome}/g, curso.NOME)
+        .replace(/{anuncio_titulo}/g, anuncio.TITULO)
+        .replace(/{anuncio_conteudo}/g, anuncio.CONTEUDO)
+        .replace(/{formador_nome}/g, formadorNome)
+        .replace(/{data_publicacao}/g, dataPublicacao)
+        .replace(/{curso_url}/g, cursoUrl)
+        .replace(/{anuncios_url}/g, anunciosUrl),
+      category: "Course Announcement",
+    });
+
+    console.log("Email de novo anúncio enviado com sucesso");
+    return response;
+  } catch (error) {
+    console.error("Erro ao enviar email de novo anúncio:", error);
+  }
+};
+
 // Nova função para alteração de datas
 const sendDateChangeNotificationEmail = async (
   nome,
@@ -357,7 +405,6 @@ const sendGeneralNotificationEmail = async (
   try {
     console.log(`Enviando notificação geral para ${email}`);
 
-
     const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
 
     const response = await resend.emails.send({
@@ -393,4 +440,5 @@ module.exports = {
   sendLinkChangeNotificationEmail,
   sendNewContentNotificationEmail,
   sendGeneralNotificationEmail,
+  sendAnnouncementNotificationEmail,
 };

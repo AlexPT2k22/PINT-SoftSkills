@@ -96,7 +96,7 @@ function AnunciosPanel({ courseId, courseData }) {
   return (
     <div className="anuncios-panel">
       <div className="container d-flex flex-column p-0 mt-2">
-        <h3 className="ps-2 fw-normal mb-3">Anúncios do Curso</h3>
+        <h3 className="ps-2 fw-normal mb-3">Anúncios</h3>
 
         {courseData?.CURSO_SINCRONO?.UTILIZADOR && (
           <div className="ps-2 mb-3">

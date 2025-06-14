@@ -314,7 +314,10 @@ function Navbar() {
                   </a>
                   {showUserDropdown && (
                     <div className="user-dropdown">
-                      <div className="user-dropdown-header">
+                      <a
+                        href={`/user/${user?.id}`}
+                        className="user-dropdown-header"
+                      >
                         <div className="user-dropdown-info">
                           <div className="user-dropdown-avatar">
                             <CircleUserRound size={32} color="#39639C" />
@@ -328,7 +331,7 @@ function Navbar() {
                             </small>
                           </div>
                         </div>
-                      </div>
+                      </a>
 
                       <div className="user-dropdown-list">
                         <button

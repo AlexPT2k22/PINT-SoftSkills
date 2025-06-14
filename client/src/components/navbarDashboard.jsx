@@ -1,6 +1,12 @@
 // client/src/components/navbarDashboard.jsx
 import React, { useState, useEffect } from "react";
-import { CircleUserRound, ChevronDown, User, Settings, LogOut } from "lucide-react";
+import {
+  CircleUserRound,
+  ChevronDown,
+  User,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import NotificationsDropdown from "./NotificationsDropdown";
@@ -50,13 +56,17 @@ function NavbarDashboard({ showIcons = true }) {
               <li className="nav-item">
                 <NotificationsDropdown />
               </li>
-              
+
               <li className="nav-item">
                 <div className="user-dropdown-wrapper">
                   <button
                     className="btn btn-link nav-link d-flex align-items-center"
                     onClick={() => setShowUserDropdown(!showUserDropdown)}
-                    style={{ border: "none", background: "none", textDecoration: "none" }}
+                    style={{
+                      border: "none",
+                      background: "none",
+                      textDecoration: "none",
+                    }}
                   >
                     <CircleUserRound
                       strokeWidth={1.5}
@@ -64,26 +74,35 @@ function NavbarDashboard({ showIcons = true }) {
                       size={22}
                     />
                     <span className="ms-2 text-dark">{user?.username}</span>
-                    <ChevronDown 
-                      className={`ms-1 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} 
-                      size={18} 
-                      color="#39639c" 
+                    <ChevronDown
+                      className={`ms-1 transition-transform ${
+                        showUserDropdown ? "rotate-180" : ""
+                      }`}
+                      size={18}
+                      color="#39639c"
                     />
                   </button>
 
                   {showUserDropdown && (
                     <div className="user-dropdown">
-                      <div className="user-dropdown-header">
+                      <a
+                        href={`/user/${user?.id}`}
+                        className="user-dropdown-header"
+                      >
                         <div className="user-dropdown-info">
                           <div className="user-dropdown-avatar">
                             <CircleUserRound size={32} color="#39639C" />
                           </div>
                           <div className="user-dropdown-details">
-                            <h6 className="user-dropdown-name">@{user?.username}</h6>
-                            <small className="user-dropdown-email text-muted">{user?.email}</small>
+                            <h6 className="user-dropdown-name">
+                              @{user?.username}
+                            </h6>
+                            <small className="user-dropdown-email text-muted">
+                              {user?.email}
+                            </small>
                           </div>
                         </div>
-                      </div>
+                      </a>
 
                       <div className="user-dropdown-list">
                         <button
@@ -92,16 +111,18 @@ function NavbarDashboard({ showIcons = true }) {
                         >
                           <span>Dashboard</span>
                         </button>
-                        
+
                         <button
                           className="user-dropdown-item"
-                          onClick={() => handleNavigation("/dashboard/my-courses")}
+                          onClick={() =>
+                            handleNavigation("/dashboard/my-courses")
+                          }
                         >
                           <span>Os meus Cursos</span>
                         </button>
-                        
+
                         <div className="user-dropdown-divider"></div>
-                        
+
                         <button
                           className="user-dropdown-item logout-item"
                           onClick={handleLogout}
@@ -114,7 +135,7 @@ function NavbarDashboard({ showIcons = true }) {
 
                   {/* Backdrop para fechar dropdown */}
                   {showUserDropdown && (
-                    <div 
+                    <div
                       className="user-dropdown-backdrop"
                       onClick={() => setShowUserDropdown(false)}
                     />

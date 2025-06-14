@@ -14,6 +14,7 @@ const {
   sendLinkChangeNotificationEmail,
   sendNewContentNotificationEmail,
   sendGeneralNotificationEmail,
+  sendAnnouncementNotificationEmail,
 } = require("../mail/emails.js");
 
 // Criar nova notificação
@@ -102,6 +103,18 @@ const createNotification = async (
                   user.EMAIL,
                   curso,
                   emailData.conteudoInfo
+                );
+                emailSent = true;
+              }
+              break;
+            case "NOVO_ANUNCIO":
+              if (emailData?.anuncio && emailData?.formadorNome) {
+                await sendAnnouncementNotificationEmail(
+                  user.NOME || user.USERNAME,
+                  user.EMAIL,
+                  curso,
+                  emailData.anuncio,
+                  emailData.formadorNome
                 );
                 emailSent = true;
               }

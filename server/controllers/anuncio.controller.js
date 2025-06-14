@@ -2,7 +2,9 @@ const {
   Anuncio,
   Utilizador,
   UtilizadorTemPerfil,
+  Curso,
 } = require("../models/index.js");
+const { notifyAllEnrolled } = require("./notificacao.controller.js");
 
 // Buscar anúncios de um curso
 const getAnunciosByCurso = async (req, res) => {
@@ -50,8 +52,16 @@ const createAnuncio = async (req, res) => {
   const { titulo, conteudo, cursoId } = req.body;
   const userId = req.user.ID_UTILIZADOR;
 
+  if (!titulo || !conteudo || !cursoId) {
+    return res.status(400).json({
+      success: false,
+      message: "Título, conteúdo e ID do curso são obrigatórios.",
+    });
+  }
+
   try {
     const user = await UtilizadorTemPerfil.findByPk(userId);
+    const curso = await Curso.findByPk(cursoId);
 
     if (user.ID_PERFIL !== 2) {
       return res.status(500).json({
@@ -68,6 +78,20 @@ const createAnuncio = async (req, res) => {
       CONTEUDO: conteudo,
       DATA_CRIACAO: new Date(),
     });
+
+    const formador = await Utilizador.findByPk(userId);
+    const formadorNome = formador?.NOME || formador?.USERNAME || "Formador";
+
+    await notifyAllEnrolled(
+      cursoId,
+      `Novo Anúncio: ${titulo}`,
+      `Um novo anúncio foi publicado no curso ${curso.NOME}:\n\n"${titulo}"\n\n${conteudo.substring(0, 100)}${conteudo.length > 100 ? "..." : ""}`,
+      "NOVO_ANUNCIO",
+      {
+        anuncio: novoAnuncio,
+        formadorNome: formadorNome,
+      }
+    );
 
     res.status(201).json({
       success: true,
