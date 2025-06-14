@@ -126,12 +126,6 @@ function Login() {
     }
   };
 
-  const linked_in_login = async (e) => {
-    e.preventDefault();
-    const url = `${redirectURL}/api/auth/linkedin`;
-    window.location.href = url;
-  };
-
   const changeToLogin = () => {
     setLogin(Login === 2 ? 1 : Login ^ 1);
   };
@@ -278,13 +272,6 @@ function Login() {
               </button>
               <Divider text="Ou registe-se com" />
               <div className="d-flex justify-content-center align-items-center gap-2 enter-with">
-                <button
-                  className="btn p-0 border-0"
-                  type="button"
-                  onClick={linked_in_login}
-                >
-                  <img src="./images/linkedin.svg" alt="linkedin" />
-                </button>
                 <button className="btn p-0 border-0" type="button">
                   <img src="./images/google.svg" alt="google" />
                 </button>
@@ -306,13 +293,6 @@ function Login() {
               </button>
               <Divider text="Ou entre com" />
               <div className="d-flex justify-content-center align-items-center gap-2 enter-with">
-                <button
-                  className="btn p-0 border-0"
-                  type="button"
-                  onClick={linked_in_login}
-                >
-                  <img src="./images/linkedin.svg" alt="linkedin" />
-                </button>
                 <button className="btn p-0 border-0" type="button">
                   <img src="./images/google.svg" alt="google" />
                 </button>
