@@ -129,7 +129,7 @@ const SynchronousCourseView = () => {
                 )}
 
                 {activeTab === "anuncios" && (
-                  <AnunciosView cursoId={courseId} isTeacher={isTeacher} />
+                  <AnunciosView cursoId={courseId} isTeacher={true} />
                 )}
               </div>
             </>

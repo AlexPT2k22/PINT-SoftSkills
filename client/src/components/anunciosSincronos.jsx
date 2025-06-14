@@ -25,6 +25,9 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingAnuncio, setEditingAnuncio] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingAnuncio, setDeletingAnuncio] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Estados do formulário
   const [formData, setFormData] = useState({
@@ -81,14 +84,9 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
       );
 
       if (response.data.success) {
-        // Resetar formulário
         setFormData({ titulo: "", conteudo: "" });
         setShowCreateModal(false);
-
-        // Recarregar anúncios
         await fetchAnuncios();
-
-        // Mostrar mensagem de sucesso (opcional)
         console.log("Anúncio criado com sucesso!");
       }
     } catch (error) {
@@ -134,24 +132,28 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
     }
   };
 
-  const handleDeleteAnuncio = async (anuncioId) => {
-    if (!window.confirm("Tem certeza que deseja excluir este anúncio?")) {
-      return;
-    }
+  const handleDeleteAnuncio = async () => {
+    if (!deletingAnuncio) return;
 
     try {
+      setDeleting(true);
       setError(null);
 
-      const response = await axios.delete(`${URL}/api/anuncios/${anuncioId}`, {
-        withCredentials: true,
-      });
+      const response = await axios.delete(
+        `${URL}/api/anuncios/${deletingAnuncio.ID_ANUNCIO}`,
+        { withCredentials: true }
+      );
 
       if (response.data.success) {
         await fetchAnuncios();
+        setShowDeleteModal(false);
+        setDeletingAnuncio(null);
       }
     } catch (error) {
       console.error("Erro ao excluir anúncio:", error);
       setError(error.response?.data?.message || "Erro ao excluir anúncio");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -164,10 +166,17 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
     setShowEditModal(true);
   };
 
+  const openDeleteModal = (anuncio) => {
+    setDeletingAnuncio(anuncio);
+    setShowDeleteModal(true);
+  };
+
   const closeModals = () => {
     setShowCreateModal(false);
     setShowEditModal(false);
+    setShowDeleteModal(false);
     setEditingAnuncio(null);
+    setDeletingAnuncio(null);
     setFormData({ titulo: "", conteudo: "" });
     setError(null);
   };
@@ -212,17 +221,28 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
 
   return (
     <div className="anuncios-view">
-      {isTeacher && (
-        <div className='mb-2'>
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h4 className="mb-0">
+            <MessageSquare size={24} className="me-2" />
+            Anúncios do Curso
+          </h4>
+          <small className="text-muted">
+            {anuncios.length} anúncio{anuncios.length !== 1 ? "s" : ""}
+          </small>
+        </div>
+
+        {isTeacher && (
           <button
             className="btn btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
             <Plus size={16} className="me-1" />
-            Novo anúncio
+            Novo Anúncio
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Mensagem de erro */}
       {error && (
@@ -253,7 +273,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
               onClick={() => setShowCreateModal(true)}
             >
               <Plus size={16} className="me-1" />
-              Criar anúncio
+              Criar Primeiro Anúncio
             </button>
           )}
         </div>
@@ -276,7 +296,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                       </button>
                       <button
                         className="btn btn-outline-danger"
-                        onClick={() => handleDeleteAnuncio(anuncio.ID_ANUNCIO)}
+                        onClick={() => openDeleteModal(anuncio)}
                         title="Excluir anúncio"
                       >
                         <Trash2 size={14} />
@@ -318,7 +338,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
               <div className="modal-header">
                 <h5 className="modal-title">
                   <MessageSquare size={20} className="me-2" />
-                  Novo anúncio
+                  Novo Anúncio
                 </h5>
                 <button
                   type="button"
@@ -402,6 +422,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                       </>
                     ) : (
                       <>
+                        <Send size={16} className="me-1" />
                         Publicar Anúncio
                       </>
                     )}
@@ -511,9 +532,104 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
+      {/* Modal para confirmar exclusão - VERSÃO CORRIGIDA SEM OVERFLOW */}
+      {showDeleteModal && deletingAnuncio && (
+        <div
+          className="modal show d-flex align-items-center justify-content-center p-3"
+          tabIndex="-1"
+          style={{ zIndex: 1050 }}
+        >
+          <div style={{ maxWidth: "400px", width: "100%" }}>
+            <div className="modal-content">
+              <div className="modal-header border-0">
+                <h6 className="modal-title d-flex align-items-center mb-0">
+                  <Trash2 size={18} className="me-2 text-danger" />
+                  Excluir Anúncio
+                </h6>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeModals}
+                  disabled={deleting}
+                ></button>
+              </div>
+
+              <div className="modal-body text-center py-4">
+                <div className="mb-3">
+                  <div
+                    className="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
+                    style={{ width: "60px", height: "60px" }}
+                  >
+                    <Trash2 size={24} className="text-danger" />
+                  </div>
+                </div>
+
+                <h6 className="mb-2">Confirmar exclusão</h6>
+                <p className="text-muted mb-3">
+                  Deseja excluir o anúncio
+                  <br />
+                  <strong className="text-danger">
+                    "{deletingAnuncio.TITULO}"
+                  </strong>
+                  ?
+                </p>
+
+                <small className="text-muted">
+                  Esta ação não pode ser desfeita.
+                </small>
+
+                {error && (
+                  <div className="alert alert-danger alert-sm mt-3 mb-0">
+                    <small>
+                      <AlertCircle size={14} className="me-1" />
+                      {error}
+                    </small>
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-footer border-0 pt-0">
+                <div className="d-flex gap-2 w-100">
+                  <button
+                    type="button"
+                    className="btn btn-light flex-fill"
+                    onClick={closeModals}
+                    disabled={deleting}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger flex-fill"
+                    onClick={handleDeleteAnuncio}
+                    disabled={deleting}
+                  >
+                    {deleting ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-1"
+                          style={{ width: "14px", height: "14px" }}
+                        />
+                        Excluindo...
+                      </>
+                    ) : (
+                      "Excluir"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Backdrop para modais */}
-      {(showCreateModal || showEditModal) && (
-        <div className="modal-backdrop show" onClick={closeModals}></div>
+      {(showCreateModal || showEditModal || showDeleteModal) && (
+        <div
+          className="modal-backdrop show"
+          onClick={closeModals}
+          style={{ zIndex: 1040 }}
+        />
       )}
     </div>
   );
