@@ -78,17 +78,22 @@ function NotificationsDropdown() {
   const markAllAsRead = async () => {
     try {
       setMarkingAllAsRead(true);
-      
+
       // Buscar todas as notificações não lidas do usuário
-      const allNotificationsResponse = await axios.get(`${URL}/api/notificacoes`, {
-        withCredentials: true,
-      });
+      const allNotificationsResponse = await axios.get(
+        `${URL}/api/notificacoes`,
+        {
+          withCredentials: true,
+        }
+      );
 
       if (allNotificationsResponse.data) {
-        const unreadNotifications = allNotificationsResponse.data.filter(notif => !notif.LIDA);
-        
+        const unreadNotifications = allNotificationsResponse.data.filter(
+          (notif) => !notif.LIDA
+        );
+
         // Marcar todas as não lidas como lidas
-        const markAsReadPromises = unreadNotifications.map(notif => 
+        const markAsReadPromises = unreadNotifications.map((notif) =>
           axios.put(
             `${URL}/api/notificacoes/${notif.ID_NOTIFICACAO}/read`,
             {},
@@ -99,7 +104,9 @@ function NotificationsDropdown() {
         await Promise.all(markAsReadPromises);
 
         // Atualizar estado local - marcar todas as notificações visíveis como lidas
-        setNotifications(notifications.map(notif => ({ ...notif, LIDA: true })));
+        setNotifications(
+          notifications.map((notif) => ({ ...notif, LIDA: true }))
+        );
         setUnreadCount(0);
       }
     } catch (error) {
@@ -156,9 +163,20 @@ function NotificationsDropdown() {
       markAsRead(notification.ID_NOTIFICACAO);
     }
 
-    // Navegar para a página do curso se existir
-    if (notification.CURSO?.ID_CURSO) {
-      navigate(`/course/${notification.CURSO.ID_CURSO}`);
+    switch (notification.TIPO) {
+      case "ALTERACAO_LINK_AULA":
+        navigate(
+          `/dashboard/synchronous-course/${notification.CURSO?.ID_CURSO}?tab=aulas`
+        );
+        break;
+      case "NOVO_ANUNCIO":
+        navigate(
+          `/dashboard/synchronous-course/${notification.CURSO?.ID_CURSO}?tab=anuncios`
+        );
+        break;
+      default:
+        navigate(`/course/${notification.CURSO?.ID_CURSO}`);
+        break;
     }
 
     setShowDropdown(false);
@@ -183,19 +201,22 @@ function NotificationsDropdown() {
         <div className="notifications-dropdown">
           <div className="notifications-header">
             <h6 className="mb-0">Notificações</h6>
-            
+
             {/* ✅ ATUALIZADO: Botão de marcar todas como lidas */}
             {unreadCount > 0 && (
-              <button 
+              <button
                 className="btn btn-link btn-sm text-primary p-0"
                 type="button"
                 onClick={markAllAsRead}
                 disabled={markingAllAsRead}
-                style={{ fontSize: '12px', textDecoration: 'none' }}
+                style={{ fontSize: "12px", textDecoration: "none" }}
               >
                 {markingAllAsRead ? (
                   <>
-                    <div className="spinner-border spinner-border-sm me-1" role="status">
+                    <div
+                      className="spinner-border spinner-border-sm me-1"
+                      role="status"
+                    >
                       <span className="visually-hidden">A carregar...</span>
                     </div>
                   </>
@@ -207,7 +228,7 @@ function NotificationsDropdown() {
                 )}
               </button>
             )}
-            
+
             {loading && (
               <div className="spinner-border spinner-border-sm" role="status">
                 <span className="visually-hidden">A carregar...</span>

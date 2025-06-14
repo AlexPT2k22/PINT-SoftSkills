@@ -40,6 +40,7 @@ const Notificacao = sequelize.define(
         "ALTERACAO_LINK_AULA",
         "INSCRICAO",
         "NOVO_CONTEUDO",
+        "NOVO_ANUNCIO",
         "OUTRA"
       ),
       allowNull: false,

@@ -6,6 +6,7 @@ import AulasSincronas from "./components/aulasSincronas";
 import axios from "axios";
 import useAuthStore from "./store/authStore";
 import Sidebar from "./components/sidebar";
+import AnunciosView from "./components/anunciosSincronos";
 
 const SynchronousCourseView = () => {
   const [activeTab, setActiveTab] = useState("aulas");
@@ -102,6 +103,16 @@ const SynchronousCourseView = () => {
                       Avaliações
                     </button>
                   </li>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link ${
+                        activeTab === "anuncios" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("anuncios")}
+                    >
+                      Anúncios
+                    </button>
+                  </li>
                 </ul>
               </div>
 
@@ -115,6 +126,10 @@ const SynchronousCourseView = () => {
                     cursoId={courseId}
                     isTeacher={isTeacher}
                   />
+                )}
+
+                {activeTab === "anuncios" && (
+                  <AnunciosView cursoId={courseId} isTeacher={isTeacher} />
                 )}
               </div>
             </>

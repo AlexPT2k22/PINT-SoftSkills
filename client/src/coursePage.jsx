@@ -169,6 +169,100 @@ function CoursePage() {
     }
   };
 
+  const isButtonDisabled = () => {
+    if (isEnrolling) return true;
+
+    // Se está inscrito
+    if (inscrito) {
+      // Para cursos síncronos inscritos, só desabilitar se ainda não começou
+      if (course.CURSO_SINCRONO) {
+        const status = checkDates(
+          course.CURSO_SINCRONO.DATA_INICIO,
+          course.CURSO_SINCRONO.DATA_FIM
+        );
+        return status === "O curso ainda não começou";
+      }
+      // Para cursos assíncronos inscritos, sempre permitir acesso
+      return false;
+    }
+
+    // Se NÃO está inscrito
+    // Verificar se há vagas (para síncronos)
+    if (course.CURSO_SINCRONO && course.CURSO_SINCRONO.VAGAS <= 0) {
+      return true;
+    }
+
+    // Verificar prazo de inscrição
+    if (course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S) {
+      if (
+        !checkEnrollmentDeadline(course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S)
+      ) {
+        return true;
+      }
+    }
+
+    // Verificar status do curso para não inscritos
+    const status = course.CURSO_SINCRONO
+      ? checkDates(
+          course.CURSO_SINCRONO.DATA_INICIO,
+          course.CURSO_SINCRONO.DATA_FIM
+        )
+      : checkDates(
+          course.CURSO_ASSINCRONO?.DATA_INICIO,
+          course.CURSO_ASSINCRONO?.DATA_FIM
+        );
+
+    // Não inscritos não podem entrar em cursos que já terminaram ou estão em andamento
+    return (
+      status === "O curso já terminou" || status === "O curso está em andamento"
+    );
+  };
+
+  // ✅ ADICIONAR: Função para determinar o texto do botão
+  const getButtonText = () => {
+    if (isEnrolling) {
+      return (
+        <span>
+          <span
+            className="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          A guardar o lugar...
+        </span>
+      );
+    }
+
+    if (inscrito) {
+      if (course.CURSO_SINCRONO) {
+        const status = checkDates(
+          course.CURSO_SINCRONO.DATA_INICIO,
+          course.CURSO_SINCRONO.DATA_FIM
+        );
+
+        switch (status) {
+          case "O curso ainda não começou":
+            return "Aguardando início do curso";
+          case "O curso está em andamento":
+          case "Inscrever":
+            return "Ir para o curso";
+          case "O curso já terminou":
+            return "Curso terminado";
+          default:
+            return "Ir para o curso";
+        }
+      }
+      return "Ir para o curso";
+    }
+
+    // Para não inscritos, mostrar o status do curso
+    return checkDates(
+      course.CURSO_SINCRONO?.DATA_INICIO,
+      course.CURSO_SINCRONO?.DATA_FIM,
+      course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
+    );
+  };
+
   const checkDates = (startDate, endDate, enrollmentDeadline = null) => {
     const today = new Date();
     const start = new Date(startDate);
@@ -337,59 +431,9 @@ function CoursePage() {
                     <button
                       className="btn btn-primary fs-5 ps-5 pe-5"
                       onClick={() => handleInscrito()}
-                      disabled={
-                        (course.CURSO_SINCRONO &&
-                          course.CURSO_SINCRONO.VAGAS <= 0) ||
-                        isEnrolling ||
-                        (course.CURSO_SINCRONO &&
-                          checkDates(
-                            course.CURSO_SINCRONO.DATA_INICIO,
-                            course.CURSO_SINCRONO.DATA_FIM
-                          ) === "O curso já terminou" &&
-                          inscrito === false) ||
-                        (course.CURSO_SINCRONO &&
-                          checkDates(
-                            course.CURSO_SINCRONO.DATA_INICIO,
-                            course.CURSO_SINCRONO.DATA_FIM
-                          ) === "O curso está em andamento" &&
-                          inscrito === false) ||
-                        (course.CURSO_ASSINCRONO &&
-                          checkDates(
-                            course.CURSO_ASSINCRONO.DATA_INICIO,
-                            course.CURSO_ASSINCRONO.DATA_FIM
-                          ) === "O curso já terminou" &&
-                          inscrito === false) ||
-                        (course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
-                          ? !checkEnrollmentDeadline(
-                              course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
-                            )
-                          : false) ||
-                        (course.CURSO_SINCRONO &&
-                          checkDates(
-                            course.CURSO_SINCRONO.DATA_INICIO,
-                            course.CURSO_SINCRONO.DATA_FIM
-                          ) === "O curso ainda não começou" &&
-                          inscrito === true)
-                      }
+                      disabled={isButtonDisabled()}
                     >
-                      {isEnrolling ? (
-                        <span>
-                          <span
-                            className="spinner-border spinner-border-sm me-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          A guardar o lugar...
-                        </span>
-                      ) : inscrito ? (
-                        "Ir para o curso"
-                      ) : (
-                        checkDates(
-                          course.CURSO_SINCRONO?.DATA_INICIO,
-                          course.CURSO_SINCRONO?.DATA_FIM,
-                          course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
-                        )
-                      )}
+                      {getButtonText()}
                     </button>
                   </div>
                 </div>

@@ -282,7 +282,7 @@ function Dashboard() {
   };
 
   const handleEntrarAula = (aulaId, aulaLink) => {
-    console.log("Entrando na aula:", aulaId);
+    //console.log("A entrar na aula:", aulaId);
     window.open(aulaLink, "_blank");
   };
 

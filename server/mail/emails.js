@@ -11,7 +11,7 @@ const {
   COURSE_LINK_CHANGE_EMAIL_TEMPLATE,
   COURSE_NEW_CONTENT_EMAIL_TEMPLATE,
   COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE,
-  COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE,
+  COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE
 } = require("./emailTemplates.js");
 
 const sendVerificationEmail = async (
@@ -440,5 +440,5 @@ module.exports = {
   sendLinkChangeNotificationEmail,
   sendNewContentNotificationEmail,
   sendGeneralNotificationEmail,
-  sendAnnouncementNotificationEmail,
+  sendAnnouncementNotificationEmail
 };
