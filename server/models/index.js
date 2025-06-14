@@ -39,6 +39,7 @@ const AulaSincrona = require("./aulaSincrona.model.js");
 const PresencaAula = require("./presenca.model.js");
 const SubmissaoAvaliacao = require("./submissaoAvaliacao.model.js");
 const RespostaQuizAssincrono = require("./respostaquizassincrono.model.js");
+const Anuncio = require("./anuncio.model.js");
 
 CursoSincrono.hasMany(AulaSincrona, { foreignKey: "ID_CURSO" });
 AulaSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
@@ -371,6 +372,13 @@ Topico.hasMany(Curso, {
   as: "Cursos",
 });
 
+// Anuncio associations
+Curso.hasMany(Anuncio, { foreignKey: "ID_CURSO" });
+Anuncio.belongsTo(Curso, { foreignKey: "ID_CURSO" });
+
+Utilizador.hasMany(Anuncio, { foreignKey: "ID_UTILIZADOR" });
+Anuncio.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
+
 // Export all models with their associations
 module.exports = {
   sequelize,
@@ -414,4 +422,5 @@ module.exports = {
   AulaSincrona,
   PresencaAula,
   SubmissaoAvaliacao,
+  Anuncio,
 };

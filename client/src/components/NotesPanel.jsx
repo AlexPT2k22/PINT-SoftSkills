@@ -94,7 +94,7 @@ function NotesPanel({ moduleId, currentTime }) {
   };
 
   return (
-    <div className="notes-panel">
+    <div className="notes-panel ps-2">
       <div className="new-note mb-3">
         <textarea
           className="form-control mb-2"

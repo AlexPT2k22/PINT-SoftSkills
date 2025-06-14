@@ -3,6 +3,7 @@ const {
   RespostaQuizAssincrono,
   Curso,
   CursoAssincrono,
+  CursoSincrono,
   Utilizador,
   UtilizadorTemPerfil,
   InscricaoAssincrono,
@@ -105,6 +106,15 @@ const createQuiz = async (req, res) => {
 const getQuizByCurso = async (req, res) => {
   try {
     const { cursoId } = req.params;
+
+    const cursoSincrono = await CursoSincrono.findByPk(cursoId);
+    if (cursoSincrono) {
+      return res.status(200).json({
+        hasQuiz: false,
+        message: "Curso síncrono não possui quiz",
+        isSynchronous: true,
+      });
+    }
 
     const quiz = await QuizAssincrono.findOne({
       where: { ID_CURSO: cursoId, ATIVO: true },

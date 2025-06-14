@@ -9,6 +9,8 @@ import "./styles/CourseVideoPage.css";
 import { Check, Info, SquareArrowOutUpRight, LockKeyhole } from "lucide-react";
 import NotesPanel from "./components/NotesPanel";
 import VideoPlayer from "./components/video_player";
+import AnunciosPanel from "./components/AnunciosPanel";
+import "./styles/AnunciosPanel.css";
 
 function CourseVideoPage() {
   const { courseId, moduleId } = useParams();
@@ -548,12 +550,26 @@ function CourseVideoPage() {
                   )}
 
                   {index === 2 && (
-                    <NotesPanel
-                      moduleId={moduleId}
-                      currentTime={currentTime}
-                      onPauseVideo={handlePauseVideo}
-                      onResumeVideo={handleResumeVideo}
-                      playerRef={cloudinaryPlayerRef}
+                    <>
+                      <div className="d-flex flex-column">
+                        <div className="container d-flex flex-column p-0 mt-2">
+                          <h3 className="ps-2 fw-normal">Notas</h3>
+                        </div>
+                      </div>
+                      <NotesPanel
+                        moduleId={moduleId}
+                        currentTime={currentTime}
+                        onPauseVideo={handlePauseVideo}
+                        onResumeVideo={handleResumeVideo}
+                        playerRef={cloudinaryPlayerRef}
+                      />
+                    </>
+                  )}
+
+                  {index === 3 && courseData?.CURSO_SINCRONO && (
+                    <AnunciosPanel
+                      courseId={courseId}
+                      courseData={courseData}
                     />
                   )}
                 </div>

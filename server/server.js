@@ -21,6 +21,7 @@ const aulaSincronaRoutes = require("./routes/aulaSincrona.route.js");
 const presencaRoutes = require("./routes/presenca.route");
 const notificacaoRoutes = require("./routes/notificacao.route.js");
 const quizzassincronoRoutes = require("./routes/quizAssincrono.route.js");
+const anuncioRotas = require("./routes/anuncio.route.js");
 const {
   updateAsyncCoursesStatus,
   updateSyncCoursesStatus,
@@ -50,6 +51,7 @@ setInterval(
 
 app.use("/api/notificacoes", notificacaoRoutes); // Rota para notificações
 app.use("/api/areas", areaRoute); // Rota para áreas
+app.use("/api/anuncios", anuncioRotas); // Rota para anúncios
 app.use("/api/user", userRoute); // Rota para usuários
 app.use("/api/dashboard", dashboardRoute); // Rota para o dashboard
 app.use("/api/auth", authRoutes); // Rota para autenticação
