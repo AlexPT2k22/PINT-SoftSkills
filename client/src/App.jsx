@@ -34,6 +34,10 @@ import GerirUsers from "./gerirUsers.jsx";
 import VerifyCertificate from "./verifyCertificate.jsx";
 import UserPage from "./userPage.jsx";
 import QuizPage from "./quizPage.jsx";
+import Forum from "./Forum.jsx";
+import ForumTopicoView from "./components/ForumTopicoView.jsx";
+import ForumSolicitarTopico from "./components/ForumSolicitarTopico.jsx";
+import ForumAdmin from "./components/ForumAdmin.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -108,6 +112,31 @@ function App() {
         <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
         <Route path="/course/:courseId" element={<CoursePage />}></Route>
         <Route path="/find-courses" element={<FindCoursesPage />} />
+        <Route path="/forum" element={<Forum />} />
+        <Route
+          path="/forum/topico/:topicoId"
+          element={
+            <ProtectedRoute>
+              <ForumTopicoView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/forum/solicitar-topico"
+          element={
+            <ProtectedRoute>
+              <ForumSolicitarTopico />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/forum/admin"
+          element={
+            <ProtectedRoute>
+              <ForumAdmin />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard/courses/:courseId/quiz"
           element={
@@ -120,10 +149,7 @@ function App() {
           path="/verify-certificate/:certificateId"
           element={<VerifyCertificate />}
         />
-        <Route
-          path="/verify-certificate"
-          element={<VerifyCertificate />}
-        />
+        <Route path="/verify-certificate" element={<VerifyCertificate />} />
         <Route
           path="/dashboard/users"
           element={
