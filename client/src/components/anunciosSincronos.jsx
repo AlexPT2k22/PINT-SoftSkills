@@ -212,9 +212,9 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
     return (
       <div className="d-flex flex-column align-items-center justify-content-center py-5">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Carregando anúncios...</span>
+          <span className="visually-hidden">A carregar anúncios...</span>
         </div>
-        <p className="mt-2 text-muted">Carregando anúncios do curso...</p>
+        <p className="mt-2 text-muted">A carregar os anúncios do curso...</p>
       </div>
     );
   }
@@ -223,23 +223,13 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
     <div className="anuncios-view">
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h4 className="mb-0">
-            <MessageSquare size={24} className="me-2" />
-            Anúncios do Curso
-          </h4>
-          <small className="text-muted">
-            {anuncios.length} anúncio{anuncios.length !== 1 ? "s" : ""}
-          </small>
-        </div>
-
         {isTeacher && (
           <button
             className="btn btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
             <Plus size={16} className="me-1" />
-            Novo Anúncio
+            Novo anúncio
           </button>
         )}
       </div>
@@ -273,7 +263,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
               onClick={() => setShowCreateModal(true)}
             >
               <Plus size={16} className="me-1" />
-              Criar Primeiro Anúncio
+              Criar anúncio
             </button>
           )}
         </div>
@@ -338,7 +328,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
               <div className="modal-header">
                 <h5 className="modal-title">
                   <MessageSquare size={20} className="me-2" />
-                  Novo Anúncio
+                  Novo anúncio
                 </h5>
                 <button
                   type="button"
@@ -351,7 +341,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                 <div className="modal-body">
                   <div className="mb-3">
                     <label htmlFor="titulo" className="form-label">
-                      Título do Anúncio *
+                      Título do anúncio *
                     </label>
                     <input
                       type="text"
@@ -369,7 +359,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
 
                   <div className="mb-3">
                     <label htmlFor="conteudo" className="form-label">
-                      Conteúdo do Anúncio *
+                      Conteúdo do anúncio *
                     </label>
                     <textarea
                       className="form-control"
@@ -418,12 +408,12 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                     {submitting ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" />
-                        Publicando...
+                        A publicar...
                       </>
                     ) : (
                       <>
                         <Send size={16} className="me-1" />
-                        Publicar Anúncio
+                        Publicar anúncio
                       </>
                     )}
                   </button>
@@ -442,7 +432,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
               <div className="modal-header">
                 <h5 className="modal-title">
                   <Edit size={20} className="me-2" />
-                  Editar Anúncio
+                  Editar anúncio
                 </h5>
                 <button
                   type="button"
@@ -455,7 +445,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                 <div className="modal-body">
                   <div className="mb-3">
                     <label htmlFor="editTitulo" className="form-label">
-                      Título do Anúncio *
+                      Título do anúncio *
                     </label>
                     <input
                       type="text"
@@ -472,7 +462,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
 
                   <div className="mb-3">
                     <label htmlFor="editConteudo" className="form-label">
-                      Conteúdo do Anúncio *
+                      Conteúdo do anúncio *
                     </label>
                     <textarea
                       className="form-control"
@@ -516,12 +506,12 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                     {submitting ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" />
-                        Salvando...
+                        A guardar...
                       </>
                     ) : (
                       <>
                         <Send size={16} className="me-1" />
-                        Salvar Alterações
+                        Guardar alterações
                       </>
                     )}
                   </button>
@@ -532,7 +522,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Modal para confirmar exclusão - VERSÃO CORRIGIDA SEM OVERFLOW */}
+      {/* Modal para confirmar exclusão */}
       {showDeleteModal && deletingAnuncio && (
         <div
           className="modal show d-flex align-items-center justify-content-center p-3"
@@ -543,8 +533,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
             <div className="modal-content">
               <div className="modal-header border-0">
                 <h6 className="modal-title d-flex align-items-center mb-0">
-                  <Trash2 size={18} className="me-2 text-danger" />
-                  Excluir Anúncio
+                  Apagar anúncio
                 </h6>
                 <button
                   type="button"
@@ -554,20 +543,9 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                 ></button>
               </div>
 
-              <div className="modal-body text-center py-4">
-                <div className="mb-3">
-                  <div
-                    className="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
-                    style={{ width: "60px", height: "60px" }}
-                  >
-                    <Trash2 size={24} className="text-danger" />
-                  </div>
-                </div>
-
-                <h6 className="mb-2">Confirmar exclusão</h6>
-                <p className="text-muted mb-3">
-                  Deseja excluir o anúncio
-                  <br />
+              <div className="modal-body text-center pb-4 pt-0">
+                <p className="text-muted mb-0">
+                  Deseja apagar o anúncio{" "}
                   <strong className="text-danger">
                     "{deletingAnuncio.TITULO}"
                   </strong>
@@ -610,10 +588,10 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                           className="spinner-border spinner-border-sm me-1"
                           style={{ width: "14px", height: "14px" }}
                         />
-                        Excluindo...
+                        A apagar...
                       </>
                     ) : (
-                      "Excluir"
+                      "Apagar"
                     )}
                   </button>
                 </div>
