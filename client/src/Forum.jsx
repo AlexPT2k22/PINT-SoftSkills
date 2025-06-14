@@ -183,7 +183,7 @@ const Forum = () => {
   return (
     <>
       <Navbar />
-      <div className="container-fluid py-4">
+      <div className="container p-4 mt-4">
         {/* Header */}
         <div className="row mb-4">
           <div className="col-12">

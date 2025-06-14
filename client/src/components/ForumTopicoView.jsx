@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Navbar from "./navbar.jsx";
 import {
   MessageSquare,
   ThumbsUp,
@@ -169,7 +170,7 @@ const ForumTopicoView = () => {
           prevPosts.map((post) => {
             if (post.ID_FORUM_POST === postId) {
               const updatedPost = { ...post };
-              
+
               // Remover avaliação anterior
               if (post.userAvaliacao === "LIKE") {
                 updatedPost.TOTAL_LIKES--;
@@ -178,7 +179,10 @@ const ForumTopicoView = () => {
               }
 
               // Aplicar nova avaliação
-              if (response.data.action === "created" || response.data.action === "updated") {
+              if (
+                response.data.action === "created" ||
+                response.data.action === "updated"
+              ) {
                 if (tipo === "LIKE") {
                   updatedPost.TOTAL_LIKES++;
                   updatedPost.userAvaliacao = "LIKE";
@@ -305,7 +309,10 @@ const ForumTopicoView = () => {
         <div className="alert alert-danger text-center">
           <AlertCircle size={24} className="mb-2" />
           <h5>{error}</h5>
-          <button className="btn btn-primary mt-2" onClick={() => navigate("/forum")}>
+          <button
+            className="btn btn-primary mt-2"
+            onClick={() => navigate("/forum")}
+          >
             Voltar ao Fórum
           </button>
         </div>
@@ -314,417 +321,454 @@ const ForumTopicoView = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
-      {/* Header do Tópico */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <button
-            className="btn btn-outline-secondary mb-3"
-            onClick={() => navigate("/forum")}
-          >
-            <ChevronLeft size={16} className="me-1" />
-            Voltar ao Fórum
-          </button>
-
-          <div className="card">
-            <div className="card-body">
-              <h2 className="mb-2">{topico?.TITULO}</h2>
-              <p className="text-muted mb-3">{topico?.DESCRICAO}</p>
-
-              {/* Breadcrumb */}
-              <div className="d-flex align-items-center text-muted small mb-3">
-                <span>{topico?.Categoria?.NOME__}</span>
-                <ChevronRight size={14} className="mx-1" />
-                <span>{topico?.Area?.NOME}</span>
-                <ChevronRight size={14} className="mx-1" />
-                <span>{topico?.Topico?.TITULO}</span>
-              </div>
-
-              <div className="d-flex justify-content-between align-items-center">
-                <small className="text-muted">
-                  Criado por: <strong>{topico?.Criador?.NOME}</strong> em{" "}
-                  {formatDate(topico?.DATA_CRIACAO)}
-                </small>
-                <small className="text-muted">
-                  <MessageSquare size={14} className="me-1" />
-                  {topico?.TOTAL_POSTS} posts
-                </small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Formulário para Novo Post */}
-      {user && (
+    <>
+      <Navbar />
+      <div className="container p-4 mt-4">
+        {/* Header do Tópico */}
         <div className="row mb-4">
           <div className="col-12">
+            <button
+              className="btn btn-outline-secondary mb-3"
+              onClick={() => navigate("/forum")}
+            >
+              <ChevronLeft size={16} className="me-1" />
+              Voltar ao Fórum
+            </button>
+
             <div className="card">
-              <div className="card-header">
-                <h6 className="mb-0">
-                  <Reply size={18} className="me-2" />
-                  Participar da Discussão
-                </h6>
-              </div>
-              <form onSubmit={handleCreatePost}>
-                <div className="card-body">
-                  <div className="mb-3">
-                    <textarea
-                      className="form-control"
-                      rows="4"
-                      placeholder="Partilhe o seu conhecimento ou faça uma pergunta..."
-                      value={novoPost.conteudo}
-                      onChange={(e) =>
-                        setNovoPost((prev) => ({ ...prev, conteudo: e.target.value }))
-                      }
-                      required
-                      disabled={submittingPost}
-                    />
-                  </div>
+              <div className="card-body">
+                <h2 className="mb-2">{topico?.TITULO}</h2>
+                <p className="text-muted mb-3">{topico?.DESCRICAO}</p>
 
-                  {/* Anexos */}
-                  {novoPost.anexos.length > 0 && (
-                    <div className="mb-3">
-                      <h6 className="small">Anexos:</h6>
-                      {novoPost.anexos.map((file, index) => (
-                        <div
-                          key={index}
-                          className="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2"
-                        >
-                          <span className="small">
-                            {getFileIcon(file.type)} {file.name}
-                          </span>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => removeAnexo(index)}
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileSelect}
-                        multiple
-                        accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt"
-                        style={{ display: "none" }}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm me-2"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={submittingPost}
-                      >
-                        <Paperclip size={16} className="me-1" />
-                        Anexar Arquivo
-                      </button>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      disabled={submittingPost || !novoPost.conteudo.trim()}
-                    >
-                      {submittingPost ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" />
-                          Publicando...
-                        </>
-                      ) : (
-                        <>
-                          <Send size={16} className="me-1" />
-                          Publicar Post
-                        </>
-                      )}
-                    </button>
-                  </div>
+                {/* Breadcrumb */}
+                <div className="d-flex align-items-center text-muted small mb-3">
+                  <span>{topico?.Categoria?.NOME__}</span>
+                  <ChevronRight size={14} className="mx-1" />
+                  <span>{topico?.Area?.NOME}</span>
+                  <ChevronRight size={14} className="mx-1" />
+                  <span>{topico?.Topico?.TITULO}</span>
                 </div>
-              </form>
+
+                <div className="d-flex justify-content-between align-items-center">
+                  <small className="text-muted">
+                    Criado por: <strong>{topico?.Criador?.NOME}</strong> em{" "}
+                    {formatDate(topico?.DATA_CRIACAO)}
+                  </small>
+                  <small className="text-muted">
+                    <MessageSquare size={14} className="me-1" />
+                    {topico?.TOTAL_POSTS} posts
+                  </small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Lista de Posts */}
-      <div className="row">
-        <div className="col-12">
-          {posts.length === 0 ? (
-            <div className="text-center py-5">
-              <MessageSquare size={64} className="text-muted mb-3" />
-              <h5 className="text-muted">Ainda não há posts</h5>
-              <p className="text-muted">Seja o primeiro a participar desta discussão!</p>
-            </div>
-          ) : (
-            <>
-              {posts.map((post, index) => (
-                <div key={post.ID_FORUM_POST} className="card mb-3">
+        {/* Formulário para Novo Post */}
+        {user && (
+          <div className="row mb-4">
+            <div className="col-12">
+              <div className="card">
+                <div className="card-header">
+                  <h6 className="mb-0">
+                    <Reply size={18} className="me-2" />
+                    Participar da Discussão
+                  </h6>
+                </div>
+                <form onSubmit={handleCreatePost}>
                   <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start mb-3">
-                      <div className="d-flex align-items-center">
-                        <div className="me-3">
-                          <div className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style={{ width: "40px", height: "40px" }}>
-                            <span className="fw-bold text-primary">
-                              {post.Utilizador?.NOME?.charAt(0) || "U"}
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <h6 className="mb-0">{post.Utilizador?.NOME}</h6>
-                          <small className="text-muted">
-                            {formatDate(post.DATA_CRIACAO)}
-                            {post.ESTADO === "Editado" && (
-                              <span className="ms-2 badge bg-secondary">Editado</span>
-                            )}
-                          </small>
-                        </div>
-                      </div>
-
-                      {user && (
-                        <div className="dropdown">
-                          <button
-                            className="btn btn-outline-secondary btn-sm dropdown-toggle"
-                            data-bs-toggle="dropdown"
-                          >
-                            ⋯
-                          </button>
-                          <ul className="dropdown-menu">
-                            {user.ID_UTILIZADOR === post.ID_UTILIZADOR && (
-                              <>
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => {
-                                      setEditingPost(post);
-                                      setEditContent(post.CONTEUDO);
-                                    }}
-                                  >
-                                    <Edit size={16} className="me-2" />
-                                    Editar
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    className="dropdown-item text-danger"
-                                    onClick={() => handleDeletePost(post.ID_FORUM_POST)}
-                                  >
-                                    <Trash2 size={16} className="me-2" />
-                                    Deletar
-                                  </button>
-                                </li>
-                              </>
-                            )}
-                            <li>
-                              <button
-                                className="dropdown-item"
-                                onClick={() => {
-                                  setPostDenunciado(post);
-                                  setShowDenunciaModal(true);
-                                }}
-                              >
-                                <Flag size={16} className="me-2" />
-                                Denunciar
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
-                      )}
+                    <div className="mb-3">
+                      <textarea
+                        className="form-control"
+                        rows="4"
+                        placeholder="Partilhe o seu conhecimento ou faça uma pergunta..."
+                        value={novoPost.conteudo}
+                        onChange={(e) =>
+                          setNovoPost((prev) => ({
+                            ...prev,
+                            conteudo: e.target.value,
+                          }))
+                        }
+                        required
+                        disabled={submittingPost}
+                      />
                     </div>
 
-                    {/* Conteúdo do Post */}
-                    {editingPost?.ID_FORUM_POST === post.ID_FORUM_POST ? (
-                      <div className="mb-3">
-                        <textarea
-                          className="form-control mb-2"
-                          rows="4"
-                          value={editContent}
-                          onChange={(e) => setEditContent(e.target.value)}
-                        />
-                        <div>
-                          <button
-                            className="btn btn-primary btn-sm me-2"
-                            onClick={handleEditPost}
-                          >
-                            Salvar
-                          </button>
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={() => {
-                              setEditingPost(null);
-                              setEditContent("");
-                            }}
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mb-3" style={{ whiteSpace: "pre-wrap" }}>
-                        {post.CONTEUDO}
-                      </div>
-                    )}
-
                     {/* Anexos */}
-                    {post.ANEXOS && post.ANEXOS.length > 0 && (
+                    {novoPost.anexos.length > 0 && (
                       <div className="mb-3">
                         <h6 className="small">Anexos:</h6>
-                        {post.ANEXOS.map((anexo, index) => (
-                          <div key={index} className="d-flex align-items-center mb-2">
-                            <span className="me-2">{getFileIcon(anexo.tipo)}</span>
-                            <a
-                              href={`${URL}${anexo.url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-decoration-none"
+                        {novoPost.anexos.map((file, index) => (
+                          <div
+                            key={index}
+                            className="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2"
+                          >
+                            <span className="small">
+                              {getFileIcon(file.type)} {file.name}
+                            </span>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => removeAnexo(index)}
                             >
-                              {anexo.nome}
-                            </a>
-                            <a
-                              href={`${URL}${anexo.url}`}
-                              download={anexo.nome}
-                              className="btn btn-outline-primary btn-sm ms-2"
-                            >
-                              <Download size={14} />
-                            </a>
+                              <X size={14} />
+                            </button>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    {/* Avaliações */}
-                    {user && (
-                      <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileSelect}
+                          multiple
+                          accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt"
+                          style={{ display: "none" }}
+                        />
                         <button
-                          className={`btn btn-sm ${
-                            post.userAvaliacao === "LIKE"
-                              ? "btn-success"
-                              : "btn-outline-success"
-                          }`}
-                          onClick={() => handleAvaliarPost(post.ID_FORUM_POST, "LIKE")}
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm me-2"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={submittingPost}
                         >
-                          <ThumbsUp size={16} className="me-1" />
-                          {post.TOTAL_LIKES}
-                        </button>
-
-                        <button
-                          className={`btn btn-sm ${
-                            post.userAvaliacao === "DISLIKE"
-                              ? "btn-danger"
-                              : "btn-outline-danger"
-                          }`}
-                          onClick={() => handleAvaliarPost(post.ID_FORUM_POST, "DISLIKE")}
-                        >
-                          <ThumbsDown size={16} className="me-1" />
-                          {post.TOTAL_DISLIKES}
+                          <Paperclip size={16} className="me-1" />
+                          Anexar Arquivo
                         </button>
                       </div>
-                    )}
+
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={submittingPost || !novoPost.conteudo.trim()}
+                      >
+                        {submittingPost ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" />
+                            Publicando...
+                          </>
+                        ) : (
+                          <>
+                            <Send size={16} className="me-1" />
+                            Publicar Post
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
-
-              {/* Carregar Mais Posts */}
-              {pagination.hasMore && (
-                <div className="text-center">
-                  <button
-                    className="btn btn-outline-primary"
-                    onClick={() => fetchPosts(pagination.currentPage + 1)}
-                    disabled={loadingPosts}
-                  >
-                    {loadingPosts ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" />
-                        Carregando...
-                      </>
-                    ) : (
-                      "Carregar Mais Posts"
-                    )}
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Modal de Denúncia */}
-      {showDenunciaModal && (
-        <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  <Flag size={20} className="me-2" />
-                  Denunciar Post
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowDenunciaModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label className="form-label">Motivo da Denúncia *</label>
-                  <select
-                    className="form-select"
-                    value={denunciaData.motivo}
-                    onChange={(e) =>
-                      setDenunciaData((prev) => ({ ...prev, motivo: e.target.value }))
-                    }
-                    required
-                  >
-                    <option value="">Selecione um motivo</option>
-                    <option value="Spam">Spam</option>
-                    <option value="Conteudo_Inadequado">Conteúdo Inadequado</option>
-                    <option value="Linguagem_Ofensiva">Linguagem Ofensiva</option>
-                    <option value="Informacao_Falsa">Informação Falsa</option>
-                    <option value="Outro">Outro</option>
-                  </select>
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Descrição (opcional)</label>
-                  <textarea
-                    className="form-control"
-                    rows="3"
-                    placeholder="Descreva o problema..."
-                    value={denunciaData.descricao}
-                    onChange={(e) =>
-                      setDenunciaData((prev) => ({ ...prev, descricao: e.target.value }))
-                    }
-                  />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowDenunciaModal(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={handleDenunciarPost}
-                  disabled={!denunciaData.motivo}
-                >
-                  <Flag size={16} className="me-1" />
-                  Denunciar
-                </button>
+                </form>
               </div>
             </div>
           </div>
-          <div className="modal-backdrop show"></div>
+        )}
+
+        {/* Lista de Posts */}
+        <div className="row">
+          <div className="col-12">
+            {posts.length === 0 ? (
+              <div className="text-center py-5">
+                <MessageSquare size={64} className="text-muted mb-3" />
+                <h5 className="text-muted">Ainda não há posts</h5>
+                <p className="text-muted">
+                  Seja o primeiro a participar desta discussão!
+                </p>
+              </div>
+            ) : (
+              <>
+                {posts.map((post, index) => (
+                  <div key={post.ID_FORUM_POST} className="card mb-3">
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start mb-3">
+                        <div className="d-flex align-items-center">
+                          <div className="me-3">
+                            <div
+                              className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                              style={{ width: "40px", height: "40px" }}
+                            >
+                              <span className="fw-bold text-primary">
+                                {post.Utilizador?.NOME?.charAt(0) || "U"}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <h6 className="mb-0">{post.Utilizador?.NOME}</h6>
+                            <small className="text-muted">
+                              {formatDate(post.DATA_CRIACAO)}
+                              {post.ESTADO === "Editado" && (
+                                <span className="ms-2 badge bg-secondary">
+                                  Editado
+                                </span>
+                              )}
+                            </small>
+                          </div>
+                        </div>
+
+                        {user && (
+                          <div className="dropdown">
+                            <button
+                              className="btn btn-outline-secondary btn-sm dropdown-toggle"
+                              data-bs-toggle="dropdown"
+                            >
+                              ⋯
+                            </button>
+                            <ul className="dropdown-menu">
+                              {user.ID_UTILIZADOR === post.ID_UTILIZADOR && (
+                                <>
+                                  <li>
+                                    <button
+                                      className="dropdown-item"
+                                      onClick={() => {
+                                        setEditingPost(post);
+                                        setEditContent(post.CONTEUDO);
+                                      }}
+                                    >
+                                      <Edit size={16} className="me-2" />
+                                      Editar
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button
+                                      className="dropdown-item text-danger"
+                                      onClick={() =>
+                                        handleDeletePost(post.ID_FORUM_POST)
+                                      }
+                                    >
+                                      <Trash2 size={16} className="me-2" />
+                                      Deletar
+                                    </button>
+                                  </li>
+                                </>
+                              )}
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => {
+                                    setPostDenunciado(post);
+                                    setShowDenunciaModal(true);
+                                  }}
+                                >
+                                  <Flag size={16} className="me-2" />
+                                  Denunciar
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Conteúdo do Post */}
+                      {editingPost?.ID_FORUM_POST === post.ID_FORUM_POST ? (
+                        <div className="mb-3">
+                          <textarea
+                            className="form-control mb-2"
+                            rows="4"
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                          />
+                          <div>
+                            <button
+                              className="btn btn-primary btn-sm me-2"
+                              onClick={handleEditPost}
+                            >
+                              Salvar
+                            </button>
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => {
+                                setEditingPost(null);
+                                setEditContent("");
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="mb-3"
+                          style={{ whiteSpace: "pre-wrap" }}
+                        >
+                          {post.CONTEUDO}
+                        </div>
+                      )}
+
+                      {/* Anexos */}
+                      {post.ANEXOS && post.ANEXOS.length > 0 && (
+                        <div className="mb-3">
+                          <h6 className="small">Anexos:</h6>
+                          {post.ANEXOS.map((anexo, index) => (
+                            <div
+                              key={index}
+                              className="d-flex align-items-center mb-2"
+                            >
+                              <span className="me-2">
+                                {getFileIcon(anexo.tipo)}
+                              </span>
+                              <a
+                                href={`${URL}${anexo.url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-decoration-none"
+                              >
+                                {anexo.nome}
+                              </a>
+                              <a
+                                href={`${URL}${anexo.url}`}
+                                download={anexo.nome}
+                                className="btn btn-outline-primary btn-sm ms-2"
+                              >
+                                <Download size={14} />
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Avaliações */}
+                      {user && (
+                        <div className="d-flex align-items-center gap-3">
+                          <button
+                            className={`btn btn-sm ${
+                              post.userAvaliacao === "LIKE"
+                                ? "btn-success"
+                                : "btn-outline-success"
+                            }`}
+                            onClick={() =>
+                              handleAvaliarPost(post.ID_FORUM_POST, "LIKE")
+                            }
+                          >
+                            <ThumbsUp size={16} className="me-1" />
+                            {post.TOTAL_LIKES}
+                          </button>
+
+                          <button
+                            className={`btn btn-sm ${
+                              post.userAvaliacao === "DISLIKE"
+                                ? "btn-danger"
+                                : "btn-outline-danger"
+                            }`}
+                            onClick={() =>
+                              handleAvaliarPost(post.ID_FORUM_POST, "DISLIKE")
+                            }
+                          >
+                            <ThumbsDown size={16} className="me-1" />
+                            {post.TOTAL_DISLIKES}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Carregar Mais Posts */}
+                {pagination.hasMore && (
+                  <div className="text-center">
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={() => fetchPosts(pagination.currentPage + 1)}
+                      disabled={loadingPosts}
+                    >
+                      {loadingPosts ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" />
+                          Carregando...
+                        </>
+                      ) : (
+                        "Carregar Mais Posts"
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Modal de Denúncia */}
+        {showDenunciaModal && (
+          <div className="modal show d-block" tabIndex="-1">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    <Flag size={20} className="me-2" />
+                    Denunciar Post
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowDenunciaModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label">Motivo da Denúncia *</label>
+                    <select
+                      className="form-select"
+                      value={denunciaData.motivo}
+                      onChange={(e) =>
+                        setDenunciaData((prev) => ({
+                          ...prev,
+                          motivo: e.target.value,
+                        }))
+                      }
+                      required
+                    >
+                      <option value="">Selecione um motivo</option>
+                      <option value="Spam">Spam</option>
+                      <option value="Conteudo_Inadequado">
+                        Conteúdo Inadequado
+                      </option>
+                      <option value="Linguagem_Ofensiva">
+                        Linguagem Ofensiva
+                      </option>
+                      <option value="Informacao_Falsa">Informação Falsa</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Descrição (opcional)</label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      placeholder="Descreva o problema..."
+                      value={denunciaData.descricao}
+                      onChange={(e) =>
+                        setDenunciaData((prev) => ({
+                          ...prev,
+                          descricao: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowDenunciaModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleDenunciarPost}
+                    disabled={!denunciaData.motivo}
+                  >
+                    <Flag size={16} className="me-1" />
+                    Denunciar
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="modal-backdrop show"></div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
