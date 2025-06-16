@@ -87,8 +87,6 @@ function WelcomePage() {
     return <Loader />;
   }
 
-  //TODO: add error handling UI
-
   return (
     <>
       <Navbar />
