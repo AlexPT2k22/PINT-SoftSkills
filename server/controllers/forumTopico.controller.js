@@ -15,7 +15,7 @@ const getTopicosForum = async (req, res) => {
     const { categoriaId, areaId, topicoId, page = 1, limit = 10 } = req.query;
 
     const whereConditions = {};
-    
+
     if (categoriaId) whereConditions.ID_CATEGORIA = categoriaId;
     if (areaId) whereConditions.ID_AREA = areaId;
     if (topicoId) whereConditions.ID_TOPICO = topicoId;
@@ -46,7 +46,10 @@ const getTopicosForum = async (req, res) => {
           attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
         },
       ],
-      order: [["ULTIMO_POST_DATA", "DESC"], ["DATA_CRIACAO", "DESC"]],
+      order: [
+        ["ULTIMO_POST_DATA", "DESC"],
+        ["DATA_CRIACAO", "DESC"],
+      ],
       limit: parseInt(limit),
       offset: offset,
     });
@@ -115,27 +118,30 @@ const createTopicoForum = async (req, res) => {
     });
 
     // Buscar o tópico criado com as relações
-    const topicoCompleto = await ForumTopico.findByPk(novoTopico.ID_FORUM_TOPICO, {
-      include: [
-        {
-          model: Categoria,
-          attributes: ["ID_CATEGORIA__PK___", "NOME__"],
-        },
-        {
-          model: Area,
-          attributes: ["ID_AREA", "NOME"],
-        },
-        {
-          model: Topico,
-          attributes: ["ID_TOPICO", "TITULO"],
-        },
-        {
-          model: Utilizador,
-          as: "Criador",
-          attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
-        },
-      ],
-    });
+    const topicoCompleto = await ForumTopico.findByPk(
+      novoTopico.ID_FORUM_TOPICO,
+      {
+        include: [
+          {
+            model: Categoria,
+            attributes: ["ID_CATEGORIA__PK___", "NOME__"],
+          },
+          {
+            model: Area,
+            attributes: ["ID_AREA", "NOME"],
+          },
+          {
+            model: Topico,
+            attributes: ["ID_TOPICO", "TITULO"],
+          },
+          {
+            model: Utilizador,
+            as: "Criador",
+            attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
+          },
+        ],
+      }
+    );
 
     res.status(201).json({
       success: true,
@@ -221,9 +227,26 @@ const updateTopicoCounters = async (topicoId) => {
   }
 };
 
+const countTopicos = async (req, res) => {
+  try {
+    const count = await ForumTopico.count({
+      where: { ESTADO: "Ativo" },
+    });
+
+    res.status(200).json({
+      success: true,
+      count: count,
+    });
+  } catch (error) {
+    console.error("Erro ao contar tópicos do fórum:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   getTopicosForum,
   createTopicoForum,
   getTopicoForumById,
   updateTopicoCounters,
+  countTopicos,
 };

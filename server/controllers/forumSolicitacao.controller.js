@@ -12,7 +12,8 @@ const {
 const criarSolicitacao = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
-    const { categoriaId, areaId, topicoId, tituloSugerido, justificativa } = req.body;
+    const { categoriaId, areaId, topicoId, tituloSugerido, justificativa } =
+      req.body;
 
     // Verificar se já existe tópico para essa combinação
     const topicoExistente = await ForumTopico.findOne({
@@ -43,7 +44,8 @@ const criarSolicitacao = async (req, res) => {
     if (solicitacaoExistente) {
       return res.status(400).json({
         success: false,
-        message: "Já existe uma solicitação pendente para esta categoria/área/tópico",
+        message:
+          "Já existe uma solicitação pendente para esta categoria/área/tópico",
       });
     }
 
@@ -108,59 +110,61 @@ const listarSolicitacoes = async (req, res) => {
     });
 
     const isGestor = !!userProfile;
-    
+
     const whereConditions = {};
-    
+
     if (!isGestor) {
       whereConditions.ID_SOLICITANTE = userId;
     }
-    
+
     if (estado) {
       whereConditions.ESTADO = estado;
     }
 
     const offset = (page - 1) * limit;
 
-    const { count, rows: solicitacoes } = await ForumSolicitacao.findAndCountAll({
-      where: whereConditions,
-      include: [
-        {
-          model: Utilizador,
-          as: "Solicitante",
-          attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
-        },
-        {
-          model: Utilizador,
-          as: "GestorResposta",
-          attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
-          required: false,
-        },
-        {
-          model: Categoria,
-          attributes: ["ID_CATEGORIA__PK___", "NOME__"],
-        },
-        {
-          model: Area,
-          attributes: ["ID_AREA", "NOME"],
-        },
-        {
-          model: Topico,
-          attributes: ["ID_TOPICO", "TITULO"],
-        },
-      ],
-      order: [["DATA_CRIACAO", "DESC"]],
-      limit: parseInt(limit),
-      offset: offset,
-    });
+    const { count, rows: solicitacoes } =
+      await ForumSolicitacao.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: Utilizador,
+            as: "Solicitante",
+            attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
+          },
+          {
+            model: Utilizador,
+            as: "GestorResposta",
+            attributes: ["ID_UTILIZADOR", "NOME", "USERNAME"],
+            required: false,
+          },
+          {
+            model: Categoria,
+            as: "Categoria",
+            attributes: ["ID_CATEGORIA__PK___", "NOME__"],
+          },
+          {
+            model: Area,
+            attributes: ["ID_AREA", "NOME"],
+          },
+          {
+            model: Topico,
+            attributes: ["ID_TOPICO", "TITULO"],
+          },
+        ],
+        order: [["DATA_CRIACAO", "DESC"]],
+        limit: parseInt(limit),
+        offset: offset,
+      });
 
     res.status(200).json({
       success: true,
-      solicitacoes: rows,
+      solicitacoes: solicitacoes,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(count / limit),
         totalItems: count,
-        hasMore: offset + rows.length < count,
+        hasMore: offset + solicitacoes.length < count,
       },
     });
   } catch (error) {
@@ -223,7 +227,9 @@ const responderSolicitacao = async (req, res) => {
         ID_TOPICO: solicitacao.ID_TOPICO,
         ID_CRIADOR: userId,
         TITULO: dadosTopico.titulo || solicitacao.TITULO_SUGERIDO,
-        DESCRICAO: dadosTopico.descricao || "Tópico criado a partir de solicitação de usuário",
+        DESCRICAO:
+          dadosTopico.descricao ||
+          "Tópico criado a partir de solicitação de usuário",
       });
     }
 

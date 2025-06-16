@@ -489,9 +489,11 @@ ForumSolicitacao.belongsTo(Utilizador, {
 
 Categoria.hasMany(ForumSolicitacao, {
   foreignKey: "ID_CATEGORIA",
+  as: "SolicitacoesCategoria",
 });
 ForumSolicitacao.belongsTo(Categoria, {
   foreignKey: "ID_CATEGORIA",
+  as: "Categoria",
 });
 
 Area.hasMany(ForumSolicitacao, {

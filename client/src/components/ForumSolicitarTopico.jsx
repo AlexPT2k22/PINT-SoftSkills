@@ -447,8 +447,8 @@ const ForumSolicitarTopico = () => {
 
                           <p className="text-muted small mb-2">
                             {solicitacao.Categoria?.NOME__} →{" "}
-                            {solicitacao.Area?.NOME} →{" "}
-                            {solicitacao.Topico?.TITULO}
+                            {solicitacao.AREA?.NOME} →{" "}
+                            {solicitacao.TOPICO?.TITULO}
                           </p>
 
                           <div className="d-flex justify-content-between align-items-center">

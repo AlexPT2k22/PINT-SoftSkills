@@ -18,6 +18,8 @@ import {
   Eye,
   Search,
 } from "lucide-react";
+import SuccessMessage from "./sucess_message.jsx";
+import ErrorMessage from "./error_message.jsx";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -26,14 +28,12 @@ const URL =
 
 const ForumAdmin = () => {
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState("solicitacoes");
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [denuncias, setDenuncias] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Estados para criação de tópico
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -45,8 +45,7 @@ const ForumAdmin = () => {
     titulo: "",
     descricao: "",
   });
-
-  // Estados para resposta de solicitação
+  const [numTopicos, setNumTopicos] = useState(null);
   const [showRespostaModal, setShowRespostaModal] = useState(false);
   const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState(null);
   const [respostaData, setRespostaData] = useState({
@@ -60,12 +59,27 @@ const ForumAdmin = () => {
 
   useEffect(() => {
     fetchCategorias();
+    fetchTopicos();
     if (activeTab === "solicitacoes") {
       fetchSolicitacoes();
     } else if (activeTab === "denuncias") {
       fetchDenuncias();
     }
   }, [activeTab]);
+
+  const fetchTopicos = async () => {
+    try {
+      const response = await axios.get(`${URL}/api/forum/topicos/count`, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setNumTopicos(response.data.count);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar tópicos:", error);
+      setErrorMessage("Erro ao carregar estatísticas de tópicos");
+    }
+  };
 
   const fetchCategorias = async () => {
     try {
@@ -77,6 +91,7 @@ const ForumAdmin = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar categorias:", error);
+      setErrorMessage("Erro ao carregar categorias");
     }
   };
 
@@ -94,7 +109,7 @@ const ForumAdmin = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar solicitações:", error);
-      setError("Erro ao carregar solicitações");
+      setErrorMessage("Erro ao carregar solicitações pendentes");
     } finally {
       setLoading(false);
     }
@@ -114,7 +129,7 @@ const ForumAdmin = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar denúncias:", error);
-      setError("Erro ao carregar denúncias");
+      setErrorMessage("Erro ao carregar denúncias pendentes");
     } finally {
       setLoading(false);
     }
@@ -137,16 +152,33 @@ const ForumAdmin = () => {
           dadosTopico: { titulo: "", descricao: "" },
         });
         fetchSolicitacoes();
-        alert("Solicitação respondida com sucesso!");
+        fetchTopicos();
+        setSuccessMessage(
+          `Solicitação ${respostaData.decisao.toLowerCase()} com sucesso!`
+        );
       }
     } catch (error) {
       console.error("Erro ao responder solicitação:", error);
-      alert("Erro ao responder solicitação");
+      setErrorMessage(
+        error.response?.data?.message || "Erro ao responder solicitação"
+      );
     }
   };
 
   const handleCreateTopico = async (e) => {
     e.preventDefault();
+
+    if (
+      !novoTopico.categoriaId ||
+      !novoTopico.areaId ||
+      !novoTopico.topicoId ||
+      !novoTopico.titulo ||
+      !novoTopico.descricao
+    ) {
+      setErrorMessage("Todos os campos são obrigatórios");
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${URL}/api/forum/topicos`,
@@ -163,11 +195,12 @@ const ForumAdmin = () => {
           titulo: "",
           descricao: "",
         });
-        alert("Tópico criado com sucesso!");
+        fetchTopicos();
+        setSuccessMessage("Tópico criado com sucesso!");
       }
     } catch (error) {
       console.error("Erro ao criar tópico:", error);
-      alert("Erro ao criar tópico");
+      setErrorMessage(error.response?.data?.message || "Erro ao criar tópico");
     }
   };
 
@@ -192,6 +225,21 @@ const ForumAdmin = () => {
     <>
       <Navbar />
       <Sidebar />
+
+      {successMessage && (
+        <SuccessMessage
+          message={successMessage}
+          onClose={() => setSuccessMessage("")}
+        />
+      )}
+
+      {errorMessage && (
+        <ErrorMessage
+          message={errorMessage}
+          onClose={() => setErrorMessage("")}
+        />
+      )}
+
       <div className="container mt-4 p-4">
         {/* Header */}
         <div className="row mb-4">
@@ -238,7 +286,7 @@ const ForumAdmin = () => {
             <div className="card text-center">
               <div className="card-body">
                 <MessageSquare size={24} className="text-primary mb-2" />
-                <h4>--</h4>
+                <h4>{numTopicos !== null ? numTopicos : "..."}</h4>
                 <small>Total Tópicos</small>
               </div>
             </div>
@@ -308,6 +356,7 @@ const ForumAdmin = () => {
                   {loading ? (
                     <div className="text-center py-3">
                       <div className="spinner-border" />
+                      <p className="mt-2">Carregando solicitações...</p>
                     </div>
                   ) : solicitacoes.length === 0 ? (
                     <div className="text-center py-5">
@@ -315,6 +364,9 @@ const ForumAdmin = () => {
                       <h5 className="text-muted">
                         Nenhuma solicitação pendente
                       </h5>
+                      <p className="text-muted">
+                        Todas as solicitações foram processadas.
+                      </p>
                     </div>
                   ) : (
                     <div className="table-responsive">
@@ -335,13 +387,18 @@ const ForumAdmin = () => {
                                 <strong>{sol.TITULO_SUGERIDO}</strong>
                                 <br />
                                 <small className="text-muted">
-                                  {sol.JUSTIFICATIVA.substring(0, 100)}...
+                                  {sol.JUSTIFICATIVA.length > 100
+                                    ? `${sol.JUSTIFICATIVA.substring(
+                                        0,
+                                        100
+                                      )}...`
+                                    : sol.JUSTIFICATIVA}
                                 </small>
                               </td>
                               <td>
                                 <small>
-                                  {sol.Categoria?.NOME__} → {sol.Area?.NOME} →{" "}
-                                  {sol.Topico?.TITULO}
+                                  {sol.Categoria?.NOME__} → {sol.AREA?.NOME} →{" "}
+                                  {sol.TOPICO?.TITULO}
                                 </small>
                               </td>
                               <td>{sol.Solicitante?.NOME}</td>
@@ -375,56 +432,68 @@ const ForumAdmin = () => {
                   {loading ? (
                     <div className="text-center py-3">
                       <div className="spinner-border" />
+                      <p className="mt-2">Carregando denúncias...</p>
                     </div>
                   ) : denuncias.length === 0 ? (
                     <div className="text-center py-5">
                       <Flag size={64} className="text-muted mb-3" />
                       <h5 className="text-muted">Nenhuma denúncia pendente</h5>
+                      <p className="text-muted">
+                        Não há denúncias que requerem atenção no momento.
+                      </p>
                     </div>
                   ) : (
-                    <>
-                      <div className="table-responsive">
-                        <table className="table">
-                          <thead>
-                            <tr>
-                              <th>Post</th>
-                              <th>Motivo</th>
-                              <th>Denunciante</th>
-                              <th>Data</th>
-                              <th>Ações</th>
+                    <div className="table-responsive">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>Post</th>
+                            <th>Motivo</th>
+                            <th>Denunciante</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {denuncias.map((den) => (
+                            <tr key={den.ID_FORUM_DENUNCIA}>
+                              <td>
+                                <small>
+                                  {den.ForumPost?.CONTEUDO?.length > 100
+                                    ? `${den.ForumPost.CONTEUDO.substring(
+                                        0,
+                                        100
+                                      )}...`
+                                    : den.ForumPost?.CONTEUDO ||
+                                      "Conteúdo não disponível"}
+                                </small>
+                              </td>
+                              <td>
+                                <span className="badge bg-warning text-dark">
+                                  {den.MOTIVO}
+                                </span>
+                                {den.DESCRICAO && (
+                                  <>
+                                    <br />
+                                    <small className="text-muted">
+                                      {den.DESCRICAO}
+                                    </small>
+                                  </>
+                                )}
+                              </td>
+                              <td>{den.Denunciante?.NOME}</td>
+                              <td>{formatDate(den.DATA_CRIACAO)}</td>
+                              <td>
+                                <button className="btn btn-sm btn-outline-primary me-1">
+                                  <Eye size={14} className="me-1" />
+                                  Ver Post
+                                </button>
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {denuncias.map((den) => (
-                              <tr key={den.ID_FORUM_DENUNCIA}>
-                                <td>
-                                  <small>
-                                    {den.ForumPost?.CONTEUDO?.substring(0, 100)}
-                                    ...
-                                  </small>
-                                </td>
-                                <td>
-                                  <span className="badge bg-warning">
-                                    {den.MOTIVO}
-                                  </span>
-                                  {den.DESCRICAO && (
-                                    <small>{den.DESCRICAO}</small>
-                                  )}
-                                </td>
-                                <td>{den.Denunciante?.NOME}</td>
-                                <td>{formatDate(den.DATA_CRIACAO)}</td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary me-1">
-                                    <Eye size={14} className="me-1" />
-                                    Ver Post
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
               </div>
@@ -437,10 +506,11 @@ const ForumAdmin = () => {
                   <h5 className="mb-0">Criar Novo Tópico</h5>
                 </div>
                 <div className="card-body">
-                  <p className="text-muted">
-                    Como gestor, pode criar tópicos diretamente sem necessidade
-                    de aprovação.
-                  </p>
+                  <div className="alert alert-info">
+                    <strong>Informação:</strong> Como gestor, pode criar tópicos
+                    diretamente sem necessidade de aprovação. Os tópicos criados
+                    ficarão imediatamente disponíveis para discussão.
+                  </div>
 
                   <button
                     className="btn btn-primary"
@@ -457,9 +527,13 @@ const ForumAdmin = () => {
 
         {/* Modal Resposta Solicitação */}
         {showRespostaModal && solicitacaoSelecionada && (
-          <div className="modal show d-block" tabIndex="-1">
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{ zIndex: 1050 }}
+          >
             <div className="modal-dialog modal-lg">
-              <div className="modal-content">
+              <div className="modal-content" style={{ zIndex: 1051 }}>
                 <div className="modal-header">
                   <h5 className="modal-title">Analisar Solicitação</h5>
                   <button
@@ -472,24 +546,26 @@ const ForumAdmin = () => {
                   {/* Detalhes da Solicitação */}
                   <div className="mb-4">
                     <h6>Detalhes da Solicitação</h6>
-                    <p>
-                      <strong>Título:</strong>{" "}
-                      {solicitacaoSelecionada.TITULO_SUGERIDO}
-                    </p>
-                    <p>
-                      <strong>Categoria:</strong>{" "}
-                      {solicitacaoSelecionada.Categoria?.NOME__} →{" "}
-                      {solicitacaoSelecionada.Area?.NOME} →{" "}
-                      {solicitacaoSelecionada.Topico?.TITULO}
-                    </p>
-                    <p>
-                      <strong>Justificativa:</strong>{" "}
-                      {solicitacaoSelecionada.JUSTIFICATIVA}
-                    </p>
-                    <p>
-                      <strong>Solicitante:</strong>{" "}
-                      {solicitacaoSelecionada.Solicitante?.NOME}
-                    </p>
+                    <div className="bg-light p-3 rounded">
+                      <p className="mb-1">
+                        <strong>Título:</strong>{" "}
+                        {solicitacaoSelecionada.TITULO_SUGERIDO}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Categoria:</strong>{" "}
+                        {solicitacaoSelecionada.Categoria?.NOME__} →{" "}
+                        {solicitacaoSelecionada.AREA?.NOME} →{" "}
+                        {solicitacaoSelecionada.TOPICO?.TITULO}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Justificativa:</strong>{" "}
+                        {solicitacaoSelecionada.JUSTIFICATIVA}
+                      </p>
+                      <p className="mb-0">
+                        <strong>Solicitante:</strong>{" "}
+                        {solicitacaoSelecionada.Solicitante?.NOME}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Decisão */}
@@ -587,14 +663,21 @@ const ForumAdmin = () => {
                     onClick={handleResponderSolicitacao}
                     disabled={!respostaData.decisao}
                   >
+                    <CheckCircle size={16} className="me-1" />
                     Confirmar Decisão
                   </button>
                 </div>
               </div>
             </div>
-            <div className="modal-backdrop show" />
+            <div
+              className="modal-backdrop show"
+              style={{ zIndex: 1050 }}
+              onClick={() => setShowRespostaModal(false)}
+            />
           </div>
         )}
+
+        {/* Modal Criar Tópico - Pode adicionar depois se necessário */}
       </div>
     </>
   );

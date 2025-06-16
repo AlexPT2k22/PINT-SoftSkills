@@ -3,6 +3,7 @@ const {
   ForumPost,
   Utilizador,
   ForumTopico,
+  UtilizadorTemPerfil,
 } = require("../models/index.js");
 
 // Criar denúncia
@@ -121,12 +122,12 @@ const listarDenuncias = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      denuncias: rows,
+      denuncias: denuncias,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(count / limit),
         totalItems: count,
-        hasMore: offset + rows.length < count,
+        hasMore: offset + denuncias.length < count,
       },
     });
   } catch (error) {
