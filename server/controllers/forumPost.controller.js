@@ -8,6 +8,7 @@ const { updateTopicoCounters } = require("./forumTopico.controller.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { Op } = require("sequelize");
 
 // Configuração do multer para anexos
 const storage = multer.diskStorage({
@@ -79,13 +80,13 @@ const getPostsByTopico = async (req, res) => {
       postJson.ANEXOS = postJson.ANEXOS ? JSON.parse(postJson.ANEXOS) : [];
       
       // Avaliação do usuário atual
-      const userAvaliacao = postJson.ForumAvaliacaos?.find(
+      const userAvaliacao = postJson.FORUM_AVALIACAOs?.find(
         (av) => av.ID_UTILIZADOR === userId
       );
       postJson.userAvaliacao = userAvaliacao?.TIPO || null;
       
       // Remover array de avaliações detalhadas
-      delete postJson.ForumAvaliacaos;
+      delete postJson.FORUM_AVALIACAOs;
       
       return postJson;
     });

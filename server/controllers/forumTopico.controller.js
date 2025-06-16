@@ -30,6 +30,7 @@ const getTopicosForum = async (req, res) => {
       include: [
         {
           model: Categoria,
+          as: "Categoria",
           attributes: ["ID_CATEGORIA__PK___", "NOME__"],
         },
         {
@@ -91,20 +92,23 @@ const createTopicoForum = async (req, res) => {
       });
     }
 
-    // Verificar se o tópico já existe
+    // ✅ CORREÇÃO: Verificar apenas se já existe tópico com o MESMO TÍTULO
+    // Permitir múltiplos tópicos de fórum para a mesma categoria/área/tópico
     const topicoExistente = await ForumTopico.findOne({
       where: {
         ID_CATEGORIA: categoriaId,
         ID_AREA: areaId,
         ID_TOPICO: topicoId,
-        TITULO: titulo,
+        TITULO: titulo, // ✅ MANTER: Verificar pelo título
+        ESTADO: "Ativo",
       },
     });
 
     if (topicoExistente) {
       return res.status(400).json({
         success: false,
-        message: "Já existe um tópico do fórum com esse nome nesta categoria",
+        message:
+          "Já existe um tópico do fórum com este título nesta categoria/área/tópico",
       });
     }
 
@@ -124,6 +128,7 @@ const createTopicoForum = async (req, res) => {
         include: [
           {
             model: Categoria,
+            as: "Categoria",
             attributes: ["ID_CATEGORIA__PK___", "NOME__"],
           },
           {
@@ -165,6 +170,7 @@ const getTopicoForumById = async (req, res) => {
       include: [
         {
           model: Categoria,
+          as: "Categoria",
           attributes: ["ID_CATEGORIA__PK___", "NOME__"],
         },
         {

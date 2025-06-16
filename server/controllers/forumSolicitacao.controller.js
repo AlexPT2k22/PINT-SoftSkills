@@ -15,28 +15,12 @@ const criarSolicitacao = async (req, res) => {
     const { categoriaId, areaId, topicoId, tituloSugerido, justificativa } =
       req.body;
 
-    // Verificar se já existe tópico para essa combinação
-    const topicoExistente = await ForumTopico.findOne({
-      where: {
-        ID_CATEGORIA: categoriaId,
-        ID_AREA: areaId,
-        ID_TOPICO: topicoId,
-      },
-    });
-
-    if (topicoExistente) {
-      return res.status(400).json({
-        success: false,
-        message: "Já existe um tópico do fórum para esta categoria/área/tópico",
-      });
-    }
-
-    // Verificar se já existe solicitação pendente
     const solicitacaoExistente = await ForumSolicitacao.findOne({
       where: {
         ID_CATEGORIA: categoriaId,
         ID_AREA: areaId,
         ID_TOPICO: topicoId,
+        TITULO_SUGERIDO: tituloSugerido,
         ESTADO: "Pendente",
       },
     });
@@ -45,7 +29,25 @@ const criarSolicitacao = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "Já existe uma solicitação pendente para esta categoria/área/tópico",
+          "Já existe uma solicitação pendente com este título para esta categoria/área/tópico",
+      });
+    }
+
+    const topicoForumExistente = await ForumTopico.findOne({
+      where: {
+        ID_CATEGORIA: categoriaId,
+        ID_AREA: areaId,
+        ID_TOPICO: topicoId,
+        TITULO: tituloSugerido,
+        ESTADO: "Ativo",
+      },
+    });
+
+    if (topicoForumExistente) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Já existe um tópico de fórum com este título nesta categoria/área/tópico",
       });
     }
 
@@ -70,6 +72,7 @@ const criarSolicitacao = async (req, res) => {
           },
           {
             model: Categoria,
+            as: "Categoria",
             attributes: ["ID_CATEGORIA__PK___", "NOME__"],
           },
           {

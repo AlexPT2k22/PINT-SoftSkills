@@ -390,9 +390,9 @@ const Forum = () => {
                             <Folder size={14} className="me-1" />
                             <span>{topico.Categoria?.NOME__}</span>
                             <ChevronRight size={14} className="mx-1" />
-                            <span>{topico.Area?.NOME}</span>
+                            <span>{topico.AREA?.NOME}</span>
                             <ChevronRight size={14} className="mx-1" />
-                            <span>{topico.Topico?.TITULO}</span>
+                            <span>{topico.TOPICO?.TITULO}</span>
                           </div>
 
                           <div className="d-flex align-items-center justify-content-between">

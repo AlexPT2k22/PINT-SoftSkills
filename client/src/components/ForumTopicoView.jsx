@@ -19,6 +19,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import useAuthStore from "../store/authStore.js";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -29,13 +30,15 @@ const ForumTopicoView = () => {
   const { topicoId } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const { user } = useAuthStore();
+  const username = user.USERNAME;
 
   const [topico, setTopico] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
+  const [dropdownAberto, setDropdownAberto] = useState(null);
 
   // Estados para criação de posts
   const [novoPost, setNovoPost] = useState({
@@ -62,27 +65,28 @@ const ForumTopicoView = () => {
     hasMore: false,
   });
 
+  const toggleDropdown = (postId) => {
+    setDropdownAberto(dropdownAberto === postId ? null : postId);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown")) {
+        setDropdownAberto(null);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
   useEffect(() => {
     fetchTopico();
-    fetchUser();
   }, [topicoId]);
 
   useEffect(() => {
     fetchPosts(1);
   }, [topicoId]);
-
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get(`${URL}/api/auth/me`, {
-        withCredentials: true,
-      });
-      if (response.data.success) {
-        setUser(response.data.user);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar usuário:", error);
-    }
-  };
 
   const fetchTopico = async () => {
     try {
@@ -157,51 +161,145 @@ const ForumTopicoView = () => {
   };
 
   const handleAvaliarPost = async (postId, tipo) => {
+    // Validação inicial
+    if (!["LIKE", "DISLIKE"].includes(tipo)) {
+      console.error("Tipo de avaliação inválido:", tipo);
+      return;
+    }
+
     try {
+      // 1. Encontrar o post atual
+      const currentPost = posts.find((p) => p.ID_FORUM_POST === postId);
+      if (!currentPost) {
+        console.error("Post não encontrado:", postId);
+        return;
+      }
+
+      const avaliacaoAtual = currentPost.userAvaliacao;
+
+      console.log("🎯 Iniciando avaliação:", {
+        postId,
+        tipoClicado: tipo,
+        avaliacaoAtual,
+        likesAtuais: currentPost.TOTAL_LIKES,
+        dislikesAtuais: currentPost.TOTAL_DISLIKES,
+      });
+
+      // 2. Determinar ação baseada no estado atual
+      let acao = "";
+      let novoTipo = null;
+
+      if (avaliacaoAtual === null) {
+        // Usuário não avaliou ainda - adicionar nova avaliação
+        acao = "adicionar";
+        novoTipo = tipo;
+      } else if (avaliacaoAtual === tipo) {
+        // Usuário clicou na mesma avaliação - remover
+        acao = "remover";
+        novoTipo = null;
+      } else {
+        // Usuário mudou de avaliação - trocar
+        acao = "trocar";
+        novoTipo = tipo;
+      }
+
+      console.log("🔄 Ação determinada:", { acao, novoTipo });
+
+      // 3. Calcular novos valores localmente
+      let novosLikes = currentPost.TOTAL_LIKES;
+      let novosDisikes = currentPost.TOTAL_DISLIKES;
+
+      // Primeiro, reverter avaliação atual se existir
+      if (avaliacaoAtual === "LIKE") {
+        novosLikes = Math.max(0, novosLikes - 1);
+      } else if (avaliacaoAtual === "DISLIKE") {
+        novosDisikes = Math.max(0, novosDisikes - 1);
+      }
+
+      // Depois, aplicar nova avaliação se houver
+      if (novoTipo === "LIKE") {
+        novosLikes += 1;
+      } else if (novoTipo === "DISLIKE") {
+        novosDisikes += 1;
+      }
+
+      console.log("📊 Novos valores calculados:", {
+        novosLikes,
+        novosDisikes,
+        novaAvaliacao: novoTipo,
+      });
+
+      // 4. Atualizar estado local de forma otimista
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.ID_FORUM_POST === postId
+            ? {
+                ...post,
+                TOTAL_LIKES: novosLikes,
+                TOTAL_DISLIKES: novosDisikes,
+                userAvaliacao: novoTipo,
+              }
+            : post
+        )
+      );
+
+      // 5. Enviar requisição para o servidor
       const response = await axios.post(
         `${URL}/api/forum/avaliacoes/post/${postId}`,
-        { tipo },
+        { tipo: novoTipo }, // null se for para remover
         { withCredentials: true }
       );
 
-      if (response.data.success) {
-        // Atualizar posts localmente
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Erro ao processar avaliação");
+      }
+
+      console.log("✅ Resposta do servidor:", response.data);
+
+      // 6. Opcional: Sincronizar com valores do servidor se fornecidos
+      if (response.data.contadores) {
+        console.log("🔄 Sincronizando com valores do servidor");
         setPosts((prevPosts) =>
-          prevPosts.map((post) => {
-            if (post.ID_FORUM_POST === postId) {
-              const updatedPost = { ...post };
-
-              // Remover avaliação anterior
-              if (post.userAvaliacao === "LIKE") {
-                updatedPost.TOTAL_LIKES--;
-              } else if (post.userAvaliacao === "DISLIKE") {
-                updatedPost.TOTAL_DISLIKES--;
-              }
-
-              // Aplicar nova avaliação
-              if (
-                response.data.action === "created" ||
-                response.data.action === "updated"
-              ) {
-                if (tipo === "LIKE") {
-                  updatedPost.TOTAL_LIKES++;
-                  updatedPost.userAvaliacao = "LIKE";
-                } else {
-                  updatedPost.TOTAL_DISLIKES++;
-                  updatedPost.userAvaliacao = "DISLIKE";
+          prevPosts.map((post) =>
+            post.ID_FORUM_POST === postId
+              ? {
+                  ...post,
+                  TOTAL_LIKES: response.data.contadores.likes,
+                  TOTAL_DISLIKES: response.data.contadores.dislikes,
+                  userAvaliacao:
+                    response.data.action === "removed"
+                      ? null
+                      : response.data.tipo,
                 }
-              } else {
-                updatedPost.userAvaliacao = null;
-              }
-
-              return updatedPost;
-            }
-            return post;
-          })
+              : post
+          )
         );
       }
+
+      console.log("🎉 Avaliação processada com sucesso!");
     } catch (error) {
-      console.error("Erro ao avaliar post:", error);
+      console.error("❌ Erro ao avaliar post:", error);
+
+      // 7. Reverter mudanças locais em caso de erro
+      console.log("🔙 Revertendo mudanças locais...");
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.ID_FORUM_POST === postId
+            ? {
+                ...post,
+                TOTAL_LIKES: currentPost.TOTAL_LIKES,
+                TOTAL_DISLIKES: currentPost.TOTAL_DISLIKES,
+                userAvaliacao: currentPost.userAvaliacao,
+              }
+            : post
+        )
+      );
+
+      // Mostrar erro ao usuário
+      setError(
+        error.response?.data?.message ||
+          "Erro ao processar avaliação. Tente novamente."
+      );
     }
   };
 
@@ -344,9 +442,9 @@ const ForumTopicoView = () => {
                 <div className="d-flex align-items-center text-muted small mb-3">
                   <span>{topico?.Categoria?.NOME__}</span>
                   <ChevronRight size={14} className="mx-1" />
-                  <span>{topico?.Area?.NOME}</span>
+                  <span>{topico?.AREA?.NOME}</span>
                   <ChevronRight size={14} className="mx-1" />
-                  <span>{topico?.Topico?.TITULO}</span>
+                  <span>{topico?.TOPICO?.TITULO}</span>
                 </div>
 
                 <div className="d-flex justify-content-between align-items-center">
@@ -380,7 +478,7 @@ const ForumTopicoView = () => {
                     <div className="mb-3">
                       <textarea
                         className="form-control"
-                        rows="4"
+                        rows="2"
                         placeholder="Partilhe o seu conhecimento ou faça uma pergunta..."
                         value={novoPost.conteudo}
                         onChange={(e) =>
@@ -447,12 +545,12 @@ const ForumTopicoView = () => {
                         {submittingPost ? (
                           <>
                             <span className="spinner-border spinner-border-sm me-2" />
-                            Publicando...
+                            A publicar...
                           </>
                         ) : (
                           <>
                             <Send size={16} className="me-1" />
-                            Publicar Post
+                            Publicar post
                           </>
                         )}
                       </button>
@@ -488,12 +586,22 @@ const ForumTopicoView = () => {
                               style={{ width: "40px", height: "40px" }}
                             >
                               <span className="fw-bold text-primary">
-                                {post.Utilizador?.NOME?.charAt(0) || "U"}
+                                {post.UTILIZADOR?.NOME?.charAt(0) || "U"}
                               </span>
                             </div>
                           </div>
                           <div>
-                            <h6 className="mb-0">{post.Utilizador?.NOME}</h6>
+                            <h6 className="mb-0">
+                              <a
+                                href={`/user/${post.UTILIZADOR?.ID_UTILIZADOR}`}
+                                className="text-decoration-none"
+                              >
+                                {post.UTILIZADOR?.NOME}
+                              </a>
+                            </h6>
+                            <small className="text-muted me-2">
+                              @{post.UTILIZADOR?.USERNAME}
+                            </small>
                             <small className="text-muted">
                               {formatDate(post.DATA_CRIACAO)}
                               {post.ESTADO === "Editado" && (
@@ -506,54 +614,76 @@ const ForumTopicoView = () => {
                         </div>
 
                         {user && (
-                          <div className="dropdown">
+                          <div className="dropdown position-relative">
                             <button
-                              className="btn btn-outline-secondary btn-sm dropdown-toggle"
-                              data-bs-toggle="dropdown"
+                              className="btn btn-outline-secondary btn-sm"
+                              onClick={() => toggleDropdown(post.ID_FORUM_POST)}
+                              type="button"
                             >
                               ⋯
                             </button>
-                            <ul className="dropdown-menu">
-                              {user.ID_UTILIZADOR === post.ID_UTILIZADOR && (
-                                <>
-                                  <li>
-                                    <button
-                                      className="dropdown-item"
-                                      onClick={() => {
-                                        setEditingPost(post);
-                                        setEditContent(post.CONTEUDO);
-                                      }}
-                                    >
-                                      <Edit size={16} className="me-2" />
-                                      Editar
-                                    </button>
-                                  </li>
-                                  <li>
-                                    <button
-                                      className="dropdown-item text-danger"
-                                      onClick={() =>
-                                        handleDeletePost(post.ID_FORUM_POST)
-                                      }
-                                    >
-                                      <Trash2 size={16} className="me-2" />
-                                      Deletar
-                                    </button>
-                                  </li>
-                                </>
-                              )}
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => {
-                                    setPostDenunciado(post);
-                                    setShowDenunciaModal(true);
-                                  }}
-                                >
-                                  <Flag size={16} className="me-2" />
-                                  Denunciar
-                                </button>
-                              </li>
-                            </ul>
+
+                            {/* ✅ Dropdown menu controlado por estado */}
+                            {dropdownAberto === post.ID_FORUM_POST && (
+                              <ul
+                                className="dropdown-menu show position-absolute"
+                                style={{
+                                  right: 0,
+                                  left: "auto",
+                                  zIndex: 1000,
+                                  minWidth: "150px",
+                                }}
+                              >
+                                {/* ✅ Opções do próprio usuário */}
+                                {user.id === post.ID_UTILIZADOR && (
+                                  <>
+                                    <li>
+                                      <button
+                                        className="dropdown-item d-flex align-items-center"
+                                        onClick={() => {
+                                          setEditingPost(post);
+                                          setEditContent(post.CONTEUDO);
+                                          setDropdownAberto(null); // ✅ Fechar dropdown
+                                        }}
+                                      >
+                                        <Edit size={16} className="me-2" />
+                                        Editar
+                                      </button>
+                                    </li>
+                                    <li>
+                                      <button
+                                        className="dropdown-item d-flex align-items-center text-danger"
+                                        onClick={() => {
+                                          handleDeletePost(post.ID_FORUM_POST);
+                                          setDropdownAberto(null); // ✅ Fechar dropdown
+                                        }}
+                                      >
+                                        <Trash2 size={16} className="me-2" />
+                                        Deletar
+                                      </button>
+                                    </li>
+                                    <li>
+                                      <hr className="dropdown-divider" />
+                                    </li>
+                                  </>
+                                )}
+
+                                {/* ✅ Opção disponível para todos */}
+                                <li>
+                                  <button
+                                    className="dropdown-item d-flex align-items-center"
+                                    onClick={() => {
+                                      setPostDenunciado(post);
+                                      setShowDenunciaModal(true);
+                                      setDropdownAberto(null); // ✅ Fechar dropdown
+                                    }}
+                                  >
+                                    <Flag size={16} className="me-2" />
+                                    Denunciar
+                                  </button>
+                                </li>
+                              </ul>
+                            )}
                           </div>
                         )}
                       </div>
@@ -628,7 +758,7 @@ const ForumTopicoView = () => {
 
                       {/* Avaliações */}
                       {user && (
-                        <div className="d-flex align-items-center gap-3">
+                        <div className="d-flex align-items-center gap-2">
                           <button
                             className={`btn btn-sm ${
                               post.userAvaliacao === "LIKE"
@@ -638,8 +768,21 @@ const ForumTopicoView = () => {
                             onClick={() =>
                               handleAvaliarPost(post.ID_FORUM_POST, "LIKE")
                             }
+                            title={
+                              post.userAvaliacao === "LIKE"
+                                ? "Remover like"
+                                : "Dar like"
+                            }
                           >
-                            <ThumbsUp size={16} className="me-1" />
+                            <ThumbsUp
+                              size={16}
+                              className="me-1"
+                              fill={
+                                post.userAvaliacao === "LIKE"
+                                  ? "currentColor"
+                                  : "none"
+                              }
+                            />
                             {post.TOTAL_LIKES}
                           </button>
 
@@ -651,6 +794,11 @@ const ForumTopicoView = () => {
                             }`}
                             onClick={() =>
                               handleAvaliarPost(post.ID_FORUM_POST, "DISLIKE")
+                            }
+                            title={
+                              post.userAvaliacao === "DISLIKE"
+                                ? "Remover dislike"
+                                : "Dar dislike"
                             }
                           >
                             <ThumbsDown size={16} className="me-1" />
@@ -688,9 +836,13 @@ const ForumTopicoView = () => {
 
         {/* Modal de Denúncia */}
         {showDenunciaModal && (
-          <div className="modal show d-block" tabIndex="-1">
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{ zIndex: 1050 }}
+          >
             <div className="modal-dialog">
-              <div className="modal-content">
+              <div className="modal-content" style={{ zIndex: 1051 }}>
                 <div className="modal-header">
                   <h5 className="modal-title">
                     <Flag size={20} className="me-2" />
@@ -764,7 +916,13 @@ const ForumTopicoView = () => {
                 </div>
               </div>
             </div>
-            <div className="modal-backdrop show"></div>
+            <div className="modal-backdrop show">
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowDenunciaModal(false)}
+              ></button>
+            </div>
           </div>
         )}
       </div>

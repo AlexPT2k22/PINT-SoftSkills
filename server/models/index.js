@@ -388,9 +388,11 @@ Anuncio.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 Categoria.hasMany(ForumTopico, {
   foreignKey: "ID_CATEGORIA",
   onDelete: "CASCADE",
+  as: "TopicosCategoria",
 });
 ForumTopico.belongsTo(Categoria, {
   foreignKey: "ID_CATEGORIA",
+  as: "Categoria",
 });
 
 Area.hasMany(ForumTopico, {

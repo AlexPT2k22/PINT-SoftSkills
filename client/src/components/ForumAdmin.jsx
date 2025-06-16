@@ -32,6 +32,7 @@ const ForumAdmin = () => {
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [denuncias, setDenuncias] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingButton, setLoadingButton] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -137,6 +138,7 @@ const ForumAdmin = () => {
 
   const handleResponderSolicitacao = async () => {
     try {
+      setLoadingButton(true);
       const response = await axios.put(
         `${URL}/api/forum/solicitacoes/${solicitacaoSelecionada.ID_FORUM_SOLICITACAO}/responder`,
         respostaData,
@@ -162,6 +164,8 @@ const ForumAdmin = () => {
       setErrorMessage(
         error.response?.data?.message || "Erro ao responder solicitação"
       );
+    } finally {
+      setLoadingButton(false);
     }
   };
 
@@ -211,7 +215,7 @@ const ForumAdmin = () => {
       resposta: "",
       dadosTopico: {
         titulo: solicitacao.TITULO_SUGERIDO,
-        descricao: `Tópico criado a partir da solicitação: ${solicitacao.JUSTIFICATIVA}`,
+        descricao: solicitacao.JUSTIFICATIVA,
       },
     });
     setShowRespostaModal(true);
@@ -661,10 +665,16 @@ const ForumAdmin = () => {
                     type="button"
                     className="btn btn-primary"
                     onClick={handleResponderSolicitacao}
-                    disabled={!respostaData.decisao}
+                    disabled={!respostaData.decisao || loadingButton}
                   >
-                    <CheckCircle size={16} className="me-1" />
-                    Confirmar Decisão
+                    {loadingButton ? (
+                      <span className="spinner-border spinner-border-sm" />
+                    ) : (
+                      <>
+                        <CheckCircle size={16} className="me-1" />
+                        Confirmar Decisão
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
