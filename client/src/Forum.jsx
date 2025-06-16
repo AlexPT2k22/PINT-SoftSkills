@@ -72,11 +72,11 @@ const Forum = () => {
 
   const fetchCategorias = async () => {
     try {
-      const response = await axios.get(`${URL}/api/categories`, {
+      const response = await axios.get(`${URL}/api/categorias`, {
         withCredentials: true,
       });
-      if (response.data.success) {
-        setCategorias(response.data.categories);
+      if (response.status === 200) {
+        setCategorias(response.data);
       }
     } catch (error) {
       console.error("Erro ao buscar categorias:", error);
@@ -85,14 +85,22 @@ const Forum = () => {
 
   const fetchAreas = async (categoriaId) => {
     try {
-      const response = await axios.get(
-        `${URL}/api/areas/categoria/${categoriaId}`,
-        {
-          withCredentials: true,
+      const response = await axios.get(`${URL}/api/categorias/com-areas`, {
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        const categoriaEncontrada = response.data.find(
+          (cat) => cat.ID_CATEGORIA__PK___ === parseInt(categoriaId)
+        );
+
+        if (categoriaEncontrada && categoriaEncontrada.AREAs) {
+          setAreas(categoriaEncontrada.AREAs);
+          //console.log("Áreas da categoria:", categoriaEncontrada.AREAs);
+        } else {
+          setAreas([]);
+          //console.log("Nenhuma área encontrada para esta categoria");
         }
-      );
-      if (response.data.success) {
-        setAreas(response.data.areas);
       }
     } catch (error) {
       console.error("Erro ao buscar áreas:", error);
@@ -101,11 +109,11 @@ const Forum = () => {
 
   const fetchTopicos = async (areaId) => {
     try {
-      const response = await axios.get(`${URL}/api/topicos/area/${areaId}`, {
+      const response = await axios.get(`${URL}/api/topicos/by-area/${areaId}`, {
         withCredentials: true,
       });
-      if (response.data.success) {
-        setTopicos(response.data.topicos);
+      if (response.status === 200) {
+        setTopicos(response.data);
       }
     } catch (error) {
       console.error("Erro ao buscar tópicos:", error);

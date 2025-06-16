@@ -275,7 +275,7 @@ function Navbar() {
 
           <ul className="navbar-nav me-5">
             <li className="nav-item">
-              <a className="nav-link text align-items-center" href="#">
+              <a className="nav-link text align-items-center" href="/forum">
                 Fórum
                 <SquareArrowOutUpRight
                   color="#39639C"

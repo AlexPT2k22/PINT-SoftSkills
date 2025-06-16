@@ -69,11 +69,11 @@ const ForumAdmin = () => {
 
   const fetchCategorias = async () => {
     try {
-      const response = await axios.get(`${URL}/api/categories`, {
+      const response = await axios.get(`${URL}/api/categorias`, {
         withCredentials: true,
       });
-      if (response.data.success) {
-        setCategorias(response.data.categories);
+      if (response.status === 200) {
+        setCategorias(response.data);
       }
     } catch (error) {
       console.error("Erro ao buscar categorias:", error);

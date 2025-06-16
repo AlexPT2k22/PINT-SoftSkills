@@ -22,6 +22,11 @@ const presencaRoutes = require("./routes/presenca.route");
 const notificacaoRoutes = require("./routes/notificacao.route.js");
 const quizzassincronoRoutes = require("./routes/quizAssincrono.route.js");
 const anuncioRotas = require("./routes/anuncio.route.js");
+const forumTopicoRoutes = require("./routes/forumTopico.routes.js");
+const forumPostRoutes = require("./routes/forumPost.routes.js");
+const forumAvaliacaoRoutes = require("./routes/forumAvaliacao.routes.js");
+const forumDenunciaRoutes = require("./routes/forumDenuncia.routes.js");
+const forumSolicitacaoRoutes = require("./routes/forumSolicitacao.routes.js");
 const {
   updateAsyncCoursesStatus,
   updateSyncCoursesStatus,
@@ -60,6 +65,11 @@ app.use("/api/categorias", categoriaRoutes); // Rota para categorias
 app.use("/api/progress", progressRoute); // Rota para progresso
 app.use("/api/notes", notasRoutes); // Rota para notas
 app.use("/api/avaliacoes", avaliacaoSincronaRoutes); // Rota para avaliações síncronas
+app.use("/api/forum/topicos", forumTopicoRoutes);
+app.use("/api/forum/posts", forumPostRoutes);
+app.use("/api/forum/avaliacoes", forumAvaliacaoRoutes);
+app.use("/api/forum/denuncias", forumDenunciaRoutes);
+app.use("/api/forum/solicitacoes", forumSolicitacaoRoutes);
 app.use("/api/certificados", certificadoRoutes);
 app.use(
   "/certificates",

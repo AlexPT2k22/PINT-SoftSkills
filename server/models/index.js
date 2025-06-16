@@ -40,6 +40,11 @@ const PresencaAula = require("./presenca.model.js");
 const SubmissaoAvaliacao = require("./submissaoAvaliacao.model.js");
 const RespostaQuizAssincrono = require("./respostaquizassincrono.model.js");
 const Anuncio = require("./anuncio.model.js");
+const ForumTopico = require("./forumTopico.model.js");
+const ForumPost = require("./forumPost.model.js");
+const ForumAvaliacao = require("./forumAvaliacao.model.js");
+const ForumDenuncia = require("./forumDenuncia.model.js");
+const ForumSolicitacao = require("./forumSolicitacao.model.js");
 
 CursoSincrono.hasMany(AulaSincrona, { foreignKey: "ID_CURSO" });
 AulaSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
@@ -379,6 +384,130 @@ Anuncio.belongsTo(Curso, { foreignKey: "ID_CURSO" });
 Utilizador.hasMany(Anuncio, { foreignKey: "ID_UTILIZADOR" });
 Anuncio.belongsTo(Utilizador, { foreignKey: "ID_UTILIZADOR" });
 
+// ForumTopico relações
+Categoria.hasMany(ForumTopico, {
+  foreignKey: "ID_CATEGORIA",
+  onDelete: "CASCADE",
+});
+ForumTopico.belongsTo(Categoria, {
+  foreignKey: "ID_CATEGORIA",
+});
+
+Area.hasMany(ForumTopico, {
+  foreignKey: "ID_AREA",
+  onDelete: "CASCADE",
+});
+ForumTopico.belongsTo(Area, {
+  foreignKey: "ID_AREA",
+});
+
+Topico.hasMany(ForumTopico, {
+  foreignKey: "ID_TOPICO",
+  onDelete: "CASCADE",
+});
+ForumTopico.belongsTo(Topico, {
+  foreignKey: "ID_TOPICO",
+});
+
+Utilizador.hasMany(ForumTopico, {
+  foreignKey: "ID_CRIADOR",
+  as: "TopicosForumCriados",
+});
+ForumTopico.belongsTo(Utilizador, {
+  foreignKey: "ID_CRIADOR",
+  as: "Criador",
+});
+
+// ForumPost relações
+ForumTopico.hasMany(ForumPost, {
+  foreignKey: "ID_FORUM_TOPICO",
+  onDelete: "CASCADE",
+});
+ForumPost.belongsTo(ForumTopico, {
+  foreignKey: "ID_FORUM_TOPICO",
+});
+
+Utilizador.hasMany(ForumPost, {
+  foreignKey: "ID_UTILIZADOR",
+});
+ForumPost.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+});
+
+// ForumAvaliacao relações
+ForumPost.hasMany(ForumAvaliacao, {
+  foreignKey: "ID_FORUM_POST",
+  onDelete: "CASCADE",
+});
+ForumAvaliacao.belongsTo(ForumPost, {
+  foreignKey: "ID_FORUM_POST",
+});
+
+Utilizador.hasMany(ForumAvaliacao, {
+  foreignKey: "ID_UTILIZADOR",
+});
+ForumAvaliacao.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+});
+
+// ForumDenuncia relações
+ForumPost.hasMany(ForumDenuncia, {
+  foreignKey: "ID_FORUM_POST",
+  onDelete: "CASCADE",
+});
+ForumDenuncia.belongsTo(ForumPost, {
+  foreignKey: "ID_FORUM_POST",
+});
+
+Utilizador.hasMany(ForumDenuncia, {
+  foreignKey: "ID_DENUNCIANTE",
+  as: "DenunciasForum",
+});
+ForumDenuncia.belongsTo(Utilizador, {
+  foreignKey: "ID_DENUNCIANTE",
+  as: "Denunciante",
+});
+
+// ForumSolicitacao relações
+Utilizador.hasMany(ForumSolicitacao, {
+  foreignKey: "ID_SOLICITANTE",
+  as: "SolicitacoesForum",
+});
+ForumSolicitacao.belongsTo(Utilizador, {
+  foreignKey: "ID_SOLICITANTE",
+  as: "Solicitante",
+});
+
+Utilizador.hasMany(ForumSolicitacao, {
+  foreignKey: "ID_GESTOR_RESPOSTA",
+  as: "RespostasGestorForum",
+});
+ForumSolicitacao.belongsTo(Utilizador, {
+  foreignKey: "ID_GESTOR_RESPOSTA",
+  as: "GestorResposta",
+});
+
+Categoria.hasMany(ForumSolicitacao, {
+  foreignKey: "ID_CATEGORIA",
+});
+ForumSolicitacao.belongsTo(Categoria, {
+  foreignKey: "ID_CATEGORIA",
+});
+
+Area.hasMany(ForumSolicitacao, {
+  foreignKey: "ID_AREA",
+});
+ForumSolicitacao.belongsTo(Area, {
+  foreignKey: "ID_AREA",
+});
+
+Topico.hasMany(ForumSolicitacao, {
+  foreignKey: "ID_TOPICO",
+});
+ForumSolicitacao.belongsTo(Topico, {
+  foreignKey: "ID_TOPICO",
+});
+
 // Export all models with their associations
 module.exports = {
   sequelize,
@@ -423,4 +552,9 @@ module.exports = {
   PresencaAula,
   SubmissaoAvaliacao,
   Anuncio,
+  ForumTopico,
+  ForumPost,
+  ForumAvaliacao,
+  ForumDenuncia,
+  ForumSolicitacao,
 };
