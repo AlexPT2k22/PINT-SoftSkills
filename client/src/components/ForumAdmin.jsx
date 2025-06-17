@@ -61,12 +61,9 @@ const ForumAdmin = () => {
   useEffect(() => {
     fetchCategorias();
     fetchTopicos();
-    if (activeTab === "solicitacoes") {
-      fetchSolicitacoes();
-    } else if (activeTab === "denuncias") {
-      fetchDenuncias();
-    }
-  }, [activeTab]);
+    fetchSolicitacoes();
+    fetchDenuncias();
+  }, []);
 
   const fetchTopicos = async () => {
     try {
@@ -253,12 +250,11 @@ const ForumAdmin = () => {
               onClick={() => navigate("/forum")}
             >
               <ChevronLeft size={16} className="me-1" />
-              Voltar ao Fórum
+              Voltar ao fórum
             </button>
 
             <h2 className="mb-1">
-              <Shield size={32} className="me-2" />
-              Painel Administrativo do Fórum
+              Painel administrativo do fórum
             </h2>
             <p className="text-muted mb-0">
               Gerir solicitações de tópicos, denúncias e criar novos tópicos.
@@ -268,7 +264,7 @@ const ForumAdmin = () => {
 
         {/* Estatísticas */}
         <div className="row mb-4">
-          <div className="col-md-3">
+          <div className="col-md-4">
             <div className="card text-center">
               <div className="card-body">
                 <Clock size={24} className="text-warning mb-2" />
@@ -277,7 +273,7 @@ const ForumAdmin = () => {
               </div>
             </div>
           </div>
-          <div className="col-md-3">
+          <div className="col-md-4">
             <div className="card text-center">
               <div className="card-body">
                 <Flag size={24} className="text-danger mb-2" />
@@ -286,21 +282,12 @@ const ForumAdmin = () => {
               </div>
             </div>
           </div>
-          <div className="col-md-3">
+          <div className="col-md-4">
             <div className="card text-center">
               <div className="card-body">
                 <MessageSquare size={24} className="text-primary mb-2" />
                 <h4>{numTopicos !== null ? numTopicos : "..."}</h4>
                 <small>Total Tópicos</small>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="card text-center">
-              <div className="card-body">
-                <Users size={24} className="text-success mb-2" />
-                <h4>--</h4>
-                <small>Usuários Ativos</small>
               </div>
             </div>
           </div>
@@ -468,13 +455,12 @@ const ForumAdmin = () => {
                                         0,
                                         100
                                       )}...`
-                                    : den.ForumPost?.CONTEUDO ||
-                                      "Conteúdo não disponível"}
+                                    : den.ForumPost?.CONTEUDO || "Post apagado"}
                                 </small>
                               </td>
                               <td>
                                 <span className="badge bg-warning text-dark">
-                                  {den.MOTIVO}
+                                  {den.MOTIVO.replace(/_/g, " ")}
                                 </span>
                                 {den.DESCRICAO && (
                                   <>
@@ -488,7 +474,13 @@ const ForumAdmin = () => {
                               <td>{den.Denunciante?.NOME}</td>
                               <td>{formatDate(den.DATA_CRIACAO)}</td>
                               <td>
-                                <button className="btn btn-sm btn-outline-primary me-1">
+                                <button
+                                  className="btn btn-sm btn-outline-primary me-1"
+                                  onClick={() =>
+                                    navigate(`/forum/post/${den.ID_FORUM_POST}`)
+                                  }
+                                  disabled={!den.ForumPost?.CONTEUDO}
+                                >
                                   <Eye size={14} className="me-1" />
                                   Ver Post
                                 </button>

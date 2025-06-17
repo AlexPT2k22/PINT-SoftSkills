@@ -31,7 +31,9 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|pdf|doc|docx|txt/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
     const mimetype = allowedTypes.test(file.mimetype);
 
     if (mimetype && extname) {
@@ -75,19 +77,19 @@ const getPostsByTopico = async (req, res) => {
     // Processar posts para incluir informações de avaliação do usuário atual
     const postsProcessados = posts.map((post) => {
       const postJson = post.toJSON();
-      
+
       // Anexos como array
       postJson.ANEXOS = postJson.ANEXOS ? JSON.parse(postJson.ANEXOS) : [];
-      
+
       // Avaliação do usuário atual
       const userAvaliacao = postJson.FORUM_AVALIACAOs?.find(
         (av) => av.ID_UTILIZADOR === userId
       );
       postJson.userAvaliacao = userAvaliacao?.TIPO || null;
-      
+
       // Remover array de avaliações detalhadas
       delete postJson.FORUM_AVALIACAOs;
-      
+
       return postJson;
     });
 
@@ -260,10 +262,32 @@ const deletePost = async (req, res) => {
   }
 };
 
+const getAllPostsForum = async (req, res) => {
+  try {
+    const posts = await ForumPost.count({
+      where: {
+        ESTADO: { [Op.in]: ["Ativo", "Editado"] },
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar posts:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erro interno do servidor",
+    });
+  }
+};
+
 module.exports = {
   getPostsByTopico,
   createPost,
   updatePost,
   deletePost,
   upload,
+  getAllPostsForum,
 };

@@ -535,8 +535,16 @@ const ForumTopicoView = () => {
 
                 <div className="d-flex justify-content-between align-items-center">
                   <small className="text-muted">
-                    Criado por: <strong>{topico?.Criador?.NOME}</strong> em{" "}
-                    {formatDate(topico?.DATA_CRIACAO)}
+                    Criado por:{" "}
+                    <strong>
+                      <a
+                        className="text-decoration-none"
+                        href={`/user/${topico?.Criador?.ID_UTILIZADOR}`}
+                      >
+                        {topico?.Criador?.NOME}
+                      </a>
+                    </strong>{" "}
+                    em {formatDate(topico?.DATA_CRIACAO)}
                   </small>
                   <small className="text-muted">
                     <MessageSquare size={14} className="me-1" />
@@ -554,9 +562,7 @@ const ForumTopicoView = () => {
             <div className="col-12">
               <div className="card">
                 <div className="card-header">
-                  <h6 className="mb-0">
-                    Participar da discussão
-                  </h6>
+                  <h6 className="mb-0">Participar da discussão</h6>
                 </div>
                 <form onSubmit={handleCreatePost}>
                   <div className="card-body">
@@ -574,7 +580,6 @@ const ForumTopicoView = () => {
                         }
                         required
                         disabled={submittingPost}
-                        minLength={10}
                         maxLength={5000}
                       />
                       <div className="form-text">
@@ -643,7 +648,7 @@ const ForumTopicoView = () => {
                         disabled={
                           submittingPost ||
                           !novoPost.conteudo.trim() ||
-                          novoPost.conteudo.length < 10
+                          novoPost.conteudo.length < 1
                         }
                       >
                         {submittingPost ? (

@@ -30,18 +30,14 @@ const Forum = () => {
   const [topicosForum, setTopicosForum] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [numTopicos, setNumTopicos] = useState(0);
+  const [numPosts, setNumPosts] = useState(0);
 
   const [filtros, setFiltros] = useState({
     categoria: searchParams.get("categoria") || "",
     area: searchParams.get("area") || "",
     topico: searchParams.get("topico") || "",
     search: searchParams.get("search") || "",
-  });
-
-  const [stats, setStats] = useState({
-    totalTopicos: 0,
-    totalPosts: 0,
-    usuariosAtivos: 0,
   });
 
   useEffect(() => {
@@ -146,12 +142,18 @@ const Forum = () => {
 
   const fetchStats = async () => {
     try {
-      // Implementar endpoint para estatísticas se necessário
-      setStats({
-        totalTopicos: 42,
-        totalPosts: 156,
-        usuariosAtivos: 23,
+      const response = await axios.get(`${URL}/api/forum/topicos/count`, {
+        withCredentials: true,
       });
+      const response_posts = await axios.get(`${URL}/api/forum/posts`, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setNumTopicos(response.data.count);
+      }
+      if (response_posts.status === 200) {
+        setNumPosts(response_posts.data.posts);
+      }
     } catch (error) {
       console.error("Erro ao buscar estatísticas:", error);
     }
@@ -197,9 +199,7 @@ const Forum = () => {
           <div className="col-12">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <h2 className="mb-1">
-                  Fórum
-                </h2>
+                <h2 className="mb-1">Fórum</h2>
               </div>
               <button
                 className="btn btn-primary"
@@ -214,7 +214,7 @@ const Forum = () => {
 
         {/* Estatísticas */}
         <div className="row mb-4">
-          <div className="col-md-4">
+          <div className="col-md-6">
             <div className="card h-100">
               <div className="card-body d-flex align-items-center">
                 <div className="me-3">
@@ -223,14 +223,16 @@ const Forum = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="mb-1">{stats.totalTopicos}</h4>
-                  <small className="text-muted">Tópicos Ativos</small>
+                  <h4 className="mb-0">{numTopicos}</h4>
+                </div>
+                <div>
+                  <h6 className="text-muted mb-0 ms-2">Tópico(s) ativos</h6>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-6">
             <div className="card h-100">
               <div className="card-body d-flex align-items-center">
                 <div className="me-3">
@@ -239,24 +241,10 @@ const Forum = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="mb-1">{stats.totalPosts}</h4>
-                  <small className="text-muted">Posts Publicados</small>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4">
-            <div className="card h-100">
-              <div className="card-body d-flex align-items-center">
-                <div className="me-3">
-                  <div className="bg-info bg-opacity-10 p-3 rounded-circle">
-                    <Users className="text-info" size={24} />
-                  </div>
+                  <h4 className="mb-0">{numPosts}</h4>
                 </div>
                 <div>
-                  <h4 className="mb-1">{stats.usuariosAtivos}</h4>
-                  <small className="text-muted">Utilizadores Ativos</small>
+                  <h6 className="text-muted mb-0 ms-2">Post(s) publicados</h6>
                 </div>
               </div>
             </div>
