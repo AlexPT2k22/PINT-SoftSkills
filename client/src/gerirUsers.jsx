@@ -174,7 +174,7 @@ function GerirUsers() {
       showSuccess("Utilizador atualizado com sucesso!");
     } catch (error) {
       console.error("Error updating user:", error);
-      showError("Erro ao atualizar utilizador. Verifique os dados inseridos.");
+      showError(error.response?.data?.message || "Erro ao atualizar utilizador");
     } finally {
       setLoadingButton(false);
     }

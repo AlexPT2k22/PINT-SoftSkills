@@ -622,6 +622,17 @@ const changeUser = async (req, res) => {
       if (!perfilExistente) {
         return res.status(404).json({ message: "Perfil não encontrado" });
       }
+
+      const cursos = await CursoSincrono.findAll({
+        where: { ID_UTILIZADOR: userId },
+      });
+      if (cursos.length > 0) {
+        return res.status(400).json({
+          message:
+            "Não é possível alterar o perfil de um formador ou gestor que possui cursos associados.",
+        });
+      }
+
       await UtilizadorTemPerfil.update(
         { ID_PERFIL: profileId },
         { where: { ID_UTILIZADOR: userId } }
