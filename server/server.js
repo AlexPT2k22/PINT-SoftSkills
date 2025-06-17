@@ -97,7 +97,7 @@ updateSyncCoursesStatus();
 // Sincronizar os modelos com o banco de dados
 (async () => {
   try {
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: false, alter: false });
     console.log("Database configurada com sucesso!");
   } catch (error) {
     console.error("Erro a sincronizar base de dados:", error);

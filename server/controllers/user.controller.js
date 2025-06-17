@@ -21,7 +21,10 @@ const crypto = require("crypto");
 const {
   EmailFormadorNovo,
   sendEnrollmentConfirmationEmail,
+  sendConfirmationEmail,
 } = require("../mail/emails.js");
+require("dotenv").config();
+const URL = process.env.URL || "http://localhost:5173";
 
 const getTeachers = async (req, res) => {
   try {
@@ -462,6 +465,11 @@ const updateUser = async (req, res) => {
     // Atualiza a senha se fornecida
     if (newPassword && newPassword === confirmPassword) {
       utilizador.PASSWORD = hashedNewPassword;
+      sendConfirmationEmail(
+        utilizador.NOME,
+        utilizador.EMAIL,
+        `${URL}/login?login=2`
+      );
     } else if (newPassword || confirmPassword) {
       return res
         .status(400)
