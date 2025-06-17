@@ -221,12 +221,11 @@ const ForumSolicitarTopico = () => {
               onClick={() => navigate("/forum")}
             >
               <ChevronLeft size={16} className="me-1" />
-              Voltar ao Fórum
+              Voltar ao fórum
             </button>
 
             <h2 className="mb-1">
-              <MessageSquare size={32} className="me-2" />
-              Solicitar Novo Tópico de Discussão
+              Solicitar um novo tópico de discussão
             </h2>
             <p className="text-muted mb-0">
               Sugira um novo tópico para discussão. As solicitações são
@@ -240,7 +239,7 @@ const ForumSolicitarTopico = () => {
           <div className="col-lg-8">
             <div className="card">
               <div className="card-header">
-                <h5 className="mb-0">Nova Solicitação</h5>
+                <h5 className="mb-0">Nova solicitação</h5>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="card-body">
@@ -330,7 +329,7 @@ const ForumSolicitarTopico = () => {
                   {/* Título Sugerido */}
                   <div className="mb-3">
                     <label className="form-label">
-                      Título Sugerido para o Tópico de Discussão *
+                      Título sugerido para o tópico de discussão *
                     </label>
                     <input
                       type="text"
@@ -393,12 +392,12 @@ const ForumSolicitarTopico = () => {
                       {submitting ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" />
-                          Enviando...
+                          A enviar...
                         </>
                       ) : (
                         <>
                           <Send size={16} className="me-1" />
-                          Enviar Solicitação
+                          Enviar solicitação
                         </>
                       )}
                     </button>
@@ -412,7 +411,7 @@ const ForumSolicitarTopico = () => {
           <div className="col-lg-4">
             <div className="card">
               <div className="card-header d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">Minhas Solicitações</h6>
+                <h6 className="mb-0">As minhas solicitações</h6>
                 <button
                   className="btn btn-sm btn-outline-primary"
                   onClick={() =>
@@ -461,7 +460,7 @@ const ForumSolicitarTopico = () => {
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => navigate("/forum")}
                               >
-                                Ver Tópico
+                                Ver tópico
                               </button>
                             )}
                           </div>
@@ -485,7 +484,7 @@ const ForumSolicitarTopico = () => {
                               navigate("/forum/minhas-solicitacoes")
                             }
                           >
-                            Ver Todas ({minhasSolicitacoes.length})
+                            Ver todas ({minhasSolicitacoes.length})
                           </button>
                         </div>
                       )}
@@ -498,7 +497,7 @@ const ForumSolicitarTopico = () => {
             {/* Dicas */}
             <div className="card mt-3">
               <div className="card-header">
-                <h6 className="mb-0">💡 Dicas para uma Boa Solicitação</h6>
+                <h6 className="mb-0">Dicas para uma boa solicitação</h6>
               </div>
               <div className="card-body">
                 <ul className="mb-0 small">

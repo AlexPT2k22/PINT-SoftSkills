@@ -198,20 +198,15 @@ const Forum = () => {
             <div className="d-flex justify-content-between align-items-center">
               <div>
                 <h2 className="mb-1">
-                  <MessageSquare size={32} className="me-2" />
-                  Fórum de Partilha de Conhecimento
+                  Fórum
                 </h2>
-                <p className="text-muted mb-0">
-                  Partilhe conhecimentos organizados por categoria, área e
-                  tópico
-                </p>
               </div>
               <button
                 className="btn btn-primary"
                 onClick={() => navigate("/forum/solicitar-topico")}
               >
                 <Plus size={16} className="me-1" />
-                Solicitar Tópico
+                Solicitar tópico
               </button>
             </div>
           </div>
@@ -337,7 +332,7 @@ const Forum = () => {
                   className="btn btn-outline-secondary w-100"
                   onClick={clearFiltros}
                 >
-                  Limpar Filtros
+                  Limpar filtros
                 </button>
               </div>
             </div>
@@ -368,7 +363,7 @@ const Forum = () => {
             ) : (
               <div className="card">
                 <div className="card-header">
-                  <h6 className="mb-0">Tópicos de Discussão</h6>
+                  <h6 className="mb-0">Tópicos de discussão</h6>
                 </div>
                 <div className="list-group list-group-flush">
                   {topicosForum.map((topico) => (

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./navbar.jsx";
+import SuccessMessage from "./sucess_message.jsx";
+import ErrorMessage from "./error_message.jsx";
 import {
   MessageSquare,
   ThumbsUp,
@@ -32,33 +34,29 @@ const ForumTopicoView = () => {
   const fileInputRef = useRef(null);
   const { user } = useAuthStore();
   const username = user.USERNAME;
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
   const [topico, setTopico] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [error, setError] = useState(null);
   const [dropdownAberto, setDropdownAberto] = useState(null);
-
-  // Estados para criação de posts
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [novoPost, setNovoPost] = useState({
     conteudo: "",
     anexos: [],
   });
   const [submittingPost, setSubmittingPost] = useState(false);
-
-  // Estados para modais
   const [showDenunciaModal, setShowDenunciaModal] = useState(false);
   const [postDenunciado, setPostDenunciado] = useState(null);
   const [denunciaData, setDenunciaData] = useState({
     motivo: "",
     descricao: "",
   });
-
   const [editingPost, setEditingPost] = useState(null);
   const [editContent, setEditContent] = useState("");
-
-  // Paginação
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -122,6 +120,7 @@ const ForumTopicoView = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar posts:", error);
+      setErrorMessage("Erro ao carregar posts");
     } finally {
       setLoadingPosts(false);
     }
@@ -129,7 +128,10 @@ const ForumTopicoView = () => {
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    if (!novoPost.conteudo.trim()) return;
+    if (!novoPost.conteudo.trim()) {
+      setErrorMessage("O conteúdo do post não pode estar vazio");
+      return;
+    }
 
     try {
       setSubmittingPost(true);
@@ -151,10 +153,14 @@ const ForumTopicoView = () => {
         setNovoPost({ conteudo: "", anexos: [] });
         fetchPosts(1); // Recarregar posts
         fetchTopico(); // Atualizar contadores
+
+        setSuccessMessage("Post criado com sucesso!");
       }
     } catch (error) {
       console.error("Erro ao criar post:", error);
-      setError("Erro ao criar post");
+      setErrorMessage(
+        error.response?.data?.message || "Erro ao criar post. Tente novamente."
+      );
     } finally {
       setSubmittingPost(false);
     }
@@ -281,7 +287,7 @@ const ForumTopicoView = () => {
       console.error("❌ Erro ao avaliar post:", error);
 
       // 7. Reverter mudanças locais em caso de erro
-      console.log("🔙 Revertendo mudanças locais...");
+      console.log("Revertendo mudanças locais...");
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post.ID_FORUM_POST === postId
@@ -295,8 +301,8 @@ const ForumTopicoView = () => {
         )
       );
 
-      // Mostrar erro ao usuário
-      setError(
+      // ✅ Usar ErrorMessage
+      setErrorMessage(
         error.response?.data?.message ||
           "Erro ao processar avaliação. Tente novamente."
       );
@@ -304,66 +310,130 @@ const ForumTopicoView = () => {
   };
 
   const handleDenunciarPost = async () => {
+    if (!denunciaData.motivo) {
+      setErrorMessage("Selecione um motivo para a denúncia");
+      return;
+    }
+
     try {
-      await axios.post(
+      const response = await axios.post(
         `${URL}/api/forum/denuncias/post/${postDenunciado.ID_FORUM_POST}`,
         denunciaData,
         { withCredentials: true }
       );
 
-      setShowDenunciaModal(false);
-      setPostDenunciado(null);
-      setDenunciaData({ motivo: "", descricao: "" });
-      alert("Denúncia enviada com sucesso");
+      if (response.data.success) {
+        setShowDenunciaModal(false);
+        setPostDenunciado(null);
+        setDenunciaData({ motivo: "", descricao: "" });
+
+        // ✅ Usar SuccessMessage
+        setSuccessMessage("Denúncia enviada com sucesso");
+      }
     } catch (error) {
       console.error("Erro ao denunciar post:", error);
-      alert("Erro ao enviar denúncia");
+      // ✅ Usar ErrorMessage
+      setErrorMessage(
+        error.response?.data?.message || "Erro ao enviar denúncia"
+      );
     }
   };
 
   const handleEditPost = async () => {
+    if (!editContent.trim()) {
+      setErrorMessage("O conteúdo não pode estar vazio");
+      return;
+    }
+
     try {
-      await axios.put(
+      const response = await axios.put(
         `${URL}/api/forum/posts/${editingPost.ID_FORUM_POST}`,
         { conteudo: editContent },
         { withCredentials: true }
       );
 
-      // Atualizar post localmente
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.ID_FORUM_POST === editingPost.ID_FORUM_POST
-            ? { ...post, CONTEUDO: editContent, ESTADO: "Editado" }
-            : post
-        )
-      );
+      if (response.data.success) {
+        // Atualizar post localmente
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.ID_FORUM_POST === editingPost.ID_FORUM_POST
+              ? { ...post, CONTEUDO: editContent, ESTADO: "Editado" }
+              : post
+          )
+        );
 
-      setEditingPost(null);
-      setEditContent("");
+        setEditingPost(null);
+        setEditContent("");
+
+        // ✅ Usar SuccessMessage
+        setSuccessMessage("Post editado com sucesso!");
+      }
     } catch (error) {
       console.error("Erro ao editar post:", error);
+      // ✅ Usar ErrorMessage
+      setErrorMessage(error.response?.data?.message || "Erro ao editar post");
     }
   };
 
   const handleDeletePost = async (postId) => {
-    if (!confirm("Tem certeza que deseja deletar este post?")) return;
-
     try {
-      await axios.delete(`${URL}/api/forum/posts/${postId}`, {
+      const response = await axios.delete(`${URL}/api/forum/posts/${postId}`, {
         withCredentials: true,
       });
 
-      setPosts((prevPosts) =>
-        prevPosts.filter((post) => post.ID_FORUM_POST !== postId)
-      );
-      fetchTopico(); // Atualizar contadores
+      if (response.data.success) {
+        setPosts((prevPosts) =>
+          prevPosts.filter((post) => post.ID_FORUM_POST !== postId)
+        );
+        fetchTopico(); // Atualizar contadores
+
+        // ✅ Usar SuccessMessage
+        setSuccessMessage("Post removido com sucesso!");
+      }
     } catch (error) {
       console.error("Erro ao deletar post:", error);
+      // ✅ Usar ErrorMessage
+      setErrorMessage(error.response?.data?.message || "Erro ao remover post");
     }
+  };
+
+  const confirmDeletePost = (post) => {
+    setPostToDelete(post);
+    setShowDeleteModal(true);
+    setDropdownAberto(null); // Fechar dropdown
+  };
+
+  const handleConfirmDelete = () => {
+    if (postToDelete) {
+      handleDeletePost(postToDelete.ID_FORUM_POST);
+      setShowDeleteModal(false);
+      setPostToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setPostToDelete(null);
   };
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
+    const maxFiles = 5;
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    // Validar número de arquivos
+    if (novoPost.anexos.length + files.length > maxFiles) {
+      setErrorMessage(`Máximo de ${maxFiles} anexos por post`);
+      return;
+    }
+
+    // Validar tamanho dos arquivos
+    const invalidFiles = files.filter((file) => file.size > maxSize);
+    if (invalidFiles.length > 0) {
+      setErrorMessage(`Alguns arquivos excedem o limite de 10MB`);
+      return;
+    }
+
     setNovoPost((prev) => ({
       ...prev,
       anexos: [...prev.anexos, ...files],
@@ -411,7 +481,7 @@ const ForumTopicoView = () => {
             className="btn btn-primary mt-2"
             onClick={() => navigate("/forum")}
           >
-            Voltar ao Fórum
+            Voltar ao fórum
           </button>
         </div>
       </div>
@@ -421,6 +491,22 @@ const ForumTopicoView = () => {
   return (
     <>
       <Navbar />
+
+      {/* ✅ Componentes de Mensagem */}
+      {successMessage && (
+        <SuccessMessage
+          message={successMessage}
+          onClose={() => setSuccessMessage("")}
+        />
+      )}
+
+      {errorMessage && (
+        <ErrorMessage
+          message={errorMessage}
+          onClose={() => setErrorMessage("")}
+        />
+      )}
+
       <div className="container p-4 mt-4">
         {/* Header do Tópico */}
         <div className="row mb-4">
@@ -430,7 +516,7 @@ const ForumTopicoView = () => {
               onClick={() => navigate("/forum")}
             >
               <ChevronLeft size={16} className="me-1" />
-              Voltar ao Fórum
+              Voltar ao fórum
             </button>
 
             <div className="card">
@@ -469,8 +555,7 @@ const ForumTopicoView = () => {
               <div className="card">
                 <div className="card-header">
                   <h6 className="mb-0">
-                    <Reply size={18} className="me-2" />
-                    Participar da Discussão
+                    Participar da discussão
                   </h6>
                 </div>
                 <form onSubmit={handleCreatePost}>
@@ -489,13 +574,20 @@ const ForumTopicoView = () => {
                         }
                         required
                         disabled={submittingPost}
+                        minLength={10}
+                        maxLength={5000}
                       />
+                      <div className="form-text">
+                        {novoPost.conteudo.length}/5000 caracteres
+                      </div>
                     </div>
 
                     {/* Anexos */}
                     {novoPost.anexos.length > 0 && (
                       <div className="mb-3">
-                        <h6 className="small">Anexos:</h6>
+                        <h6 className="small">
+                          Anexos ({novoPost.anexos.length}/5):
+                        </h6>
                         {novoPost.anexos.map((file, index) => (
                           <div
                             key={index}
@@ -503,6 +595,9 @@ const ForumTopicoView = () => {
                           >
                             <span className="small">
                               {getFileIcon(file.type)} {file.name}
+                              <span className="text-muted ms-2">
+                                ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                              </span>
                             </span>
                             <button
                               type="button"
@@ -523,24 +618,33 @@ const ForumTopicoView = () => {
                           ref={fileInputRef}
                           onChange={handleFileSelect}
                           multiple
-                          accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt"
+                          accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt,.ppt,.pptx,.xlsx"
                           style={{ display: "none" }}
                         />
                         <button
                           type="button"
                           className="btn btn-outline-secondary btn-sm me-2"
                           onClick={() => fileInputRef.current?.click()}
-                          disabled={submittingPost}
+                          disabled={
+                            submittingPost || novoPost.anexos.length >= 5
+                          }
                         >
                           <Paperclip size={16} className="me-1" />
                           Anexar Arquivo
                         </button>
+                        <small className="text-muted">
+                          Máx: 5 arquivos, 10MB cada
+                        </small>
                       </div>
 
                       <button
                         type="submit"
                         className="btn btn-primary"
-                        disabled={submittingPost || !novoPost.conteudo.trim()}
+                        disabled={
+                          submittingPost ||
+                          !novoPost.conteudo.trim() ||
+                          novoPost.conteudo.length < 10
+                        }
                       >
                         {submittingPost ? (
                           <>
@@ -623,7 +727,7 @@ const ForumTopicoView = () => {
                               ⋯
                             </button>
 
-                            {/* ✅ Dropdown menu controlado por estado */}
+                            {/* Dropdown menu controlado por estado */}
                             {dropdownAberto === post.ID_FORUM_POST && (
                               <ul
                                 className="dropdown-menu show position-absolute"
@@ -634,7 +738,7 @@ const ForumTopicoView = () => {
                                   minWidth: "150px",
                                 }}
                               >
-                                {/* ✅ Opções do próprio usuário */}
+                                {/* Opções do próprio usuário */}
                                 {user.id === post.ID_UTILIZADOR && (
                                   <>
                                     <li>
@@ -643,7 +747,7 @@ const ForumTopicoView = () => {
                                         onClick={() => {
                                           setEditingPost(post);
                                           setEditContent(post.CONTEUDO);
-                                          setDropdownAberto(null); // ✅ Fechar dropdown
+                                          setDropdownAberto(null);
                                         }}
                                       >
                                         <Edit size={16} className="me-2" />
@@ -654,8 +758,7 @@ const ForumTopicoView = () => {
                                       <button
                                         className="dropdown-item d-flex align-items-center text-danger"
                                         onClick={() => {
-                                          handleDeletePost(post.ID_FORUM_POST);
-                                          setDropdownAberto(null); // ✅ Fechar dropdown
+                                          confirmDeletePost(post);
                                         }}
                                       >
                                         <Trash2 size={16} className="me-2" />
@@ -668,14 +771,14 @@ const ForumTopicoView = () => {
                                   </>
                                 )}
 
-                                {/* ✅ Opção disponível para todos */}
+                                {/* Opção disponível para todos */}
                                 <li>
                                   <button
                                     className="dropdown-item d-flex align-items-center"
                                     onClick={() => {
                                       setPostDenunciado(post);
                                       setShowDenunciaModal(true);
-                                      setDropdownAberto(null); // ✅ Fechar dropdown
+                                      setDropdownAberto(null);
                                     }}
                                   >
                                     <Flag size={16} className="me-2" />
@@ -696,11 +799,17 @@ const ForumTopicoView = () => {
                             rows="4"
                             value={editContent}
                             onChange={(e) => setEditContent(e.target.value)}
+                            minLength={10}
+                            maxLength={5000}
                           />
+                          <div className="form-text mb-2">
+                            {editContent.length}/5000 caracteres
+                          </div>
                           <div>
                             <button
                               className="btn btn-primary btn-sm me-2"
                               onClick={handleEditPost}
+                              disabled={editContent.length < 10}
                             >
                               Salvar
                             </button>
@@ -740,14 +849,17 @@ const ForumTopicoView = () => {
                                 href={`${URL}${anexo.url}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-decoration-none"
+                                className="text-decoration-none me-auto"
                               >
                                 {anexo.nome}
                               </a>
+                              <small className="text-muted me-2">
+                                {(anexo.tamanho / 1024 / 1024).toFixed(2)} MB
+                              </small>
                               <a
                                 href={`${URL}${anexo.url}`}
                                 download={anexo.nome}
-                                className="btn btn-outline-primary btn-sm ms-2"
+                                className="btn btn-outline-primary btn-sm"
                               >
                                 <Download size={14} />
                               </a>
@@ -834,6 +946,80 @@ const ForumTopicoView = () => {
           </div>
         </div>
 
+        {showDeleteModal && (
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{ zIndex: 1050 }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content" style={{ zIndex: 1051 }}>
+                <div className="modal-header border-0 pb-0">
+                  <h5 className="modal-title d-flex align-items-center">
+                    Apagar este post?
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={handleCancelDelete}
+                  ></button>
+                </div>
+                <div className="modal-body pt-2">
+                  <div className="d-flex align-items-start mb-3">
+                    <div className="flex-grow-1">
+                      <p className="text-muted mb-3 mt-2">
+                        Esta ação não pode ser desfeita. O post será removido
+                        permanentemente da discussão.
+                      </p>
+
+                      {/* ✅ Preview do post a ser deletado */}
+                      {postToDelete && (
+                        <div className="bg-light rounded p-3 mb-3">
+                          <small className="text-muted d-block mb-1">
+                            <strong>{postToDelete.UTILIZADOR?.NOME}</strong> •{" "}
+                            {formatDate(postToDelete.DATA_CRIACAO)}
+                          </small>
+                          <div
+                            className="text-truncate"
+                            style={{ maxHeight: "60px", overflow: "hidden" }}
+                          >
+                            {postToDelete.CONTEUDO.length > 100
+                              ? `${postToDelete.CONTEUDO.substring(0, 100)}...`
+                              : postToDelete.CONTEUDO}
+                          </div>
+                          {postToDelete.ANEXOS &&
+                            postToDelete.ANEXOS.length > 0 && (
+                              <small className="text-muted mt-2 d-block">
+                                📎 {postToDelete.ANEXOS.length} anexo(s)
+                              </small>
+                            )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer border-0 pt-0">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleCancelDelete}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleConfirmDelete}
+                  >
+                    Apagar post
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="modal-backdrop show" onClick={handleCancelDelete} />
+          </div>
+        )}
+
         {/* Modal de Denúncia */}
         {showDenunciaModal && (
           <div
@@ -851,7 +1037,10 @@ const ForumTopicoView = () => {
                   <button
                     type="button"
                     className="btn-close"
-                    onClick={() => setShowDenunciaModal(false)}
+                    onClick={() => {
+                      setShowDenunciaModal(false);
+                      setDenunciaData({ motivo: "", descricao: "" });
+                    }}
                   ></button>
                 </div>
                 <div className="modal-body">
@@ -893,14 +1082,21 @@ const ForumTopicoView = () => {
                           descricao: e.target.value,
                         }))
                       }
+                      maxLength={500}
                     />
+                    <div className="form-text">
+                      {denunciaData.descricao.length}/500 caracteres
+                    </div>
                   </div>
                 </div>
                 <div className="modal-footer">
                   <button
                     type="button"
                     className="btn btn-secondary"
-                    onClick={() => setShowDenunciaModal(false)}
+                    onClick={() => {
+                      setShowDenunciaModal(false);
+                      setDenunciaData({ motivo: "", descricao: "" });
+                    }}
                   >
                     Cancelar
                   </button>
@@ -916,13 +1112,13 @@ const ForumTopicoView = () => {
                 </div>
               </div>
             </div>
-            <div className="modal-backdrop show">
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setShowDenunciaModal(false)}
-              ></button>
-            </div>
+            <div
+              className="modal-backdrop show"
+              onClick={() => {
+                setShowDenunciaModal(false);
+                setDenunciaData({ motivo: "", descricao: "" });
+              }}
+            />
           </div>
         )}
       </div>
