@@ -270,15 +270,6 @@ function Login() {
                   "Criar conta"
                 )}
               </button>
-              <Divider text="Ou registe-se com" />
-              <div className="d-flex justify-content-center align-items-center gap-2 enter-with">
-                <button className="btn p-0 border-0" type="button">
-                  <img src="./images/google.svg" alt="google" />
-                </button>
-                <button className="btn p-0 border-0" type="button">
-                  <img src="./images/facebook.svg" alt="facebook" />
-                </button>
-              </div>
             </>
           )}
 
@@ -291,15 +282,6 @@ function Login() {
                   "Entrar"
                 )}
               </button>
-              <Divider text="Ou entre com" />
-              <div className="d-flex justify-content-center align-items-center gap-2 enter-with">
-                <button className="btn p-0 border-0" type="button">
-                  <img src="./images/google.svg" alt="google" />
-                </button>
-                <button className="btn p-0 border-0" type="button">
-                  <img src="./images/facebook.svg" alt="facebook" />
-                </button>
-              </div>
             </>
           )}
 
