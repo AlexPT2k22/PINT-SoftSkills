@@ -139,7 +139,51 @@ const listarDenuncias = async (req, res) => {
   }
 };
 
+const apagarDenuncia = async (req, res) => {
+  try {
+    const userId = req.user.ID_UTILIZADOR;
+    const { denunciaId } = req.params;
+
+    // Verificar se é gestor
+    const userProfile = await UtilizadorTemPerfil.findOne({
+      where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
+    });
+
+    if (!userProfile) {
+      return res.status(403).json({
+        success: false,
+        message: "Acesso negado",
+      });
+    }
+
+    const denuncia = await ForumDenuncia.findOne({
+      where: { ID_FORUM_DENUNCIA: denunciaId },
+    });
+
+    if (!denuncia) {
+      return res.status(404).json({
+        success: false,
+        message: "Denúncia não encontrada",
+      });
+    }
+
+    await denuncia.destroy();
+
+    res.status(200).json({
+      success: true,
+      message: "Denúncia apagada com sucesso",
+    });
+  } catch (error) {
+    console.error("Erro ao apagar denúncia:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erro interno do servidor",
+    });
+  }
+};
+
 module.exports = {
   criarDenuncia,
   listarDenuncias,
+  apagarDenuncia,
 };

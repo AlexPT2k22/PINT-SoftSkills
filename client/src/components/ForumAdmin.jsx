@@ -4,19 +4,13 @@ import axios from "axios";
 import Navbar from "./navbar.jsx";
 import Sidebar from "./sidebar.jsx";
 import {
-  Shield,
   MessageSquare,
   Plus,
   CheckCircle,
-  X,
   Flag,
   Clock,
-  Users,
-  TrendingUp,
-  AlertTriangle,
-  ChevronLeft,
   Eye,
-  Search,
+  Trash2,
 } from "lucide-react";
 import SuccessMessage from "./sucess_message.jsx";
 import ErrorMessage from "./error_message.jsx";
@@ -64,6 +58,60 @@ const ForumAdmin = () => {
     fetchSolicitacoes();
     fetchDenuncias();
   }, []);
+
+  useEffect(() => {
+    if (novoTopico.categoriaId) {
+      fetchAreas(novoTopico.categoriaId);
+    } else {
+      setAreas([]);
+      setTopicos([]);
+    }
+  }, [novoTopico.categoriaId]);
+
+  useEffect(() => {
+    if (novoTopico.areaId) {
+      fetchTopicosList(novoTopico.areaId);
+    } else {
+      setTopicos([]);
+    }
+  }, [novoTopico.areaId]);
+
+  const fetchAreas = async (categoriaId) => {
+    try {
+      const response = await axios.get(`${URL}/api/categorias/com-areas`, {
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        const categoriaEncontrada = response.data.find(
+          (cat) => cat.ID_CATEGORIA__PK___ === parseInt(categoriaId)
+        );
+
+        if (categoriaEncontrada && categoriaEncontrada.AREAs) {
+          setAreas(categoriaEncontrada.AREAs);
+        } else {
+          setAreas([]);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao buscar áreas:", error);
+      setErrorMessage("Erro ao carregar áreas");
+    }
+  };
+
+  const fetchTopicosList = async (areaId) => {
+    try {
+      const response = await axios.get(`${URL}/api/topicos/by-area/${areaId}`, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setTopicos(response.data);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar tópicos:", error);
+      setErrorMessage("Erro ao carregar tópicos");
+    }
+  };
 
   const fetchTopicos = async () => {
     try {
@@ -169,21 +217,39 @@ const ForumAdmin = () => {
   const handleCreateTopico = async (e) => {
     e.preventDefault();
 
+    // Validação
     if (
       !novoTopico.categoriaId ||
       !novoTopico.areaId ||
       !novoTopico.topicoId ||
-      !novoTopico.titulo ||
-      !novoTopico.descricao
+      !novoTopico.titulo.trim() ||
+      !novoTopico.descricao.trim()
     ) {
       setErrorMessage("Todos os campos são obrigatórios");
       return;
     }
 
+    if (novoTopico.titulo.length < 5) {
+      setErrorMessage("O título deve ter pelo menos 5 caracteres");
+      return;
+    }
+
+    if (novoTopico.descricao.length < 10) {
+      setErrorMessage("A descrição deve ter pelo menos 10 caracteres");
+      return;
+    }
+
     try {
+      setLoadingButton(true);
       const response = await axios.post(
         `${URL}/api/forum/topicos`,
-        novoTopico,
+        {
+          categoriaId: novoTopico.categoriaId,
+          areaId: novoTopico.areaId,
+          topicoId: novoTopico.topicoId,
+          titulo: novoTopico.titulo.trim(),
+          descricao: novoTopico.descricao.trim(),
+        },
         { withCredentials: true }
       );
 
@@ -196,12 +262,38 @@ const ForumAdmin = () => {
           titulo: "",
           descricao: "",
         });
-        fetchTopicos();
-        setSuccessMessage("Tópico criado com sucesso!");
+        setAreas([]);
+        setTopicos([]);
+        fetchTopicos(); // Atualizar contagem
+        setSuccessMessage("Tópico de fórum criado com sucesso!");
       }
     } catch (error) {
       console.error("Erro ao criar tópico:", error);
-      setErrorMessage(error.response?.data?.message || "Erro ao criar tópico");
+      setErrorMessage(
+        error.response?.data?.message || "Erro ao criar tópico de fórum"
+      );
+    } finally {
+      setLoadingButton(false);
+    }
+  };
+
+  const handleDeleteDenuncia = async (denunciaId) => {
+    try {
+      const response = await axios.delete(
+        `${URL}/api/forum/denuncias/post/${denunciaId}`,
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        setSuccessMessage("Denúncia eliminada com sucesso!");
+        fetchDenuncias(); // Atualizar lista de denúncias
+      } else {
+        setErrorMessage("Erro ao eliminar denúncia");
+      }
+    } catch (error) {
+      console.error("Erro ao eliminar denúncia:", error);
+      setErrorMessage(
+        error.response?.data?.message || "Erro ao eliminar denúncia"
+      );
     }
   };
 
@@ -216,6 +308,19 @@ const ForumAdmin = () => {
       },
     });
     setShowRespostaModal(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false);
+    setNovoTopico({
+      categoriaId: "",
+      areaId: "",
+      topicoId: "",
+      titulo: "",
+      descricao: "",
+    });
+    setAreas([]);
+    setTopicos([]);
   };
 
   const formatDate = (dateString) => {
@@ -244,21 +349,19 @@ const ForumAdmin = () => {
       <div className="container mt-4 p-4">
         {/* Header */}
         <div className="row mb-4">
-          <div className="col-12">
-            <button
-              className="btn btn-outline-secondary mb-3"
-              onClick={() => navigate("/forum")}
-            >
-              <ChevronLeft size={16} className="me-1" />
-              Voltar ao fórum
-            </button>
-
-            <h2 className="mb-1">
-              Painel administrativo do fórum
-            </h2>
+          <div className="col-10">
+            <h2 className="mb-1">Painel administrativo do fórum</h2>
             <p className="text-muted mb-0">
               Gerir solicitações de tópicos, denúncias e criar novos tópicos.
             </p>
+          </div>
+          <div className="col-2 text-end">
+            <button
+              className="btn btn-outline-primary mb-3"
+              onClick={() => navigate("/forum")}
+            >
+              Ir para o fórum
+            </button>
           </div>
         </div>
 
@@ -450,12 +553,13 @@ const ForumAdmin = () => {
                             <tr key={den.ID_FORUM_DENUNCIA}>
                               <td>
                                 <small>
-                                  {den.ForumPost?.CONTEUDO?.length > 100
-                                    ? `${den.ForumPost.CONTEUDO.substring(
+                                  {den.FORUM_POST?.CONTEUDO?.length > 100
+                                    ? `${den.FORUM_POST.CONTEUDO.substring(
                                         0,
                                         100
                                       )}...`
-                                    : den.ForumPost?.CONTEUDO || "Post apagado"}
+                                    : den.FORUM_POST?.CONTEUDO ||
+                                      "Post apagado"}
                                 </small>
                               </td>
                               <td>
@@ -477,12 +581,22 @@ const ForumAdmin = () => {
                                 <button
                                   className="btn btn-sm btn-outline-primary me-1"
                                   onClick={() =>
-                                    navigate(`/forum/post/${den.ID_FORUM_POST}`)
+                                    navigate(
+                                      `/forum/topico/${den.FORUM_POST.FORUM_TOPICO.ID_FORUM_TOPICO}`
+                                    )
                                   }
-                                  disabled={!den.ForumPost?.CONTEUDO}
+                                  disabled={!den.FORUM_POST?.CONTEUDO}
                                 >
                                   <Eye size={14} className="me-1" />
-                                  Ver Post
+                                  Ver post
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={() =>
+                                    handleDeleteDenuncia(den.ID_FORUM_DENUNCIA)
+                                  }
+                                >
+                                  <Trash2 size={14} className="me-0" />
                                 </button>
                               </td>
                             </tr>
@@ -499,7 +613,7 @@ const ForumAdmin = () => {
             {activeTab === "criar" && (
               <div className="card">
                 <div className="card-header">
-                  <h5 className="mb-0">Criar Novo Tópico</h5>
+                  <h5 className="mb-0">Criar novo tópico</h5>
                 </div>
                 <div className="card-body">
                   <div className="alert alert-info">
@@ -513,13 +627,256 @@ const ForumAdmin = () => {
                     onClick={() => setShowCreateModal(true)}
                   >
                     <Plus size={16} className="me-1" />
-                    Criar Novo Tópico
+                    Criar novo tópico
                   </button>
                 </div>
               </div>
             )}
           </div>
         </div>
+
+        {showCreateModal && (
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{ zIndex: 1050 }}
+          >
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content" style={{ zIndex: 1051 }}>
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    <Plus size={20} className="me-2" />
+                    Criar Novo Tópico de Fórum
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={handleCloseCreateModal}
+                  />
+                </div>
+
+                <form onSubmit={handleCreateTopico}>
+                  <div className="modal-body">
+                    <div className="alert alert-info">
+                      <strong>Informação:</strong> Está a criar um tópico de
+                      discussão que ficará imediatamente disponível no fórum
+                      para todos os utilizadores.
+                    </div>
+
+                    {/* Seleção de Categoria/Área/Tópico */}
+                    <div className="row mb-3">
+                      <div className="col-md-4">
+                        <label className="form-label">Categoria *</label>
+                        <select
+                          className="form-select"
+                          value={novoTopico.categoriaId}
+                          onChange={(e) =>
+                            setNovoTopico((prev) => ({
+                              ...prev,
+                              categoriaId: e.target.value,
+                              areaId: "",
+                              topicoId: "",
+                            }))
+                          }
+                          required
+                          disabled={loadingButton}
+                        >
+                          <option value="">Selecione uma categoria</option>
+                          {categorias.map((cat) => (
+                            <option
+                              key={cat.ID_CATEGORIA__PK___}
+                              value={cat.ID_CATEGORIA__PK___}
+                            >
+                              {cat.NOME__}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="col-md-4">
+                        <label className="form-label">Área *</label>
+                        <select
+                          className="form-select"
+                          value={novoTopico.areaId}
+                          onChange={(e) =>
+                            setNovoTopico((prev) => ({
+                              ...prev,
+                              areaId: e.target.value,
+                              topicoId: "",
+                            }))
+                          }
+                          required
+                          disabled={loadingButton || !novoTopico.categoriaId}
+                        >
+                          <option value="">Selecione uma área</option>
+                          {areas.map((area) => (
+                            <option key={area.ID_AREA} value={area.ID_AREA}>
+                              {area.NOME}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="col-md-4">
+                        <label className="form-label">Tópico *</label>
+                        <select
+                          className="form-select"
+                          value={novoTopico.topicoId}
+                          onChange={(e) =>
+                            setNovoTopico((prev) => ({
+                              ...prev,
+                              topicoId: e.target.value,
+                            }))
+                          }
+                          required
+                          disabled={loadingButton || !novoTopico.areaId}
+                        >
+                          <option value="">Selecione um tópico</option>
+                          {topicos.map((topico) => (
+                            <option
+                              key={topico.ID_TOPICO}
+                              value={topico.ID_TOPICO}
+                            >
+                              {topico.TITULO}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Título do Tópico de Fórum */}
+                    <div className="mb-3">
+                      <label className="form-label">
+                        Título do Tópico de Discussão *
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Ex: Dúvidas sobre React.js - Discussão Geral"
+                        value={novoTopico.titulo}
+                        onChange={(e) =>
+                          setNovoTopico((prev) => ({
+                            ...prev,
+                            titulo: e.target.value,
+                          }))
+                        }
+                        required
+                        disabled={loadingButton}
+                        minLength={5}
+                        maxLength={255}
+                      />
+                      <div className="form-text">
+                        {novoTopico.titulo.length}/255 caracteres (mínimo 5)
+                      </div>
+                    </div>
+
+                    {/* Descrição */}
+                    <div className="mb-3">
+                      <label className="form-label">Descrição *</label>
+                      <textarea
+                        className="form-control"
+                        rows="4"
+                        placeholder="Descreva o propósito deste tópico de discussão..."
+                        value={novoTopico.descricao}
+                        onChange={(e) =>
+                          setNovoTopico((prev) => ({
+                            ...prev,
+                            descricao: e.target.value,
+                          }))
+                        }
+                        required
+                        disabled={loadingButton}
+                        minLength={10}
+                        maxLength={1000}
+                      />
+                      <div className="form-text">
+                        {novoTopico.descricao.length}/1000 caracteres (mínimo
+                        10)
+                      </div>
+                    </div>
+
+                    {/* Preview da hierarquia */}
+                    {novoTopico.categoriaId &&
+                      novoTopico.areaId &&
+                      novoTopico.topicoId && (
+                        <div className="alert alert-secondary">
+                          <h6 className="mb-2">Preview da localização:</h6>
+                          <small className="text-muted">
+                            <strong>Categoria:</strong>{" "}
+                            {
+                              categorias.find(
+                                (c) =>
+                                  c.ID_CATEGORIA__PK___ ==
+                                  novoTopico.categoriaId
+                              )?.NOME__
+                            }
+                            {" → "}
+                            <strong>Área:</strong>{" "}
+                            {
+                              areas.find((a) => a.ID_AREA == novoTopico.areaId)
+                                ?.NOME
+                            }
+                            {" → "}
+                            <strong>Tópico:</strong>{" "}
+                            {
+                              topicos.find(
+                                (t) => t.ID_TOPICO == novoTopico.topicoId
+                              )?.TITULO
+                            }
+                            {" → "}
+                            <strong>Discussão:</strong>{" "}
+                            {novoTopico.titulo || "Título do tópico"}
+                          </small>
+                        </div>
+                      )}
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={handleCloseCreateModal}
+                      disabled={loadingButton}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={
+                        loadingButton ||
+                        !novoTopico.categoriaId ||
+                        !novoTopico.areaId ||
+                        !novoTopico.topicoId ||
+                        !novoTopico.titulo.trim() ||
+                        !novoTopico.descricao.trim() ||
+                        novoTopico.titulo.length < 5 ||
+                        novoTopico.descricao.length < 10
+                      }
+                    >
+                      {loadingButton ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" />
+                          A criar...
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={16} className="me-1" />
+                          Criar Tópico
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div
+              className="modal-backdrop show"
+              style={{ zIndex: 1050 }}
+              onClick={handleCloseCreateModal}
+            />
+          </div>
+        )}
 
         {/* Modal Resposta Solicitação */}
         {showRespostaModal && solicitacaoSelecionada && (
@@ -678,8 +1035,6 @@ const ForumAdmin = () => {
             />
           </div>
         )}
-
-        {/* Modal Criar Tópico - Pode adicionar depois se necessário */}
       </div>
     </>
   );

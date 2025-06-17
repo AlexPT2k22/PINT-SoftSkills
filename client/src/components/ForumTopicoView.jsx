@@ -548,7 +548,7 @@ const ForumTopicoView = () => {
                   </small>
                   <small className="text-muted">
                     <MessageSquare size={14} className="me-1" />
-                    {topico?.TOTAL_POSTS} posts
+                    {topico?.TOTAL_POSTS} respostas
                   </small>
                 </div>
               </div>

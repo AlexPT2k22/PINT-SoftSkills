@@ -390,7 +390,7 @@ const Forum = () => {
                             <div className="d-flex align-items-center gap-3">
                               <small className="text-muted">
                                 <MessageSquare size={14} className="me-1" />
-                                {topico.TOTAL_POSTS} posts
+                                {topico.TOTAL_POSTS} resposta(s)
                               </small>
                               {topico.ULTIMO_POST_DATA && (
                                 <small className="text-muted">

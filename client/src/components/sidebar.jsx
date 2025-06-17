@@ -15,6 +15,7 @@ import {
   ShieldAlert,
   LogOut,
   UsersRound,
+  Group,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 
@@ -225,6 +226,18 @@ function Sidebar({ onToggle }) {
                       >
                         <UsersRound size={20} className="me-3" />
                         {!collapsed && <span>Gerir utilizadores</span>}
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link
+                        to="/forum/admin"
+                        className={`nav-link ${
+                          isActive("/forum/admin") ? "active" : ""
+                        }`}
+                        onClick={() => mobileView && setCollapsed(true)}
+                      >
+                        <Group size={20} className="me-3" />
+                        {!collapsed && <span>Gerir fórum</span>}
                       </Link>
                     </li>
                   </>
