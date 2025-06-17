@@ -19,6 +19,7 @@ const {
   searchCursos,
   verifyTeacher,
   updateCursoCompleto,
+  getCursosByFormador,
 } = require("../controllers/curso.controller.js");
 const multer = require("multer");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
@@ -27,6 +28,7 @@ const upload = multer({ storage });
 
 // /cursos/*
 router.get("/", getCursos);
+router.get("/formador", authenticateToken, getCursosByFormador);
 router.get("/popular", getCursosPopulares);
 router.post("/create", upload.any(), createCurso);
 router.post("/create-sincrono", upload.any(), createSincrono); // criar curso sincrono

@@ -173,6 +173,23 @@ function Sidebar({ onToggle }) {
                     {!collapsed && <span>Cursos atribuidos</span>}
                   </Link>
                 </li>
+                {isFormador && (
+                  <li className="nav-item">
+                    <Link
+                      to="/dashboard/course-managemnent"
+                      className={`nav-link ${
+                        isActive("/dashboard/course-managemnent")
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => mobileView && setCollapsed(true)}
+                    >
+                      <ShieldAlert size={20} className="me-3" />
+                      {!collapsed && <span>Gerir os meus cursos</span>}
+                    </Link>
+                  </li>
+                )}
+
                 {isGestor && (
                   <>
                     <li className="nav-item">

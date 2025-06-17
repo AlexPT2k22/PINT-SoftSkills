@@ -13,11 +13,13 @@ import {
   Filter,
   Search,
   X,
+  AlertCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
 import "./styles/listCoursesDashboard.css";
+import useAuthStore from "./store/authStore";
 
 const URL =
   import.meta.env.PROD === "production"
@@ -31,8 +33,9 @@ function ListCoursesDashboard() {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoadingAssets, setIsLoadingAssets] = useState(false);
-
-  // Estados para pesquisa e filtros
+  const { user } = useAuthStore();
+  const isGestor = user.perfil === 3;
+  const isFormador = user.perfil === 2;
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -42,18 +45,27 @@ function ListCoursesDashboard() {
     const fetchCourses = async () => {
       try {
         setIsLoadingAssets(true);
-        const response = await fetch(`${URL}/api/cursos`, {
+        let endpoint = `${URL}/api/cursos`;
+
+        if (isFormador && !isGestor) {
+          endpoint = `${URL}/api/cursos/formador`;
+        }
+        const response = await fetch(endpoint, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
         });
+
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
         }
+
         const data = await response.json();
         setCourses(data);
+
+        console.log(`Carregados ${data.length} cursos para o usuário`);
       } catch (error) {
         console.error("Error fetching courses:", error);
         setErrorMessage("Erro ao carregar cursos");
@@ -64,9 +76,8 @@ function ListCoursesDashboard() {
     };
 
     fetchCourses();
-  }, []);
+  }, [isFormador, isGestor]);
 
-  // Filtrar cursos
   const filteredCourses = courses.filter((course) => {
     const matchesSearch =
       course.NOME?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -123,6 +134,7 @@ function ListCoursesDashboard() {
               return "Brevemente";
             }
           })();
+
     const matchesStatus = filterStatus === "" || courseStatus === filterStatus;
 
     const matchesCategory =
@@ -157,7 +169,6 @@ function ListCoursesDashboard() {
       courses
         .map((course) => {
           if (course.CURSO_SINCRONO === null) {
-            // Curso assíncrono
             const today = new Date();
             const dataFim = course.CURSO_ASSINCRONO?.DATA_FIM
               ? new Date(course.CURSO_ASSINCRONO.DATA_FIM)
@@ -169,7 +180,6 @@ function ListCoursesDashboard() {
               return "Ativo";
             }
           } else {
-            // Curso síncrono
             const today = new Date();
             const dataInicio = course.CURSO_SINCRONO?.DATA_INICIO
               ? new Date(course.CURSO_SINCRONO.DATA_INICIO)
@@ -207,7 +217,6 @@ function ListCoursesDashboard() {
     let badgeClass;
 
     if (course.CURSO_SINCRONO === null) {
-      // Curso assíncrono
       const today = new Date();
       const dataInicio = course.CURSO_ASSINCRONO?.DATA_INICIO
         ? new Date(course.CURSO_ASSINCRONO.DATA_INICIO)
@@ -232,7 +241,6 @@ function ListCoursesDashboard() {
         badgeClass = "badge bg-success";
       }
     } else {
-      // Curso síncrono (código existente)
       const today = new Date();
       const dataInicio = course.CURSO_SINCRONO?.DATA_INICIO
         ? new Date(course.CURSO_SINCRONO.DATA_INICIO)
@@ -266,7 +274,7 @@ function ListCoursesDashboard() {
       <NavbarDashboard />
       <Sidebar />
       <div className="container mt-4 p-4">
-        <div className="container-fluid">
+        <div className="container p-0">
           {showSuccessMessage && (
             <SuccessMessage
               message={"Curso apagado com sucesso!"}
@@ -281,8 +289,10 @@ function ListCoursesDashboard() {
           )}
 
           {/* Header */}
-          <div className="courses-management-header">
-            <h2 className="courses-title">Gerir Cursos</h2>
+          <div className="courses-management-header mb-0">
+            <h2 className="courses-title">
+              {isFormador && !isGestor ? "Os Meus Cursos" : "Gerir Cursos"}
+            </h2>
           </div>
 
           {/* Filtros e Pesquisa */}
@@ -300,17 +310,23 @@ function ListCoursesDashboard() {
                   />
                 </div>
               </div>
-              <div className="col-md-2">
-                <select
-                  className="form-select"
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value)}
-                >
-                  <option value="">Todos os tipos</option>
-                  <option value="sincrono">Síncrono</option>
-                  <option value="assincrono">Assíncrono</option>
-                </select>
-              </div>
+
+              {/* ✅ Mostrar filtros de tipo apenas para gestores */}
+              {isGestor && (
+                <div className="col-md-2">
+                  <select
+                    className="form-select"
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                  >
+                    <option value="">Todos os tipos</option>
+                    <option value="sincrono">Síncrono</option>
+                    <option value="assincrono">Assíncrono</option>
+                  </select>
+                </div>
+              )}
+
+              {/* ✅ Filtro de status disponível para todos */}
               <div className="col-md-2">
                 <select
                   className="form-select"
@@ -325,6 +341,7 @@ function ListCoursesDashboard() {
                   ))}
                 </select>
               </div>
+
               <div className="col-md-2">
                 <select
                   className="form-select"
@@ -433,7 +450,8 @@ function ListCoursesDashboard() {
                         <Filter size={16} className="me-2" />
                         Categoria/Área
                       </th>
-                      <th>Tipo</th>
+                      {/* ✅ Mostrar coluna de tipo apenas para gestores */}
+                      {isGestor && <th>Tipo</th>}
                       <th>
                         <User size={16} className="me-2" />
                         Formador
@@ -476,19 +494,22 @@ function ListCoursesDashboard() {
                               </div>
                             </div>
                           </td>
-                          <td>
-                            <span
-                              className={`badge ${
-                                course.CURSO_SINCRONO === null
-                                  ? "bg-info"
-                                  : "bg-primary"
-                              }`}
-                            >
-                              {course.CURSO_SINCRONO === null
-                                ? "Assíncrono"
-                                : "Síncrono"}
-                            </span>
-                          </td>
+                          {/* ✅ Mostrar tipo apenas para gestores */}
+                          {isGestor && (
+                            <td>
+                              <span
+                                className={`badge ${
+                                  course.CURSO_SINCRONO === null
+                                    ? "bg-info"
+                                    : "bg-primary"
+                                }`}
+                              >
+                                {course.CURSO_SINCRONO === null
+                                  ? "Assíncrono"
+                                  : "Síncrono"}
+                              </span>
+                            </td>
+                          )}
                           <td>
                             {course.CURSO_SINCRONO === null ? (
                               <span className="text-muted">N/A</span>
@@ -563,14 +584,21 @@ function ListCoursesDashboard() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="9" className="text-center py-5">
+                        <td
+                          colSpan={isGestor ? "9" : "8"}
+                          className="text-center py-5"
+                        >
                           <BookOpen size={48} className="text-muted mb-3" />
                           <h5 className="text-muted">
-                            Nenhum curso encontrado
+                            {isFormador && !isGestor
+                              ? "Não tem cursos associados"
+                              : "Nenhum curso encontrado"}
                           </h5>
                           <p className="text-muted">
                             {hasActiveFilters
                               ? "Tente ajustar os filtros de pesquisa"
+                              : isFormador && !isGestor
+                              ? "Contacte um gestor para ser associado a cursos síncronos"
                               : "Não há cursos criados ainda"}
                           </p>
                           {hasActiveFilters && (

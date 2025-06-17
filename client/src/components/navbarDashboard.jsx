@@ -54,6 +54,11 @@ function NavbarDashboard({ showIcons = true }) {
           {showIcons && (
             <ul className="navbar-nav flex-row">
               <li className="nav-item">
+                <a className="nav-link text align-items-center" href="/forum">
+                  Fórum
+                </a>
+              </li>
+              <li className="nav-item">
                 <NotificationsDropdown />
               </li>
 

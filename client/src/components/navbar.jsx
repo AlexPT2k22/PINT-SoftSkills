@@ -277,11 +277,6 @@ function Navbar() {
             <li className="nav-item">
               <a className="nav-link text align-items-center" href="/forum">
                 Fórum
-                <SquareArrowOutUpRight
-                  color="#39639C"
-                  size={18}
-                  className="ms-2"
-                />
               </a>
             </li>
             {isAuthenticated ? (

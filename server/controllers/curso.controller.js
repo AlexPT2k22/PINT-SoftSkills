@@ -2615,6 +2615,81 @@ const searchCursos = async (req, res) => {
   }
 };
 
+const getCursosByFormador = async (req, res) => {
+  try {
+    const userId = req.user.ID_UTILIZADOR;
+    const cursos = await Curso.findAll({
+      include: [
+        {
+          model: Area,
+          as: "AREA",
+          attributes: ["NOME", "ID_AREA"],
+          include: [
+            {
+              model: Categoria,
+              as: "Categoria",
+              attributes: ["ID_CATEGORIA__PK___", "NOME__"],
+            },
+          ],
+        },
+        {
+          model: Topico,
+          as: "Topico",
+          attributes: ["ID_TOPICO", "TITULO", "DESCRICAO"],
+        },
+        {
+          model: CursoSincrono,
+          where: { ID_UTILIZADOR: userId },
+          required: true,
+          attributes: [
+            "DATA_INICIO",
+            "DATA_FIM",
+            "VAGAS",
+            "ID_UTILIZADOR",
+            "DATA_LIMITE_INSCRICAO_S",
+            "ESTADO",
+          ],
+          include: [
+            {
+              model: Utilizador,
+              attributes: ["ID_UTILIZADOR", "USERNAME", "NOME"],
+            },
+          ],
+        },
+        {
+          model: Objetivos,
+          attributes: ["ID_OBJETIVO", "DESCRICAO"],
+          as: "OBJETIVOS",
+        },
+        {
+          model: Habilidades,
+          attributes: ["ID_HABILIDADE", "DESCRICAO"],
+          as: "HABILIDADES",
+        },
+        {
+          model: Modulos,
+          attributes: [
+            "ID_MODULO",
+            "NOME",
+            "DESCRICAO",
+            "TEMPO_ESTIMADO_MIN",
+            "VIDEO_URL",
+            "FILE_URL",
+          ],
+          as: "MODULOS",
+          order: [["ID_MODULO", "ASC"]],
+        },
+      ],
+      order: [["DATA_CRIACAO__", "DESC"]],
+    });
+
+    res.status(200).json(cursos);
+  } catch (error) {
+    console.error("Erro ao buscar cursos do formador:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCursos,
   getCursoById,
@@ -2634,4 +2709,5 @@ module.exports = {
   searchCursos,
   verifyTeacher,
   updateCursoCompleto,
+  getCursosByFormador,
 };
