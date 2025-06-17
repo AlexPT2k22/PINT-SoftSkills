@@ -16,6 +16,7 @@ import {
   LogOut,
   UsersRound,
   Group,
+  ChartArea,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 
@@ -255,6 +256,18 @@ function Sidebar({ onToggle }) {
                       >
                         <Group size={20} className="me-3" />
                         {!collapsed && <span>Gerir fórum</span>}
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link
+                        to="/dashboard/stats"
+                        className={`nav-link ${
+                          isActive("/dashboard/stats") ? "active" : ""
+                        }`}
+                        onClick={() => mobileView && setCollapsed(true)}
+                      >
+                        <ChartArea size={20} className="me-3" />
+                        {!collapsed && <span>Estatísticas</span>}
                       </Link>
                     </li>
                   </>
