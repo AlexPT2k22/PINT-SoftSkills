@@ -16,7 +16,7 @@ function EditCourse() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const isGestor = user?.perfil === 3;
-  console.log("User perfil:", isGestor);
+  const isFormador = user?.perfil === 2;
 
   // State variables
   const [collapsed, setCollapsed] = useState(false);
@@ -278,7 +278,6 @@ function EditCourse() {
         }
 
         // Set modules
-        // Set modules
         if (response.data.MODULOS && response.data.MODULOS.length > 0) {
           const modulesList = [
             "",
@@ -289,7 +288,7 @@ function EditCourse() {
                 description: modulo.DESCRICAO || "",
                 videoFile: null,
                 videoURL: modulo.VIDEO_URL || null,
-                // não criar objetos fake para arquivos existentes
+                // não criar objetos falsos para arquivos existentes
                 contentFile: [], // Deixar vazio para arquivos existentes
                 existingContentUrls: modulo.FILE_URL_ARRAY || [], // Guardar URLs existentes separadamente
                 duration: modulo.TEMPO_ESTIMADO_MIN || 30,
@@ -919,6 +918,7 @@ function EditCourse() {
                                   checked={courseDifficulty === "Iniciante"}
                                   onChange={handleRadioChange}
                                   required
+                                  disabled={isFormador}
                                 />
                                 <label
                                   className="form-check-label"
@@ -936,6 +936,7 @@ function EditCourse() {
                                   value="Intermédio"
                                   checked={courseDifficulty === "Intermédio"}
                                   onChange={handleRadioChange}
+                                  disabled={isFormador}
                                 />
                                 <label
                                   className="form-check-label"
@@ -953,6 +954,7 @@ function EditCourse() {
                                   value="Difícil"
                                   checked={courseDifficulty === "Difícil"}
                                   onChange={handleRadioChange}
+                                  disabled={isFormador}
                                 />
                                 <label
                                   className="form-check-label"
@@ -979,6 +981,7 @@ function EditCourse() {
                                     onChange={handleRadioChange}
                                     checked={selectedRadio === "Assíncrono"}
                                     required
+                                    disabled={isFormador}
                                   />
                                   <label
                                     className="form-check-label"
@@ -996,6 +999,7 @@ function EditCourse() {
                                     value="Síncrono"
                                     onChange={handleRadioChange}
                                     checked={selectedRadio === "Síncrono"}
+                                    disabled={isFormador}
                                   />
                                   <label
                                     className="form-check-label"
@@ -1020,6 +1024,7 @@ function EditCourse() {
                                       setSelectedTeacher(e.target.value)
                                     }
                                     required={selectedRadio === "Síncrono"}
+                                    disabled={isFormador}
                                   >
                                     <option value="" disabled>
                                       Selecione um formador
@@ -1075,6 +1080,7 @@ function EditCourse() {
                                   value={selectedCategory}
                                   onChange={handleCategoryChange}
                                   required
+                                  disabled={isFormador}
                                 >
                                   <option value="" disabled>
                                     Selecione uma categoria
@@ -1109,6 +1115,7 @@ function EditCourse() {
                                     setSelectedArea(e.target.value)
                                   }
                                   required
+                                  disabled={isFormador}
                                 >
                                   <option value="" disabled>
                                     Selecione uma área
@@ -1144,6 +1151,7 @@ function EditCourse() {
                                   setSelectedTopic(e.target.value)
                                 }
                                 required
+                                disabled={isFormador}
                               >
                                 <option value="">Selecione um tópico</option>
                                 {topics.map((topic) => (
@@ -1551,7 +1559,7 @@ function EditCourse() {
                 <QuizManager
                   courseId={courseId}
                   courseType={selectedRadio}
-                  userRole={isGestor} // se nao for gestor, nao mostrar
+                  userRole={isGestor}
                 />
               </div>
             </div>
