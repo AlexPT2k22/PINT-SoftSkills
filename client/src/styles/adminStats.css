@@ -1,0 +1,607 @@
+/* ================================= */
+/*        LAYOUT PRINCIPAL           */
+/* ================================= */
+
+@media (max-width: 1200px) {
+  .admin-stats-container {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+/* ================================= */
+/*        HEADER DA PÁGINA           */
+/* ================================= */
+
+.stats-header {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.stats-title {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.stats-subtitle {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.stats-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ================================= */
+/*        NAVEGAÇÃO TABS             */
+/* ================================= */
+
+.nav-tabs-container {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  margin: 0 0.25rem;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #39639c;
+  color: white;
+}
+
+/* ================================= */
+/*        CARDS E SEÇÕES             */
+/* ================================= */
+
+.section-title {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Summary Cards */
+.summary-section {
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.summary-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+}
+
+.summary-icon.bg-primary {
+  background-color: rgba(57, 99, 156, 0.1);
+  color: #39639c;
+}
+
+.summary-icon.bg-success {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.summary-icon.bg-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.summary-content h4 {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #39639c;
+  margin-bottom: 0.5rem;
+}
+
+.summary-detail {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Stats Cards */
+.stats-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.stats-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.25rem;
+  height: 100%;
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  color: #39639c;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.stat-footer {
+  margin-top: 0.75rem;
+}
+
+/* Progress */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e9ecef;
+}
+
+.progress-bar {
+  border-radius: 4px;
+}
+
+/* ================================= */
+/*        TABELAS                    */
+/* ================================= */
+
+.table-responsive {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  margin-bottom: 0;
+  background-color: white;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #2c3e50;
+  padding: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+
+.table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+/* ================================= */
+/*        FILTROS                    */
+/* ================================= */
+
+.filters-section .card {
+  border: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.filters-section .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem;
+}
+
+.filters-section .card-body {
+  padding: 1.5rem;
+}
+
+.filters-section .form-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.filters-section .form-control,
+.filters-section .form-select {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}
+
+.filters-section .input-group-text {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-right: none;
+  color: #6c757d;
+}
+
+/* View Toggle */
+.view-toggle .btn-group .btn {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #39639c;
+  color: #39639c;
+  background-color: white;
+}
+
+.view-toggle .btn-group .btn:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 1px solid #39639c;
+}
+
+.view-toggle .btn-group .btn:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid #39639c;
+}
+
+.view-toggle .btn-group .btn.active {
+  background-color: #39639c;
+  color: white;
+}
+
+/* ================================= */
+/*        CARDS PERCURSO             */
+/* ================================= */
+
+.user-percurso-card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.user-percurso-card .card-header {
+  background: #39639c;
+  border-bottom: none;
+  color: white;
+  padding: 1rem;
+}
+
+.user-percurso-card .user-info h5 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.user-percurso-card .user-info small {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.user-percurso-card .card-body {
+  padding: 1.5rem;
+}
+
+.percurso-stat {
+  text-align: center;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+.percurso-stat .stat-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.percurso-stat .stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0;
+}
+
+/* Detalhes do usuário */
+.user-details {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #6c757d;
+  margin-right: 1rem;
+}
+
+.detail-value {
+  color: #2c3e50;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* ================================= */
+/*        CARDS GRÁFICOS             */
+/* ================================= */
+
+.charts-tab .card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.charts-tab .card-header {
+  background: #39639c;
+  color: white;
+  border-bottom: none;
+  padding: 1rem;
+}
+
+.charts-tab .card-title {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.charts-tab .card-body {
+  padding: 1.5rem;
+}
+
+/* ================================= */
+/*        LOADING E ALERTAS          */
+/* ================================= */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  margin: 1.5rem;
+  padding: 2rem;
+}
+
+.loading-container .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25rem;
+}
+
+.loading-container h4 {
+  color: #2c3e50;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.alert {
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* ================================= */
+/*        PAGINAÇÃO                  */
+/* ================================= */
+
+.pagination {
+  margin-bottom: 0;
+}
+
+.pagination .page-link {
+  border: 1px solid #e9ecef;
+  color: #39639c;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.25rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #39639c;
+  border-color: #39639c;
+}
+
+.pagination .page-item.disabled .page-link {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* ================================= */
+/*        BADGES E UTILITÁRIOS       */
+/* ================================= */
+
+.badge {
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+/* ================================= */
+/*        RESPONSIVIDADE             */
+/* ================================= */
+
+@media (max-width: 992px) {
+  .stats-header {
+    padding: 1rem;
+  }
+  
+  .stats-title {
+    font-size: 1.5rem;
+  }
+  
+  .summary-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .summary-icon {
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-stats-container {
+    padding: 0.5rem;
+  }
+  
+  .stats-header {
+    padding: 1rem;
+  }
+  
+  .stats-title {
+    font-size: 1.25rem;
+  }
+  
+  .stats-actions {
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+  
+  .stats-section {
+    padding: 1rem;
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .filters-section .card-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .stats-actions .btn {
+    margin-bottom: 0.5rem;
+  }
+  
+  .nav-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .nav-tabs .nav-item {
+    flex: 1 0 50%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .table thead th {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .table tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+}

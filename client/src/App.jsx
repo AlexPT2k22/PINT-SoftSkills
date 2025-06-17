@@ -38,6 +38,7 @@ import Forum from "./Forum.jsx";
 import ForumTopicoView from "./components/ForumTopicoView.jsx";
 import ForumSolicitarTopico from "./components/ForumSolicitarTopico.jsx";
 import ForumAdmin from "./components/ForumAdmin.jsx";
+import AdminStats from "./AdminStats.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -264,6 +265,14 @@ function App() {
             </ProtectedRoute>
           }
         ></Route>
+        <Route
+          path="/dashboard/stats"
+          element={
+            <ProtectedRoute>
+              <AdminStats />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
