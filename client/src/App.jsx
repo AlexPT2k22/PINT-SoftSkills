@@ -39,6 +39,7 @@ import ForumTopicoView from "./components/ForumTopicoView.jsx";
 import ForumSolicitarTopico from "./components/ForumSolicitarTopico.jsx";
 import ForumAdmin from "./components/ForumAdmin.jsx";
 import AdminStats from "./AdminStats.jsx";
+import MeuPercurso from "./percurso.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -119,6 +120,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ForumTopicoView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/percurso"
+          element={
+            <ProtectedRoute>
+              <MeuPercurso />
             </ProtectedRoute>
           }
         />

@@ -17,6 +17,7 @@ import {
   UsersRound,
   Group,
   ChartArea,
+  Activity,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 
@@ -153,6 +154,18 @@ function Sidebar({ onToggle }) {
               >
                 <BookOpen size={20} className="me-3" />
                 {!collapsed && <span>Os meus cursos</span>}
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link
+                to="/dashboard/percurso"
+                className={`nav-link ${
+                  isActive("/dashboard/percurso") ? "active" : ""
+                }`}
+                onClick={() => mobileView && setCollapsed(true)}
+              >
+                <Activity size={20} className="me-3" />
+                {!collapsed && <span>O meu percurso</span>}
               </Link>
             </li>
           </ul>

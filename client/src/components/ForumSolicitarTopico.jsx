@@ -454,15 +454,6 @@ const ForumSolicitarTopico = () => {
                             <small className="text-muted">
                               {formatDate(solicitacao.DATA_CRIACAO)}
                             </small>
-
-                            {solicitacao.ESTADO === "Aprovado" && (
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => navigate("/forum")}
-                              >
-                                Ver tópico
-                              </button>
-                            )}
                           </div>
 
                           {solicitacao.RESPOSTA_GESTOR && (

@@ -27,6 +27,7 @@ const forumTopicoRoutes = require("./routes/forumTopico.routes.js");
 const forumPostRoutes = require("./routes/forumPost.routes.js");
 const forumAvaliacaoRoutes = require("./routes/forumAvaliacao.routes.js");
 const forumDenunciaRoutes = require("./routes/forumDenuncia.routes.js");
+const percursoFormativo = require("./routes/percursoFormativo.route.js");
 const forumSolicitacaoRoutes = require("./routes/forumSolicitacao.routes.js");
 const {
   updateAsyncCoursesStatus,
@@ -72,6 +73,7 @@ app.use("/api/forum/posts", forumPostRoutes);
 app.use("/api/forum/avaliacoes", forumAvaliacaoRoutes);
 app.use("/api/forum/denuncias", forumDenunciaRoutes);
 app.use("/api/forum/solicitacoes", forumSolicitacaoRoutes);
+app.use("/api/percurso-formativo", percursoFormativo); // Rota para percurso formativo
 app.use("/api/certificados", certificadoRoutes);
 app.use(
   "/certificates",
