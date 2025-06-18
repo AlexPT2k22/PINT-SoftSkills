@@ -1059,7 +1059,21 @@ function EditCourse() {
                                       setIsValid(value >= 1 && value <= 100);
                                     }}
                                     required={selectedRadio === "Síncrono"}
+                                    disabled={
+                                      isFormador ||
+                                      (enrollmentDeadline &&
+                                        new Date(enrollmentDeadline) <
+                                          new Date())
+                                    }
                                   />
+                                  {enrollmentDeadline &&
+                                    new Date(enrollmentDeadline) <
+                                      new Date() && (
+                                      <small className="text-danger">
+                                        Não é possível alterar o número de vagas
+                                        após a data limite de inscrição.
+                                      </small>
+                                    )}
                                 </div>
                               </div>
                             </>

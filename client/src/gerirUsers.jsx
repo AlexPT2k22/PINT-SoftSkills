@@ -189,7 +189,7 @@ function GerirUsers() {
     <>
       <NavbarDashboard />
       <Sidebar />
-      <div className="container t-4 p-4">
+      <div className="container mt-4 p-4">
         <div className="container">
           {/* Componentes de Mensagem */}
           {showSuccessMessage && (
@@ -207,7 +207,6 @@ function GerirUsers() {
 
           <div className="users-management-header">
             <h2 className="users-title">Gerir Utilizadores</h2>
-            <p className="users-subtitle">Gerencie os utilizadores e perfis</p>
           </div>
 
           {/* Filtros e Pesquisa */}

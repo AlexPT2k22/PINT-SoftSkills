@@ -13,17 +13,8 @@
 /*        HEADER DA PÁGINA           */
 /* ================================= */
 
-.stats-header {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-}
-
 .stats-title {
   color: #2c3e50;
-  font-weight: 600;
-  font-size: 2rem;
   display: flex;
   align-items: center;
 }
@@ -111,21 +102,6 @@
   align-items: center;
   justify-content: center;
   margin-right: 1rem;
-}
-
-.summary-icon.bg-primary {
-  background-color: rgba(57, 99, 156, 0.1);
-  color: #39639c;
-}
-
-.summary-icon.bg-success {
-  background-color: rgba(40, 167, 69, 0.1);
-  color: #28a745;
-}
-
-.summary-icon.bg-warning {
-  background-color: rgba(255, 193, 7, 0.1);
-  color: #ffc107;
 }
 
 .summary-content h4 {
@@ -329,19 +305,18 @@
 }
 
 .user-percurso-card .card-header {
-  background: #39639c;
   border-bottom: none;
   color: white;
   padding: 1rem;
 }
 
-.user-percurso-card .user-info h5 {
-  color: white;
+.user-percurso-card .user-info-stats h5 {
+  color: #2c3e50;
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
 
-.user-percurso-card .user-info small {
+.user-percurso-card .user-info-stats small {
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -373,7 +348,7 @@
 }
 
 /* Detalhes do usuário */
-.user-details {
+.user-details-stats {
   background-color: #f8f9fa;
   padding: 1rem;
   border-radius: 6px;
@@ -417,14 +392,12 @@
 }
 
 .charts-tab .card-header {
-  background: #39639c;
-  color: white;
   border-bottom: none;
   padding: 1rem;
 }
 
 .charts-tab .card-title {
-  color: white;
+  color: #2c3e50;
   font-weight: 600;
   margin-bottom: 0;
   display: flex;
@@ -445,9 +418,6 @@
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
   margin: 1.5rem;
   padding: 2rem;
 }
@@ -479,7 +449,6 @@
 
 .pagination .page-link {
   border: 1px solid #e9ecef;
-  color: #39639c;
   padding: 0.5rem 0.75rem;
   margin: 0 0.25rem;
   border-radius: 6px;
@@ -514,9 +483,6 @@
 /* ================================= */
 
 @media (max-width: 992px) {
-  .stats-header {
-    padding: 1rem;
-  }
   
   .stats-title {
     font-size: 1.5rem;
@@ -542,10 +508,7 @@
   .admin-stats-container {
     padding: 0.5rem;
   }
-  
-  .stats-header {
-    padding: 1rem;
-  }
+
   
   .stats-title {
     font-size: 1.25rem;

@@ -26,7 +26,7 @@ import {
   FileText,
   CheckCircle,
   XCircle,
-  Loader
+  Loader,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -39,14 +39,13 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Line, Bar, Pie } from 'react-chartjs-2';
+} from "chart.js";
+import { Line, Bar, Pie } from "react-chartjs-2";
 import NavbarDashboard from "./components/navbarDashboard.jsx";
 import Sidebar from "./components/sidebar.jsx";
 import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 import "./styles/adminStats.css";
-
 
 // Register ChartJS components
 ChartJS.register(
@@ -68,32 +67,32 @@ const URL =
 
 const AdminStats = () => {
   const navigate = useNavigate();
-  
+
   // Main states
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  
+
   // Data states
   const [generalStats, setGeneralStats] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [cursosStats, setCursosStats] = useState(null);
   const [percursoData, setPercursoData] = useState(null);
   const [loadingPercurso, setLoadingPercurso] = useState(false);
-  
+
   // UI states
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
   const [viewMode, setViewMode] = useState("cards");
-  
+
   // Filters
   const [filters, setFilters] = useState({
     nome: "",
     dataInicio: "",
     dataFim: "",
     perfil: "",
-    page: 1
+    page: 1,
   });
 
   // Fetch initial data on component mount
@@ -111,26 +110,28 @@ const AdminStats = () => {
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch general statistics, chart data, and course stats in parallel
-      const [generalResponse, chartResponse, cursosResponse] = await Promise.all([
-        axios.get(`${URL}/api/admin/stats/general`, { withCredentials: true }),
-        axios.get(`${URL}/api/admin/stats/charts`, { withCredentials: true }),
-        axios.get(`${URL}/api/admin/stats/cursos`, { withCredentials: true }),
-      ]);
+      const [generalResponse, chartResponse, cursosResponse] =
+        await Promise.all([
+          axios.get(`${URL}/api/admin/stats/general`, {
+            withCredentials: true,
+          }),
+          axios.get(`${URL}/api/admin/stats/charts`, { withCredentials: true }),
+          axios.get(`${URL}/api/admin/stats/cursos`, { withCredentials: true }),
+        ]);
 
       if (generalResponse.data.success) {
         setGeneralStats(generalResponse.data.stats);
       }
-      
+
       if (chartResponse.data.success) {
         setChartData(chartResponse.data.charts);
       }
-      
+
       if (cursosResponse.data.success) {
         setCursosStats(cursosResponse.data);
       }
-      
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Erro ao carregar estatísticas. Por favor, tente novamente.");
@@ -142,7 +143,7 @@ const AdminStats = () => {
   const fetchPercursoFormativo = async () => {
     try {
       setLoadingPercurso(true);
-      
+
       // Build query params
       const params = new URLSearchParams();
       if (filters.nome) params.append("nome", filters.nome);
@@ -179,10 +180,10 @@ const AdminStats = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [key]: value,
-      page: key !== "page" ? 1 : value // Reset pagination when changing filters
+      page: key !== "page" ? 1 : value, // Reset pagination when changing filters
     }));
   };
 
@@ -192,66 +193,13 @@ const AdminStats = () => {
       dataInicio: "",
       dataFim: "",
       perfil: "",
-      page: 1
+      page: 1,
     });
-  };
-
-  const exportData = () => {
-    if (percursoData && percursoData.percursos) {
-      // Prepare data for export
-      const csvData = percursoData.percursos.map(p => ({
-        Nome: p.utilizador.NOME,
-        Email: p.utilizador.EMAIL,
-        Username: p.utilizador.USERNAME,
-        Perfil: p.utilizador.PERFILs?.[0]?.PERFIL || 'N/A',
-        'Data Registo': new Date(p.utilizador.DATA_CRIACAO).toLocaleDateString('pt-PT'),
-        'Último Login': p.utilizador.ULTIMO_LOGIN ? 
-          new Date(p.utilizador.ULTIMO_LOGIN).toLocaleDateString('pt-PT') : 'Nunca',
-        XP: p.estatisticas.xp,
-        'Total Cursos': p.estatisticas.totalCursos,
-        'Módulos Completos': p.estatisticas.modulosCompletos,
-        'Quizzes Respondidos': p.estatisticas.quizzesRespondidos,
-        'Avaliações Submetidas': p.estatisticas.avaliacoesSubmitidas,
-        'Presenças': `${p.estatisticas.aulasPresencas}/${p.estatisticas.totalAulas}`,
-        'Taxa Presenças (%)': p.estatisticas.percentualPresencas,
-        'Nota Média': p.estatisticas.notaMedia
-      }));
-
-      // Convert to CSV
-      const header = Object.keys(csvData[0]).join(',');
-      const csv = [
-        header,
-        ...csvData.map(row => Object.values(row).join(','))
-      ].join('\n');
-
-      // Create download
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `percurso-formativo-${new Date().toISOString().slice(0,10)}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      setSuccessMessage("Exportação concluída com sucesso!");
-    }
-  };
-
-  const toggleUserExpansion = (userId) => {
-    const newExpanded = new Set(expandedUsers);
-    if (newExpanded.has(userId)) {
-      newExpanded.delete(userId);
-    } else {
-      newExpanded.add(userId);
-    }
-    setExpandedUsers(newExpanded);
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString('pt-PT');
+    return new Date(dateString).toLocaleDateString("pt-PT");
   };
 
   const getProgressColor = (progress) => {
@@ -270,10 +218,12 @@ const AdminStats = () => {
         <div className="admin-stats-container">
           <div className="loading-container text-center py-5">
             <div className="spinner-border text-primary mb-3" role="status">
-              <span className="visually-hidden">Carregando...</span>
+              <span className="visually-hidden">A carregar...</span>
             </div>
-            <h4>Carregando estatísticas...</h4>
-            <p className="text-muted">Por favor aguarde enquanto compilamos os dados da plataforma</p>
+            <h4>A carregar estatísticas...</h4>
+            <p className="text-muted">
+              Por favor aguarde enquanto compilamos os dados da plataforma
+            </p>
           </div>
         </div>
       </>
@@ -284,7 +234,7 @@ const AdminStats = () => {
     <>
       <NavbarDashboard />
       <Sidebar />
-      
+
       <div className="container mt-4 p-4">
         {/* Notifications */}
         {successMessage && (
@@ -293,49 +243,14 @@ const AdminStats = () => {
             onClose={() => setSuccessMessage("")}
           />
         )}
-        
-        {error && (
-          <ErrorMessage
-            message={error}
-            onClose={() => setError("")}
-          />
-        )}
+
+        {error && <ErrorMessage message={error} onClose={() => setError("")} />}
 
         {/* Header */}
         <div className="stats-header mb-4">
           <div className="row align-items-center">
             <div className="col-md-8">
-              <h1 className="stats-title">
-                <BarChart2 size={28} className="me-2" /> 
-                Dashboard Administrativo
-              </h1>
-              <p className="stats-subtitle text-muted">
-                Visão geral e análise de dados da plataforma SoftSkills
-              </p>
-            </div>
-            
-            <div className="col-md-4 text-end">
-              <div className="stats-actions">
-                {activeTab === "percurso" && (
-                  <button
-                    className="btn btn-outline-success me-2"
-                    onClick={exportData}
-                    title="Exportar dados para CSV"
-                  >
-                    <Download size={16} className="me-1" /> Exportar CSV
-                  </button>
-                )}
-                
-                <button
-                  className="btn btn-primary"
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  title="Atualizar dados"
-                >
-                  <RefreshCw size={16} className={`me-1 ${refreshing ? "spin" : ""}`} />
-                  {refreshing ? "Atualizando..." : "Atualizar"}
-                </button>
-              </div>
+              <h2 className="stats-title mb-0">Estatísticas</h2>
             </div>
           </div>
         </div>
@@ -345,7 +260,9 @@ const AdminStats = () => {
           <ul className="nav nav-tabs nav-fill">
             <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === "overview" ? "active" : ""}`}
+                className={`nav-link ${
+                  activeTab === "overview" ? "active" : ""
+                }`}
                 onClick={() => setActiveTab("overview")}
               >
                 <TrendingUp className="me-2" /> Visão Geral
@@ -361,7 +278,9 @@ const AdminStats = () => {
             </li>
             <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === "percurso" ? "active" : ""}`}
+                className={`nav-link ${
+                  activeTab === "percurso" ? "active" : ""
+                }`}
                 onClick={() => setActiveTab("percurso")}
               >
                 <GraduationCap className="me-2" /> Percurso Formativo
@@ -380,55 +299,70 @@ const AdminStats = () => {
 
         {/* Content Tabs */}
         <div className="stats-content">
-          
           {/* Overview Tab */}
           {activeTab === "overview" && generalStats && (
             <div className="overview-tab">
-              
               {/* Summary Cards */}
-              <div className="summary-section mb-5">
-                <h3 className="section-title mb-3">Resumo Executivo</h3>
+              <div className="summary-section mb-3">
+                <h3 className="section-title mb-3">Resumo</h3>
                 <div className="row g-3">
                   <div className="col-md-4">
                     <div className="summary-card">
-                      <div className="summary-icon bg-primary">
+                      <div className="summary-icon bg-light">
                         <Activity />
                       </div>
                       <div className="summary-content">
-                        <h4>Engajamento da Plataforma</h4>
-                        <p className="summary-value">{generalStats.resumo.engajamento.utilizacaoPlataforma}</p>
+                        <h4>Engajamento da plataforma</h4>
+                        <p className="summary-value">
+                          {generalStats.resumo.engajamento.utilizacaoPlataforma}
+                        </p>
                         <p className="summary-detail">
-                          Taxa de utilizadores ativos: <strong>{generalStats.utilizadores.taxaAtivos}%</strong>
+                          Taxa de utilizadores ativos:{" "}
+                          <strong>
+                            {generalStats.utilizadores.taxaAtivos}%
+                          </strong>
                         </p>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="col-md-4">
                     <div className="summary-card">
-                      <div className="summary-icon bg-success">
+                      <div className="summary-icon bg-light">
                         <TrendingUp />
                       </div>
                       <div className="summary-content">
                         <h4>Crescimento</h4>
-                        <p className="summary-value">{generalStats.resumo.engajamento.crescimento}</p>
+                        <p className="summary-value">
+                          {generalStats.resumo.engajamento.crescimento}
+                        </p>
                         <p className="summary-detail">
-                          Novos utilizadores: <strong>+{generalStats.utilizadores.novos30Dias}</strong> últimos 30 dias
+                          Novos utilizadores:{" "}
+                          <strong>
+                            +{generalStats.utilizadores.novos30Dias}
+                          </strong>{" "}
+                          últimos 30 dias
                         </p>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="col-md-4">
                     <div className="summary-card">
-                      <div className="summary-icon bg-warning">
+                      <div className="summary-icon bg-light">
                         <MessageSquare />
                       </div>
                       <div className="summary-content">
-                        <h4>Atividade do Fórum</h4>
-                        <p className="summary-value">{generalStats.resumo.engajamento.forumAtividade}</p>
+                        <h4>Atividade do fórum</h4>
+                        <p className="summary-value">
+                          {generalStats.resumo.engajamento.forumAtividade}
+                        </p>
                         <p className="summary-detail">
-                          Posts: <strong>{generalStats.forum.postsUltimos30Dias}</strong> últimos 30 dias
+                          Posts:{" "}
+                          <strong>
+                            {generalStats.forum.postsUltimos30Dias}
+                          </strong>{" "}
+                          últimos 30 dias
                         </p>
                       </div>
                     </div>
@@ -441,11 +375,12 @@ const AdminStats = () => {
                 <div className="alert alert-warning d-flex align-items-center mb-4">
                   <AlertCircle size={20} className="me-2" />
                   <div>
-                    <strong>Atenção:</strong> Existem {generalStats.forum.solicitacoesPendentes} solicitações 
-                    de tópicos de fórum pendentes de aprovação.
-                    <button 
+                    <strong>Atenção:</strong> Existem{" "}
+                    {generalStats.forum.solicitacoesPendentes} solicitações de
+                    tópicos de fórum pendentes de aprovação.
+                    <button
                       className="btn btn-sm btn-outline-warning ms-2"
-                      onClick={() => navigate('/forum-admin')}
+                      onClick={() => navigate("/forum-admin")}
                     >
                       Ver Solicitações
                     </button>
@@ -455,12 +390,9 @@ const AdminStats = () => {
 
               {/* Statistics Cards */}
               <div className="stats-sections">
-                
                 {/* Users Section */}
-                <div className="stats-section mb-5">
-                  <h4 className="section-title mb-3">
-                    <Users className="me-2" /> Utilizadores
-                  </h4>
+                <div className="stats-section mb-3">
+                  <h4 className="section-title mb-3">Utilizadores</h4>
                   <div className="row g-3">
                     <div className="col-md-3">
                       <div className="stat-card">
@@ -470,7 +402,9 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Total Utilizadores</div>
                         </div>
-                        <div className="stat-value">{generalStats.utilizadores.total}</div>
+                        <div className="stat-value">
+                          {generalStats.utilizadores.total}
+                        </div>
                         <div className="stat-footer">
                           <span className="badge bg-success">
                             +{generalStats.utilizadores.novos30Dias} novos
@@ -478,7 +412,7 @@ const AdminStats = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -487,15 +421,22 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Formandos</div>
                         </div>
-                        <div className="stat-value">{generalStats.utilizadores.formandos}</div>
+                        <div className="stat-value">
+                          {generalStats.utilizadores.formandos}
+                        </div>
                         <div className="stat-footer">
                           <span className="text-muted">
-                            {((generalStats.utilizadores.formandos / generalStats.utilizadores.total) * 100).toFixed(1)}% do total
+                            {(
+                              (generalStats.utilizadores.formandos /
+                                generalStats.utilizadores.total) *
+                              100
+                            ).toFixed(1)}
+                            % do total
                           </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -504,15 +445,22 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Formadores</div>
                         </div>
-                        <div className="stat-value">{generalStats.utilizadores.formadores}</div>
+                        <div className="stat-value">
+                          {generalStats.utilizadores.formadores}
+                        </div>
                         <div className="stat-footer">
                           <span className="text-muted">
-                            {((generalStats.utilizadores.formadores / generalStats.utilizadores.total) * 100).toFixed(1)}% do total
+                            {(
+                              (generalStats.utilizadores.formadores /
+                                generalStats.utilizadores.total) *
+                              100
+                            ).toFixed(1)}
+                            % do total
                           </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -521,14 +469,20 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Ativos (30 dias)</div>
                         </div>
-                        <div className="stat-value">{generalStats.utilizadores.ativos30Dias}</div>
+                        <div className="stat-value">
+                          {generalStats.utilizadores.ativos30Dias}
+                        </div>
                         <div className="stat-footer">
-                          <div className="progress">
+                          <div className="progress" style={{ height: "20px" }}>
                             <div
                               className="progress-bar bg-success"
                               role="progressbar"
-                              style={{ width: `${generalStats.utilizadores.taxaAtivos}%` }}
-                              aria-valuenow={generalStats.utilizadores.taxaAtivos}
+                              style={{
+                                width: `${generalStats.utilizadores.taxaAtivos}%`,
+                              }}
+                              aria-valuenow={
+                                generalStats.utilizadores.taxaAtivos
+                              }
                               aria-valuemin="0"
                               aria-valuemax="100"
                             >
@@ -542,10 +496,8 @@ const AdminStats = () => {
                 </div>
 
                 {/* Courses Section */}
-                <div className="stats-section mb-5">
-                  <h4 className="section-title mb-3">
-                    <BookOpen className="me-2" /> Cursos
-                  </h4>
+                <div className="stats-section mb-3">
+                  <h4 className="section-title mb-3">Cursos</h4>
                   <div className="row g-3">
                     <div className="col-md-3">
                       <div className="stat-card">
@@ -555,7 +507,9 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Total Cursos</div>
                         </div>
-                        <div className="stat-value">{generalStats.cursos.total}</div>
+                        <div className="stat-value">
+                          {generalStats.cursos.total}
+                        </div>
                         <div className="stat-footer">
                           <span className="badge bg-success">
                             {generalStats.cursos.ativos} ativos
@@ -563,7 +517,7 @@ const AdminStats = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -572,15 +526,22 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Cursos Síncronos</div>
                         </div>
-                        <div className="stat-value">{generalStats.cursos.sincronos}</div>
+                        <div className="stat-value">
+                          {generalStats.cursos.sincronos}
+                        </div>
                         <div className="stat-footer">
                           <span className="text-muted">
-                            {((generalStats.cursos.sincronos / generalStats.cursos.total) * 100).toFixed(1)}% do total
+                            {(
+                              (generalStats.cursos.sincronos /
+                                generalStats.cursos.total) *
+                              100
+                            ).toFixed(1)}
+                            % do total
                           </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -589,24 +550,35 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Cursos Assíncronos</div>
                         </div>
-                        <div className="stat-value">{generalStats.cursos.assincronos}</div>
+                        <div className="stat-value">
+                          {generalStats.cursos.assincronos}
+                        </div>
                         <div className="stat-footer">
                           <span className="text-muted">
-                            {((generalStats.cursos.assincronos / generalStats.cursos.total) * 100).toFixed(1)}% do total
+                            {(
+                              (generalStats.cursos.assincronos /
+                                generalStats.cursos.total) *
+                              100
+                            ).toFixed(1)}
+                            % do total
                           </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
                           <div className="stat-icon">
                             <Calendar />
                           </div>
-                          <div className="stat-label">Aulas Próximos 7 Dias</div>
+                          <div className="stat-label">
+                            Aulas Próximos 7 Dias
+                          </div>
                         </div>
-                        <div className="stat-value">{generalStats.aulas.proximos7Dias}</div>
+                        <div className="stat-value">
+                          {generalStats.aulas.proximos7Dias}
+                        </div>
                         <div className="stat-footer">
                           <span className="text-muted">
                             De um total de {generalStats.aulas.total} aulas
@@ -618,10 +590,8 @@ const AdminStats = () => {
                 </div>
 
                 {/* Enrollments Section */}
-                <div className="stats-section mb-5">
-                  <h4 className="section-title mb-3">
-                    <Target className="me-2" /> Inscrições
-                  </h4>
+                <div className="stats-section mb-3">
+                  <h4 className="section-title mb-3">Inscrições</h4>
                   <div className="row g-3">
                     <div className="col-md-4">
                       <div className="stat-card">
@@ -631,15 +601,18 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Total Inscrições</div>
                         </div>
-                        <div className="stat-value">{generalStats.inscricoes.total}</div>
+                        <div className="stat-value">
+                          {generalStats.inscricoes.total}
+                        </div>
                         <div className="stat-footer">
                           <span className="badge bg-success">
-                            +{generalStats.inscricoes.ultimos30Dias} últimos 30 dias
+                            +{generalStats.inscricoes.ultimos30Dias} últimos 30
+                            dias
                           </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-4">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -661,18 +634,30 @@ const AdminStats = () => {
                             <div
                               className="progress-bar bg-primary"
                               role="progressbar"
-                              style={{ width: `${(generalStats.inscricoes.sincronas / generalStats.inscricoes.total) * 100}%` }}
+                              style={{
+                                width: `${
+                                  (generalStats.inscricoes.sincronas /
+                                    generalStats.inscricoes.total) *
+                                  100
+                                }%`,
+                              }}
                             ></div>
                             <div
                               className="progress-bar bg-info"
                               role="progressbar"
-                              style={{ width: `${(generalStats.inscricoes.assincronas / generalStats.inscricoes.total) * 100}%` }}
+                              style={{
+                                width: `${
+                                  (generalStats.inscricoes.assincronas /
+                                    generalStats.inscricoes.total) *
+                                  100
+                                }%`,
+                              }}
                             ></div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-4">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -681,9 +666,13 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Média por Curso</div>
                         </div>
-                        <div className="stat-value">{generalStats.inscricoes.mediaPorCurso}</div>
+                        <div className="stat-value">
+                          {generalStats.inscricoes.mediaPorCurso}
+                        </div>
                         <div className="stat-footer">
-                          <span className="text-muted">inscrições por curso</span>
+                          <span className="text-muted">
+                            inscrições por curso
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -691,10 +680,8 @@ const AdminStats = () => {
                 </div>
 
                 {/* Forum Section */}
-                <div className="stats-section mb-5">
-                  <h4 className="section-title mb-3">
-                    <MessageSquare className="me-2" /> Fórum
-                  </h4>
+                <div className="stats-section mb-3">
+                  <h4 className="section-title mb-3">Fórum</h4>
                   <div className="row g-3">
                     <div className="col-md-3">
                       <div className="stat-card">
@@ -704,10 +691,12 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Tópicos Ativos</div>
                         </div>
-                        <div className="stat-value">{generalStats.forum.topicosAtivos}</div>
+                        <div className="stat-value">
+                          {generalStats.forum.topicosAtivos}
+                        </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -716,10 +705,12 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Total Posts</div>
                         </div>
-                        <div className="stat-value">{generalStats.forum.totalPosts}</div>
+                        <div className="stat-value">
+                          {generalStats.forum.totalPosts}
+                        </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -728,17 +719,21 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Posts (30 dias)</div>
                         </div>
-                        <div className="stat-value">{generalStats.forum.postsUltimos30Dias}</div>
+                        <div className="stat-value">
+                          {generalStats.forum.postsUltimos30Dias}
+                        </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
                           <div className="stat-icon">
                             <AlertCircle />
                           </div>
-                          <div className="stat-label">Solicitações Pendentes</div>
+                          <div className="stat-label">
+                            Solicitações Pendentes
+                          </div>
                         </div>
                         <div className="stat-value">
                           {generalStats.forum.solicitacoesPendentes}
@@ -752,10 +747,8 @@ const AdminStats = () => {
                 </div>
 
                 {/* Assessment Section */}
-                <div className="stats-section mb-4">
-                  <h4 className="section-title mb-3">
-                    <Award className="me-2" /> Avaliações
-                  </h4>
+                <div className="stats-section mb-3">
+                  <h4 className="section-title mb-3">Avaliações</h4>
                   <div className="row g-3">
                     <div className="col-md-3">
                       <div className="stat-card">
@@ -765,10 +758,12 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Quizzes Ativos</div>
                         </div>
-                        <div className="stat-value">{generalStats.avaliacoes.quizzesAtivos}</div>
+                        <div className="stat-value">
+                          {generalStats.avaliacoes.quizzesAtivos}
+                        </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -777,10 +772,12 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Respostas Quizzes</div>
                         </div>
-                        <div className="stat-value">{generalStats.avaliacoes.respostasQuizzes}</div>
+                        <div className="stat-value">
+                          {generalStats.avaliacoes.respostasQuizzes}
+                        </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -789,7 +786,9 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Avaliações Síncronas</div>
                         </div>
-                        <div className="stat-value">{generalStats.avaliacoes.avaliacoesSincronas}</div>
+                        <div className="stat-value">
+                          {generalStats.avaliacoes.avaliacoesSincronas}
+                        </div>
                         <div className="stat-footer">
                           <span className="badge bg-info">
                             {generalStats.avaliacoes.submissoes} submissões
@@ -797,7 +796,7 @@ const AdminStats = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-3">
                       <div className="stat-card">
                         <div className="stat-header">
@@ -806,7 +805,9 @@ const AdminStats = () => {
                           </div>
                           <div className="stat-label">Módulos Completos</div>
                         </div>
-                        <div className="stat-value">{generalStats.avaliacoes.modulosCompletos}</div>
+                        <div className="stat-value">
+                          {generalStats.avaliacoes.modulosCompletos}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -821,7 +822,6 @@ const AdminStats = () => {
               {/* Estatísticas por Categoria */}
               <div className="section mb-5">
                 <h3 className="section-title mb-4">
-                  <BarChart2 className="me-2" />
                   Distribuição por Categoria
                 </h3>
                 <div className="table-responsive">
@@ -839,8 +839,11 @@ const AdminStats = () => {
                       {cursosStats.estatisticasPorCategoria.map((categoria) => {
                         const total = parseInt(categoria.totalCursos);
                         const totalCursos = generalStats?.cursos.total || 1;
-                        const percentual = ((total / totalCursos) * 100).toFixed(1);
-                        
+                        const percentual = (
+                          (total / totalCursos) *
+                          100
+                        ).toFixed(1);
+
                         return (
                           <tr key={categoria.ID_CATEGORIA__PK___}>
                             <td>
@@ -850,13 +853,20 @@ const AdminStats = () => {
                               <span className="badge bg-primary">{total}</span>
                             </td>
                             <td>
-                              <span className="badge bg-success">{categoria.cursosSincronos}</span>
+                              <span className="badge bg-success">
+                                {categoria.cursosSincronos}
+                              </span>
                             </td>
                             <td>
-                              <span className="badge bg-info">{categoria.cursosAssincronos}</span>
+                              <span className="badge bg-info">
+                                {categoria.cursosAssincronos}
+                              </span>
                             </td>
                             <td>
-                              <div className="progress" style={{ height: "20px" }}>
+                              <div
+                                className="progress"
+                                style={{ height: "20px" }}
+                              >
                                 <div
                                   className="progress-bar"
                                   role="progressbar"
@@ -880,7 +890,6 @@ const AdminStats = () => {
               {/* Top Cursos */}
               <div className="section mb-4">
                 <h3 className="section-title mb-4">
-                  <Award className="me-2" />
                   Top 10 Cursos Mais Populares
                 </h3>
                 <div className="table-responsive">
@@ -916,7 +925,9 @@ const AdminStats = () => {
                           <td>
                             <button
                               className="btn btn-sm btn-primary"
-                              onClick={() => navigate(`/course/${curso.ID_CURSO}`)}
+                              onClick={() =>
+                                navigate(`/course/${curso.ID_CURSO}`)
+                              }
                             >
                               <Eye size={14} className="me-1" /> Ver Curso
                             </button>
@@ -937,12 +948,16 @@ const AdminStats = () => {
               <div className="filters-section mb-4">
                 <div className="card">
                   <div className="card-header">
-                    <h5 className="mb-0"><Filter className="me-2" /> Filtros</h5>
+                    <h5 className="mb-0">
+                      <Filter className="me-2" /> Filtros
+                    </h5>
                   </div>
                   <div className="card-body">
                     <div className="row g-3">
                       <div className="col-md-4">
-                        <label className="form-label">Nome/Email/Username</label>
+                        <label className="form-label">
+                          Nome/Email/Username
+                        </label>
                         <div className="input-group">
                           <span className="input-group-text">
                             <Search size={16} />
@@ -952,37 +967,45 @@ const AdminStats = () => {
                             className="form-control"
                             placeholder="Pesquisar..."
                             value={filters.nome}
-                            onChange={(e) => handleFilterChange("nome", e.target.value)}
+                            onChange={(e) =>
+                              handleFilterChange("nome", e.target.value)
+                            }
                           />
                         </div>
                       </div>
-                      
+
                       <div className="col-md-2">
                         <label className="form-label">Data Início</label>
                         <input
                           type="date"
                           className="form-control"
                           value={filters.dataInicio}
-                          onChange={(e) => handleFilterChange("dataInicio", e.target.value)}
+                          onChange={(e) =>
+                            handleFilterChange("dataInicio", e.target.value)
+                          }
                         />
                       </div>
-                      
+
                       <div className="col-md-2">
                         <label className="form-label">Data Fim</label>
                         <input
                           type="date"
                           className="form-control"
                           value={filters.dataFim}
-                          onChange={(e) => handleFilterChange("dataFim", e.target.value)}
+                          onChange={(e) =>
+                            handleFilterChange("dataFim", e.target.value)
+                          }
                         />
                       </div>
-                      
+
                       <div className="col-md-2">
                         <label className="form-label">Perfil</label>
                         <select
                           className="form-select"
                           value={filters.perfil}
-                          onChange={(e) => handleFilterChange("perfil", e.target.value)}
+                          onChange={(e) =>
+                            handleFilterChange("perfil", e.target.value)
+                          }
                         >
                           <option value="">Todos</option>
                           <option value="1">Formando</option>
@@ -990,7 +1013,7 @@ const AdminStats = () => {
                           <option value="3">Gestor</option>
                         </select>
                       </div>
-                      
+
                       <div className="col-md-2 d-flex align-items-end">
                         <button
                           className="btn btn-secondary w-100"
@@ -1008,13 +1031,17 @@ const AdminStats = () => {
               <div className="view-toggle mb-3 text-end">
                 <div className="btn-group">
                   <button
-                    className={`btn btn-sm btn-outline-primary ${viewMode === "cards" ? "active" : ""}`}
+                    className={`btn btn-sm btn-outline-primary ${
+                      viewMode === "cards" ? "active" : ""
+                    }`}
                     onClick={() => setViewMode("cards")}
                   >
                     Cartões
                   </button>
                   <button
-                    className={`btn btn-sm btn-outline-primary ${viewMode === "table" ? "active" : ""}`}
+                    className={`btn btn-sm btn-outline-primary ${
+                      viewMode === "table" ? "active" : ""
+                    }`}
                     onClick={() => setViewMode("table")}
                   >
                     Tabela
@@ -1028,7 +1055,9 @@ const AdminStats = () => {
                   <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Loading...</span>
                   </div>
-                  <p className="mt-2">Carregando dados do percurso formativo...</p>
+                  <p className="mt-2">
+                    Carregando dados do percurso formativo...
+                  </p>
                 </div>
               ) : percursoData?.percursos ? (
                 <div className="users-percurso-section">
@@ -1036,27 +1065,35 @@ const AdminStats = () => {
                   {viewMode === "cards" && (
                     <div className="row g-4">
                       {percursoData.percursos.map((percurso) => {
-                        const isExpanded = expandedUsers.has(percurso.utilizador.ID_UTILIZADOR);
+                        const isExpanded = expandedUsers.has(
+                          percurso.utilizador.ID_UTILIZADOR
+                        );
                         const user = percurso.utilizador;
                         const stats = percurso.estatisticas;
                         const perfil = user.PERFILs?.[0]?.PERFIL || "N/A";
-                        
+
                         return (
                           <div className="col-md-6" key={user.ID_UTILIZADOR}>
                             <div className="card user-percurso-card">
                               <div className="card-header">
                                 <div className="d-flex align-items-center justify-content-between">
-                                  <div className="user-info">
+                                  <div className="user-info-stats">
                                     <h5 className="mb-0">{user.NOME}</h5>
                                     <small className="text-muted">
                                       {user.USERNAME} | {user.EMAIL}
                                     </small>
                                   </div>
-                                  <span className={`badge bg-${
-                                    perfil === "Formando" ? "primary" : 
-                                    perfil === "Formador" ? "success" : 
-                                    perfil === "Gestor" ? "warning" : "secondary"
-                                  }`}>
+                                  <span
+                                    className={`badge bg-${
+                                      perfil === "Formando"
+                                        ? "primary"
+                                        : perfil === "Formador"
+                                        ? "success"
+                                        : perfil === "Gestor"
+                                        ? "warning"
+                                        : "secondary"
+                                    }`}
+                                  >
                                     {perfil}
                                   </span>
                                 </div>
@@ -1065,185 +1102,104 @@ const AdminStats = () => {
                                 <div className="row g-3 mb-3">
                                   <div className="col-6">
                                     <div className="percurso-stat">
-                                      <div className="stat-label">Total Cursos</div>
-                                      <div className="stat-value">{stats.totalCursos}</div>
+                                      <div className="stat-label">
+                                        Total Cursos
+                                      </div>
+                                      <div className="stat-value">
+                                        {stats.totalCursos}
+                                      </div>
                                     </div>
                                   </div>
                                   <div className="col-6">
                                     <div className="percurso-stat">
-                                      <div className="stat-label">Módulos Completos</div>
-                                      <div className="stat-value">{stats.modulosCompletos}</div>
+                                      <div className="stat-label">
+                                        Módulos Completos
+                                      </div>
+                                      <div className="stat-value">
+                                        {stats.modulosCompletos}
+                                      </div>
                                     </div>
                                   </div>
                                   <div className="col-6">
                                     <div className="percurso-stat">
-                                      <div className="stat-label">Nota Média</div>
-                                      <div className="stat-value">{stats.notaMedia || "N/A"}</div>
+                                      <div className="stat-label">
+                                        Nota Média
+                                      </div>
+                                      <div className="stat-value">
+                                        {stats.notaMedia !== null &&
+                                        stats.notaMedia !== undefined
+                                          ? `${(
+                                              (parseFloat(stats.notaMedia) /
+                                                100) *
+                                              20
+                                            ).toFixed(1)}/20`
+                                          : "N/A"}
+                                      </div>
                                     </div>
                                   </div>
                                   <div className="col-6">
                                     <div className="percurso-stat">
                                       <div className="stat-label">XP Total</div>
-                                      <div className="stat-value">{stats.xp}</div>
+                                      <div className="stat-value">
+                                        {stats.xp}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                                
-                                <div className="mb-3">
-                                  <label className="form-label mb-1">Taxa de Presenças</label>
-                                  <div className="d-flex align-items-center">
-                                    <div className="progress flex-grow-1 me-2">
-                                      <div
-                                        className={`progress-bar bg-${getProgressColor(stats.percentualPresencas)}`}
-                                        style={{ width: `${stats.percentualPresencas || 0}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="badge bg-secondary">
-                                      {stats.aulasPresencas}/{stats.totalAulas}
+
+                                <div className="user-details-stats">
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Cursos Síncronos:
                                     </span>
-                                  </div>
-                                </div>
-                                
-                                <div className="user-details">
-                                  <div className="detail-item">
-                                    <span className="detail-label">Registo:</span>
-                                    <span className="detail-value">{formatDate(user.DATA_CRIACAO)}</span>
-                                  </div>
-                                  <div className="detail-item">
-                                    <span className="detail-label">Último Login:</span>
                                     <span className="detail-value">
-                                      {user.ULTIMO_LOGIN ? formatDate(user.ULTIMO_LOGIN) : "Nunca"}
+                                      {stats.cursosSincronos}
+                                    </span>
+                                  </div>
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Cursos Assíncronos:
+                                    </span>
+                                    <span className="detail-value">
+                                      {stats.cursosAssincronos}
+                                    </span>
+                                  </div>
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Quizzes Respondidos:
+                                    </span>
+                                    <span className="detail-value">
+                                      {stats.quizzesRespondidos}
+                                    </span>
+                                  </div>
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Progresso Geral:
+                                    </span>
+                                    <span className="detail-value">
+                                      {stats.progressoGeral}%
+                                    </span>
+                                  </div>
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Registo:
+                                    </span>
+                                    <span className="detail-value">
+                                      {formatDate(user.DATA_CRIACAO)}
+                                    </span>
+                                  </div>
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Último Login:
+                                    </span>
+                                    <span className="detail-value">
+                                      {user.ULTIMO_LOGIN
+                                        ? formatDate(user.ULTIMO_LOGIN)
+                                        : "Nunca"}
                                     </span>
                                   </div>
                                 </div>
                               </div>
-                              
-                              {/* Expandable Section */}
-                              <div className="card-footer">
-                                <button
-                                  className="btn btn-sm btn-outline-secondary w-100"
-                                  onClick={() => toggleUserExpansion(user.ID_UTILIZADOR)}
-                                >
-                                  {isExpanded ? (
-                                    <>
-                                      <ChevronUp size={16} className="me-1" /> Ocultar Detalhes
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ChevronDown size={16} className="me-1" /> Mostrar Detalhes
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                              
-                              {isExpanded && (
-                                <div className="card-body border-top pt-3">
-                                  <ul className="nav nav-tabs nav-fill mb-3 small">
-                                    <li className="nav-item">
-                                      <a className="nav-link active" data-bs-toggle="tab" href={`#cursos-${user.ID_UTILIZADOR}`}>
-                                        Cursos
-                                      </a>
-                                    </li>
-                                    <li className="nav-item">
-                                      <a className="nav-link" data-bs-toggle="tab" href={`#avaliacoes-${user.ID_UTILIZADOR}`}>
-                                        Avaliações
-                                      </a>
-                                    </li>
-                                  </ul>
-                                  
-                                  <div className="tab-content">
-                                    <div className="tab-pane fade show active" id={`cursos-${user.ID_UTILIZADOR}`}>
-                                      <h6>Cursos Síncronos</h6>
-                                      {percurso.cursos.sincronos.length > 0 ? (
-                                        <ul className="list-group list-group-flush small mb-3">
-                                          {percurso.cursos.sincronos.map((curso, i) => (
-                                            <li className="list-group-item d-flex justify-content-between align-items-center" key={i}>
-                                              <div>
-                                                <strong>{curso.curso}</strong>
-                                                <br />
-                                                <small className="text-muted">{curso.categoria} | {curso.area}</small>
-                                              </div>
-                                              <span className={`badge bg-${curso.estado === "Concluído" ? "success" : curso.estado === "Em curso" ? "primary" : "secondary"}`}>
-                                                {curso.estado}
-                                              </span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      ) : (
-                                        <p className="text-muted small">Nenhum curso síncrono.</p>
-                                      )}
-                                      
-                                      <h6>Cursos Assíncronos</h6>
-                                      {percurso.cursos.assincronos.length > 0 ? (
-                                        <ul className="list-group list-group-flush small">
-                                          {percurso.cursos.assincronos.map((curso, i) => (
-                                            <li className="list-group-item d-flex justify-content-between align-items-center" key={i}>
-                                              <div>
-                                                <strong>{curso.curso}</strong>
-                                                <br />
-                                                <small className="text-muted">{curso.categoria} | {curso.area}</small>
-                                              </div>
-                                              <span className={`badge bg-${curso.estado === "Concluído" ? "success" : curso.estado === "Em curso" ? "primary" : "secondary"}`}>
-                                                {curso.estado}
-                                              </span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      ) : (
-                                        <p className="text-muted small">Nenhum curso assíncrono.</p>
-                                      )}
-                                    </div>
-                                    
-                                    <div className="tab-pane fade" id={`avaliacoes-${user.ID_UTILIZADOR}`}>
-                                      <h6>Quizzes</h6>
-                                      {percurso.atividades.quizzes.length > 0 ? (
-                                        <ul className="list-group list-group-flush small mb-3">
-                                          {percurso.atividades.quizzes.map((quiz, i) => (
-                                            <li className="list-group-item d-flex justify-content-between align-items-center" key={i}>
-                                              <div>
-                                                <strong>{quiz.quiz}</strong>
-                                                <br />
-                                                <small className="text-muted">{quiz.curso}</small>
-                                              </div>
-                                              <span className={`badge bg-${quiz.nota >= 75 ? "success" : quiz.nota >= 50 ? "warning" : "danger"}`}>
-                                                {quiz.nota}%
-                                              </span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      ) : (
-                                        <p className="text-muted small">Nenhum quiz respondido.</p>
-                                      )}
-                                      
-                                      <h6>Avaliações</h6>
-                                      {percurso.atividades.avaliacoes.length > 0 ? (
-                                        <ul className="list-group list-group-flush small">
-                                          {percurso.atividades.avaliacoes.map((avaliacao, i) => (
-                                            <li className="list-group-item d-flex justify-content-between align-items-center" key={i}>
-                                              <div>
-                                                <strong>{avaliacao.avaliacao}</strong>
-                                                <br />
-                                                <small className="text-muted">{avaliacao.curso}</small>
-                                              </div>
-                                              <div>
-                                                {avaliacao.nota ? (
-                                                  <span className={`badge bg-${avaliacao.nota >= 15 ? "success" : avaliacao.nota >= 9.5 ? "warning" : "danger"}`}>
-                                                    {avaliacao.nota.toFixed(1)} valores
-                                                  </span>
-                                                ) : (
-                                                  <span className="badge bg-secondary">{avaliacao.estado}</span>
-                                                )}
-                                              </div>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      ) : (
-                                        <p className="text-muted small">Nenhuma avaliação submetida.</p>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
                         );
@@ -1251,7 +1207,6 @@ const AdminStats = () => {
                     </div>
                   )}
 
-                  {/* Table View */}
                   {viewMode === "table" && (
                     <div className="table-responsive">
                       <table className="table table-hover">
@@ -1262,9 +1217,8 @@ const AdminStats = () => {
                             <th>Perfil</th>
                             <th>Cursos</th>
                             <th>Nota Média</th>
-                            <th>Presenças</th>
+                            <th>Progresso</th>
                             <th>Último Login</th>
-                            <th>Ações</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1272,21 +1226,29 @@ const AdminStats = () => {
                             const user = percurso.utilizador;
                             const stats = percurso.estatisticas;
                             const perfil = user.PERFILs?.[0]?.PERFIL || "N/A";
-                            
+
                             return (
                               <tr key={user.ID_UTILIZADOR}>
                                 <td>{user.NOME}</td>
                                 <td>
                                   {user.EMAIL}
                                   <br />
-                                  <small className="text-muted">{user.USERNAME}</small>
+                                  <small className="text-muted">
+                                    {user.USERNAME}
+                                  </small>
                                 </td>
                                 <td>
-                                  <span className={`badge bg-${
-                                    perfil === "Formando" ? "primary" : 
-                                    perfil === "Formador" ? "success" : 
-                                    perfil === "Gestor" ? "warning" : "secondary"
-                                  }`}>
+                                  <span
+                                    className={`badge bg-${
+                                      perfil === "Formando"
+                                        ? "primary"
+                                        : perfil === "Formador"
+                                        ? "success"
+                                        : perfil === "Gestor"
+                                        ? "warning"
+                                        : "secondary"
+                                    }`}
+                                  >
                                     {perfil}
                                   </span>
                                 </td>
@@ -1295,35 +1257,43 @@ const AdminStats = () => {
                                     {stats.totalCursos}
                                   </span>
                                   <small className="text-muted">
-                                    ({percurso.cursos.sincronos.length} S | {percurso.cursos.assincronos.length} A)
+                                    ({stats.cursosSincronos} S |{" "}
+                                    {stats.cursosAssincronos} A)
                                   </small>
                                 </td>
-                                <td>{stats.notaMedia || "N/A"}</td>
+                                <td>
+                                  {stats.notaMedia !== null &&
+                                  stats.notaMedia !== undefined
+                                    ? `${(
+                                        (parseFloat(stats.notaMedia) / 100) *
+                                        20
+                                      ).toFixed(1)}/20`
+                                    : "N/A"}
+                                </td>
                                 <td>
                                   <div className="d-flex align-items-center">
-                                    <div className="progress flex-grow-1 me-2" style={{ height: "10px", width: "80px" }}>
+                                    <div
+                                      className="progress flex-grow-1 me-2"
+                                      style={{ height: "10px", width: "80px" }}
+                                    >
                                       <div
-                                        className={`progress-bar bg-${getProgressColor(stats.percentualPresencas)}`}
-                                        style={{ width: `${stats.percentualPresencas || 0}%` }}
+                                        className={`progress-bar bg-${getProgressColor(
+                                          stats.progressoGeral
+                                        )}`}
+                                        style={{
+                                          width: `${
+                                            stats.progressoGeral || 0
+                                          }%`,
+                                        }}
                                       ></div>
                                     </div>
-                                    <small>{stats.percentualPresencas}%</small>
+                                    <small>{stats.progressoGeral || 0}%</small>
                                   </div>
                                 </td>
                                 <td>
-                                  {user.ULTIMO_LOGIN ? formatDate(user.ULTIMO_LOGIN) : "Nunca"}
-                                </td>
-                                <td>
-                                  <button
-                                    className="btn btn-sm btn-outline-primary"
-                                    onClick={() => toggleUserExpansion(user.ID_UTILIZADOR)}
-                                  >
-                                    {expandedUsers.has(user.ID_UTILIZADOR) ? (
-                                      <ChevronUp size={14} />
-                                    ) : (
-                                      <ChevronDown size={14} />
-                                    )}
-                                  </button>
+                                  {user.ULTIMO_LOGIN
+                                    ? formatDate(user.ULTIMO_LOGIN)
+                                    : "Nunca"}
                                 </td>
                               </tr>
                             );
@@ -1337,43 +1307,63 @@ const AdminStats = () => {
                   {percursoData.pagination && (
                     <nav className="mt-4">
                       <ul className="pagination justify-content-center">
-                        <li className={`page-item ${percursoData.pagination.currentPage <= 1 ? "disabled" : ""}`}>
-                          <button
-                            className="page-link"
-                            onClick={() => handleFilterChange("page", percursoData.pagination.currentPage - 1)}
-                          >
-                            Anterior
-                          </button>
-                        </li>
-                        
-                        {Array.from({ length: percursoData.pagination.totalPages }, (_, i) => i + 1).map(
-                          (page) => (
-                            <li
-                              key={page}
-                              className={`page-item ${
-                                percursoData.pagination.currentPage === page ? "active" : ""
-                              }`}
-                            >
-                              <button
-                                className="page-link"
-                                onClick={() => handleFilterChange("page", page)}
-                              >
-                                {page}
-                              </button>
-                            </li>
-                          )
-                        )}
-                        
                         <li
                           className={`page-item ${
-                            percursoData.pagination.currentPage >= percursoData.pagination.totalPages
+                            percursoData.pagination.currentPage <= 1
                               ? "disabled"
                               : ""
                           }`}
                         >
                           <button
                             className="page-link"
-                            onClick={() => handleFilterChange("page", percursoData.pagination.currentPage + 1)}
+                            onClick={() =>
+                              handleFilterChange(
+                                "page",
+                                percursoData.pagination.currentPage - 1
+                              )
+                            }
+                          >
+                            Anterior
+                          </button>
+                        </li>
+
+                        {Array.from(
+                          { length: percursoData.pagination.totalPages },
+                          (_, i) => i + 1
+                        ).map((page) => (
+                          <li
+                            key={page}
+                            className={`page-item ${
+                              percursoData.pagination.currentPage === page
+                                ? "active"
+                                : ""
+                            }`}
+                          >
+                            <button
+                              className="page-link"
+                              onClick={() => handleFilterChange("page", page)}
+                            >
+                              {page}
+                            </button>
+                          </li>
+                        ))}
+
+                        <li
+                          className={`page-item ${
+                            percursoData.pagination.currentPage >=
+                            percursoData.pagination.totalPages
+                              ? "disabled"
+                              : ""
+                          }`}
+                        >
+                          <button
+                            className="page-link"
+                            onClick={() =>
+                              handleFilterChange(
+                                "page",
+                                percursoData.pagination.currentPage + 1
+                              )
+                            }
                           >
                             Próximo
                           </button>
@@ -1384,7 +1374,9 @@ const AdminStats = () => {
                 </div>
               ) : (
                 <div className="alert alert-info">
-                  <p className="mb-0">Nenhum dado encontrado. Tente ajustar os filtros.</p>
+                  <p className="mb-0">
+                    Nenhum dado encontrado. Tente ajustar os filtros.
+                  </p>
                 </div>
               )}
             </div>
@@ -1399,51 +1391,52 @@ const AdminStats = () => {
                   <div className="card">
                     <div className="card-header">
                       <h5 className="card-title mb-0">
-                        <TrendingUp className="me-2" />
-                        Inscrições por Mês (Últimos 12 meses)
+                        Inscrições por mês (últimos 12 meses)
                       </h5>
                     </div>
                     <div className="card-body">
                       <div style={{ height: "300px" }}>
                         <Line
                           data={{
-                            labels: chartData.inscricoesPorMes.map(item => {
-                              const [year, month] = item.mes.split('-');
+                            labels: chartData.inscricoesPorMes.map((item) => {
+                              const [year, month] = item.mes.split("-");
                               return `${month}/${year}`;
                             }),
                             datasets: [
                               {
                                 label: "Inscrições",
-                                data: chartData.inscricoesPorMes.map(item => item.total),
+                                data: chartData.inscricoesPorMes.map(
+                                  (item) => item.total
+                                ),
                                 borderColor: "rgba(66, 133, 244, 1)",
                                 backgroundColor: "rgba(66, 133, 244, 0.2)",
                                 fill: true,
-                                tension: 0.3
-                              }
-                            ]
+                                tension: 0.3,
+                              },
+                            ],
                           }}
                           options={{
                             maintainAspectRatio: false,
                             plugins: {
                               title: {
-                                display: false
+                                display: false,
                               },
                               legend: {
-                                position: "top"
+                                position: "top",
                               },
                               tooltip: {
                                 mode: "index",
-                                intersect: false
-                              }
+                                intersect: false,
+                              },
                             },
                             scales: {
                               y: {
                                 beginAtZero: true,
                                 ticks: {
-                                  precision: 0
-                                }
-                              }
-                            }
+                                  precision: 0,
+                                },
+                              },
+                            },
                           }}
                         />
                       </div>
@@ -1456,34 +1449,37 @@ const AdminStats = () => {
                   <div className="card">
                     <div className="card-header">
                       <h5 className="card-title mb-0">
-                        <Users className="me-2" />
-                        Utilizadores por Perfil
+                        Utilizadores por perfil
                       </h5>
                     </div>
                     <div className="card-body">
                       <div style={{ height: "300px" }}>
                         <Pie
                           data={{
-                            labels: chartData.utilizadoresPorPerfil.map(item => item.perfil),
+                            labels: chartData.utilizadoresPorPerfil.map(
+                              (item) => item.perfil
+                            ),
                             datasets: [
                               {
-                                data: chartData.utilizadoresPorPerfil.map(item => item.total),
+                                data: chartData.utilizadoresPorPerfil.map(
+                                  (item) => item.total
+                                ),
                                 backgroundColor: [
                                   "rgba(66, 133, 244, 0.8)",
                                   "rgba(52, 168, 83, 0.8)",
                                   "rgba(251, 188, 5, 0.8)",
-                                  "rgba(234, 67, 53, 0.8)"
-                                ]
-                              }
-                            ]
+                                  "rgba(234, 67, 53, 0.8)",
+                                ],
+                              },
+                            ],
                           }}
                           options={{
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: "right"
-                              }
-                            }
+                                position: "right",
+                              },
+                            },
                           }}
                         />
                       </div>
@@ -1496,41 +1492,44 @@ const AdminStats = () => {
                   <div className="card">
                     <div className="card-header">
                       <h5 className="card-title mb-0">
-                        <MessageSquare className="me-2" />
-                        Atividade do Fórum por Mês
+                        Atividade do fórum por mês
                       </h5>
                     </div>
                     <div className="card-body">
                       <div style={{ height: "300px" }}>
                         <Bar
                           data={{
-                            labels: chartData.atividadeForumPorMes.map(item => {
-                              const [year, month] = item.mes.split('-');
-                              return `${month}/${year}`;
-                            }),
+                            labels: chartData.atividadeForumPorMes.map(
+                              (item) => {
+                                const [year, month] = item.mes.split("-");
+                                return `${month}/${year}`;
+                              }
+                            ),
                             datasets: [
                               {
                                 label: "Posts",
-                                data: chartData.atividadeForumPorMes.map(item => item.posts),
-                                backgroundColor: "rgba(251, 188, 5, 0.8)"
-                              }
-                            ]
+                                data: chartData.atividadeForumPorMes.map(
+                                  (item) => item.posts
+                                ),
+                                backgroundColor: "rgba(251, 188, 5, 0.8)",
+                              },
+                            ],
                           }}
                           options={{
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: "top"
-                              }
+                                position: "top",
+                              },
                             },
                             scales: {
                               y: {
                                 beginAtZero: true,
                                 ticks: {
-                                  precision: 0
-                                }
-                              }
-                            }
+                                  precision: 0,
+                                },
+                              },
+                            },
                           }}
                         />
                       </div>
@@ -1540,7 +1539,6 @@ const AdminStats = () => {
               </div>
             </div>
           )}
-
         </div>
       </div>
     </>

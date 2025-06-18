@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Navbar from "./navbar.jsx";
+import NavbarDashboard from "./navbarDashboard.jsx";
 import Sidebar from "./sidebar.jsx";
 import {
   MessageSquare,
@@ -329,7 +329,7 @@ const ForumAdmin = () => {
 
   return (
     <>
-      <Navbar />
+      <NavbarDashboard />
       <Sidebar />
 
       {successMessage && (
@@ -351,9 +351,6 @@ const ForumAdmin = () => {
         <div className="row mb-4">
           <div className="col-10">
             <h2 className="mb-1">Painel administrativo do fórum</h2>
-            <p className="text-muted mb-0">
-              Gerir solicitações de tópicos, denúncias e criar novos tópicos.
-            </p>
           </div>
           <div className="col-2 text-end">
             <button
