@@ -50,7 +50,12 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
       setLoading(true);
       const response = await axios.get(
         `http://localhost:4000/api/avaliacoes/curso/${cursoId}`,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       if (response.data && Array.isArray(response.data)) {
@@ -79,7 +84,12 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
     try {
       const response = await axios.get(
         `http://localhost:4000/api/avaliacoes/minhas-submissoes/${cursoId}`,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       const subsPorAvaliacao = {};
@@ -99,7 +109,12 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
       setLoadingSub(true);
       const response = await axios.get(
         `http://localhost:4000/api/avaliacoes/${avaliacaoId}/submissoes`,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       if (response.data && Array.isArray(response.data)) {
@@ -125,7 +140,12 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
           ...novaAvaliacao,
           ID_CURSO: cursoId,
         },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
       fetchAvaliacoes();
       setNovaAvaliacao({
@@ -189,13 +209,24 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
       await axios.post(
         "http://localhost:4000/api/avaliacoes/avaliar-submissao",
         novaNotaSubmissao,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
       await axios.post(
         "http://localhost:4000/api/user/update-evaluation-grade",
         {
           submissaoId: novaNotaSubmissao.ID_SUBMISSAO,
           nota: novaNotaSubmissao.NOTA,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -438,11 +469,12 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Arquivo (opcional)</label>
+                  <label className="form-label">Arquivo</label>
                   <input
                     type="file"
                     className="form-control"
                     onChange={handleFileChange}
+                    required
                   />
                 </div>
                 <div className="modal-footer">

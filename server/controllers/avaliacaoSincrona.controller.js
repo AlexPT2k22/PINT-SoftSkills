@@ -68,7 +68,6 @@ const getAvaliacoesByCurso = async (req, res) => {
   }
 };
 
-//TODO: implementar dps
 const updateAvaliacao = async (req, res) => {
   try {
     const { id } = req.params;

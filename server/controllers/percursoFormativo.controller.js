@@ -176,8 +176,30 @@ const getMeuPercursoFormativo = async (req, res) => {
           aula.PRESENCA_AULAs?.some((p) => p.PRESENTE)
         ).length;
 
-        // Calcular horas de presença (assumindo 1.5h por aula)
-        const horasPresenca = presencas * 1.5;
+        // Calcular horas de presença
+        let horasPresenca = 0;
+        aulas.forEach((aula) => {
+          const presente = aula.PRESENCA_AULAs?.some((p) => p.PRESENTE);
+          if (presente && aula.HORA_INICIO && aula.HORA_FIM) {
+            // Converter HORA_INICIO e HORA_FIM para minutos
+            const [horaInicio, minutoInicio] =
+              aula.HORA_INICIO.split(":").map(Number);
+            const [horaFim, minutoFim] = aula.HORA_FIM.split(":").map(Number);
+
+            const minutosInicio = horaInicio * 60 + minutoInicio;
+            const minutosFim = horaFim * 60 + minutoFim;
+
+            // Calcular duração da aula em horas
+            const duracaoMinutos = minutosFim - minutosInicio;
+            const duracaoHoras = duracaoMinutos / 60;
+
+            horasPresenca += duracaoHoras;
+          }
+        });
+
+        // Arredondar para 1 casa decimal
+        horasPresenca = parseFloat(horasPresenca.toFixed(1));
+
         const percentualPresenca =
           aulas.length > 0 ? Math.round((presencas / aulas.length) * 100) : 0;
 
@@ -218,6 +240,19 @@ const getMeuPercursoFormativo = async (req, res) => {
         const certificado = await Certificado.findOne({
           where: { ID_UTILIZADOR: userId, ID_CURSO: cursoId },
         });
+
+        // Determinar elegibilidade para certificado
+        const podeReceberCertificado = () => {
+          // Deve ter completado 100% dos módulos
+          if (percentualConcluido < 100) return false;
+
+          // Para cursos síncronos: deve ter completado todas as avaliações
+          if (avaliacoesCompletas < avaliacoesSincronas.length) return false;
+
+          if (notaMedia < 47.5) return false;
+
+          return true;
+        };
 
         // Determinar estado do curso
         const hoje = new Date();
@@ -266,6 +301,7 @@ const getMeuPercursoFormativo = async (req, res) => {
           hasCertificado: !!certificado,
           certificadoCodigo: certificado?.CODIGO_VERIFICACAO || null,
           vagas: cursoSincrono.VAGAS,
+          elegiveParaCertificado: podeReceberCertificado(),
           // Detalhes específicos das aulas
           aulasDetalhes: aulas.map((aula) => ({
             id: aula.ID_AULA,
@@ -358,6 +394,19 @@ const getMeuPercursoFormativo = async (req, res) => {
           estado = "Em andamento";
         }
 
+        // Determinar elegibilidade para certificado
+        const podeReceberCertificado = () => {
+          // Deve ter completado 100% dos módulos
+          if (percentualConcluido < 100) return false;
+
+          // Para cursos assíncronos: deve ter respondido todos os quizzes
+          if (quizzesRespondidos < quizzes.length) return false;
+
+          if (notaMedia < 47.5) return false;
+
+          return true;
+        };
+
         return {
           id: cursoId,
           tipo: "Assíncrono",
@@ -382,6 +431,7 @@ const getMeuPercursoFormativo = async (req, res) => {
           percentualConcluido,
           hasCertificado: !!certificado,
           certificadoCodigo: certificado?.CODIGO_VERIFICACAO || null,
+          elegiveParaCertificado: podeReceberCertificado(),
           // Detalhes específicos dos módulos
           modulosDetalhes: modulos.map((modulo, index) => {
             const progresso = progressos.find(

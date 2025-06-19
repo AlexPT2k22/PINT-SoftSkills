@@ -154,34 +154,6 @@ function CourseCardDashboard({
     }
   };
 
-  const handleClickCertificado = async () => {
-    try {
-      // Get the certificate
-      const response = await axios.get(
-        `${URL}/api/certificados/gerar/${course.ID_CURSO}`,
-        {
-          withCredentials: true,
-        }
-      );
-
-      if (response.data.success) {
-        // Open certificate URL in a new tab
-        window.open(response.data.certificado.url, "_blank");
-      } else {
-        console.error("Falha ao gerar certificado:", response.data.message);
-        alert("Erro ao gerar certificado. Por favor, tente novamente.");
-      }
-    } catch (error) {
-      console.error("Erro ao gerar certificado:", error);
-
-      // Show specific error message if available
-      const errorMessage =
-        error.response?.data?.message ||
-        "Erro ao gerar certificado. Por favor, tente novamente.";
-      alert(errorMessage);
-    }
-  };
-
   const handleClickQuiz = () => {
     navigate(`/dashboard/courses/${course.ID_CURSO}/quiz`);
   };
@@ -214,19 +186,6 @@ function CourseCardDashboard({
     ? "Síncrono"
     : "Não especificado";
 
-  // Determinar se deve mostrar o botão do certificado
-  const shouldShowCertificateButton = () => {
-    // Se o curso está 100% completo
-    if (progress === 100) {
-      // Se tem quiz, só mostra certificado se quiz foi completado
-      if (hasQuiz) {
-        return quizCompleted;
-      }
-      // Se não tem quiz, mostra certificado
-      return true;
-    }
-    return false;
-  };
 
   // Determinar se deve mostrar o botão do quiz
   const shouldShowQuizButton = () => {
@@ -353,18 +312,6 @@ function CourseCardDashboard({
                 title="Fazer Quiz Final"
               >
                 <span className="ms-2">Quiz</span>
-              </button>
-            )}
-
-            {/* Botão do Certificado - aparece quando condições são atendidas */}
-            {!loadingQuizStatus && shouldShowCertificateButton() && (
-              <button
-                className="btn btn-success"
-                onClick={handleClickCertificado}
-                title="Baixar Certificado"
-              >
-                <Download size={20} />
-                <span className="ms-2">Certificado</span>
               </button>
             )}
           </div>

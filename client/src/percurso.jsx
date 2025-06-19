@@ -353,80 +353,98 @@ const MeuPercurso = () => {
             </div>
 
             {/* Detalhes específicos por tipo */}
-            {detalhes.tipo === "Síncrono" && detalhes.aulas && (
+            {detalhes.tipo === "Síncrono" && detalhes.avaliacoes && (
               <div className="mb-3">
-                <h6>Histórico de Presenças</h6>
-                <div className="table-responsive">
-                  <table className="table table-sm">
-                    <thead>
-                      <tr>
-                        <th>Data</th>
-                        <th>Horário</th>
-                        <th>Presença</th>
-                        <th>Entrada</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detalhes.aulas.map((aula) => (
-                        <tr key={aula.id}>
-                          <td>{formatarData(aula.data)}</td>
-                          <td>
-                            {aula.horaInicio} - {aula.horaFim}
-                          </td>
-                          <td>
-                            {aula.presente ? (
-                              <span className="badge bg-success">Presente</span>
-                            ) : (
-                              <span className="badge bg-danger">Ausente</span>
-                            )}
-                          </td>
-                          <td>
-                            {aula.horaEntrada
-                              ? new Date(aula.horaEntrada).toLocaleTimeString()
-                              : "-"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <h6>Avaliações</h6>
+                {detalhes.avaliacoes.length > 0 ? (
+                  detalhes.avaliacoes.map((avaliacao) => (
+                    <div
+                      key={avaliacao.id}
+                      className="avaliacao-item mb-2 p-2 border rounded"
+                    >
+                      <div className="d-flex justify-content-between">
+                        <strong>{avaliacao.titulo}</strong>
+                        <span
+                          className={`badge ${
+                            avaliacao.submissao
+                              ? avaliacao.submissao.NOTA !== null
+                                ? "bg-success"
+                                : "bg-info"
+                              : "bg-warning"
+                          }`}
+                        >
+                          {avaliacao.submissao
+                            ? avaliacao.submissao.NOTA !== null
+                              ? `Nota: ${formatarNota(
+                                  avaliacao.submissao.NOTA
+                                )}`
+                              : "Submetido"
+                            : "Pendente"}
+                        </span>
+                      </div>
+                      {avaliacao.dataLimite && (
+                        <small className="text-muted">
+                          Data limite: {formatarData(avaliacao.dataLimite)}
+                        </small>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <small className="text-muted">
+                    Nenhuma avaliação disponível
+                  </small>
+                )}
               </div>
             )}
 
             {detalhes.tipo === "Assíncrono" && detalhes.quizzes && (
               <div className="mb-3">
-                <h6>Quizzes Realizados</h6>
-                {detalhes.quizzes.map((quiz) => (
-                  <div
-                    key={quiz.id}
-                    className="quiz-item mb-2 p-2 border rounded"
-                  >
-                    <div className="d-flex justify-content-between">
-                      <strong>{quiz.titulo}</strong>
-                      <span className="badge bg-info">
-                        {quiz.respostas.length}/{quiz.tentativasPermitidas}{" "}
-                        tentativas
-                      </span>
+                <h6>Quizzes</h6>
+                {detalhes.quizzes.length > 0 ? (
+                  detalhes.quizzes.map((quiz) => (
+                    <div
+                      key={quiz.id}
+                      className="quiz-item mb-2 p-2 border rounded"
+                    >
+                      <div className="d-flex justify-content-between">
+                        <strong>{quiz.titulo}</strong>
+                        <span
+                          className={`badge ${
+                            quiz.respostas.length > 0
+                              ? "bg-success"
+                              : "bg-warning"
+                          }`}
+                        >
+                          {quiz.respostas.length > 0
+                            ? `Respondido (${quiz.respostas.length}/${quiz.tentativasPermitidas})`
+                            : "Pendente"}
+                        </span>
+                      </div>
+                      {quiz.respostas.length > 0 && (
+                        <small className="text-muted">
+                          Melhor nota:{" "}
+                          {Math.max(
+                            ...quiz.respostas.map(
+                              (r) => formatarNota(r.NOTA) || 0
+                            )
+                          )}
+                        </small>
+                      )}
                     </div>
-                    {quiz.respostas.length > 0 && (
-                      <small className="text-muted">
-                        Nota:{" "}
-                        {Math.max(
-                          ...quiz.respostas.map(
-                            (r) => formatarNota(r.NOTA) || 0
-                          )
-                        )}
-                      </small>
-                    )}
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <small className="text-muted">Nenhum quiz disponível</small>
+                )}
               </div>
             )}
 
             {/* Certificado */}
-            {detalhes.certificado && (
+            {detalhes.certificado ? (
               <div className="certificado-info p-3 bg-light rounded">
-                <h6 className="text-success">Certificado Obtido</h6>
+                <h6 className="text-success">
+                  <Award size={20} className="me-2" />
+                  Certificado Obtido
+                </h6>
                 <p className="mb-2">
                   <strong>Código:</strong> {detalhes.certificado.codigo}
                 </p>
@@ -441,6 +459,78 @@ const MeuPercurso = () => {
                   <Download size={14} className="me-1" />
                   Certificado
                 </button>
+              </div>
+            ) : (
+              // Mostrar status de elegibilidade quando não tem certificado
+              <div className="certificado-status p-3 rounded bg-light">
+                <h6
+                  className={
+                    curso.elegiveParaCertificado ? "text-info" : "text-warning"
+                  }
+                >
+                  <Award size={20} className="me-2" />
+                  Status do Certificado
+                </h6>
+                {curso.elegiveParaCertificado ? (
+                  <>
+                    <p className="mb-2">
+                      Parabéns! Você é elegível para receber o certificado. Faça
+                      o download do mesmo aqui.
+                    </p>
+                    <button
+                      className="btn btn-outline-success btn-sm"
+                      onClick={() => downloadCertificado(curso.id)}
+                    >
+                      <Award size={16} className="me-1" />
+                      Certificado
+                    </button>
+                  </>
+                ) : (
+                  <div>
+                    <p className="mb-2">
+                      Você ainda não é elegível para o certificado.
+                    </p>
+                    <p className="mb-0">
+                      <strong>Pendências:</strong>
+                    </p>
+                    <ul className="mb-0">
+                      {curso.percentualConcluido < 100 && (
+                        <li>
+                          Completar todos os módulos (
+                          {curso.percentualConcluido}% concluído)
+                        </li>
+                      )}
+                      {(() => {
+                        const notaMinima = 9.5;
+                        const notaAtual = parseFloat(
+                          formatarNota(curso.notaMedia)
+                        );
+                        return (
+                          (isNaN(notaAtual) || notaAtual < notaMinima) && (
+                            <li>
+                              Obter nota média mínima de {notaMinima} valores
+                              (atual: {notaAtual || 0}/20 valores)
+                            </li>
+                          )
+                        );
+                      })()}
+                      {curso.tipo === "Síncrono" &&
+                        curso.avaliacoesCompletas < curso.totalAvaliacoes && (
+                          <li>
+                            Completar todas as avaliações (
+                            {curso.avaliacoesCompletas}/{curso.totalAvaliacoes})
+                          </li>
+                        )}
+                      {curso.tipo === "Assíncrono" &&
+                        curso.quizzesRespondidos < curso.totalQuizzes && (
+                          <li>
+                            Responder a todos os quizzes (
+                            {curso.quizzesRespondidos}/{curso.totalQuizzes})
+                          </li>
+                        )}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -613,7 +703,7 @@ const MeuPercurso = () => {
                         <div className="status-bar-container">
                           <div className="status-bar-label">
                             <Layers size={18} className="text-warning me-2" />
-                            Em andamento ({estatisticas.cursosEmAndamento})
+                            Em curso ({estatisticas.cursosEmAndamento})
                           </div>
                           <div className="progress">
                             <div
@@ -813,7 +903,7 @@ const MeuPercurso = () => {
                   >
                     <option value="todos">Todos os status</option>
                     <option value="completos">Completos</option>
-                    <option value="andamento">Em andamento</option>
+                    <option value="andamento">Em curso</option>
                     <option value="naoIniciados">Não iniciados</option>
                     <option value="certificados">Com certificado</option>
                   </select>
@@ -1156,16 +1246,101 @@ const MeuPercurso = () => {
                                     ) : (
                                       <span className="text-secondary d-flex align-items-center">
                                         {curso.percentualConcluido === 100 ? (
-                                          <AlertTriangle
-                                            size={16}
-                                            className="me-1"
-                                          />
+                                          (() => {
+                                            // Verificar se há pendências por tipo de curso
+                                            let temPendencias = false;
+                                            let motivoPendencia = "";
+
+                                            // Verificar nota média (deve ser >= 9.5 valores)
+                                            const notaMinima = 9.5;
+                                            const notaAtual = parseFloat(
+                                              formatarNota(curso.notaMedia)
+                                            );
+
+                                            if (
+                                              isNaN(notaAtual) ||
+                                              notaAtual < notaMinima
+                                            ) {
+                                              temPendencias = true;
+                                              motivoPendencia = `Nota média insuficiente (${
+                                                notaAtual || 0
+                                              }/20 valores - mínimo: ${notaMinima})`;
+                                            }
+
+                                            if (curso.tipo === "Síncrono") {
+                                              // Para cursos síncronos: verificar se há avaliações por fazer
+                                              if (
+                                                curso.avaliacoesCompletas <
+                                                curso.totalAvaliacoes
+                                              ) {
+                                                temPendencias = true;
+                                                motivoPendencia =
+                                                  motivoPendencia
+                                                    ? `${motivoPendencia} e ${
+                                                        curso.totalAvaliacoes -
+                                                        curso.avaliacoesCompletas
+                                                      } avaliação(ões) pendente(s)`
+                                                    : `${
+                                                        curso.totalAvaliacoes -
+                                                        curso.avaliacoesCompletas
+                                                      } avaliação(ões) pendente(s)`;
+                                              }
+                                            } else if (
+                                              curso.tipo === "Assíncrono"
+                                            ) {
+                                              // Para cursos assíncronos: verificar se há quizzes por fazer
+                                              if (
+                                                curso.quizzesRespondidos <
+                                                curso.totalQuizzes
+                                              ) {
+                                                temPendencias = true;
+                                                motivoPendencia =
+                                                  motivoPendencia
+                                                    ? `${motivoPendencia} e ${
+                                                        curso.totalQuizzes -
+                                                        curso.quizzesRespondidos
+                                                      } quiz(zes) pendente(s)`
+                                                    : `${
+                                                        curso.totalQuizzes -
+                                                        curso.quizzesRespondidos
+                                                      } quiz(zes) pendente(s)`;
+                                              }
+                                            }
+
+                                            if (temPendencias) {
+                                              return (
+                                                <span
+                                                  className="text-warning d-flex align-items-center"
+                                                  title={motivoPendencia}
+                                                >
+                                                  <AlertTriangle
+                                                    size={16}
+                                                    className="me-1"
+                                                  />
+                                                  Pendente
+                                                </span>
+                                              );
+                                            } else {
+                                              return (
+                                                <span className="text-info d-flex align-items-center">
+                                                  <CheckCircle
+                                                    size={16}
+                                                    className="me-1"
+                                                  />
+                                                  Elegível
+                                                </span>
+                                              );
+                                            }
+                                          })()
                                         ) : (
-                                          <XCircle size={16} className="me-1" />
+                                          <span className="text-secondary d-flex align-items-center">
+                                            <XCircle
+                                              size={16}
+                                              className="me-1"
+                                            />
+                                            Indisponível
+                                          </span>
                                         )}
-                                        {curso.percentualConcluido === 100
-                                          ? "Elegível - Solicitar"
-                                          : "Indisponível"}
                                       </span>
                                     )}
                                   </span>
