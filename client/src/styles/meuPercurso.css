@@ -262,17 +262,14 @@
 }
 
 /* Seção de Filtros */
-.filter-section .card {
+.card {
   border: none;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
   border-radius: 1rem;
 }
 
-.filter-section .card-header {
-  background: #007bff;
-  color: white;
-  border-radius: 1rem 1rem 0 0;
-  font-weight: 600;
+.card-header {
+  border-bottom: none;
 }
 
 /* Resumo de Resultados */
@@ -658,12 +655,6 @@
 
 .text-muted {
   color: #6c757d !important;
-}
-
-/* ===== MELHORIAS DE FOCO ===== */
-.curso-card:focus-within {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
 }
 
 .nav-link:focus {

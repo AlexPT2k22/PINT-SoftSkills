@@ -51,7 +51,7 @@ const MeuPercurso = () => {
   const [sortOrder, setSortOrder] = useState("desc");
   const [detalhesExpandidos, setDetalhesExpandidos] = useState(new Set());
 
-  // Buscar dados do percurso formativo
+  // Procurar dados do percurso formativo
   useEffect(() => {
     fetchPercursoFormativo();
   }, []);
@@ -67,7 +67,7 @@ const MeuPercurso = () => {
         return response.data;
       }
     } catch (error) {
-      console.error("Erro ao buscar detalhes do curso:", error);
+      console.error("Erro ao procurar detalhes do curso:", error);
       setError("Erro ao carregar detalhes do curso");
     }
     return null;
@@ -86,10 +86,10 @@ const MeuPercurso = () => {
         setError("Não foi possível obter os dados do percurso formativo");
       }
     } catch (error) {
-      console.error("Erro ao buscar percurso formativo:", error);
+      console.error("Erro ao Procurar percurso formativo:", error);
       setError(
         error.response?.data?.message ||
-          "Erro ao buscar dados do percurso formativo"
+          "Erro ao Procurar dados do percurso formativo"
       );
     } finally {
       setLoading(false);
@@ -321,7 +321,7 @@ const MeuPercurso = () => {
             {/* Progresso dos Módulos */}
             <div className="mb-3">
               <h6>Progresso dos Módulos</h6>
-              <div className="modulos-progresso">
+              <div className="avaliacao-item mb-2 p-2 border rounded">
                 {detalhes.progresso.modulos.map((modulo) => (
                   <div key={modulo.id} className="modulo-item mb-0">
                     <div className="d-flex justify-content-between align-items-center">
@@ -589,11 +589,13 @@ const MeuPercurso = () => {
     return (
       <div className="visao-geral-container">
         <div className="row mb-4">
-          <div className="col-md-12">
-            <div className="stats-summary-card">
-              <h4>Resumo Formativo</h4>
+          <div className="col12">
+            <div className="card">
+              <div className="card-header">
+                <h4 className="card-title mb-0">Resumo</h4>
+              </div>
 
-              <div className="stats-progress-bar">
+              <div className="card-body">
                 <div className="d-flex justify-content-between mb-1">
                   <span>Progresso geral</span>
                   <span>{estatisticas.percentualConclusao}%</span>
@@ -604,56 +606,55 @@ const MeuPercurso = () => {
                     style={{ width: `${estatisticas.percentualConclusao}%` }}
                   ></div>
                 </div>
-              </div>
-
-              <div className="stats-metrics">
-                <div className="row g-2">
-                  <div className="col-6">
-                    <div className="stats-metric-item">
-                      <div className="stats-metric-icon bg-light">
-                        <BookOpen size={20} color={"rgb(57, 99, 156)"} />
-                      </div>
-                      <div className="stats-metric-text">
-                        <span>{estatisticas.totalCursos}</span>
-                        <small>Cursos totais</small>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-6">
-                    <div className="stats-metric-item">
-                      <div className="stats-metric-icon bg-light">
-                        <CheckCircle size={20} color={"rgb(57, 99, 156)"} />
-                      </div>
-                      <div className="stats-metric-text">
-                        <span>{estatisticas.cursosCompletos}</span>
-                        <small>Cursos completos</small>
+                <div className="stats-metrics">
+                  <div className="row g-2">
+                    <div className="col-6">
+                      <div className="stats-metric-item">
+                        <div className="stats-metric-icon bg-light">
+                          <BookOpen size={20} color={"rgb(57, 99, 156)"} />
+                        </div>
+                        <div className="stats-metric-text">
+                          <span>{estatisticas.totalCursos}</span>
+                          <small>Cursos totais</small>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="col-6">
-                    <div className="stats-metric-item">
-                      <div className="stats-metric-icon bg-light">
-                        <Clock size={20} color={"rgb(57, 99, 156)"} />
-                      </div>
-                      <div className="stats-metric-text">
-                        <span>
-                          {formatarHoras(estatisticas.totalHorasEstudo)}
-                        </span>
-                        <small>Horas de estudo</small>
+                    <div className="col-6">
+                      <div className="stats-metric-item">
+                        <div className="stats-metric-icon bg-light">
+                          <CheckCircle size={20} color={"rgb(57, 99, 156)"} />
+                        </div>
+                        <div className="stats-metric-text">
+                          <span>{estatisticas.cursosCompletos}</span>
+                          <small>Cursos completos</small>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="col-6">
-                    <div className="stats-metric-item">
-                      <div className="stats-metric-icon bg-light">
-                        <Award size={20} color={"rgb(57, 99, 156)"} />
+                    <div className="col-6">
+                      <div className="stats-metric-item">
+                        <div className="stats-metric-icon bg-light">
+                          <Clock size={20} color={"rgb(57, 99, 156)"} />
+                        </div>
+                        <div className="stats-metric-text">
+                          <span>
+                            {formatarHoras(estatisticas.totalHorasEstudo)}
+                          </span>
+                          <small>Horas de estudo</small>
+                        </div>
                       </div>
-                      <div className="stats-metric-text">
-                        <span>{estatisticas.totalCertificados}</span>
-                        <small>Certificados</small>
+                    </div>
+
+                    <div className="col-6">
+                      <div className="stats-metric-item">
+                        <div className="stats-metric-icon bg-light">
+                          <Award size={20} color={"rgb(57, 99, 156)"} />
+                        </div>
+                        <div className="stats-metric-text">
+                          <span>{estatisticas.totalCertificados}</span>
+                          <small>Certificados</small>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -874,12 +875,12 @@ const MeuPercurso = () => {
         <div className="filter-section">
           <div className="card mb-4">
             <div className="card-header bg-light">
-              <h5 className="mb-0">Filtros</h5>
+              <h4 className="mb-0">Filtros</h4>
             </div>
             <div className="card-body">
               <div className="row g-3">
                 <div className="col-md-6 col-lg-3">
-                  <label className="form-label">Buscar curso</label>
+                  <label className="form-label">Procurar curso</label>
                   <div className="input-group">
                     <span className="input-group-text">
                       <Search size={18} />
@@ -1435,7 +1436,7 @@ const MeuPercurso = () => {
                   onClick={() => setActiveTab("visaoGeral")}
                 >
                   <BarChart size={18} className="me-2" />
-                  Visão Geral
+                  Visão geral
                 </button>
               </li>
               <li className="nav-item">
@@ -1446,7 +1447,7 @@ const MeuPercurso = () => {
                   onClick={() => setActiveTab("cursos")}
                 >
                   <BookOpen size={18} className="me-2" />
-                  Meus Cursos
+                  Os meus cursos
                 </button>
               </li>
             </ul>

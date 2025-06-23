@@ -240,8 +240,18 @@ const getGeneralStats = async (req, res) => {
       },
       resumo: {
         engajamento: {
-          forumAtividade: postsForumUltimos30Dias > 50 ? "Alta" : postsForumUltimos30Dias > 20 ? "Média" : "Baixa",
-          utilizacaoPlataforma: taxaUtilizadoresAtivos > 50 ? "Alta" : taxaUtilizadoresAtivos > 20 ? "Média" : "Baixa",
+          forumAtividade:
+            postsForumUltimos30Dias > 50
+              ? "Alta"
+              : postsForumUltimos30Dias > 20
+                ? "Média"
+                : "Baixa",
+          utilizacaoPlataforma:
+            taxaUtilizadoresAtivos > 50
+              ? "Alta"
+              : taxaUtilizadoresAtivos > 20
+                ? "Média"
+                : "Baixa",
           crescimento: taxaCrescimentoUtilizadores > 5 ? "Alto" : "Estável",
         },
       },
@@ -279,7 +289,8 @@ const getCursosStats = async (req, res) => {
     }
 
     // Usar query SQL direta para estatísticas por categoria
-    const estatisticasPorCategoria = await sequelize.query(`
+    const estatisticasPorCategoria = await sequelize.query(
+      `
       SELECT 
         c."ID_CATEGORIA__PK___",
         c."NOME__",
@@ -307,10 +318,13 @@ const getCursosStats = async (req, res) => {
       LEFT JOIN "CURSO_ASSINCRONO" ca ON cur."ID_CURSO" = ca."ID_CURSO"
       GROUP BY c."ID_CATEGORIA__PK___", c."NOME__"
       ORDER BY "totalCursos" DESC
-    `, { type: sequelize.QueryTypes.SELECT });
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
 
     // Top 10 cursos mais populares
-    const cursosMaisPopulares = await sequelize.query(`
+    const cursosMaisPopulares = await sequelize.query(
+      `
       SELECT 
         c."ID_CURSO",
         c."NOME",
@@ -331,19 +345,21 @@ const getCursosStats = async (req, res) => {
       INNER JOIN "CATEGORIA" cat ON a."ID_CATEGORIA__PK___" = cat."ID_CATEGORIA__PK___"
       ORDER BY "totalInscricoes" DESC
       LIMIT 10
-    `, { type: sequelize.QueryTypes.SELECT });
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
 
     // Formatar dados para o frontend
-    const cursosFormatados = cursosMaisPopulares.map(curso => ({
+    const cursosFormatados = cursosMaisPopulares.map((curso) => ({
       ID_CURSO: curso.ID_CURSO,
       NOME: curso.NOME,
       Area: {
         NOME: curso.AREA_NOME,
         Categoria: {
-          NOME__: curso.CATEGORIA_NOME
-        }
+          NOME__: curso.CATEGORIA_NOME,
+        },
       },
-      totalInscricoes: parseInt(curso.totalInscricoes) || 0
+      totalInscricoes: parseInt(curso.totalInscricoes) || 0,
     }));
 
     res.status(200).json({
@@ -418,7 +434,7 @@ const getPercursoFormativo = async (req, res) => {
         attributes: ["ID_PERFIL", "PERFIL"],
         through: { attributes: [] },
         required: !!perfil,
-        where: perfil ? { ID_PERFIL: perfil } : undefined
+        where: perfil ? { ID_PERFIL: perfil } : undefined,
       },
     ];
 
@@ -428,7 +444,7 @@ const getPercursoFormativo = async (req, res) => {
       include: includeConditions,
       attributes: [
         "ID_UTILIZADOR",
-        "USERNAME", 
+        "USERNAME",
         "NOME",
         "EMAIL",
         "DATA_CRIACAO",
@@ -452,36 +468,96 @@ const getPercursoFormativo = async (req, res) => {
           inscricoesAssincronas,
           progressoModulos,
           respostasQuizzes,
-          presencas
+          presencas,
+          submissoesAvaliacoes,
         ] = await Promise.all([
           InscricaoSincrono.count({ where: { ID_UTILIZADOR: userId } }),
           InscricaoAssincrono.count({ where: { ID_UTILIZADOR: userId } }),
           ProgressoModulo.findAll({
             where: { ID_UTILIZADOR: userId },
-            attributes: ["COMPLETO", "DATA_COMPLETO"]
+            attributes: ["COMPLETO", "DATA_COMPLETO"],
           }),
           RespostaQuizAssincrono.findAll({
             where: { ID_UTILIZADOR: userId },
-            attributes: ["NOTA", "DATA_SUBMISSAO"]
+            attributes: ["NOTA", "DATA_SUBMISSAO"],
           }),
-          PresencaAula.count({ 
-            where: { 
+          PresencaAula.count({
+            where: {
               ID_UTILIZADOR: userId,
-              PRESENTE: true 
-            } 
-          })
+              PRESENTE: true,
+            },
+          }),
+          SubmissaoAvaliacao.findAll({
+            where: { ID_UTILIZADOR: userId },
+            attributes: ["NOTA", "DATA_SUBMISSAO", "DATA_AVALIACAO"],
+            include: [
+              {
+                model: AvaliacaoSincrona,
+                attributes: ["TITULO", "ID_CURSO"],
+              },
+            ],
+          }),
         ]);
 
         // Calcular estatísticas
         const totalCursos = inscricoesSincronas + inscricoesAssincronas;
-        const modulosCompletos = progressoModulos.filter(p => p.COMPLETO).length;
+        const modulosCompletos = progressoModulos.filter(
+          (p) => p.COMPLETO
+        ).length;
         const quizzesRespondidos = respostasQuizzes.length;
-        
-        // Calcular nota média
-        let notaMedia = 0;
+        const avaliacoesSubmitidas = submissoesAvaliacoes.length;
+        const avaliacoesAvaliadas = submissoesAvaliacoes.filter(
+          (s) => s.NOTA !== null
+        ).length;
+
+        // Calcular nota média geral (quizzes + avaliações síncronas)
+        let notaMediaGeral = 0;
+        let totalAvaliacoes = 0;
+        let somaNotas = 0;
+
+        // Somar notas dos quizzes (converter de 0-100 para 0-20)
         if (respostasQuizzes.length > 0) {
-          const somaNotas = respostasQuizzes.reduce((sum, r) => sum + (r.NOTA || 0), 0);
-          notaMedia = (somaNotas / respostasQuizzes.length).toFixed(1);
+          respostasQuizzes.forEach((quiz) => {
+            if (quiz.NOTA !== null) {
+              somaNotas += (quiz.NOTA * 20) / 100; // Converter de 0-100 para 0-20
+              totalAvaliacoes++;
+            }
+          });
+        }
+
+        // Somar notas das avaliações síncronas (já em escala 0-20)
+        if (submissoesAvaliacoes.length > 0) {
+          submissoesAvaliacoes.forEach((submissao) => {
+            if (submissao.NOTA !== null) {
+              somaNotas += submissao.NOTA;
+              totalAvaliacoes++;
+            }
+          });
+        }
+
+        if (totalAvaliacoes > 0) {
+          notaMediaGeral = (somaNotas / totalAvaliacoes).toFixed(1);
+        }
+
+        // Calcular apenas nota média dos quizzes
+        let notaMediaQuizzes = 0;
+        if (respostasQuizzes.length > 0) {
+          const somaQuizzes = respostasQuizzes.reduce(
+            (sum, r) => sum + (r.NOTA || 0),
+            0
+          );
+          notaMediaQuizzes = (somaQuizzes / respostasQuizzes.length).toFixed(1);
+        }
+
+        // Calcular apenas nota média das avaliações síncronas
+        let notaMediaAvaliacoes = 0;
+        if (avaliacoesAvaliadas > 0) {
+          const somaAvaliacoes = submissoesAvaliacoes
+            .filter((s) => s.NOTA !== null)
+            .reduce((sum, s) => sum + s.NOTA, 0);
+          notaMediaAvaliacoes = (somaAvaliacoes / avaliacoesAvaliadas).toFixed(
+            1
+          );
         }
 
         return {
@@ -493,11 +569,28 @@ const getPercursoFormativo = async (req, res) => {
             modulosCompletos,
             totalModulos: progressoModulos.length,
             quizzesRespondidos,
-            notaMedia: parseFloat(notaMedia),
+            avaliacoesSubmitidas,
+            avaliacoesAvaliadas,
+            notaMediaGeral: parseFloat(notaMediaGeral),
+            notaMediaQuizzes: parseFloat(notaMediaQuizzes),
+            notaMediaAvaliacoes: parseFloat(notaMediaAvaliacoes),
             presencas,
-            progressoGeral: progressoModulos.length > 0 ? 
-              ((modulosCompletos / progressoModulos.length) * 100).toFixed(1) : 0,
+            progressoGeral:
+              progressoModulos.length > 0
+                ? ((modulosCompletos / progressoModulos.length) * 100).toFixed(
+                    1
+                  )
+                : 0,
             xp: utilizador.XP || 0,
+            // Detalhes das avaliações síncronas
+            avaliacoesDetalhes: submissoesAvaliacoes.map((submissao) => ({
+              titulo: submissao.AVALIACAO_SINCRONA?.TITULO || "N/A",
+              cursoId: submissao.AVALIACAO_SINCRONA?.ID_CURSO || null,
+              nota: submissao.NOTA,
+              dataSubmissao: submissao.DATA_SUBMISSAO,
+              dataAvaliacao: submissao.DATA_AVALIACAO,
+              avaliada: submissao.NOTA !== null,
+            })),
           },
         };
       })
@@ -541,7 +634,8 @@ const getDashboardCharts = async (req, res) => {
     }
 
     // Inscrições por mês (últimos 12 meses)
-    const inscricoesPorMes = await sequelize.query(`
+    const inscricoesPorMes = await sequelize.query(
+      `
       SELECT 
         TO_CHAR(data_inscricao, 'YYYY-MM') as mes,
         COUNT(*) as total
@@ -554,10 +648,13 @@ const getDashboardCharts = async (req, res) => {
       ) as todas_inscricoes
       GROUP BY TO_CHAR(data_inscricao, 'YYYY-MM')
       ORDER BY mes ASC
-    `, { type: sequelize.QueryTypes.SELECT });
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
 
     // Utilizadores por perfil
-    const utilizadoresPorPerfil = await sequelize.query(`
+    const utilizadoresPorPerfil = await sequelize.query(
+      `
       SELECT 
         p."PERFIL" as perfil,
         COUNT(utp."ID_UTILIZADOR") as total
@@ -565,10 +662,13 @@ const getDashboardCharts = async (req, res) => {
       LEFT JOIN "UTILIZADOR_TEM_PERFIL" utp ON p."ID_PERFIL" = utp."ID_PERFIL"
       GROUP BY p."ID_PERFIL", p."PERFIL"
       ORDER BY total DESC
-    `, { type: sequelize.QueryTypes.SELECT });
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
 
     // Atividade do fórum (posts por mês)
-    const atividadeForumPorMes = await sequelize.query(`
+    const atividadeForumPorMes = await sequelize.query(
+      `
       SELECT 
         TO_CHAR("DATA_CRIACAO", 'YYYY-MM') as mes,
         COUNT(*) as posts
@@ -577,7 +677,9 @@ const getDashboardCharts = async (req, res) => {
         AND "ESTADO" IN ('Ativo', 'Editado')
       GROUP BY TO_CHAR("DATA_CRIACAO", 'YYYY-MM')
       ORDER BY mes ASC
-    `, { type: sequelize.QueryTypes.SELECT });
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
 
     res.status(200).json({
       success: true,

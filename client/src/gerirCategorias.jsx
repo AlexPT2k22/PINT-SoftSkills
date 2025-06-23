@@ -340,7 +340,9 @@ function GerirCategorias() {
   };
 
   const getAreasByCategoria = (categoriaId) => {
-    return areas.filter((area) => area.Categoria.ID_CATEGORIA__PK___ === categoriaId);
+    return areas.filter(
+      (area) => area.Categoria.ID_CATEGORIA__PK___ === categoriaId
+    );
   };
 
   const getTopicosByArea = (areaId) => {
@@ -493,7 +495,8 @@ function GerirCategorias() {
                                         setNovaArea({
                                           NOME: area.NOME,
                                           DESCRICAO: area.DESCRICAO,
-                                          ID_CATEGORIA: area.Categoria.ID_CATEGORIA__PK___,
+                                          ID_CATEGORIA:
+                                            area.Categoria.ID_CATEGORIA__PK___,
                                         });
                                         setShowAreaModal(true);
                                       }}
@@ -529,11 +532,9 @@ function GerirCategorias() {
                                               </h6>
 
                                               {topico.DESCRICAO && (
-                                                <div>
-                                                  <small className="text-muted ms-3">
-                                                    {topico.DESCRICAO}
-                                                  </small>
-                                                </div>
+                                                <small className="text-muted d-block ms-3">
+                                                  {topico.DESCRICAO}
+                                                </small>
                                               )}
                                             </div>
                                           </div>
@@ -796,7 +797,9 @@ function GerirCategorias() {
                         <option key={area.ID_AREA} value={area.ID_AREA}>
                           {area.NOME} (
                           {categorias.find(
-                            (c) => c.ID_CATEGORIA__PK___ === area.Categoria.ID_CATEGORIA__PK___
+                            (c) =>
+                              c.ID_CATEGORIA__PK___ ===
+                              area.Categoria.ID_CATEGORIA__PK___
                           )?.NOME__ || "Sem categoria"}
                           )
                         </option>

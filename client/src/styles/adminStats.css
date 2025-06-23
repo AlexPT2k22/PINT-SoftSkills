@@ -35,22 +35,26 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ================================= */
 /*        NAVEGAÇÃO TABS             */
 /* ================================= */
 
-.nav-tabs-container {
+.nav-tabs-container-admin {
   background: white;
   border-radius: 8px;
   padding: 0.75rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
 
-.nav-tabs .nav-link {
+.nav-tabs-admin .nav-link {
   border: none;
   color: #6c757d;
   font-weight: 500;
@@ -61,7 +65,7 @@
   margin: 0 0.25rem;
 }
 
-.nav-tabs .nav-link.active {
+.nav-tabs-admin .nav-link.active {
   background-color: #39639c;
   color: white;
 }
@@ -483,22 +487,21 @@
 /* ================================= */
 
 @media (max-width: 992px) {
-  
   .stats-title {
     font-size: 1.5rem;
   }
-  
+
   .summary-card {
     flex-direction: column;
     text-align: center;
     padding: 1rem;
   }
-  
+
   .summary-icon {
     margin-right: 0;
     margin-bottom: 0.75rem;
   }
-  
+
   .stat-value {
     font-size: 1.5rem;
   }
@@ -509,32 +512,31 @@
     padding: 0.5rem;
   }
 
-  
   .stats-title {
     font-size: 1.25rem;
   }
-  
+
   .stats-actions {
     margin-top: 1rem;
     width: 100%;
     justify-content: flex-end;
   }
-  
-  .nav-tabs .nav-link {
+
+  .nav-tabs-admin .nav-link {
     padding: 0.5rem;
     font-size: 0.85rem;
     margin: 0;
   }
-  
+
   .stats-section {
     padding: 1rem;
   }
-  
+
   .stat-card {
     padding: 0.75rem;
     margin-bottom: 1rem;
   }
-  
+
   .filters-section .card-body {
     padding: 1rem;
   }
@@ -545,25 +547,25 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .stats-actions .btn {
     margin-bottom: 0.5rem;
   }
-  
-  .nav-tabs {
+
+  .nav-tabs-admin {
     flex-wrap: wrap;
   }
-  
-  .nav-tabs .nav-item {
+
+  .nav-tabs-admin .nav-item {
     flex: 1 0 50%;
     margin-bottom: 0.5rem;
   }
-  
+
   .table thead th {
     padding: 0.75rem 0.5rem;
     font-size: 0.75rem;
   }
-  
+
   .table tbody td {
     padding: 0.75rem 0.5rem;
   }

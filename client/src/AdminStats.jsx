@@ -256,8 +256,8 @@ const AdminStats = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="nav-tabs-container mb-4">
-          <ul className="nav nav-tabs nav-fill">
+        <div className="nav-tabs-container-admin mb-4">
+          <ul className="nav nav-tabs-admin nav-fill">
             <li className="nav-item">
               <button
                 className={`nav-link ${
@@ -1126,13 +1126,9 @@ const AdminStats = () => {
                                         Nota Média
                                       </div>
                                       <div className="stat-value">
-                                        {stats.notaMedia !== null &&
-                                        stats.notaMedia !== undefined
-                                          ? `${(
-                                              (parseFloat(stats.notaMedia) /
-                                                100) *
-                                              20
-                                            ).toFixed(1)}/20`
+                                        {stats.notaMediaGeral !== null &&
+                                        stats.notaMediaGeral !== undefined
+                                          ? `${stats.notaMediaGeral}/20`
                                           : "N/A"}
                                       </div>
                                     </div>
