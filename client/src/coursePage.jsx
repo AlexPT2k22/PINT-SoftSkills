@@ -15,6 +15,7 @@ import Loader from "./components/loader.jsx";
 import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 import useAuthStore from "./store/authStore.js";
+import CourseReviews from './components/CourseReviews';
 
 function CoursePage() {
   const { user } = useAuthStore();
@@ -538,7 +539,7 @@ function CoursePage() {
                     index === 2 ? "active" : ""
                   }`}
                 >
-                  Testemunhas
+                  Reviews
                 </a>
               </ul>
             </div>

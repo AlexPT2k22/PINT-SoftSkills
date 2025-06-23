@@ -45,6 +45,7 @@ const ForumPost = require("./forumPost.model.js");
 const ForumAvaliacao = require("./forumAvaliacao.model.js");
 const ForumDenuncia = require("./forumDenuncia.model.js");
 const ForumSolicitacao = require("./forumSolicitacao.model.js");
+const Review = require("./review.model.js");
 
 CursoSincrono.hasMany(AulaSincrona, { foreignKey: "ID_CURSO" });
 AulaSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
@@ -78,6 +79,16 @@ Utilizador.hasMany(Notificacao, {
 
 Curso.hasMany(Notificacao, {
   foreignKey: "ID_CURSO",
+});
+
+Curso.hasMany(Review, {
+  foreignKey: "ID_CURSO",
+  as: "REVIEWS",
+});
+
+Utilizador.hasMany(Review, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "REVIEWS",
 });
 
 Utilizador.belongsToMany(Perfil, {
@@ -561,4 +572,5 @@ module.exports = {
   ForumAvaliacao,
   ForumDenuncia,
   ForumSolicitacao,
+  Review,
 };

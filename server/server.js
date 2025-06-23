@@ -29,6 +29,7 @@ const forumAvaliacaoRoutes = require("./routes/forumAvaliacao.routes.js");
 const forumDenunciaRoutes = require("./routes/forumDenuncia.routes.js");
 const percursoFormativo = require("./routes/percursoFormativo.route.js");
 const forumSolicitacaoRoutes = require("./routes/forumSolicitacao.routes.js");
+const reviewsRoutes = require("./routes/reviews.route.js");
 const {
   updateAsyncCoursesStatus,
   updateSyncCoursesStatus,
