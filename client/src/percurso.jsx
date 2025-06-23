@@ -368,8 +368,8 @@ const MeuPercurso = () => {
                           className={`badge ${
                             avaliacao.submissao
                               ? avaliacao.submissao.NOTA !== null
-                                ? "bg-success"
-                                : "bg-info"
+                                ? "bg-info"
+                                : "bg-secondary"
                               : "bg-warning"
                           }`}
                         >

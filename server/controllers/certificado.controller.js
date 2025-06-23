@@ -4,6 +4,14 @@ const {
   Utilizador,
   ProgressoModulo,
   Modulos,
+  SubmissaoAvaliacao,
+  AvaliacaoSincrona,
+  RespostaQuizAssincrono,
+  QuizAssincrono,
+  InscricaoSincrono,
+  InscricaoAssincrono,
+  CursoSincrono,
+  CursoAssincrono,
 } = require("../models/index.js");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
@@ -13,6 +21,74 @@ const QRCode = require("qrcode");
 
 const gerarCodigoVerificacao = () => {
   return uuidv4().replace(/-/g, "").substring(0, 16).toUpperCase();
+};
+
+const calcularNotaFinal = async (userId, courseId) => {
+  try {
+    let notaFinal = 0;
+    let totalAvaliacoes = 0;
+    let somaNotas = 0;
+
+    // Verificar se é curso síncrono ou assíncrono
+    const [cursoSincrono, cursoAssincrono] = await Promise.all([
+      CursoSincrono.findOne({ where: { ID_CURSO: courseId } }),
+      CursoAssincrono.findOne({ where: { ID_CURSO: courseId } }),
+    ]);
+
+    if (cursoSincrono) {
+      // Para cursos síncronos: buscar notas das avaliações
+      const submissoes = await SubmissaoAvaliacao.findAll({
+        where: { ID_UTILIZADOR: userId },
+        include: [
+          {
+            model: AvaliacaoSincrona,
+            where: { ID_CURSO: courseId },
+            required: true,
+          },
+        ],
+      });
+
+      submissoes.forEach((submissao) => {
+        if (submissao.NOTA !== null) {
+          somaNotas += submissao.NOTA;
+          totalAvaliacoes++;
+        }
+      });
+    }
+
+    if (cursoAssincrono) {
+      // Para cursos assíncronos: buscar notas dos quizzes
+      const respostas = await RespostaQuizAssincrono.findAll({
+        where: { ID_UTILIZADOR: userId },
+        include: [
+          {
+            model: QuizAssincrono,
+            where: { ID_CURSO: courseId },
+            required: true,
+          },
+        ],
+      });
+
+      respostas.forEach((resposta) => {
+        if (resposta.NOTA !== null) {
+          // Converter nota de 0-100 para 0-20
+          const notaConvertida = (resposta.NOTA * 20) / 100;
+          somaNotas += notaConvertida;
+          totalAvaliacoes++;
+        }
+      });
+    }
+
+    // Calcular média final
+    if (totalAvaliacoes > 0) {
+      notaFinal = somaNotas / totalAvaliacoes;
+    }
+
+    return parseFloat(notaFinal.toFixed(1));
+  } catch (error) {
+    console.error("Erro ao calcular nota final:", error);
+    return 0;
+  }
 };
 
 const verificarConclusaoCurso = async (userId, courseId) => {
@@ -84,6 +160,9 @@ const gerarCertificado = async (req, res) => {
         message: "Curso ou usuário não encontrado",
       });
     }
+
+    // Calcular nota final
+    const notaFinal = await calcularNotaFinal(userId, courseId);
 
     // Create certificates directory if it doesn't exist
     const certificatesDir = path.join(__dirname, "../public/certificates");
@@ -240,7 +319,8 @@ const gerarCertificado = async (req, res) => {
     };
 
     // Generate QR code with verification URL
-    const qrCodeDataUrl = await QRCode.toDataURL( // é necessario o await!
+    const qrCodeDataUrl = await QRCode.toDataURL(
+      // é necessario o await!
       `http://localhost:4000/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
       qrOptions
     );
@@ -273,6 +353,7 @@ const gerarCertificado = async (req, res) => {
       certificado: {
         codigo: certificado.CODIGO_VERIFICACAO,
         url: `http://localhost:4000${pdfUrl}`,
+        notaFinal: notaFinal,
       },
     });
   } catch (error) {
@@ -305,6 +386,11 @@ const verificarCertificado = async (req, res) => {
       });
     }
 
+    const notaFinal = await calcularNotaFinal(
+      certificado.ID_UTILIZADOR,
+      certificado.ID_CURSO
+    );
+
     return res.status(200).json({
       success: true,
       certificado: {
@@ -312,6 +398,7 @@ const verificarCertificado = async (req, res) => {
         dataEmissao: certificado.DATA_EMISSAO,
         aluno: certificado.UTILIZADOR.NOME,
         curso: certificado.CURSO.NOME,
+        notaFinal: notaFinal,
       },
     });
   } catch (error) {
