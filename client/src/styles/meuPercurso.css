@@ -657,16 +657,6 @@
   color: #6c757d !important;
 }
 
-.nav-link:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
-}
-
-button:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
-}
-
 /* ===== IMPRESSÃO ===== */
 @media print {
   .percurso-container {
