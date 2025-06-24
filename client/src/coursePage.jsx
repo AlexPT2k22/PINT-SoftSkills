@@ -15,7 +15,7 @@ import Loader from "./components/loader.jsx";
 import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 import useAuthStore from "./store/authStore.js";
-import CourseReviews from './components/CourseReviews';
+import CourseReviews from "./components/CourseReviews";
 
 function CoursePage() {
   const { user } = useAuthStore();
@@ -30,6 +30,10 @@ function CoursePage() {
   const [error, setError] = useState(null);
   const [showMessage, setShowMessage] = useState("");
   const [isEnrolling, setIsEnrolling] = useState(false);
+  const [statistics, setStatistics] = useState({
+    mediaEstrelas: 0,
+    totalReviews: 0,
+  });
 
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
@@ -117,6 +121,29 @@ function CoursePage() {
 
     verificarInscricao();
   }, [courseId, user]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/reviews/${courseId}`
+        );
+
+        if (response.data.success) {
+          setStatistics({
+            mediaEstrelas: response.data.estatisticas.mediaEstrelas,
+            totalReviews: response.data.estatisticas.totalReviews,
+          });
+        }
+        console.log(statistics);
+      } catch (error) {
+        console.error("Erro ao procurar as reviews:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [courseId]);
 
   const checkEnrollmentDeadline = (enrollmentDeadline) => {
     if (!enrollmentDeadline) return true; // Se não tiver deadline, pode inscrever
@@ -469,11 +496,13 @@ function CoursePage() {
             <div className="container d-flex flex-column justify-content-center align-items-center border-start">
               <div className="d-flex align-items-center flex-column">
                 <div className="d-flex flex-row justify-content-center align-items-center">
-                  <h1 className="mb-0 fs-4">4.3</h1>
-                  <Star fill="#39639C" strokeWidth={0} />
+                  <h1 className="mb-0 fs-4">{statistics.mediaEstrelas}</h1>
+                  <Star fill="#FFD700" strokeWidth={0} />
                 </div>
                 <div className="d-flex align-items-center justify-content-center">
-                  <p className="m-0 fs-6 text-center">X reviews</p>
+                  <p className="m-0 fs-6 text-center">
+                    {statistics.totalReviews} avaliações
+                  </p>
                 </div>
               </div>
             </div>
@@ -539,7 +568,7 @@ function CoursePage() {
                     index === 2 ? "active" : ""
                   }`}
                 >
-                  Reviews
+                  Avaliações
                 </a>
               </ul>
             </div>
@@ -651,143 +680,7 @@ function CoursePage() {
 
             {index === 2 && (
               <>
-                <div className="d-flex flex-row">
-                  <div className="d-flex flex-column">
-                    <h1 className="fs-4 m-0 mb-3 p-2">
-                      O porquê das pessoas escolherem a SoftSkills
-                    </h1>
-                    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-                      <div className="col">
-                        <div className="card h-100 testimonial-card">
-                          <div className="card-body">
-                            <p className="card-text">
-                              "A plataforma da SoftSkills transformou a minha
-                              forma de aprender. Os cursos são interativos e os
-                              formadores são excelentes!"
-                            </p>
-                          </div>
-                          <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                            <div className="card-text mb-0 d-flex align-items-center">
-                              <User
-                                size={20}
-                                color="#39639C"
-                                className="me-2"
-                              />
-                              <p className="mb-0">João Silva</p>
-                            </div>
-                            <div className="card-rating d-flex align-items-center">
-                              {Array.from({ length: 5 }, (_, index) => (
-                                <Star
-                                  fill="#FFD700"
-                                  key={index}
-                                  size={18}
-                                  color="#FFD700"
-                                  className="me-1"
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col">
-                        <div className="card h-100 testimonial-card">
-                          <div className="card-body">
-                            <p className="card-text">
-                              "Os cursos são muito bem estruturados e os
-                              conteúdos são relevantes. Recomendo a todos que
-                              queiram desenvolver novas habilidades!"
-                            </p>
-                          </div>
-                          <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                            <div className="card-text mb-0 d-flex align-items-center">
-                              <User
-                                size={20}
-                                color="#39639C"
-                                className="me-2"
-                              />
-                              <p className="mb-0">Mariana</p>
-                            </div>
-                            <div className="card-rating d-flex align-items-center">
-                              {Array.from({ length: 5 }, (_, index) => (
-                                <Star
-                                  fill="#FFD700"
-                                  key={index}
-                                  size={18}
-                                  color="#FFD700"
-                                  className="me-1"
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col">
-                        <div className="card h-100 testimonial-card">
-                          <div className="card-body">
-                            <p className="card-text">
-                              "A SoftSkills é uma plataforma incrível! Os cursos
-                              são muito úteis e os formadores são super
-                              atenciosos. Estou a aprender muito"
-                            </p>
-                          </div>
-                          <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                            <div className="card-text mb-0 d-flex align-items-center">
-                              <User
-                                size={20}
-                                color="#39639C"
-                                className="me-2"
-                              />
-                              <p className="mb-0">Rodrigo Silva</p>
-                            </div>
-                            <div className="card-rating d-flex align-items-center">
-                              {Array.from({ length: 5 }, (_, index) => (
-                                <Star
-                                  fill="#FFD700"
-                                  key={index}
-                                  size={18}
-                                  color="#FFD700"
-                                  className="me-1"
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col">
-                        <div className="card h-100 testimonial-card">
-                          <div className="card-body">
-                            <p className="card-text">
-                              "A plataforma é super intuitiva! Consegui aprender
-                              ao meu ritmo e adorei receber o certificado no
-                              final. Já comecei outro curso!"
-                            </p>
-                          </div>
-                          <div className="card-footer d-flex justify-content-between align-items-center bg-white">
-                            <div className="card-text mb-0 d-flex align-items-center">
-                              <User
-                                size={20}
-                                color="#39639C"
-                                className="me-2"
-                              />
-                              <p className="mb-0">Ana Rita</p>
-                            </div>
-                            <div className="card-rating d-flex align-items-center">
-                              {Array.from({ length: 5 }, (_, index) => (
-                                <Star
-                                  fill="#FFD700"
-                                  key={index}
-                                  size={18}
-                                  color="#FFD700"
-                                  className="me-1"
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <CourseReviews courseId={courseId} isEnrolled={inscrito} />
               </>
             )}
           </div>

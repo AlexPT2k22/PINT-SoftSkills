@@ -37,12 +37,6 @@ const ForumAvaliacao = sequelize.define(
   {
     tableName: "FORUM_AVALIACAO",
     timestamps: false,
-    indexes: [
-      {
-        unique: true,
-        fields: ["ID_FORUM_POST", "ID_UTILIZADOR"],
-      },
-    ],
   }
 );
 

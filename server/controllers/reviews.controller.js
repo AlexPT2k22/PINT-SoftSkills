@@ -5,9 +5,10 @@ const {
   InscricaoSincrono,
   InscricaoAssincrono,
   CursoSincrono,
+  CursoAssincrono,
 } = require("../models/index.js");
 const { Op } = require("sequelize");
-const sequelize = require("sequelize");
+const { sequelize } = require("../models/index.js");
 
 // Criar ou atualizar review
 const createOrUpdateReview = async (req, res) => {
@@ -48,7 +49,7 @@ const createOrUpdateReview = async (req, res) => {
         where: { ID_UTILIZADOR: userId },
         include: [
           {
-            model: require("../models/index.js").CursoAssincrono,
+            model: CursoAssincrono,
             where: { ID_CURSO: cursoId },
           },
         ],
@@ -139,71 +140,39 @@ const getReviewsByCurso = async (req, res) => {
       offset: offset,
     });
 
-    // Calcular estatísticas
-    const estatisticas = await Review.findOne({
-      where: { ID_CURSO: cursoId },
-      attributes: [
-        [sequelize.fn("AVG", sequelize.col("ESTRELAS")), "mediaEstrelas"],
-        [sequelize.fn("COUNT", sequelize.col("ID_REVIEW")), "totalReviews"],
-        [
-          sequelize.fn(
-            "COUNT",
-            sequelize.literal("CASE WHEN ESTRELAS = 5 THEN 1 END")
-          ),
-          "estrelas5",
-        ],
-        [
-          sequelize.fn(
-            "COUNT",
-            sequelize.literal("CASE WHEN ESTRELAS = 4 THEN 1 END")
-          ),
-          "estrelas4",
-        ],
-        [
-          sequelize.fn(
-            "COUNT",
-            sequelize.literal("CASE WHEN ESTRELAS = 3 THEN 1 END")
-          ),
-          "estrelas3",
-        ],
-        [
-          sequelize.fn(
-            "COUNT",
-            sequelize.literal("CASE WHEN ESTRELAS = 2 THEN 1 END")
-          ),
-          "estrelas2",
-        ],
-        [
-          sequelize.fn(
-            "COUNT",
-            sequelize.literal("CASE WHEN ESTRELAS = 1 THEN 1 END")
-          ),
-          "estrelas1",
-        ],
-        [
-          sequelize.fn(
-            "COUNT",
-            sequelize.literal("CASE WHEN ESTRELAS = 0 THEN 1 END")
-          ),
-          "estrelas0",
-        ],
-      ],
-      raw: true,
+    // Calcular estatísticas usando query SQL direto
+    const estatisticasResult = await sequelize.query(`
+      SELECT 
+        AVG("ESTRELAS") as "mediaEstrelas",
+        COUNT("ID_REVIEW") as "totalReviews",
+        COUNT(CASE WHEN "ESTRELAS" = 5 THEN 1 END) as "estrelas5",
+        COUNT(CASE WHEN "ESTRELAS" = 4 THEN 1 END) as "estrelas4",
+        COUNT(CASE WHEN "ESTRELAS" = 3 THEN 1 END) as "estrelas3",
+        COUNT(CASE WHEN "ESTRELAS" = 2 THEN 1 END) as "estrelas2",
+        COUNT(CASE WHEN "ESTRELAS" = 1 THEN 1 END) as "estrelas1",
+        COUNT(CASE WHEN "ESTRELAS" = 0 THEN 1 END) as "estrelas0"
+      FROM "REVIEW"
+      WHERE "ID_CURSO" = :cursoId
+    `, {
+      replacements: { cursoId },
+      type: sequelize.QueryTypes.SELECT
     });
+
+    const estatisticas = estatisticasResult[0] || {};
 
     res.status(200).json({
       success: true,
       reviews,
       estatisticas: {
-        mediaEstrelas: parseFloat(estatisticas?.mediaEstrelas || 0).toFixed(1),
-        totalReviews: parseInt(estatisticas?.totalReviews || 0),
+        mediaEstrelas: parseFloat(estatisticas.mediaEstrelas || 0).toFixed(1),
+        totalReviews: parseInt(estatisticas.totalReviews || 0),
         distribuicao: {
-          5: parseInt(estatisticas?.estrelas5 || 0),
-          4: parseInt(estatisticas?.estrelas4 || 0),
-          3: parseInt(estatisticas?.estrelas3 || 0),
-          2: parseInt(estatisticas?.estrelas2 || 0),
-          1: parseInt(estatisticas?.estrelas1 || 0),
-          0: parseInt(estatisticas?.estrelas0 || 0),
+          5: parseInt(estatisticas.estrelas5 || 0),
+          4: parseInt(estatisticas.estrelas4 || 0),
+          3: parseInt(estatisticas.estrelas3 || 0),
+          2: parseInt(estatisticas.estrelas2 || 0),
+          1: parseInt(estatisticas.estrelas1 || 0),
+          0: parseInt(estatisticas.estrelas0 || 0),
         },
       },
       pagination: {

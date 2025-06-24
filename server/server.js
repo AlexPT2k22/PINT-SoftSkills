@@ -61,6 +61,7 @@ app.use("/api/notificacoes", notificacaoRoutes); // Rota para notificações
 app.use("/api/areas", areaRoute); // Rota para áreas
 app.use("/api/anuncios", anuncioRotas); // Rota para anúncios
 app.use("/api/user", userRoute); // Rota para usuários
+app.use("/api/reviews", reviewsRoutes); // Rota para reviews
 app.use("/api/dashboard", dashboardRoute); // Rota para o dashboard
 app.use("/api/auth", authRoutes); // Rota para autenticação
 app.use("/api/cursos", cursoRoute); // Rota para cursos

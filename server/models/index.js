@@ -81,6 +81,16 @@ Curso.hasMany(Notificacao, {
   foreignKey: "ID_CURSO",
 });
 
+Review.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+  as: "UTILIZADOR",
+});
+
+Review.belongsTo(Curso, {
+  foreignKey: "ID_CURSO",
+  as: "CURSO",
+});
+
 Curso.hasMany(Review, {
   foreignKey: "ID_CURSO",
   as: "REVIEWS",
