@@ -5,10 +5,7 @@ import ErrorMessage from "./error_message.jsx";
 import Loader from "./loader.jsx";
 
 function LinkedIn_associate() {
-  const redirectURL =
-    import.meta.env.PROD === "production"
-      ? "https://pint-softskills-api.onrender.com"
-      : "http://localhost:4000";
+  const redirectURL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [searchParams] = useSearchParams();
   const [isLoading, setisLoading] = useState(false);
   const [url, seturl] = useState("");

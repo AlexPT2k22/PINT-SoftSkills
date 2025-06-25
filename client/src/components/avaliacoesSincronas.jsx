@@ -5,6 +5,7 @@ import useAuthStore from "../store/authStore";
 import { Upload, FileText, Check, X, ExternalLink } from "lucide-react";
 
 const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [minhasSubmissoes, setMinhasSubmissoes] = useState({});
   const [avaliacaoAtual, setAvaliacaoAtual] = useState(null);
@@ -49,7 +50,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:4000/api/avaliacoes/curso/${cursoId}`,
+        `${URL}/api/avaliacoes/curso/${cursoId}`,
         {
           withCredentials: true,
           headers: {
@@ -83,7 +84,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
   const fetchMinhasSubmissoes = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/avaliacoes/minhas-submissoes/${cursoId}`,
+        `${URL}/api/avaliacoes/minhas-submissoes/${cursoId}`,
         {
           withCredentials: true,
           headers: {
@@ -108,7 +109,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
     try {
       setLoadingSub(true);
       const response = await axios.get(
-        `http://localhost:4000/api/avaliacoes/${avaliacaoId}/submissoes`,
+        `${URL}/api/avaliacoes/${avaliacaoId}/submissoes`,
         {
           withCredentials: true,
           headers: {
@@ -135,7 +136,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
     try {
       setUploading(true);
       await axios.post(
-        "http://localhost:4000/api/avaliacoes",
+        `${URL}/api/avaliacoes`,
         {
           ...novaAvaliacao,
           ID_CURSO: cursoId,
@@ -176,16 +177,12 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
 
     try {
       setUploading(true);
-      await axios.post(
-        "http://localhost:4000/api/avaliacoes/submeter",
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(`${URL}/api/avaliacoes/submeter`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       fetchMinhasSubmissoes();
       setShowSubmissaoModal(false);
@@ -207,7 +204,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
     try {
       setUploading(true);
       await axios.post(
-        "http://localhost:4000/api/avaliacoes/avaliar-submissao",
+        `${URL}/api/avaliacoes/avaliar-submissao`,
         novaNotaSubmissao,
         {
           withCredentials: true,
@@ -217,7 +214,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
         }
       );
       await axios.post(
-        "http://localhost:4000/api/user/update-evaluation-grade",
+        `${URL}/api/user/update-evaluation-grade`,
         {
           submissaoId: novaNotaSubmissao.ID_SUBMISSAO,
           nota: novaNotaSubmissao.NOTA,
@@ -575,7 +572,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                           <td>
                             {submissao.URL_ARQUIVO ? (
                               <a
-                                href={`http://localhost:4000${submissao.URL_ARQUIVO}`}
+                                href={`${URL}${submissao.URL_ARQUIVO}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn btn-sm btn-outline-primary"

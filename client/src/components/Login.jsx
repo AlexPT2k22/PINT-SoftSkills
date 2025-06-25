@@ -19,10 +19,7 @@ function Login() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [Error, setError] = useState(null);
   const { signup, login, isLoading } = useAuthStore();
-  const redirectURL =
-    import.meta.env.PROD === "production"
-      ? "https://pint-softskills-api.onrender.com"
-      : "http://localhost:4000";
+  const redirectURL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   useEffect(() => {
     const loginType = searchParams.get("login");

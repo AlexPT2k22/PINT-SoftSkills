@@ -28,7 +28,7 @@ const VideoPlayer = ({
     cloudinaryRef.current = cloudinary;
 
     const player = cloudinaryRef.current.videoPlayer(playerRef.current, {
-      cloud_name: "dbhxixkmb",
+      cloud_name: import.meta.env.VITE_cloud_name,
       secure: true,
       controls: true,
       showJumpControls: true,

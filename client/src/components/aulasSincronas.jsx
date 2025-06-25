@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 const AulasSincronas = ({ cursoId, isTeacher = false }) => {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [aulas, setAulas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,9 +54,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
   const fetchAulas = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `http://localhost:4000/api/aulas/curso/${cursoId}`
-      );
+      const response = await axios.get(`${URL}/api/aulas/curso/${cursoId}`);
       setAulas(response.data);
       setLoading(false);
     } catch (error) {
@@ -66,9 +65,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
 
   const fetchModulos = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:4000/api/cursos/${cursoId}`
-      );
+      const response = await axios.get(`${URL}/api/cursos/${cursoId}`);
       console.log("Curso", response.data.MODULOS);
       setModulos(response.data.MODULOS || []);
     } catch (error) {
@@ -93,7 +90,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
     }
     try {
       setIsLoading(true);
-      await axios.post("http://localhost:4000/api/aulas", {
+      await axios.post(`${URL}/api/aulas`, {
         ...novaAula,
         ID_CURSO: cursoId,
       });
@@ -117,7 +114,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
 
   const handleUpdateAulaStatus = async (aulaId, estado) => {
     try {
-      await axios.put(`http://localhost:4000/api/aulas/${aulaId}`, {
+      await axios.put(`${URL}/api/aulas/${aulaId}`, {
         ESTADO: estado,
       });
       fetchAulas();
@@ -152,10 +149,10 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
     // Buscar alunos e dados de presença já existentes
     Promise.all([
       // Buscar alunos inscritos no curso
-      axios.get(`http://localhost:4000/api/cursos/${cursoId}/alunos`),
+      axios.get(`${URL}/api/cursos/${cursoId}/alunos`),
 
       // Buscar registros de presença existentes para esta aula
-      axios.get(`http://localhost:4000/api/aulas/${aula.ID_AULA}/presenca`),
+      axios.get(`${URL}/api/aulas/${aula.ID_AULA}/presenca`),
     ])
       .then(([studentsResponse, attendanceResponse]) => {
         setAlunos(studentsResponse.data);
@@ -599,7 +596,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                       );
 
                       await axios.post(
-                        `http://localhost:4000/api/presencas/${selectedAula.ID_AULA}/massa`,
+                        `${URL}/api/presencas/${selectedAula.ID_AULA}/massa`,
                         { presencas: attendanceData }
                       );
 

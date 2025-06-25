@@ -4,6 +4,7 @@ import axios from "axios";
 import "../styles/notes.css";
 
 function NotesPanel({ moduleId, currentTime }) {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [editingNoteId, setEditingNoteId] = useState(null);
@@ -16,7 +17,7 @@ function NotesPanel({ moduleId, currentTime }) {
   const fetchNotes = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/notes/module/${moduleId}`,
+        `${URL}/api/notes/module/${moduleId}`,
         { withCredentials: true }
       );
       // Sort notes by timestamp
@@ -34,7 +35,7 @@ function NotesPanel({ moduleId, currentTime }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/notes",
+        `${URL}/api/notes`,
         {
           moduleId,
           content: newNote,
@@ -54,7 +55,7 @@ function NotesPanel({ moduleId, currentTime }) {
 
   const handleDelete = async (noteId) => {
     try {
-      await axios.delete(`http://localhost:4000/api/notes/${noteId}`, {
+      await axios.delete(`${URL}/api/notes/${noteId}`, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((note) => note.ID_NOTA !== noteId));
@@ -67,7 +68,7 @@ function NotesPanel({ moduleId, currentTime }) {
     if (!editText.trim()) return;
     try {
       await axios.put(
-        `http://localhost:4000/api/notes/${noteId}`,
+        `${URL}/api/notes/${noteId}`,
         {
           content: editText,
         },

@@ -15,7 +15,7 @@ import Loader from "./components/loader.jsx";
 import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 import useAuthStore from "./store/authStore.js";
-import CourseReviews from "./components/CourseReviews";
+import CourseReviews from "./components/CourseReviews.jsx";
 
 function CoursePage() {
   const { user } = useAuthStore();

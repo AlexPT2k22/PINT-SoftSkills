@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { MessageSquare, Calendar, User, AlertCircle } from "lucide-react";
 
-const URL =
-  import.meta.env.PROD === "production"
-    ? "https://pint-softskills-api.onrender.com"
-    : "http://localhost:4000";
+const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 function AnunciosPanel({ courseId, courseData }) {
   const [anuncios, setAnuncios] = useState([]);
@@ -105,7 +102,9 @@ function AnunciosPanel({ courseId, courseData }) {
               <small className="text-muted">
                 Formador:{" "}
                 <strong>
-                  <a href={`/user/${courseData.CURSO_SINCRONO.UTILIZADOR.ID_UTILIZADOR}`}>
+                  <a
+                    href={`/user/${courseData.CURSO_SINCRONO.UTILIZADOR.ID_UTILIZADOR}`}
+                  >
                     {courseData.CURSO_SINCRONO.UTILIZADOR.NOME ||
                       courseData.CURSO_SINCRONO.UTILIZADOR.USERNAME}
                   </a>

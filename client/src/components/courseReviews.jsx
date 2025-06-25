@@ -11,6 +11,7 @@ import {
 import useAuthStore from "../store/authStore";
 
 const CourseReviews = ({ courseId, isEnrolled = false }) => {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [reviews, setReviews] = useState([]);
   const [myReview, setMyReview] = useState(null);
   const [statistics, setStatistics] = useState(null);
@@ -27,7 +28,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
   const fetchReviews = async (pageNum = 1, reset = false) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/reviews/${courseId}?page=${pageNum}&limit=5`
+        `${URL}/api/reviews/${courseId}?page=${pageNum}&limit=5`
       );
 
       if (response.data.success) {
@@ -52,7 +53,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
 
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/reviews/${courseId}/my-review`,
+        `${URL}/api/reviews/${courseId}/my-review`,
         { withCredentials: true }
       );
 
@@ -86,7 +87,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
     setSubmitting(true);
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/reviews/${courseId}`,
+        `${URL}/api/reviews/${courseId}`,
         reviewForm,
         { withCredentials: true }
       );
@@ -109,7 +110,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
     if (!confirm("Tem certeza que deseja eliminar a sua avaliação?")) return;
 
     try {
-      await axios.delete(`http://localhost:4000/api/reviews/${courseId}`, {
+      await axios.delete(`${URL}/api/reviews/${courseId}`, {
         withCredentials: true,
       });
 

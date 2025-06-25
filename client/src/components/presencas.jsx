@@ -3,6 +3,7 @@ import axios from "axios";
 import { Check, X } from "lucide-react";
 
 const ListaPresenca = ({ aulaId }) => {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [presencas, setPresencas] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,7 +15,7 @@ const ListaPresenca = ({ aulaId }) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:4000/api/aulas/${aulaId}/presenca`
+        `${URL}/api/aulas/${aulaId}/presenca`
       );
       setPresencas(response.data);
       setLoading(false);
@@ -26,7 +27,7 @@ const ListaPresenca = ({ aulaId }) => {
 
   const handleMarcarPresenca = async (alunoId, presente) => {
     try {
-      await axios.post(`http://localhost:4000/api/aulas/${aulaId}/presenca`, {
+      await axios.post(`${URL}/api/aulas/${aulaId}/presenca`, {
         alunoId,
         presente,
       });

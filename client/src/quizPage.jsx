@@ -11,7 +11,6 @@ import {
   ArrowRight,
   Send,
 } from "lucide-react";
-import useAuthStore from "./store/authStore";
 
 function QuizPage() {
   const { courseId } = useParams();

@@ -1,11 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
-import "dotenv";
 
-let url =
-  process.env.NODE_ENV === "production"
-    ? "https://pint-softskills-api.onrender.com"
-    : "http://localhost:4000";
+let url = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const useAuthStore = create((set, get) => ({
   user: null,

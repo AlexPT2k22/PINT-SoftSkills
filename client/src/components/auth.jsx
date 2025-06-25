@@ -8,6 +8,7 @@ import "../styles/auth.css";
 import axios from "axios";
 
 function Auth() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const reference = useRef([]);
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ function Auth() {
     setResendSuccess(false);
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/auth/resend-verification-code`,
+        `${URL}/api/auth/resend-verification-code`,
         { email }
       );
 
