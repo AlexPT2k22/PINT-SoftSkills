@@ -253,7 +253,7 @@ function QuizPage() {
             <div className="col-md-8">
               <div className="card">
                 <div className="card-header text-center text-white">
-                  <h3>Resultado do Quiz</h3>
+                  <h3>Resultado do quiz</h3>
                   <h5 className="mb-0">{quiz.TITULO}</h5>
                 </div>
                 <div className="card-body text-center">
@@ -393,7 +393,7 @@ function QuizPage() {
                       className="btn btn-primary btn-lg"
                       onClick={handleStartQuiz}
                     >
-                      Iniciar Quiz
+                      Iniciar quiz
                     </button>
                   </div>
                 </div>
@@ -517,12 +517,12 @@ function QuizPage() {
                       {submitting ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" />
-                          Submetendo...
+                          A submeter...
                         </>
                       ) : (
                         <>
                           <Send size={16} className="me-1" />
-                          Submeter Quiz
+                          Submeter quiz
                         </>
                       )}
                     </button>
@@ -583,12 +583,12 @@ function QuizPage() {
                       {submitting ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-1" />
-                          Submetendo...
+                          A submeter...
                         </>
                       ) : (
                         <>
                           <Send size={14} className="me-1" />
-                          Finalizar Quiz
+                          Finalizar quiz
                         </>
                       )}
                     </button>

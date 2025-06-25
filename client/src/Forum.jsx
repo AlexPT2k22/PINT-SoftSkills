@@ -218,7 +218,7 @@ const Forum = () => {
             <div className="card h-100">
               <div className="card-body d-flex align-items-center">
                 <div className="me-3">
-                  <div className="bg-primary bg-opacity-10 p-3 rounded-circle">
+                  <div className="bg-opacity-10 p-3 rounded-circle">
                     <MessageSquare className="text-primary" size={24} />
                   </div>
                 </div>
@@ -236,7 +236,7 @@ const Forum = () => {
             <div className="card h-100">
               <div className="card-body d-flex align-items-center">
                 <div className="me-3">
-                  <div className="bg-success bg-opacity-10 p-3 rounded-circle">
+                  <div className="bg-opacity-10 p-3 rounded-circle">
                     <TrendingUp className="text-success" size={24} />
                   </div>
                 </div>

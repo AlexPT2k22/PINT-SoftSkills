@@ -691,7 +691,7 @@ const ForumTopicoView = () => {
                         <div className="d-flex align-items-center">
                           <div className="me-3">
                             <div
-                              className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                              className="bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
                               style={{ width: "40px", height: "40px" }}
                             >
                               <span className="fw-bold text-primary">
