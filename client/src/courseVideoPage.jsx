@@ -128,19 +128,8 @@ function CourseVideoPage() {
     }
   };
 
-  const toggleSection = (sectionId) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionId]: !prev[sectionId],
-    }));
-  };
-
   const navigateToModule = (moduleId) => {
     navigate(`/dashboard/courses/${courseId}/modules/${moduleId}`);
-  };
-
-  const handleSidebarToggle = (newCollapsedState) => {
-    setCollapsed(newCollapsedState);
   };
 
   const handleIndexChange = (newIndex) => {
@@ -458,21 +447,7 @@ function CourseVideoPage() {
                             }}
                           ></div>
                         </div>
-                        <div className="d-flex flex-row gap-3">
-                          <div className="d-flex flex-column align-items-center ps-2">
-                            <div className="w-100">
-                              <h5 className="fw-normal mb-0">4.3</h5>
-                            </div>
-                            <h6 className="fw-normal text-muted">X reviews</h6>
-                          </div>
-
-                          <div className="d-flex flex-column align-items-center ">
-                            <div className="w-100">
-                              <h5 className="fw-normal mb-0">Y</h5>
-                            </div>
-                            <h6 className="fw-normal text-muted">Alunos</h6>
-                          </div>
-
+                        <div className="d-flex flex-row gap-3 ms-2">
                           <div className="d-flex flex-column align-items-center ">
                             <div className="w-100">
                               <h5 className="fw-normal mb-0">
@@ -502,7 +477,11 @@ function CourseVideoPage() {
                                   (m) => m.ID_MODULO.toString() === moduleId
                                 );
 
-                                if (!currentModule?.FILE_URL) {
+                                if (
+                                  !currentModule?.FILE_URL ||
+                                  currentModule.FILE_URL.length === 0 ||
+                                  currentModule.FILE_URL_ARRAY.length === 0
+                                ) {
                                   return (
                                     <div className="alert alert-info mt-3">
                                       <Info size={16} className="me-1" />
