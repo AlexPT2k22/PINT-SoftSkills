@@ -22,6 +22,7 @@ const SynchronousCourseView = () => {
     setCollapsed(newCollapsedState);
   };
 
+  //TODO: FIX URLS
   useEffect(() => {
     const verificarFormador = async () => {
       try {

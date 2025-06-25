@@ -15,9 +15,10 @@ import Loader from "./components/loader.jsx";
 import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 import useAuthStore from "./store/authStore.js";
-import CourseReviews from "./components/CourseReviews.jsx";
+import CourseReviews from "./components/courseReviews.jsx";
 
 function CoursePage() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const { user } = useAuthStore();
   const [index, setIndex] = useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
   const [course, setCourse] = useState({});
@@ -65,9 +66,7 @@ function CoursePage() {
     const getCourseData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          "http://localhost:4000/api/cursos/" + courseId
-        );
+        const response = await axios.get(`${URL}/api/cursos/` + courseId);
         const data = response.data;
         console.log(data);
         setCourse(data);
@@ -95,7 +94,7 @@ function CoursePage() {
 
       try {
         const response = await axios.post(
-          `http://localhost:4000/api/user/verify-course/${courseId}`,
+          `${URL}/api/user/verify-course/${courseId}`,
           {},
           {
             withCredentials: true,
@@ -125,9 +124,7 @@ function CoursePage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:4000/api/reviews/${courseId}`
-        );
+        const response = await axios.get(`${URL}/api/reviews/${courseId}`);
 
         if (response.data.success) {
           setStatistics({
@@ -168,7 +165,7 @@ function CoursePage() {
     try {
       setIsEnrolling(true);
       const response = await axios.post(
-        `http://localhost:4000/api/user/enter-course/${cursoId}`,
+        `${URL}/api/user/enter-course/${cursoId}`,
         {
           courseType: course.CURSO_SINCRONO ? "sincrono" : "assincrono",
         },
