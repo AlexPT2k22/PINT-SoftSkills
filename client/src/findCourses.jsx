@@ -1,4 +1,3 @@
-// client/src/findCourses.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -15,27 +14,21 @@ const URL =
 
 function FindCoursesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-
-  // Estados principais
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [totalCourses, setTotalCourses] = useState(0);
-
-  // Estados de filtros
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
+  const [selectedRating, setSelectedRating] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-
-  // Estados para opções de filtro
   const [categories, setCategories] = useState([]);
   const [areas, setAreas] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -62,7 +55,7 @@ function FindCoursesPage() {
     fetchFilterOptions();
   }, []);
 
-  // Escutar mudanças nos parâmetros da URL
+  // mudanças nos parâmetros da URL
   useEffect(() => {
     const searchFromUrl = searchParams.get("search") || "";
     const categoryFromUrl = searchParams.get("category") || "";
@@ -71,15 +64,19 @@ function FindCoursesPage() {
     const difficultyFromUrl = searchParams.get("difficulty") || "";
     const typeFromUrl = searchParams.get("type") || "";
     const sortFromUrl = searchParams.get("sortBy") || "newest";
+    const ratingFromUrl = searchParams.get("rating") || "";
 
     // Atualizar estados se os valores da URL forem diferentes
-    setSearchTerm(searchFromUrl);
-    setSelectedCategory(categoryFromUrl);
-    setSelectedArea(areaFromUrl);
-    setSelectedTopic(topicFromUrl);
-    setSelectedDifficulty(difficultyFromUrl);
-    setSelectedType(typeFromUrl);
-    setSortBy(sortFromUrl);
+    if (searchTerm !== searchFromUrl) setSearchTerm(searchFromUrl);
+    if (selectedCategory !== categoryFromUrl)
+      setSelectedCategory(categoryFromUrl);
+    if (selectedArea !== areaFromUrl) setSelectedArea(areaFromUrl);
+    if (selectedTopic !== topicFromUrl) setSelectedTopic(topicFromUrl);
+    if (selectedDifficulty !== difficultyFromUrl)
+      setSelectedDifficulty(difficultyFromUrl);
+    if (selectedType !== typeFromUrl) setSelectedType(typeFromUrl);
+    if (selectedRating !== ratingFromUrl) setSelectedRating(ratingFromUrl);
+    if (sortBy !== sortFromUrl) setSortBy(sortFromUrl);
   }, [searchParams]);
 
   // Buscar cursos
@@ -101,6 +98,7 @@ function FindCoursesPage() {
           difficulty: selectedDifficulty,
           type: selectedType,
           sortBy: sortBy,
+          rating: selectedRating,
         });
 
         const response = await axios.get(`${URL}/api/cursos/search?${params}`);
@@ -134,8 +132,7 @@ function FindCoursesPage() {
       selectedDifficulty,
       selectedType,
       sortBy,
-      page,
-      loading,
+      selectedRating,
     ]
   );
 
@@ -150,6 +147,7 @@ function FindCoursesPage() {
     selectedDifficulty,
     selectedType,
     sortBy,
+    selectedRating,
   ]);
 
   useEffect(() => {
@@ -170,7 +168,8 @@ function FindCoursesPage() {
     selectedDifficulty,
     selectedType,
     sortBy,
-    categories.length, // Adicionar isto para garantir que só pesquisa após carregar as opções
+    categories.length,
+    fetchCourses,
   ]);
 
   // Atualizar URL com parâmetros de pesquisa
@@ -182,6 +181,7 @@ function FindCoursesPage() {
     if (selectedTopic) params.set("topic", selectedTopic);
     if (selectedDifficulty) params.set("difficulty", selectedDifficulty);
     if (selectedType) params.set("type", selectedType);
+    if (selectedRating) params.set("rating", selectedRating);
     if (sortBy !== "newest") params.set("sortBy", sortBy);
 
     setSearchParams(params);
@@ -193,6 +193,7 @@ function FindCoursesPage() {
     selectedDifficulty,
     selectedType,
     sortBy,
+    selectedRating,
     setSearchParams,
   ]);
 
@@ -205,6 +206,7 @@ function FindCoursesPage() {
     setSelectedType("");
     setSortBy("newest");
     setSearchParams({});
+    setSelectedRating("");
   };
 
   const handleLoadMore = () => {
@@ -230,6 +232,7 @@ function FindCoursesPage() {
     selectedTopic ||
     selectedDifficulty ||
     selectedType ||
+    selectedRating ||
     searchTerm;
 
   return (
@@ -259,34 +262,44 @@ function FindCoursesPage() {
                 {/* Avaliação */}
                 <div className="find-courses-filter-section">
                   <label className="find-courses-filter-label">Avaliação</label>
-                  <div className="find-courses-rating-filters">
-                    {[5, 4, 3].map((rating) => (
-                      <div key={rating} className="find-courses-rating-item">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`find-courses-rating-${rating}`}
-                        />
-                        <label
-                          className="find-courses-rating-label"
-                          htmlFor={`find-courses-rating-${rating}`}
-                        >
-                          <div className="find-courses-stars">
-                            {Array.from({ length: rating }, (_, i) => (
-                              <Star
-                                key={i}
-                                size={14}
-                                fill="#FFD700"
-                                color="#FFD700"
-                              />
-                            ))}
-                          </div>
-                          <span className="find-courses-rating-text">
-                            {rating} estrelas ou mais
-                          </span>
-                        </label>
-                      </div>
-                    ))}
+                  <div className="find-courses-filter-section">
+                    <label className="find-courses-filter-label">
+                      Avaliação
+                    </label>
+                    <div className="find-courses-rating-filters">
+                      {[5, 4, 3].map((rating) => (
+                        <div key={rating} className="find-courses-rating-item">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="find-courses-rating"
+                            id={`find-courses-rating-${rating}`}
+                            checked={selectedRating === rating.toString()}
+                            onChange={() =>
+                              setSelectedRating(rating.toString())
+                            }
+                          />
+                          <label
+                            className="find-courses-rating-label"
+                            htmlFor={`find-courses-rating-${rating}`}
+                          >
+                            <div className="find-courses-stars">
+                              {Array.from({ length: rating }, (_, i) => (
+                                <Star
+                                  key={i}
+                                  size={14}
+                                  fill="#FFD700"
+                                  color="#FFD700"
+                                />
+                              ))}
+                            </div>
+                            <span className="find-courses-rating-text">
+                              {rating} estrelas ou mais
+                            </span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -451,6 +464,7 @@ function FindCoursesPage() {
                       <option value="difficulty_desc">
                         Dificuldade decrescente
                       </option>
+                      <option value="rating_desc">Melhor avaliados</option>
                     </select>
                   </div>
                 </div>
@@ -485,6 +499,17 @@ function FindCoursesPage() {
                               setSelectedArea("");
                               setSelectedTopic("");
                             }}
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      )}
+                      {selectedRating && (
+                        <span className="find-courses-filter-tag find-courses-filter-tag-warning">
+                          Avaliação: {selectedRating}+ estrelas
+                          <button
+                            className="find-courses-filter-tag-close"
+                            onClick={() => setSelectedRating("")}
                           >
                             <X size={12} />
                           </button>

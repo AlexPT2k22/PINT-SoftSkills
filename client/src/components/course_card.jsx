@@ -1,5 +1,5 @@
 import React from "react";
-import { Award } from "lucide-react";
+import { Award, Star } from "lucide-react";
 import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
 
@@ -128,6 +128,29 @@ function CourseCard({ course }) {
       <div className="card-body">
         <div className="card-title d-flex justify-content-between align-items-center mb-1">
           <h5 className="mb-0">{NOME}</h5>
+          {course.averageRating > 0 && (
+            <div className="d-flex align-items-center mb-2">
+              <div className="d-flex me-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={14}
+                    fill={
+                      star <= Math.round(course.averageRating)
+                        ? "#FFD700"
+                        : "transparent"
+                    }
+                    color="#FFD700"
+                  />
+                ))}
+              </div>
+              <small className="text-muted">
+                {course.averageRating.toFixed(1)} ({course.totalReviews}{" "}
+                avaliação
+                {course.totalReviews !== 1 ? "ões" : ""})
+              </small>
+            </div>
+          )}
         </div>
         <div className="d-flex justify-content-between align-items-center">
           <p className="card-text mb-0">{tipo}</p>

@@ -210,43 +210,69 @@ function CoursePage() {
         );
         return status === "O curso ainda não começou";
       }
-      // Para cursos assíncronos inscritos, sempre permitir acesso
+
+      // Para cursos assíncronos inscritos
+      if (course.CURSO_ASSINCRONO) {
+        const status = checkDates(
+          course.CURSO_ASSINCRONO.DATA_INICIO,
+          course.CURSO_ASSINCRONO.DATA_FIM
+        );
+        // Desabilitar se o curso assíncrono já terminou
+        return status === "O curso já terminou";
+      }
+
       return false;
     }
 
     // Se NÃO está inscrito
-    // Verificar se há vagas (para síncronos)
-    if (course.CURSO_SINCRONO && course.CURSO_SINCRONO.VAGAS <= 0) {
-      return true;
-    }
-
-    // Verificar prazo de inscrição
-    if (course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S) {
-      if (
-        !checkEnrollmentDeadline(course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S)
-      ) {
+    // Para cursos síncronos
+    if (course.CURSO_SINCRONO) {
+      // Verificar se há vagas
+      if (course.CURSO_SINCRONO.VAGAS <= 0) {
         return true;
       }
+
+      // Verificar prazo de inscrição
+      if (course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S) {
+        if (
+          !checkEnrollmentDeadline(
+            course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S
+          )
+        ) {
+          return true;
+        }
+      }
+
+      // Verificar status do curso síncrono
+      const status = checkDates(
+        course.CURSO_SINCRONO.DATA_INICIO,
+        course.CURSO_SINCRONO.DATA_FIM
+      );
+
+      // Para cursos síncronos: não pode inscrever se já terminou ou está em andamento
+      return (
+        status === "O curso já terminou" ||
+        status === "O curso está em andamento"
+      );
     }
 
-    // Verificar status do curso para não inscritos
-    const status = course.CURSO_SINCRONO
-      ? checkDates(
-          course.CURSO_SINCRONO.DATA_INICIO,
-          course.CURSO_SINCRONO.DATA_FIM
-        )
-      : checkDates(
-          course.CURSO_ASSINCRONO?.DATA_INICIO,
-          course.CURSO_ASSINCRONO?.DATA_FIM
-        );
+    // Para cursos assíncronos
+    if (course.CURSO_ASSINCRONO) {
+      // Verificar se o curso assíncrono já terminou
+      const status = checkDates(
+        course.CURSO_ASSINCRONO.DATA_INICIO,
+        course.CURSO_ASSINCRONO.DATA_FIM
+      );
 
-    // Não inscritos não podem entrar em cursos que já terminaram ou estão em andamento
-    return (
-      status === "O curso já terminou" || status === "O curso está em andamento"
-    );
+      // Para cursos assíncronos: só não pode inscrever se já terminou
+      // PODE inscrever mesmo estando "em andamento"
+      return status === "O curso já terminou";
+    }
+
+    return false;
   };
 
-  // ✅ ADICIONAR: Função para determinar o texto do botão
+  //Função para determinar o texto do botão
   const getButtonText = () => {
     if (isEnrolling) {
       return (
@@ -280,15 +306,66 @@ function CoursePage() {
             return "Ir para o curso";
         }
       }
+
+      // Para cursos assíncronos inscritos
+      if (course.CURSO_ASSINCRONO) {
+        const status = checkDates(
+          course.CURSO_ASSINCRONO.DATA_INICIO,
+          course.CURSO_ASSINCRONO.DATA_FIM
+        );
+
+        if (status === "O curso já terminou") {
+          return "Curso terminado";
+        }
+
+        return "Ir para o curso";
+      }
+
       return "Ir para o curso";
     }
 
-    // Para não inscritos, mostrar o status do curso
-    return checkDates(
-      course.CURSO_SINCRONO?.DATA_INICIO,
-      course.CURSO_SINCRONO?.DATA_FIM,
-      course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S
-    );
+    // Para não inscritos
+    if (course.CURSO_SINCRONO) {
+      // Verificar vagas primeiro
+      if (course.CURSO_SINCRONO.VAGAS <= 0) {
+        return "Sem vagas";
+      }
+
+      // Verificar prazo de inscrição
+      if (course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S) {
+        if (
+          !checkEnrollmentDeadline(
+            course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S
+          )
+        ) {
+          return "Prazo de inscrição expirado";
+        }
+      }
+
+      // Status do curso síncrono
+      return checkDates(
+        course.CURSO_SINCRONO.DATA_INICIO,
+        course.CURSO_SINCRONO.DATA_FIM,
+        course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S
+      );
+    }
+
+    // Para cursos assíncronos não inscritos
+    if (course.CURSO_ASSINCRONO) {
+      const status = checkDates(
+        course.CURSO_ASSINCRONO.DATA_INICIO,
+        course.CURSO_ASSINCRONO.DATA_FIM
+      );
+
+      if (status === "O curso já terminou") {
+        return "Curso terminado";
+      }
+
+      // Para assíncronos, sempre mostrar "Inscrever" se não terminou
+      return "Inscrever";
+    }
+
+    return "Inscrever";
   };
 
   const checkDates = (startDate, endDate, enrollmentDeadline = null) => {
@@ -296,6 +373,7 @@ function CoursePage() {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
+    // Verificar prazo de inscrição primeiro (apenas para síncronos)
     if (enrollmentDeadline && !checkEnrollmentDeadline(enrollmentDeadline)) {
       return "Prazo de inscrição expirado";
     }

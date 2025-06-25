@@ -15,6 +15,7 @@ const {
   ProgressoModulo,
   Notas,
   QuizAssincrono,
+  Review,
 } = require("../models/index.js");
 const { sequelize } = require("../database/database.js");
 const cloudinary = require("cloudinary").v2;
@@ -329,7 +330,6 @@ const getCursoById = async (req, res) => {
 
 const getCursosPopulares = async (req, res) => {
   try {
-    // Get popular courses ordered by number of vacancies (VAGAS)
     const cursos = await Curso.findAll({
       include: [
         {
@@ -339,9 +339,9 @@ const getCursosPopulares = async (req, res) => {
         {
           model: CursoAssincrono,
           where: {
-            ESTADO: "Ativo",
+            ESTADO: ["Ativo", "Em curso"],
           },
-          required: false, // Use LEFT JOIN
+          required: false,
         },
         {
           model: CursoSincrono,
@@ -349,19 +349,56 @@ const getCursosPopulares = async (req, res) => {
             ESTADO: ["Ativo", "Em curso"],
           },
           attributes: ["VAGAS", "DATA_INICIO", "DATA_FIM", "ESTADO"],
-          required: false, // Use LEFT JOIN
+          required: false,
         },
       ],
       where: {
         [Op.or]: [
-          { "$CURSO_ASSINCRONO.ESTADO$": "Ativo" },
+          { "$CURSO_ASSINCRONO.ESTADO$": ["Ativo", "Em curso"] },
           { "$CURSO_SINCRONO.ESTADO$": "Ativo" },
         ],
       },
       limit: 8,
     });
 
-    res.status(200).json(cursos);
+    // Buscar dados de review para cada curso
+    const cursosComReviews = await Promise.all(
+      cursos.map(async (curso) => {
+        const cursoData = curso.toJSON();
+
+        try {
+          // Buscar estatísticas de review para este curso específico
+          const reviewStats = await sequelize.query(
+            `
+            SELECT 
+              AVG("ESTRELAS") as "averageRating",
+              COUNT("ID_REVIEW") as "totalReviews"
+            FROM "REVIEW"
+            WHERE "ID_CURSO" = :cursoId
+          `,
+            {
+              replacements: { cursoId: curso.ID_CURSO },
+              type: sequelize.QueryTypes.SELECT,
+            }
+          );
+
+          const stats = reviewStats[0] || {};
+          cursoData.averageRating = parseFloat(stats.averageRating) || 0;
+          cursoData.totalReviews = parseInt(stats.totalReviews) || 0;
+        } catch (error) {
+          console.warn(
+            `Erro ao buscar reviews para curso ${curso.ID_CURSO}:`,
+            error
+          );
+          cursoData.averageRating = 0;
+          cursoData.totalReviews = 0;
+        }
+
+        return cursoData;
+      })
+    );
+
+    res.status(200).json(cursosComReviews);
   } catch (error) {
     console.error("Erro ao buscar os cursos populares:", error);
     res.status(500).json({ message: error.message });
@@ -545,7 +582,6 @@ const createCurso = async (req, res) => {
 };
 
 const updateCurso = async (req, res) => {
-  //FIXME:
   const { id } = req.params;
   const {
     NOME,
@@ -2410,6 +2446,7 @@ const searchCursos = async (req, res) => {
       difficulty = "",
       type = "",
       sortBy = "newest",
+      rating = "",
     } = req.query;
 
     console.log("Parâmetros de pesquisa recebidos:", {
@@ -2420,6 +2457,7 @@ const searchCursos = async (req, res) => {
       difficulty,
       type,
       sortBy,
+      rating,
     });
 
     const offset = (page - 1) * limit;
@@ -2555,6 +2593,18 @@ const searchCursos = async (req, res) => {
           ],
         ];
         break;
+      case "rating_desc":
+        orderClause = [
+          [
+            sequelize.literal(`(
+              SELECT AVG("ESTRELAS") 
+              FROM "REVIEW" 
+              WHERE "REVIEW"."ID_CURSO" = "CURSO"."ID_CURSO"
+            )`),
+            "DESC",
+          ],
+        ];
+        break;
       default:
         orderClause = [["DATA_CRIACAO__", "DESC"]]; // newest
     }
@@ -2570,8 +2620,45 @@ const searchCursos = async (req, res) => {
 
     console.log(`Encontrados ${allCourses.length} cursos no total`);
 
+    //dados das review separadamente para cada curso
+    const coursesWithReviews = await Promise.all(
+      allCourses.map(async (curso) => {
+        const cursoData = curso.toJSON();
+
+        // Buscar estatísticas de review para este curso específico
+        try {
+          const reviewStats = await sequelize.query(
+            `
+            SELECT 
+              AVG("ESTRELAS") as "averageRating",
+              COUNT("ID_REVIEW") as "totalReviews"
+            FROM "REVIEW"
+            WHERE "ID_CURSO" = :cursoId
+          `,
+            {
+              replacements: { cursoId: curso.ID_CURSO },
+              type: sequelize.QueryTypes.SELECT,
+            }
+          );
+
+          const stats = reviewStats[0] || {};
+          cursoData.averageRating = parseFloat(stats.averageRating) || 0;
+          cursoData.totalReviews = parseInt(stats.totalReviews) || 0;
+        } catch (error) {
+          console.warn(
+            `Erro ao buscar reviews para curso ${curso.ID_CURSO}:`,
+            error
+          );
+          cursoData.averageRating = 0;
+          cursoData.totalReviews = 0;
+        }
+
+        return cursoData;
+      })
+    );
+
     // FILTRAR os cursos para mostrar apenas os ativos
-    const coursesAtivos = allCourses.filter((curso) => {
+    const coursesAtivos = coursesWithReviews.filter((curso) => {
       // Verificar se é assíncrono ativo
       if (
         curso.CURSO_ASSINCRONO &&
@@ -2581,12 +2668,11 @@ const searchCursos = async (req, res) => {
         return true;
       }
 
-      // Verificar se é síncrono ativo ou em curso
+      // Verificar se é síncrono ativo
       if (curso.CURSO_SINCRONO && curso.CURSO_SINCRONO.ESTADO === "Ativo") {
         return true;
       }
 
-      // Se não tem nenhum tipo ativo, não mostrar
       return false;
     });
 
@@ -2594,9 +2680,27 @@ const searchCursos = async (req, res) => {
       `Após filtrar por estado: ${coursesAtivos.length} cursos ativos`
     );
 
-    // Aplicar paginação nos cursos já filtrados
-    const totalCount = coursesAtivos.length;
-    const paginatedCourses = coursesAtivos.slice(
+    // Filtrar por rating se especificado
+    let coursesFiltered = coursesAtivos;
+    if (rating) {
+      const minRating = parseFloat(rating);
+      coursesFiltered = coursesAtivos.filter((curso) => {
+        return curso.averageRating >= minRating;
+      });
+
+      console.log(
+        `Após filtrar por rating (${minRating}+): ${coursesFiltered.length} cursos`
+      );
+    }
+
+    if (sortBy === "rating_desc") {
+      coursesFiltered.sort((a, b) => {
+        return (b.averageRating || 0) - (a.averageRating || 0);
+      });
+    }
+
+    const totalCount = coursesFiltered.length;
+    const paginatedCourses = coursesFiltered.slice(
       offset,
       offset + parseInt(limit)
     );
