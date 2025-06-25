@@ -12,8 +12,8 @@ function generateJWT(res, user) {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "Strict",
+    secure: true,
+    sameSite: "None",
     maxAge: 3600000 * 4, // 4 hour in milliseconds
   });
 

@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import axios from "axios";
 
-let url = import.meta.env.VITE_API_URL || "http://localhost:4000";
+console.log(import.meta.env.VITE_API_URL);
+
+const url = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const useAuthStore = create((set, get) => ({
   user: null,
@@ -22,7 +24,12 @@ const useAuthStore = create((set, get) => ({
           NOME,
           EMAIL,
         },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
       set({
         user: response.data.user,
@@ -67,7 +74,10 @@ const useAuthStore = create((set, get) => ({
           EMAIL,
           PASSWORD,
         },
-        { withCredentials: true }
+        { withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          }, }
       );
       set({
         user: response.data.user,
@@ -92,6 +102,9 @@ const useAuthStore = create((set, get) => ({
     try {
       const response = await axios.get(`${url}/api/auth/checkauth`, {
         withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
       });
       set({
         user: response.data.user,
@@ -136,7 +149,10 @@ const useAuthStore = create((set, get) => ({
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
-      await axios.get(`${url}/api/auth/logout`, { withCredentials: true });
+      await axios.get(`${url}/api/auth/logout`, { withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          }, });
       set({
         user: null,
         isAuthenticated: false,

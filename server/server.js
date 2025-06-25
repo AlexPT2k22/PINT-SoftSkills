@@ -40,12 +40,38 @@ const port = process.env.PORT || 4000;
 app.use(express.json()); // Para ler JSON no corpo da requisição
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow requests from your React dev server
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: function (origin, callback) {
+      // Lista de origens permitidas
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://pint-soft-skills.vercel.app",
+      ];
+
+      // Permitir requests sem origin (mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Não permitido pelo CORS"));
+      }
+    },
+    credentials: true, // Permitir cookies
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Cookie",
+      "Set-Cookie",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
+    exposedHeaders: ["Set-Cookie"],
+    optionsSuccessStatus: 200, // Para suportar browsers legados
   })
-); // Permitir cookies e credenciais
+);
 app.use(cookieparser()); // Para ler cookies
 
 // Executar atualização a cada hora

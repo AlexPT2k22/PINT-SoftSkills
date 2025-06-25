@@ -14,15 +14,9 @@ const {
   sendConfirmationEmail,
   resendEmail,
 } = require("../mail/emails.js");
-const backendURL =
-  process.env.PROD === "production"
-    ? `${process.env.BACKEND_URL}`
-    : "http://localhost:4000";
+const backendURL = process.env.BACKEND_URL || "http://localhost:4000";
 
-const frontendURL =
-  process.env.PROD === "production"
-    ? `${process.env.FRONTEND_URL_PROD}`
-    : "http://localhost:5173";
+const frontendURL =process.env.FRONTEND_URL || "http://localhost:5173";
 
 const checkauth = async (req, res) => {
   try {
