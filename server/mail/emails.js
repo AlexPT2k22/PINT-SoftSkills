@@ -13,6 +13,9 @@ const {
   COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE,
   COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE
 } = require("./emailTemplates.js");
+require("dotenv").config();
+
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const sendVerificationEmail = async (
   username,
@@ -33,7 +36,7 @@ const sendVerificationEmail = async (
         .replace("{password}", password)
         .replace("{verification_token}", verificationToken)
         .replace("{email}", email)
-        .replace("{auth_url}", "http://localhost:5173/auth?email=" + email),
+        .replace("{auth_url}", `${FRONTEND_URL}/auth?email=` + email),
       category: "Email verification",
     });
     response.statusCode = 200;
@@ -121,7 +124,7 @@ const EmailFormadorNovo = async (
         .replace(/{email}/g, email)
         .replace(/{password}/g, password)
         .replace(/{verification_token}/g, verificationToken)
-        .replace(/{auth_url}/g, `http://localhost:5173/auth?email=${email}`),
+        .replace(/{auth_url}/g, `${FRONTEND_URL}/auth?email=${email}`),
       category: "Registro de Formador",
     });
     response.statusCode = 200;
@@ -161,7 +164,7 @@ const sendEnrollmentConfirmationEmail = async (
         ? `Formador: <strong>${formador?.NOME || "A confirmar"}</strong><br>`
         : `Tipo: <strong>Curso assíncrono</strong><br>`;
 
-    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
+    const cursoUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}`;
 
     const response = await resend.emails.send({
       from: sender,
@@ -198,7 +201,7 @@ const sendTeacherChangeNotificationEmail = async (
       ? `Formador Anterior: <strong>${formadorAnterior}</strong><br>`
       : "";
 
-    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
+    const cursoUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}`;
 
     const response = await resend.emails.send({
       from: sender,
@@ -241,8 +244,8 @@ const sendAnnouncementNotificationEmail = async (
       }
     );
 
-    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
-    const anunciosUrl = `http://localhost:5173/course/${curso.ID_CURSO}#anuncios`;
+    const cursoUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}`;
+    const anunciosUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}#anuncios`;
 
     const response = await resend.emails.send({
       from: sender,
@@ -291,7 +294,7 @@ const sendDateChangeNotificationEmail = async (
       ? `Formador: <strong>${formador}</strong><br>`
       : "";
 
-    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
+    const cursoUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}`;
 
     const response = await resend.emails.send({
       from: sender,
@@ -335,7 +338,7 @@ const sendLinkChangeNotificationEmail = async (
     const dataAula = new Date(aula.DATA_AULA).toLocaleDateString("pt-PT");
     const horarioAula = `${aula.HORA_INICIO} - ${aula.HORA_FIM}`;
 
-    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
+    const cursoUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}`;
 
     const response = await resend.emails.send({
       from: sender,
@@ -370,7 +373,7 @@ const sendNewContentNotificationEmail = async (
     console.log(`Enviando notificação de novo conteúdo para ${email}`);
 
     const dataAdicao = new Date().toLocaleDateString("pt-PT");
-    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
+    const cursoUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}`;
 
     const response = await resend.emails.send({
       from: sender,
@@ -405,7 +408,7 @@ const sendGeneralNotificationEmail = async (
   try {
     console.log(`Enviando notificação geral para ${email}`);
 
-    const cursoUrl = `http://localhost:5173/course/${curso.ID_CURSO}`;
+    const cursoUrl = `${FRONTEND_URL}/course/${curso.ID_CURSO}`;
 
     const response = await resend.emails.send({
       from: sender,

@@ -41,14 +41,13 @@ app.use(express.json()); // Para ler JSON no corpo da requisição
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Lista de origens permitidas
       const allowedOrigins = [
         "http://localhost:5173",
         "http://localhost:3000",
         "https://pint-soft-skills.vercel.app",
       ];
 
-      // Permitir requests sem origin (mobile apps, Postman, etc.)
+      // Permitir requests sem origin
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.indexOf(origin) !== -1) {
@@ -69,7 +68,7 @@ app.use(
       "Origin",
     ],
     exposedHeaders: ["Set-Cookie"],
-    optionsSuccessStatus: 200, // Para suportar browsers legados
+    optionsSuccessStatus: 200,
   })
 );
 app.use(cookieparser()); // Para ler cookies
@@ -95,26 +94,26 @@ app.use("/api/categorias", categoriaRoutes); // Rota para categorias
 app.use("/api/progress", progressRoute); // Rota para progresso
 app.use("/api/notes", notasRoutes); // Rota para notas
 app.use("/api/avaliacoes", avaliacaoSincronaRoutes); // Rota para avaliações síncronas
-app.use("/api/forum/topicos", forumTopicoRoutes);
-app.use("/api/admin/stats", adminStatsRoutes);
-app.use("/api/forum/posts", forumPostRoutes);
-app.use("/api/forum/avaliacoes", forumAvaliacaoRoutes);
-app.use("/api/forum/denuncias", forumDenunciaRoutes);
-app.use("/api/forum/solicitacoes", forumSolicitacaoRoutes);
+app.use("/api/forum/topicos", forumTopicoRoutes); // Rota para tópicos do fórum
+app.use("/api/admin/stats", adminStatsRoutes); // Rota para estatísticas do admin
+app.use("/api/forum/posts", forumPostRoutes); // Rota para posts do fórum
+app.use("/api/forum/avaliacoes", forumAvaliacaoRoutes); // Rota para avaliações do fórum
+app.use("/api/forum/denuncias", forumDenunciaRoutes); // Rota para denúncias do fórum
+app.use("/api/forum/solicitacoes", forumSolicitacaoRoutes); // Rota para solicitações do fórum
 app.use("/api/percurso-formativo", percursoFormativo); // Rota para percurso formativo
-app.use("/api/certificados", certificadoRoutes);
+app.use("/api/certificados", certificadoRoutes); // Rota para certificados
 app.use(
   "/certificates",
   express.static(path.join(__dirname, "public/certificates"))
-);
+); // Rota para certificados estáticos
 app.use("/api/quiz", quizzassincronoRoutes); // Rota para quizzes assíncronos
 app.use("/api/topicos", topicoRoutes); // Rota para tópicos
 app.use("/api/aulas", aulaSincronaRoutes); // Rota para aulas síncronas
 app.use("/api/presencas", presencaRoutes); // Rota para presenças
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads"))); // Rota para uploads de arquivos
 app.get("/", (_, res) => {
   res.status(404).json("404: Página não encontrada!");
-});
+}); // Rota para a página 404
 
 // verificar se a API está a funcionar
 app.get("/api", (_, res) => {
@@ -123,8 +122,8 @@ app.get("/api", (_, res) => {
 
 connectDB(); // Conectar ao banco de dados
 connectCloudinary(); // Conectar ao Cloudinary
-updateAsyncCoursesStatus();
-updateSyncCoursesStatus();
+updateAsyncCoursesStatus(); // Atualizar status dos cursos assíncronos
+updateSyncCoursesStatus(); // Atualizar status dos cursos síncronos
 
 // Sincronizar os modelos com o banco de dados
 (async () => {
