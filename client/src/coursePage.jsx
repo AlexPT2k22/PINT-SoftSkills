@@ -35,20 +35,10 @@ function CoursePage() {
     mediaEstrelas: 0,
     totalReviews: 0,
   });
-  const [courseLoaded, setCourseLoaded] = useState(false);
-  const [enrollmentChecked, setEnrollmentChecked] = useState(false);
-  const [reviewsLoaded, setReviewsLoaded] = useState(false);
 
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
   };
-
-  useEffect(() => {
-    // Só remove o loading quando TODOS os dados essenciais estiverem carregados
-    if (courseLoaded && enrollmentChecked && reviewsLoaded) {
-      setLoading(false);
-    }
-  }, [courseLoaded, enrollmentChecked, reviewsLoaded]);
 
   const handleInscrito = () => {
     if (!user) {
@@ -72,102 +62,107 @@ function CoursePage() {
     return `${hours}h ${remainingMinutes}min`;
   };
 
+  // ✅ useEffect único para carregar todos os dados
   useEffect(() => {
-    const getCourseData = async () => {
+    let isMounted = true; // Flag para evitar state updates em componentes desmontados
+
+    const loadAllData = async () => {
       try {
-        const response = await axios.get(`${URL}/api/cursos/` + courseId);
-        const data = response.data;
-        console.log(data);
-        setCourse(data);
-        setTotalTime(
-          data.MODULOS.reduce((total, modulo) => {
-            return total + modulo.TEMPO_ESTIMADO_MIN;
-          }, 0)
-        );
-        setCourseLoaded(true);
-      } catch (error) {
-        console.error("Error fetching course data:", error);
-        setError(true);
-        setMessage(
-          error.response?.data?.message || "Erro ao carregar os dados do curso"
-        );
-        setCourseLoaded(false);
-      }
-    };
+        setLoading(true);
+        const courseResponse = await axios.get(`${URL}/api/cursos/${courseId}`);
 
-    getCourseData();
-  }, [courseId]);
+        if (!isMounted) return;
 
-  useEffect(() => {
-    const verificarInscricao = async () => {
-      if (!user) {
-        setInscrito(false);
-        setEnrollmentChecked(true);
-        return;
-      }
+        const courseData = courseResponse.data;
+        setCourse(courseData);
 
-      try {
-        const response = await axios.post(
-          `${URL}/api/user/verify-course/${courseId}`,
-          {},
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
+        // Calcular tempo total com verificação de segurança
+        if (courseData.MODULOS && Array.isArray(courseData.MODULOS)) {
+          const total = courseData.MODULOS.reduce((sum, modulo) => {
+            return sum + (modulo.TEMPO_ESTIMADO_MIN || 0);
+          }, 0);
+          setTotalTime(total);
+        }
+
+        if (user) {
+          try {
+            const enrollmentResponse = await axios.post(
+              `${URL}/api/user/verify-course/${courseId}`,
+              {
+                withCredentials: true,
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+
+            if (!isMounted) return;
+            setInscrito(enrollmentResponse.data.inscrito === true);
+          } catch (enrollmentError) {
+            if (!isMounted) return;
+
+            // Se for erro de rede ou timeout, não mostrar erro
+            if (
+              enrollmentError.code === "ECONNABORTED" ||
+              enrollmentError.name === "AbortError"
+            ) {
+              console.log("Timeout na verificação da inscrição");
+            } else {
+              console.error("Erro ao verificar inscrição:", enrollmentError);
+            }
+
+            setInscrito(false);
           }
-        );
-        if (response.data.inscrito === true) {
-          console.log("User está inscrito no curso");
-          setInscrito(true);
         } else {
-          console.log("Erro ao verificar inscrição:", response.data.message);
           setInscrito(false);
         }
-        setEnrollmentChecked(true);
-      } catch (error) {
-        console.error(
-          "Erro ao verificar inscrição:",
-          error.response?.data?.message || error.message
-        );
-        setInscrito(false);
-        setError(true);
-        setMessage(
-          error.response?.data?.message || "Erro ao verificar inscrição"
-        );
-        setEnrollmentChecked(true);
-      }
-    };
 
-    if (courseLoaded) {
-      verificarInscricao();
-    }
-  }, [courseId, user, courseLoaded]);
+        try {
+          const reviewsResponse = await axios.get(
+            `${URL}/api/reviews/${courseId}`,
+            {
+              timeout: 5000,
+            }
+          );
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await axios.get(`${URL}/api/reviews/${courseId}`);
+          if (!isMounted) return;
 
-        if (response.data.success) {
-          setStatistics({
-            mediaEstrelas: response.data.estatisticas.mediaEstrelas,
-            totalReviews: response.data.estatisticas.totalReviews,
-          });
+          if (reviewsResponse.data.success) {
+            setStatistics({
+              mediaEstrelas:
+                reviewsResponse.data.estatisticas.mediaEstrelas || 0,
+              totalReviews: reviewsResponse.data.estatisticas.totalReviews || 0,
+            });
+          } else {
+            setStatistics({ mediaEstrelas: 0, totalReviews: 0 });
+          }
+        } catch (reviewsError) {
+          if (!isMounted) return;
+          setStatistics({ mediaEstrelas: 0, totalReviews: 0 });
         }
-        //console.log(statistics);
-        setReviewsLoaded(true);
       } catch (error) {
-        console.error("Erro ao procurar as reviews:", error);
+        if (!isMounted) return;
         setError(true);
         setMessage(
-          error.response?.data?.message || "Erro ao carregar as reviews"
+          error.response?.data?.message ||
+            error.message ||
+            "Erro ao carregar dados do curso"
         );
-        setReviewsLoaded(true);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
-    fetchReviews();
-  }, [courseId]);
+
+    if (courseId) {
+      loadAllData();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId, user?.ID_UTILIZADOR, URL]);
 
   const checkEnrollmentDeadline = (enrollmentDeadline) => {
     if (!enrollmentDeadline) return true; // Se não tiver deadline, pode inscrever

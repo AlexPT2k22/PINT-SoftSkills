@@ -65,10 +65,10 @@ const createTopico = async (req, res) => {
     }
     console.log("User profile:", userPerfil);
 
-    if (!NOME || !DESCRICAO || !ID_AREA) {
+    if (!NOME || !ID_AREA) {
       return res
         .status(400)
-        .json({ message: "Todos os campos são obrigatórios" });
+        .json({ message: "Nome e área associados são obrigatórios" });
     }
 
     const area = await Area.findByPk(ID_AREA);
@@ -105,9 +105,7 @@ const updateTopico = async (req, res) => {
     const { NOME, DESCRICAO } = req.body;
 
     if (!NOME) {
-      return res
-        .status(400)
-        .json({ message: "Nome é obrigatório" });
+      return res.status(400).json({ message: "Nome é obrigatório" });
     }
     const topicoExistente = await Topico.findOne({
       where: { TITULO: NOME, ID_TOPICO: { [Op.ne]: id } },

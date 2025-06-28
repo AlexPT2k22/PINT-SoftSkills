@@ -333,6 +333,10 @@ const verificarInscricao = async (req, res) => {
         });
       }
     }
+    return res.status(200).json({
+      inscrito: false,
+      message: "Utilizador não está inscrito neste curso",
+    });
   } catch (error) {
     console.error("Erro ao verificar inscrição:", error);
     res.status(500).json({ message: error.message });

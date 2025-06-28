@@ -42,8 +42,6 @@ function CreateCourse() {
   const [topics, setTopics] = useState([]);
   const [enrollmentDeadline, setEnrollmentDeadline] = useState("");
 
-  // Add this to your component or create a new CSS file and import it
-
   const modalStyles = {
     modalOverlay: {
       position: "fixed",
@@ -535,13 +533,13 @@ function CreateCourse() {
       }
     });
 
-    const URL =
+    const novaURL =
       ID_FORMADOR === null
         ? `${URL}/api/cursos/create-assincrono`
         : `${URL}/api/cursos/create-sincrono`;
 
     try {
-      const response = await axios.post(URL, formData, {
+      const response = await axios.post(novaURL, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
