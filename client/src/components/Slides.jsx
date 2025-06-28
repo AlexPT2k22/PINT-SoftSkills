@@ -12,9 +12,11 @@ function Slides() {
 
   return (
     <div className="left-panel pb-5 p-4 flex-column h-100 w-50">
-      <div className="logo mb-5">
-        <img src="/images/Logo.svg" alt="Logo" />
-      </div>
+      <a className="navbar-brand text ms-2" href="/">
+        <div className="d-flex align-items-center">
+          <img src="/images/Logo.svg" alt="Logo" className="logo" />
+        </div>
+      </a>
 
       <Carousel
         activeIndex={index}
