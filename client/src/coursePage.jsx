@@ -88,6 +88,7 @@ function CoursePage() {
           try {
             const enrollmentResponse = await axios.post(
               `${URL}/api/user/verify-course/${courseId}`,
+              {},
               {
                 withCredentials: true,
                 headers: {
