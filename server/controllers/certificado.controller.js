@@ -18,10 +18,13 @@ const fs = require("fs");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const QRCode = require("qrcode");
+require("dotenv").config();
 
 const gerarCodigoVerificacao = () => {
   return uuidv4().replace(/-/g, "").substring(0, 16).toUpperCase();
 };
+
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
 
 const calcularNotaFinal = async (userId, courseId) => {
   try {
@@ -321,7 +324,7 @@ const gerarCertificado = async (req, res) => {
     // Generate QR code with verification URL
     const qrCodeDataUrl = await QRCode.toDataURL(
       // é necessario o await!
-      `http://localhost:4000/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
+      `${BACKEND_URL}/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
       qrOptions
     );
 
@@ -352,7 +355,7 @@ const gerarCertificado = async (req, res) => {
       success: true,
       certificado: {
         codigo: certificado.CODIGO_VERIFICACAO,
-        url: `http://localhost:4000${pdfUrl}`,
+        url: `${BACKEND_URL}${pdfUrl}`,
         notaFinal: notaFinal,
       },
     });

@@ -24,6 +24,7 @@ const fs = require("fs");
 const path = require("path");
 const { Op } = require("sequelize");
 const { notifyAllEnrolled } = require("./notificacao.controller.js");
+require("dotenv").config();
 
 const savePdfToServer = (buffer, fileName) => {
   return new Promise((resolve, reject) => {
@@ -60,6 +61,8 @@ const savePdfToServer = (buffer, fileName) => {
     }
   });
 };
+
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
 
 const streamUpload = (
   buffer,
@@ -1265,7 +1268,7 @@ const updateCursoCompleto = async (req, res) => {
               contentFile.buffer,
               contentFile.originalname
             );
-            const fileUrl = `http://localhost:4000${filePath}`;
+            const fileUrl = `${BACKEND_URL}${filePath}`;
             contentUrls.push(fileUrl);
 
             uploadedFiles.push({
@@ -1574,7 +1577,7 @@ const createAssincrono = async (req, res) => {
               contentFile.buffer,
               contentFile.originalname
             );
-            const fileUrl = `http://localhost:4000${filePath}`;
+            const fileUrl = `${BACKEND_URL}${filePath}`;
             contentUrls.push(fileUrl);
 
             uploadedFiles.push({
@@ -1824,7 +1827,7 @@ const createSincrono = async (req, res) => {
               contentFile.buffer,
               contentFile.originalname
             );
-            const fileUrl = `http://localhost:4000${filePath}`;
+            const fileUrl = `${BACKEND_URL}${filePath}`;
             contentUrls.push(fileUrl);
 
             uploadedFiles.push({
@@ -2089,7 +2092,7 @@ const convertCursoType = async (req, res) => {
               contentFile.buffer,
               contentFile.originalname
             );
-            const fileUrl = `http://localhost:4000${filePath}`;
+            const fileUrl = `${BACKEND_URL}${filePath}`;
             contentUrls.push(fileUrl);
           } catch (error) {
             console.error("Erro ao upload do arquivo:", error);
@@ -2131,6 +2134,7 @@ const convertCursoType = async (req, res) => {
   }
 };
 
+//nao é usada
 const deleteCurso = async (req, res) => {
   const { id } = req.params;
   let transaction;
@@ -2308,17 +2312,13 @@ const deleteCurso = async (req, res) => {
   }
 };
 
-// Helper function to extract Cloudinary public ID
 function extractCloudinaryPublicId(url) {
   if (!url) return null;
-
-  // Extract the public ID from Cloudinary URL
-  // Format: https://res.cloudinary.com/cloud_name/image_or_video/upload/v123456789/folder/file
   const match = url.match(/\/v\d+\/([^/\.]+)/);
   return match ? match[1] : null;
 }
 
-// Helper function to delete files
+// nao é usado
 async function deleteFile(fileUrl) {
   if (!fileUrl) return;
 
