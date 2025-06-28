@@ -6,6 +6,7 @@ import axios from "axios";
 import CourseCardDashboard from "./components/courseCardDashboard.jsx";
 
 function CoursesUser() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [courseProgress, setCourseProgress] = useState({});
@@ -15,7 +16,7 @@ function CoursesUser() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          "http://localhost:4000/api/user/student-courses",
+          `${URL}/api/user/student-courses`,
           {
             withCredentials: true,
           }
@@ -28,7 +29,7 @@ function CoursesUser() {
           coursesData.map(async (course) => {
             try {
               const progressResponse = await axios.get(
-                `http://localhost:4000/api/progress/courses/${course.ID_CURSO}/progress`,
+                `${URL}/api/progress/courses/${course.ID_CURSO}/progress`,
                 { withCredentials: true }
               );
 

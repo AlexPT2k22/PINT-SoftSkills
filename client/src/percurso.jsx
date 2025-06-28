@@ -30,10 +30,7 @@ import Sidebar from "./components/sidebar";
 import ErrorMessage from "./components/error_message";
 import "./styles/meuPercurso.css";
 
-const URL =
-  import.meta.env.PROD === "production"
-    ? "https://pint-softskills-api.onrender.com"
-    : "http://localhost:4000";
+const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const MeuPercurso = () => {
   const navigate = useNavigate();

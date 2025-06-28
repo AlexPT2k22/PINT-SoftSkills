@@ -13,6 +13,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Modal } from "bootstrap";
 
 function CreateCourse() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const navigate = useNavigate();
   const modalRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -306,7 +307,7 @@ function CreateCourse() {
     const fetchTopics = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/topicos/by-area/${selectedArea}`
+          `${URL}/api/topicos/by-area/${selectedArea}`
         );
         setTopics(response.data);
       } catch (error) {
@@ -324,7 +325,7 @@ function CreateCourse() {
       try {
         setIsLoadingAttributes(true);
         const response = await axios.get(
-          "http://localhost:4000/api/categorias/com-areas"
+          `${URL}/api/categorias/com-areas`
         );
         if (response.status === 200) {
           //console.log("Areas fetched successfully:", response.data);
@@ -348,7 +349,7 @@ function CreateCourse() {
       try {
         setIsLoadingAttributes(true);
         const response = await axios.get(
-          "http://localhost:4000/api/user/teachers"
+          `${URL}/api/user/teachers`
         );
         if (response.status === 200) {
           //console.log("Formadores fetched successfully:", response.data);
@@ -536,8 +537,8 @@ function CreateCourse() {
 
     const URL =
       ID_FORMADOR === null
-        ? "http://localhost:4000/api/cursos/create-assincrono"
-        : "http://localhost:4000/api/cursos/create-sincrono";
+        ? `${URL}/api/cursos/create-assincrono`
+        : `${URL}/api/cursos/create-sincrono`;
 
     try {
       const response = await axios.post(URL, formData, {

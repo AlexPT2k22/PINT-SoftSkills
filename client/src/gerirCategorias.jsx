@@ -41,13 +41,13 @@ function GerirCategorias() {
     DESCRICAO: "",
     ID_AREA: "",
   });
-
   const [editandoCategoria, setEditandoCategoria] = useState(null);
   const [editandoArea, setEditandoArea] = useState(null);
   const [editandoTopico, setEditandoTopico] = useState(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [message, setMessage] = useState("");
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   useEffect(() => {
     fetchData();
@@ -57,11 +57,11 @@ function GerirCategorias() {
     try {
       setLoading(true);
       const [categoriasRes, areasRes, topicosRes] = await Promise.all([
-        axios.get("http://localhost:4000/api/categorias", {
+        axios.get(`${URL}/api/categorias`, {
           withCredentials: true,
         }),
-        axios.get("http://localhost:4000/api/areas", { withCredentials: true }),
-        axios.get("http://localhost:4000/api/topicos", {
+        axios.get(`${URL}/api/areas`, { withCredentials: true }),
+        axios.get(`${URL}/api/topicos`, {
           withCredentials: true,
         }),
       ]);
@@ -69,10 +69,6 @@ function GerirCategorias() {
       setCategorias(categoriasRes.data);
       setAreas(areasRes.data);
       setTopicos(topicosRes.data);
-      console.log("Dados carregados com sucesso!");
-      console.log("Categorias:", categoriasRes.data);
-      console.log("Áreas:", areasRes.data);
-      console.log("Tópicos:", topicosRes.data);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
       setMessage("Erro ao carregar dados");
@@ -88,14 +84,14 @@ function GerirCategorias() {
     try {
       if (editandoCategoria) {
         await axios.put(
-          `http://localhost:4000/api/categorias/${editandoCategoria.ID_CATEGORIA__PK___}`,
+          `${URL}/api/categorias/${editandoCategoria.ID_CATEGORIA__PK___}`,
           novaCategoria,
           { withCredentials: true }
         );
         setMessage("Categoria atualizada com sucesso!");
       } else {
         await axios.post(
-          "http://localhost:4000/api/categorias",
+          `${URL}/api/categorias`,
           novaCategoria,
           {
             withCredentials: true,
@@ -126,7 +122,7 @@ function GerirCategorias() {
 
       // Verificar se existem cursos associados à categoria
       const cursosResponse = await axios.get(
-        `http://localhost:4000/api/cursos/check-categoria/${itemToDelete.ID_CATEGORIA}`,
+        `${URL}/api/cursos/check-categoria/${itemToDelete.ID_CATEGORIA}`,
         { withCredentials: true }
       );
 
@@ -140,7 +136,7 @@ function GerirCategorias() {
       }
 
       await axios.delete(
-        `http://localhost:4000/api/categorias/${itemToDelete.ID_CATEGORIA}`,
+        `${URL}/api/categorias/${itemToDelete.ID_CATEGORIA}`,
         {
           withCredentials: true,
         }
@@ -166,13 +162,13 @@ function GerirCategorias() {
     try {
       if (editandoArea) {
         await axios.put(
-          `http://localhost:4000/api/areas/${editandoArea.ID_AREA}`,
+          `${URL}/api/areas/${editandoArea.ID_AREA}`,
           novaArea,
           { withCredentials: true }
         );
         setMessage("Área atualizada com sucesso!");
       } else {
-        await axios.post("http://localhost:4000/api/areas", novaArea, {
+        await axios.post(`${URL}/api/areas`, novaArea, {
           withCredentials: true,
         });
         setMessage("Área criada com sucesso!");
@@ -200,13 +196,13 @@ function GerirCategorias() {
 
       // Verificar se existem cursos associados à área
       const cursosResponse = await axios.get(
-        `http://localhost:4000/api/cursos/check-area/${itemToDelete.ID_AREA}`,
+        `${URL}/api/cursos/check-area/${itemToDelete.ID_AREA}`,
         { withCredentials: true }
       );
 
       if (cursosResponse.data.temCursos) {
         setMessage(
-          `Não é possível excluir esta área pois existem ${cursosResponse.data.quantidade} curso(s) associado(s) a ela.`
+          `Não é possível excluir esta área pois existem ${cursosResponse.data.quantidade} curso(s) associado(s) a esta área.`
         );
         setShowErrorMessage(true);
         setShowDeleteAreaModal(false);
@@ -214,7 +210,7 @@ function GerirCategorias() {
       }
 
       await axios.delete(
-        `http://localhost:4000/api/areas/${itemToDelete.ID_AREA}`,
+        `${URL}/api/areas/${itemToDelete.ID_AREA}`,
         {
           withCredentials: true,
         }
@@ -240,13 +236,13 @@ function GerirCategorias() {
     try {
       if (editandoTopico) {
         await axios.put(
-          `http://localhost:4000/api/topicos/${editandoTopico.ID_TOPICO}`,
+          `${URL}/api/topicos/${editandoTopico.ID_TOPICO}`,
           novoTopico,
           { withCredentials: true }
         );
         setMessage("Tópico atualizado com sucesso!");
       } else {
-        await axios.post("http://localhost:4000/api/topicos", novoTopico, {
+        await axios.post(`${URL}/api/topicos`, novoTopico, {
           withCredentials: true,
         });
         setMessage("Tópico criado com sucesso!");
@@ -274,7 +270,7 @@ function GerirCategorias() {
 
       // Verificar se existem cursos associados ao tópico
       const cursosResponse = await axios.get(
-        `http://localhost:4000/api/cursos/check-topico/${itemToDelete.ID_TOPICO}`,
+        `${URL}/api/cursos/check-topico/${itemToDelete.ID_TOPICO}`,
         { withCredentials: true }
       );
 
@@ -288,7 +284,7 @@ function GerirCategorias() {
       }
 
       await axios.delete(
-        `http://localhost:4000/api/topicos/${itemToDelete.ID_TOPICO}`,
+        `${URL}/api/topicos/${itemToDelete.ID_TOPICO}`,
         {
           withCredentials: true,
         }

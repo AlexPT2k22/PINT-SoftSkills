@@ -22,13 +22,14 @@ const SynchronousCourseView = () => {
     setCollapsed(newCollapsedState);
   };
 
-  //TODO: FIX URLS
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
   useEffect(() => {
     const verificarFormador = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://localhost:4000/api/cursos/${courseId}`,
+          `${URL}/api/cursos/${courseId}`,
           {
             withCredentials: true,
           }
@@ -36,7 +37,7 @@ const SynchronousCourseView = () => {
         setCurso(response.data);
 
         const teacherResponse = await axios.get(
-          `http://localhost:4000/api/cursos/verify-teacher/${courseId}`,
+          `${URL}/api/cursos/verify-teacher/${courseId}`,
           {
             withCredentials: true,
           }

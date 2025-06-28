@@ -12,13 +12,12 @@ import QuizManager from "./components/QuizManager";
 import useAuthStore from "./store/authStore";
 
 function EditCourse() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const { courseId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const isGestor = user?.perfil === 3;
   const isFormador = user?.perfil === 2;
-
-  // State variables
   const [collapsed, setCollapsed] = useState(false);
   const [courseData, setCourseData] = useState(null);
   const [courseName, setCourseName] = useState("");
@@ -39,14 +38,11 @@ function EditCourse() {
   const [topics, setTopics] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const [enrollmentDeadline, setEnrollmentDeadline] = useState("");
-
   const [courseModules, setCourseModules] = useState([""]);
   const [selectedModule, setSelectedModule] = useState(null);
   const [currentModuleData, setCurrentModuleData] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const moduleContentInputRef = useRef(null);
-
-  // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAttributes, setIsLoadingAttributes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -169,7 +165,7 @@ function EditCourse() {
     const fetchTeachers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/api/user/teachers"
+          `${URL}/api/user/teachers`
         );
         if (response.status === 200) {
           setFormador(response.data);
@@ -188,7 +184,7 @@ function EditCourse() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `http://localhost:4000/api/cursos/${courseId}`
+          `${URL}/api/cursos/${courseId}`
         );
 
         // Store the complete response
@@ -313,7 +309,7 @@ function EditCourse() {
       try {
         setIsLoadingAttributes(true);
         const response = await axios.get(
-          "http://localhost:4000/api/categorias/com-areas"
+          `${URL}/api/categorias/com-areas`
         );
         if (response.status === 200) {
           setCategory(response.data);
@@ -533,7 +529,7 @@ function EditCourse() {
       try {
         if (selectedArea) {
           const response = await axios.get(
-            `http://localhost:4000/api/topicos/by-area/${selectedArea}`
+            `${URL}/api/topicos/by-area/${selectedArea}`
           );
           setTopics(response.data);
         }
@@ -708,26 +704,16 @@ function EditCourse() {
         formData.append("imagem", courseImage);
       }
 
-      // ✅ ESCOLHER O ENDPOINT CORRETO baseado na conversão
       let endpoint;
       if (isTypeChanged) {
         // Se mudou o tipo, usar endpoint de conversão
-        endpoint = `http://localhost:4000/api/cursos/convert/${courseId}`;
+        endpoint = `${URL}/api/cursos/convert/${courseId}`;
         formData.append("NEW_TYPE", selectedRadio);
         formData.append("OLD_TYPE", originalType);
       } else {
         // Se não mudou, usar endpoint de atualização normal
-        endpoint = `http://localhost:4000/api/cursos/${courseId}/completo`;
+        endpoint = `${URL}/api/cursos/${courseId}/completo`;
       }
-
-      console.log("🚀 Enviando para:", endpoint);
-      console.log(
-        "📦 Tipo original:",
-        originalType,
-        "Novo tipo:",
-        selectedRadio
-      );
-      console.log("🔄 Conversão?", isTypeChanged ? "SIM" : "NÃO");
 
       const response = await axios.put(endpoint, formData, {
         withCredentials: true,
@@ -736,10 +722,9 @@ function EditCourse() {
 
       if (response.status === 200) {
         setShowSuccess(true);
-        // Opcional: Atualizar dados do curso após conversão
         if (isTypeChanged) {
           setTimeout(() => {
-            window.location.reload(); // Recarregar para mostrar nova estrutura
+            window.location.reload();
           }, 2000);
         }
       }

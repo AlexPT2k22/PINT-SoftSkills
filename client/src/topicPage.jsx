@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
 function TopicManagement() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [topics, setTopics] = useState([]);
   const [areas, setAreas] = useState([]);
   const [newTopic, setNewTopic] = useState({
@@ -18,7 +19,7 @@ function TopicManagement() {
 
   const fetchTopics = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/topicos');
+      const response = await axios.get(`${URL}/api/topicos`);
       setTopics(response.data);
     } catch (error) {
       console.error('Error fetching topics:', error);
@@ -27,7 +28,7 @@ function TopicManagement() {
 
   const fetchAreas = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/areas');
+      const response = await axios.get(`${URL}/api/areas`);
       setAreas(response.data);
     } catch (error) {
       console.error('Error fetching areas:', error);
@@ -37,7 +38,7 @@ function TopicManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:4000/api/topicos', newTopic);
+      await axios.post(`${URL}/api/topicos`, newTopic);
       fetchTopics();
       setNewTopic({ titulo: '', descricao: '', areaId: '' });
     } catch (error) {

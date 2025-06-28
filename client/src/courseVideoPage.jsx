@@ -13,6 +13,7 @@ import AnunciosPanel from "./components/AnunciosPanel";
 import "./styles/AnunciosPanel.css";
 
 function CourseVideoPage() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const { courseId, moduleId } = useParams();
   const [videoID, setVideoID] = useState("");
   const [courseData, setCourseData] = useState([]);
@@ -98,7 +99,7 @@ function CourseVideoPage() {
   const markModuleAsCompleted = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/user/complete-module`,
+        `${URL}/api/user/complete-module`,
         {
           cursoId: parseInt(courseId),
           moduloId: parseInt(moduleId),
@@ -139,7 +140,7 @@ function CourseVideoPage() {
   const fetchCourseProgress = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/progress/courses/${courseId}/progress`,
+        `${URL}/api/progress/courses/${courseId}/progress`,
         { withCredentials: true }
       );
 
@@ -160,7 +161,7 @@ function CourseVideoPage() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `http://localhost:4000/api/cursos/${courseId}`,
+          `${URL}/api/cursos/${courseId}`,
           {
             withCredentials: true,
           }
@@ -209,7 +210,7 @@ function CourseVideoPage() {
     const checkModuleProgress = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/progress/courses/${courseId}/modules/progress`,
+          `${URL}/api/progress/courses/${courseId}/modules/progress`,
           { withCredentials: true }
         );
 
@@ -241,7 +242,7 @@ function CourseVideoPage() {
       try {
         // Primeiro, verificar se existe quiz para o curso
         const response = await axios.get(
-          `http://localhost:4000/api/quiz/curso/${courseId}`,
+          `${URL}/api/quiz/curso/${courseId}`,
           { withCredentials: true }
         );
 
@@ -255,7 +256,7 @@ function CourseVideoPage() {
         // Se existe quiz, verificar se o utilizador já respondeu
         try {
           const getQuizResult = await axios.get(
-            `http://localhost:4000/api/quiz/${response.data.quiz.ID_QUIZ}/resultado`,
+            `${URL}/api/quiz/${response.data.quiz.ID_QUIZ}/resultado`,
             { withCredentials: true }
           );
 

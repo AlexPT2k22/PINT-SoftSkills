@@ -10,6 +10,7 @@ import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 
 function SettingsPage() {
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ function SettingsPage() {
     try {
       setLoadingData(true);
       const response = await axios.get(
-        `http://localhost:4000/api/user/${userId}`,
+        `${URL}/api/user/${userId}`,
         {
           withCredentials: true,
         }
@@ -104,7 +105,7 @@ function SettingsPage() {
 
     try {
       await axios.post(
-        `http://localhost:4000/api/user/change-name`,
+        `${URL}/api/user/change-name`,
         {
           nome: formData.nome,
           linkedIn: formData.linkedIn,

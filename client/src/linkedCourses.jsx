@@ -8,17 +8,15 @@ import CourseCardDashboard from "./components/courseCardDashboard.jsx";
 const LinkedCourses = () => {
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          "http://localhost:4000/api/user/teacher-courses",
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${URL}/api/user/teacher-courses`, {
+          withCredentials: true,
+        });
         console.log(response.data);
         const coursesData = response.data;
         setCourses(coursesData);

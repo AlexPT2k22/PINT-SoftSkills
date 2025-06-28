@@ -16,10 +16,7 @@ import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import "./styles/userPage.css";
 
-const URL =
-  import.meta.env.PROD === "production"
-    ? "https://pint-softskills-api.onrender.com"
-    : "http://localhost:4000";
+const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 function UserPage() {
   const { userId } = useParams();

@@ -16,7 +16,7 @@ import "./styles/verifyCertificate.css";
 
 function VerifyCertificate() {
   const { certificateId } = useParams();
-
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [codigo, setCodigo] = useState("");
   const [certificado, setCertificado] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +40,7 @@ function VerifyCertificate() {
       setIsVerified(false);
 
       const response = await axios.get(
-        `http://localhost:4000/api/certificados/verificar/${code.trim()}`
+        `${URL}/api/certificados/verificar/${code.trim()}`
       );
 
       if (response.data.success) {

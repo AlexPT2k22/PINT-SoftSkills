@@ -21,10 +21,7 @@ import ErrorMessage from "./components/error_message";
 import "./styles/listCoursesDashboard.css";
 import useAuthStore from "./store/authStore";
 
-const URL =
-  import.meta.env.PROD === "production"
-    ? "https://pint-softskills-api.onrender.com"
-    : "http://localhost:4000";
+const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 function ListCoursesDashboard() {
   const [courses, setCourses] = useState([]);

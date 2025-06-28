@@ -31,6 +31,7 @@ function Dashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const [proximosTrabalhos, setProximosTrabalhos] = useState([]);
+  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +39,7 @@ function Dashboard() {
         setIsLoading(true);
         // Carregar cursos do usuário
         const cursosResponse = await axios.get(
-          "http://localhost:4000/api/user/student-courses",
+          `${URL}/api/user/student-courses`,
           { withCredentials: true }
         );
 
@@ -52,16 +53,16 @@ function Dashboard() {
           quizzesResponse,
           notaMediaResponse,
         ] = await Promise.all([
-          axios.get("http://localhost:4000/api/aulas/all", {
+          axios.get(`${URL}/api/aulas/all`, {
             withCredentials: true,
           }),
-          axios.get("http://localhost:4000/api/avaliacoes/proximas", {
+          axios.get(`${URL}/api/avaliacoes/proximas`, {
             withCredentials: true,
           }),
-          axios.get("http://localhost:4000/api/quiz/pendentes", {
+          axios.get(`${URL}/api/quiz/pendentes`, {
             withCredentials: true,
           }),
-          axios.get("http://localhost:4000/api/user/nota-media", {
+          axios.get(`${URL}/api/user/nota-media`, {
             withCredentials: true,
           }),
         ]);
@@ -76,7 +77,7 @@ function Dashboard() {
           cursosData.map(async (course) => {
             try {
               const progressResponse = await axios.get(
-                `http://localhost:4000/api/progress/courses/${course.ID_CURSO}/progress`,
+                `${URL}/api/progress/courses/${course.ID_CURSO}/progress`,
                 { withCredentials: true }
               );
 
