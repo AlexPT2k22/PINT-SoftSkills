@@ -670,7 +670,6 @@ const MeuPercurso = () => {
               </div>
               <div className="card-body">
                 <div className="curso-status-chart">
-                  {/* Em um projeto real, aqui seria implementado um gráfico com Chart.js ou similar */}
                   <div className="curso-status-bars">
                     <div className="row g-2">
                       <div className="col-md-4">

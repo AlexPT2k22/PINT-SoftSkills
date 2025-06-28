@@ -35,10 +35,20 @@ function CoursePage() {
     mediaEstrelas: 0,
     totalReviews: 0,
   });
+  const [courseLoaded, setCourseLoaded] = useState(false);
+  const [enrollmentChecked, setEnrollmentChecked] = useState(false);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
 
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
   };
+
+  useEffect(() => {
+    // Só remove o loading quando TODOS os dados essenciais estiverem carregados
+    if (courseLoaded && enrollmentChecked && reviewsLoaded) {
+      setLoading(false);
+    }
+  }, [courseLoaded, enrollmentChecked, reviewsLoaded]);
 
   const handleInscrito = () => {
     if (!user) {
@@ -64,7 +74,6 @@ function CoursePage() {
 
   useEffect(() => {
     const getCourseData = async () => {
-      setLoading(true);
       try {
         const response = await axios.get(`${URL}/api/cursos/` + courseId);
         const data = response.data;
@@ -75,10 +84,14 @@ function CoursePage() {
             return total + modulo.TEMPO_ESTIMADO_MIN;
           }, 0)
         );
+        setCourseLoaded(true);
       } catch (error) {
         console.error("Error fetching course data:", error);
-      } finally {
-        setLoading(false);
+        setError(true);
+        setMessage(
+          error.response?.data?.message || "Erro ao carregar os dados do curso"
+        );
+        setCourseLoaded(false);
       }
     };
 
@@ -89,6 +102,7 @@ function CoursePage() {
     const verificarInscricao = async () => {
       if (!user) {
         setInscrito(false);
+        setEnrollmentChecked(true);
         return;
       }
 
@@ -110,16 +124,25 @@ function CoursePage() {
           console.log("Erro ao verificar inscrição:", response.data.message);
           setInscrito(false);
         }
+        setEnrollmentChecked(true);
       } catch (error) {
         console.error(
           "Erro ao verificar inscrição:",
           error.response?.data?.message || error.message
         );
+        setInscrito(false);
+        setError(true);
+        setMessage(
+          error.response?.data?.message || "Erro ao verificar inscrição"
+        );
+        setEnrollmentChecked(true);
       }
     };
 
-    verificarInscricao();
-  }, [courseId, user]);
+    if (courseLoaded) {
+      verificarInscricao();
+    }
+  }, [courseId, user, courseLoaded]);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -132,11 +155,15 @@ function CoursePage() {
             totalReviews: response.data.estatisticas.totalReviews,
           });
         }
-        console.log(statistics);
+        //console.log(statistics);
+        setReviewsLoaded(true);
       } catch (error) {
         console.error("Erro ao procurar as reviews:", error);
-      } finally {
-        setLoading(false);
+        setError(true);
+        setMessage(
+          error.response?.data?.message || "Erro ao carregar as reviews"
+        );
+        setReviewsLoaded(true);
       }
     };
     fetchReviews();
