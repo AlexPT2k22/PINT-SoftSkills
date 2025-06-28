@@ -45,6 +45,8 @@ app.use(
         "http://localhost:5173",
         "http://localhost:3000",
         "https://pint-soft-skills.vercel.app",
+        "https://pint-soft-skills-alexandres-projects-999f47dc.vercel.app/",
+        
       ];
 
       // Permitir requests sem origin
