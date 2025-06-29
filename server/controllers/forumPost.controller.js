@@ -9,65 +9,37 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { Op } = require("sequelize");
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-});
 
 // Configuração do multer para anexos
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "forum-attachments",
-    allowed_formats: [
-      "jpg",
-      "jpeg",
-      "png",
-      "gif",
-      "pdf",
-      "doc",
-      "docx",
-      "txt",
-      "ppt",
-      "pptx",
-      "xlsx",
-    ],
-    resource_type: "auto", // Automatically detect file type
-    use_filename: true,
-    unique_filename: true,
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, "../public/uploads/forum");
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    cb(null, `forum_${timestamp}${ext}`);
   },
 });
 
 const upload = multer({
   storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
-    files: 5, // Maximum 5 files
-  },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (req, file, cb) => {
-    const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "text/plain",
-      "application/vnd.ms-powerpoint",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "application/vnd.ms-excel",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    ];
+    const allowedTypes = /jpeg|jpg|png|pdf|doc|docx|txt/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = allowedTypes.test(file.mimetype);
 
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
+    if (mimetype && extname) {
+      return cb(null, true);
     } else {
-      cb(new Error("Tipo de arquivo não permitido"), false);
+      cb(new Error("Tipo de arquivo não permitido"));
     }
   },
 });
@@ -143,8 +115,8 @@ const getPostsByTopico = async (req, res) => {
 // Criar novo post
 const createPost = async (req, res) => {
   try {
-    const { topicoId, conteudo } = req.body;
     const userId = req.user.ID_UTILIZADOR;
+    const { topicoId, conteudo } = req.body;
 
     // Verificar se o tópico existe e está ativo
     const topico = await ForumTopico.findOne({
@@ -158,15 +130,14 @@ const createPost = async (req, res) => {
       });
     }
 
-    // Processar anexos do Cloudinary
+    // Processar anexos se existirem
     let anexos = [];
     if (req.files && req.files.length > 0) {
       anexos = req.files.map((file) => ({
         nome: file.originalname,
-        url: file.path, // Cloudinary URL
+        url: `/uploads/forum/${file.filename}`,
         tipo: file.mimetype,
         tamanho: file.size,
-        public_id: file.filename, // Cloudinary public_id for deletion
       }));
     }
 
@@ -180,6 +151,7 @@ const createPost = async (req, res) => {
     // Atualizar contadores do tópico
     await updateTopicoCounters(topicoId);
 
+    // Buscar o post criado com as relações
     const postCompleto = await ForumPost.findByPk(novoPost.ID_FORUM_POST, {
       include: [
         {
@@ -189,28 +161,16 @@ const createPost = async (req, res) => {
       ],
     });
 
-    const response = postCompleto.toJSON();
-    response.ANEXOS = anexos;
+    const postJson = postCompleto.toJSON();
+    postJson.ANEXOS = postJson.ANEXOS ? JSON.parse(postJson.ANEXOS) : [];
+    postJson.userAvaliacao = null;
 
     res.status(201).json({
       success: true,
-      message: "Post criado com sucesso",
-      post: response,
+      post: postJson,
     });
   } catch (error) {
     console.error("Erro ao criar post:", error);
-
-    // Clean up uploaded files if post creation fails
-    if (req.files && req.files.length > 0) {
-      req.files.forEach(async (file) => {
-        try {
-          await cloudinary.uploader.destroy(file.filename);
-        } catch (cleanupError) {
-          console.warn("Failed to cleanup file:", cleanupError);
-        }
-      });
-    }
-
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -264,39 +224,27 @@ const updatePost = async (req, res) => {
 // Deletar post
 const deletePost = async (req, res) => {
   try {
-    const { postId } = req.params;
     const userId = req.user.ID_UTILIZADOR;
+    const { postId } = req.params;
 
-    const post = await ForumPost.findOne({
-      where: {
-        ID_FORUM_POST: postId,
-        ID_UTILIZADOR: userId,
-      },
-    });
+    const post = await ForumPost.findByPk(postId);
 
     if (!post) {
       return res.status(404).json({
         success: false,
-        message: "Post não encontrado ou sem permissão",
+        message: "Post não encontrado",
       });
     }
 
-    // Delete attachments from Cloudinary
-    if (post.ANEXOS) {
-      try {
-        const anexos = JSON.parse(post.ANEXOS);
-        for (const anexo of anexos) {
-          if (anexo.public_id) {
-            await cloudinary.uploader.destroy(anexo.public_id);
-            console.log(`Deleted attachment: ${anexo.public_id}`);
-          }
-        }
-      } catch (error) {
-        console.warn("Error deleting attachments:", error);
-      }
+    // Verificar se o usuário é o autor do post
+    if (post.ID_UTILIZADOR !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Você só pode deletar seus próprios posts",
+      });
     }
 
-    await post.destroy();
+    await post.update({ ESTADO: "Removido" });
 
     // Atualizar contadores do tópico
     await updateTopicoCounters(post.ID_FORUM_TOPICO);
