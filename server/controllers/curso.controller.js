@@ -34,13 +34,7 @@ const saveFileToSupabase = async (buffer, fileName, userId = "system") => {
   try {
     // Gerar nome único para o arquivo
     const fileExtension = fileName.split(".").pop();
-    const cleanFileName = fileName
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-      .replace(/[^a-zA-Z0-9.-]/g, "_") // Remove caracteres especiais
-      .replace(/\s+/g, "_"); // Remove espaços
-
-    const uniqueFileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
+    const uniqueFileName = `${Date.now()}-$${filename}.${fileExtension}`;
     const filePath = `course-modules/${userId}/${uniqueFileName}`;
 
     // Upload do arquivo
@@ -1802,7 +1796,6 @@ const createSincrono = async (req, res) => {
       const hasVideoURL = modulo.VIDEO_URL ? true : false;
       const hasContentFiles = contentFiles && contentFiles.length > 0;
 
-      // ✅ NOVA VALIDAÇÃO para cursos síncronos também
       if (!hasVideoFile && !hasVideoURL && !hasContentFiles) {
         console.warn(
           `Módulo síncrono "${modulo.NOME}" sem conteúdo. Criando apenas estrutura...`
