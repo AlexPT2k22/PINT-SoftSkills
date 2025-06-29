@@ -848,7 +848,7 @@ const ForumTopicoView = () => {
                                 {getFileIcon(anexo.tipo)}
                               </span>
                               <a
-                                href={`${URL}${anexo.url}`}
+                                href={anexo.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-decoration-none me-auto"
@@ -859,7 +859,7 @@ const ForumTopicoView = () => {
                                 {(anexo.tamanho / 1024 / 1024).toFixed(2)} MB
                               </small>
                               <a
-                                href={`${URL}${anexo.url}`}
+                                href={anexo.url}
                                 download={anexo.nome}
                                 className="btn btn-outline-primary btn-sm"
                               >
