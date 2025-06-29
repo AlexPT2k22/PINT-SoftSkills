@@ -10,6 +10,115 @@ const {
 const fs = require("fs");
 const path = require("path");
 const { Op } = require("sequelize");
+const { supabaseAdmin } = require("../database/supabase.js");
+const crypto = require("crypto");
+require("dotenv").config();
+
+const uploadAvaliacaoToSupabase = async (file, userId, avaliacaoId) => {
+  try {
+    // Gerar nome único para o arquivo
+    const fileExtension = file.originalname.split(".").pop();
+    const cleanFileName = file.originalname
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+      .replace(/[^a-zA-Z0-9.-]/g, "_") // Remove caracteres especiais
+      .replace(/\s+/g, "_"); // Remove espaços
+
+    const uniqueFileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
+    const filePath = `avaliacoes-submissoes/${avaliacaoId}/${userId}/${uniqueFileName}`;
+
+    console.log(`Uploading evaluation file to Supabase: ${filePath}`);
+
+    // Upload do arquivo
+    const { data, error } = await supabaseAdmin.storage
+      .from("course-files") // Mesmo bucket usado para arquivos de curso
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Supabase upload error:", error);
+      throw error;
+    }
+
+    console.log(`Evaluation file uploaded successfully: ${data.path}`);
+
+    // Obter URL pública
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from("course-files")
+      .getPublicUrl(data.path);
+
+    return {
+      url: publicUrlData.publicUrl,
+      path: data.path,
+      fileName: uniqueFileName,
+    };
+  } catch (error) {
+    console.error("Error uploading evaluation to Supabase:", error);
+    throw error;
+  }
+};
+
+const deleteAvaliacaoFromSupabase = async (filePath) => {
+  if (!supabaseAdmin || !filePath) {
+    console.warn("Supabase não disponível ou caminho inválido:", filePath);
+    return;
+  }
+
+  try {
+    const { error } = await supabaseAdmin.storage
+      .from("course-files")
+      .remove([filePath]);
+
+    if (error) {
+      console.warn("Warning deleting evaluation file from Supabase:", error);
+    } else {
+      console.log(`Evaluation file deleted from Supabase: ${filePath}`);
+    }
+  } catch (error) {
+    console.warn("Warning deleting evaluation file from Supabase:", error);
+  }
+};
+
+const saveEvaluationFile = async (file, userId, avaliacaoId) => {
+  // Se Supabase estiver disponível, usar Supabase
+  if (supabaseAdmin) {
+    try {
+      const result = await uploadAvaliacaoToSupabase(file, userId, avaliacaoId);
+      return {
+        url: result.url,
+        path: result.path,
+        storage: "supabase",
+      };
+    } catch (error) {
+      console.warn(
+        "Fallback para storage local devido a erro no Supabase:",
+        error
+      );
+    }
+  }
+
+  // Fallback para storage local
+  const uploadDir = path.join(__dirname, "../public/uploads/submissoes");
+
+  // Criar diretório se não existir
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const filename = `${Date.now()}-${file.originalname}`;
+  const filePath = path.join(uploadDir, filename);
+
+  // Salvar arquivo
+  fs.writeFileSync(filePath, file.buffer);
+
+  return {
+    url: `/uploads/submissoes/${filename}`,
+    path: filePath,
+    storage: "local",
+  };
+};
 
 const createAvaliacao = async (req, res) => {
   try {
@@ -139,23 +248,18 @@ const submeterTrabalho = async (req, res) => {
     const userId = req.user.ID_UTILIZADOR;
     const { ID_AVALIACAO, DESCRICAO } = req.body;
 
-    let URL_ARQUIVO = null;
+    let fileData = null;
 
     // Verificar se há arquivo sendo enviado
     if (req.file) {
-      const uploadDir = path.join(__dirname, "../public/uploads/submissoes");
-
-      // Criar diretório se não existir
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      try {
+        fileData = await saveEvaluationFile(req.file, userId, ID_AVALIACAO);
+      } catch (error) {
+        console.error("Error uploading evaluation file:", error);
+        return res.status(500).json({
+          message: `Erro ao fazer upload do arquivo: ${error.message}`,
+        });
       }
-
-      const filename = `${Date.now()}-${req.file.originalname}`;
-      const filePath = path.join(uploadDir, filename);
-
-      // Salvar arquivo
-      fs.writeFileSync(filePath, req.file.buffer);
-      URL_ARQUIVO = `/uploads/submissoes/${filename}`;
     }
 
     // Verificar se já existe uma submissão para este usuário e avaliação
@@ -169,19 +273,52 @@ const submeterTrabalho = async (req, res) => {
     let submissao;
 
     if (submissaoExistente) {
+      // Se há novo arquivo e existe submissão antiga, deletar arquivo antigo
+      if (fileData && submissaoExistente.URL_ARQUIVO) {
+        try {
+          // Tentar determinar se é arquivo do Supabase ou local
+          if (submissaoExistente.URL_ARQUIVO.includes("supabase")) {
+            // Extrair path do Supabase
+            const url = new URL(submissaoExistente.URL_ARQUIVO);
+            const pathMatch = url.pathname.match(
+              /\/storage\/v1\/object\/public\/course-files\/(.+)$/
+            );
+            if (pathMatch) {
+              await deleteAvaliacaoFromSupabase(pathMatch[1]);
+            }
+          } else if (submissaoExistente.URL_ARQUIVO.startsWith("/uploads/")) {
+            // Arquivo local - deletar se existir
+            const localPath = path.join(
+              __dirname,
+              "..",
+              "public",
+              submissaoExistente.URL_ARQUIVO
+            );
+            if (fs.existsSync(localPath)) {
+              fs.unlinkSync(localPath);
+              console.log(`Deleted old local file: ${localPath}`);
+            }
+          }
+        } catch (error) {
+          console.warn("Warning deleting old evaluation file:", error);
+        }
+      }
+
       // Atualizar submissão existente
       submissao = await submissaoExistente.update({
         DESCRICAO,
-        URL_ARQUIVO: URL_ARQUIVO || submissaoExistente.URL_ARQUIVO,
+        URL_ARQUIVO: fileData ? fileData.url : submissaoExistente.URL_ARQUIVO,
         DATA_SUBMISSAO: new Date(),
+        ESTADO: "Submetido",
       });
+
     } else {
       // Criar nova submissão
       submissao = await SubmissaoAvaliacao.create({
         ID_UTILIZADOR: userId,
         ID_AVALIACAO_SINCRONA: ID_AVALIACAO,
         DESCRICAO,
-        URL_ARQUIVO,
+        URL_ARQUIVO: fileData ? fileData.url : null,
         DATA_SUBMISSAO: new Date(),
         ESTADO: "Submetido",
       });

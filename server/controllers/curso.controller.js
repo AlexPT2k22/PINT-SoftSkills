@@ -25,44 +25,88 @@ const path = require("path");
 const { Op } = require("sequelize");
 const { notifyAllEnrolled } = require("./notificacao.controller.js");
 require("dotenv").config();
-
-const savePdfToServer = (buffer, fileName) => {
-  return new Promise((resolve, reject) => {
-    try {
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = path.join(__dirname, "../public/uploads");
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
-
-      // Generate unique filename
-      let cleanFileName = fileName;
-
-      // Normalizar caracteres Unicode (remove acentos problemáticos)
-      cleanFileName = cleanFileName
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-
-      // Remover caracteres especiais mantendo apenas letras, números, pontos e hífens
-      cleanFileName = cleanFileName.replace(/[^a-zA-Z0-9.-]/g, "_");
-
-      // Garantir que não há espaços ou caracteres problemáticos
-      cleanFileName = cleanFileName.replace(/\s+/g, "_");
-      const uniqueFileName = `${Date.now()}-$${cleanFileName}`;
-      const filePath = path.join(uploadsDir, uniqueFileName);
-
-      // Write file
-      fs.writeFileSync(filePath, buffer);
-
-      // Return the URL path that will be used to access the file
-      resolve(`/uploads/${uniqueFileName}`);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
+const { supabaseAdmin } = require("../database/supabase.js");
+const crypto = require("crypto");
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
+
+const saveFileToSupabase = async (buffer, fileName, userId = "system") => {
+  try {
+    // Gerar nome único para o arquivo
+    const fileExtension = fileName.split(".").pop();
+    const cleanFileName = fileName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+      .replace(/[^a-zA-Z0-9.-]/g, "_") // Remove caracteres especiais
+      .replace(/\s+/g, "_"); // Remove espaços
+
+    const uniqueFileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
+    const filePath = `course-modules/${userId}/${uniqueFileName}`;
+
+    // Upload do arquivo
+    const { data, error } = await supabaseAdmin.storage
+      .from("course-files") // Bucket para arquivos de curso
+      .upload(filePath, buffer, {
+        contentType: getContentType(fileExtension),
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Supabase upload error:", error);
+      throw error;
+    }
+
+    // Obter URL pública
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from("course-files")
+      .getPublicUrl(data.path);
+
+    return {
+      url: publicUrlData.publicUrl,
+      path: data.path,
+      fileName: uniqueFileName,
+    };
+  } catch (error) {
+    console.error("Erro:", error);
+    throw error;
+  }
+};
+
+const getContentType = (extension) => {
+  const mimeTypes = {
+    pdf: "application/pdf",
+    doc: "application/msword",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    txt: "text/plain",
+    ppt: "application/vnd.ms-powerpoint",
+    pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    xls: "application/vnd.ms-excel",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  };
+
+  return mimeTypes[extension.toLowerCase()] || "application/octet-stream";
+};
+
+const deleteFileFromSupabase = async (filePath) => {
+  if (!supabaseAdmin || !filePath) {
+    console.warn("Supabase não disponível ou caminho inválido:", filePath);
+    return;
+  }
+
+  try {
+    const { error } = await supabaseAdmin.storage
+      .from("course-files")
+      .remove([filePath]);
+
+    if (error) {
+      console.warn("Warning deleting file from Supabase:", error);
+    } else {
+      console.log(`File deleted: ${filePath}`);
+    }
+  } catch (error) {
+    console.warn("Warning:", error);
+  }
+};
 
 const streamUpload = (
   buffer,
@@ -1264,16 +1308,17 @@ const updateCursoCompleto = async (req, res) => {
         // Processar arquivos de conteúdo
         for (const contentFile of contentFiles) {
           try {
-            const filePath = await savePdfToServer(
+            const result = await saveFileToSupabase(
               contentFile.buffer,
-              contentFile.originalname
+              contentFile.originalname,
+              `course-update-${curso.ID_CURSO}`
             );
-            const fileUrl = `${BACKEND_URL}${filePath}`;
-            contentUrls.push(fileUrl);
+            contentUrls.push(result.url);
 
             uploadedFiles.push({
               originalname: contentFile.originalname,
-              url: fileUrl,
+              url: result.url,
+              path: result.path,
               type: "document",
               module: modulo.NOME,
             });
@@ -1512,7 +1557,6 @@ const createAssincrono = async (req, res) => {
       const hasVideoURL = modulo.VIDEO_URL ? true : false;
       const hasContentFiles = contentFiles && contentFiles.length > 0;
 
-      // ✅ NOVA VALIDAÇÃO: Verificar se tem pelo menos uma opção
       if (!hasVideoFile && !hasVideoURL && !hasContentFiles) {
         console.warn(
           `Módulo "${modulo.NOME}" não tem conteúdo. Criando apenas estrutura...`
@@ -1571,20 +1615,18 @@ const createAssincrono = async (req, res) => {
       if (contentFiles && contentFiles.length > 0) {
         for (const contentFile of contentFiles) {
           try {
-            console.log("Uploading file:", contentFile.originalname);
-
-            const filePath = await savePdfToServer(
+            const result = await saveFileToSupabase(
               contentFile.buffer,
-              contentFile.originalname
+              contentFile.originalname,
+              "course-async"
             );
-            const fileUrl = `${BACKEND_URL}${filePath}`;
-            contentUrls.push(fileUrl);
+            contentUrls.push(result.url);
 
             uploadedFiles.push({
               originalname: contentFile.originalname,
-              url: fileUrl,
+              url: result.url,
+              path: result.path, // Para poder deletar depois
               type: "document",
-              local_path: filePath,
               module: modulo.NOME,
             });
           } catch (error) {
@@ -1823,18 +1865,18 @@ const createSincrono = async (req, res) => {
           try {
             console.log("Uploading sync file:", contentFile.originalname);
 
-            const filePath = await savePdfToServer(
+            const result = await saveFileToSupabase(
               contentFile.buffer,
-              contentFile.originalname
+              contentFile.originalname,
+              "course-sync"
             );
-            const fileUrl = `${BACKEND_URL}${filePath}`;
-            contentUrls.push(fileUrl);
+            contentUrls.push(result.url);
 
             uploadedFiles.push({
               originalname: contentFile.originalname,
-              url: fileUrl,
+              url: result.url,
+              path: result.path,
               type: "document",
-              local_path: filePath,
               module: modulo.NOME,
             });
           } catch (error) {
@@ -2088,12 +2130,12 @@ const convertCursoType = async (req, res) => {
         // Processar arquivos de conteúdo
         for (const contentFile of contentFiles) {
           try {
-            const filePath = await savePdfToServer(
+            const result = await saveFileToSupabase(
               contentFile.buffer,
-              contentFile.originalname
+              contentFile.originalname,
+              `course-convert-${curso.ID_CURSO}`
             );
-            const fileUrl = `${BACKEND_URL}${filePath}`;
-            contentUrls.push(fileUrl);
+            contentUrls.push(result.url);
           } catch (error) {
             console.error("Erro ao upload do arquivo:", error);
           }
@@ -2322,21 +2364,34 @@ function extractCloudinaryPublicId(url) {
 async function deleteFile(fileUrl) {
   if (!fileUrl) return;
 
-  if (fileUrl.includes("localhost:4000")) {
-    // Local file
-    const localPath = fileUrl.split("localhost:4000")[1];
-    if (!localPath) return;
-
-    const fullPath = path.join(__dirname, "..", "public", localPath);
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
-      console.log(`Deleted local file: ${fullPath}`);
+  if (fileUrl.includes("supabase")) {
+    // Arquivo do Supabase - extrair path
+    try {
+      const url = new URL(fileUrl);
+      const pathMatch = url.pathname.match(
+        /\/storage\/v1\/object\/public\/course-files\/(.+)$/
+      );
+      if (pathMatch) {
+        const filePath = pathMatch[1];
+        await deleteFileFromSupabase(filePath);
+      }
+    } catch (error) {
+      console.warn("Erro ao deletar arquivo do Supabase:", error);
+    }
+  } else if (fileUrl.includes("localhost") || fileUrl.includes(BACKEND_URL)) {
+    // Arquivo local
+    const localPath = fileUrl.split(/localhost:\d+|https?:\/\/[^\/]+/)[1];
+    if (localPath) {
+      const fullPath = path.join(__dirname, "..", "public", localPath);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+        console.log(`Deleted local file: ${fullPath}`);
+      }
     }
   } else if (fileUrl.includes("cloudinary")) {
-    // Cloudinary file
+    // Arquivo do Cloudinary (manter lógica existente)
     const publicId = extractCloudinaryPublicId(fileUrl);
     if (publicId) {
-      // Try both raw and image resource types since we don't know the type
       try {
         await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
       } catch (e) {
