@@ -9,17 +9,34 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { Op } = require("sequelize");
-const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 // Configuração do multer para anexos
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'forum-attachments',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt', 'ppt', 'pptx', 'xlsx'],
-    resource_type: 'auto', // Automatically detect file type
+    folder: "forum-attachments",
+    allowed_formats: [
+      "jpg",
+      "jpeg",
+      "png",
+      "gif",
+      "pdf",
+      "doc",
+      "docx",
+      "txt",
+      "ppt",
+      "pptx",
+      "xlsx",
+    ],
+    resource_type: "auto", // Automatically detect file type
     use_filename: true,
     unique_filename: true,
   },
@@ -27,27 +44,32 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
   storage,
-  limits: { 
+  limits: {
     fileSize: 10 * 1024 * 1024, // 10MB
-    files: 5 // Maximum 5 files
+    files: 5, // Maximum 5 files
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
-      'application/pdf', 'application/msword', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain', 'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/plain",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ];
-    
+
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Tipo de arquivo não permitido'), false);
+      cb(new Error("Tipo de arquivo não permitido"), false);
     }
-  }
+  },
 });
 
 // Listar posts de um tópico
@@ -143,7 +165,7 @@ const createPost = async (req, res) => {
         nome: file.originalname,
         url: file.path, // Cloudinary URL
         tipo: file.mimetype,
-        tamanho: file.bytes,
+        tamanho: file.size,
         public_id: file.filename, // Cloudinary public_id for deletion
       }));
     }
@@ -167,25 +189,28 @@ const createPost = async (req, res) => {
       ],
     });
 
+    const response = postCompleto.toJSON();
+    response.ANEXOS = anexos;
+
     res.status(201).json({
       success: true,
       message: "Post criado com sucesso",
-      post: postCompleto,
+      post: response,
     });
   } catch (error) {
     console.error("Erro ao criar post:", error);
-    
+
     // Clean up uploaded files if post creation fails
     if (req.files && req.files.length > 0) {
       req.files.forEach(async (file) => {
         try {
           await cloudinary.uploader.destroy(file.filename);
         } catch (cleanupError) {
-          console.warn('Failed to cleanup file:', cleanupError);
+          console.warn("Failed to cleanup file:", cleanupError);
         }
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -267,7 +292,7 @@ const deletePost = async (req, res) => {
           }
         }
       } catch (error) {
-        console.warn('Error deleting attachments:', error);
+        console.warn("Error deleting attachments:", error);
       }
     }
 
