@@ -324,7 +324,7 @@ const gerarCertificado = async (req, res) => {
     // Generate QR code with verification URL
     const qrCodeDataUrl = await QRCode.toDataURL(
       // é necessario o await!
-      `${BACKEND_URL}/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
+      `${FRONTEND_URL}/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
       qrOptions
     );
 
