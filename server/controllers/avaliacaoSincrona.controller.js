@@ -18,13 +18,7 @@ const uploadAvaliacaoToSupabase = async (file, userId, avaliacaoId) => {
   try {
     // Gerar nome único para o arquivo
     const fileExtension = file.originalname.split(".").pop();
-    const cleanFileName = file.originalname
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-      .replace(/[^a-zA-Z0-9.-]/g, "_") // Remove caracteres especiais
-      .replace(/\s+/g, "_"); // Remove espaços
-
-    const uniqueFileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
+    const uniqueFileName = `${Date.now()}-$${fileName}.${fileExtension}`;
     const filePath = `avaliacoes-submissoes/${avaliacaoId}/${userId}/${uniqueFileName}`;
 
     console.log(`Uploading evaluation file to Supabase: ${filePath}`);

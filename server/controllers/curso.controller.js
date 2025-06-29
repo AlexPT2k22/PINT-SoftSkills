@@ -34,7 +34,7 @@ const saveFileToSupabase = async (buffer, fileName, userId = "system") => {
   try {
     // Gerar nome único para o arquivo
     const fileExtension = fileName.split(".").pop();
-    const uniqueFileName = `${Date.now()}-$${filename}.${fileExtension}`;
+    const uniqueFileName = `${Date.now()}-$${fileName}.${fileExtension}`;
     const filePath = `course-modules/${userId}/${uniqueFileName}`;
 
     // Upload do arquivo
