@@ -1255,12 +1255,9 @@ const AdminStats = () => {
                                   </small>
                                 </td>
                                 <td>
-                                  {stats.notaMedia !== null &&
-                                  stats.notaMedia !== undefined
-                                    ? `${(
-                                        (parseFloat(stats.notaMedia) / 100) *
-                                        20
-                                      ).toFixed(1)}/20`
+                                  {stats.notaMediaGeral !== null &&
+                                  stats.notaMediaGeral !== undefined
+                                    ? `${stats.notaMediaGeral}/20`
                                     : "N/A"}
                                 </td>
                                 <td>

@@ -527,21 +527,34 @@ function CoursePage() {
                   </div>
                   <div className="d-flex flex-row justify-content-between">
                     <h1 className="course-text-h1 mb-0">
-                      {course.CURSO_SINCRONO
-                        ? `Datas: ${new Date(
-                            course.CURSO_SINCRONO.DATA_INICIO
+                      {course?.CURSO_SINCRONO &&
+                        `Datas: ${new Date(
+                          course.CURSO_SINCRONO.DATA_INICIO
+                        ).toLocaleDateString("pt-PT", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                        })} a ${new Date(
+                          course.CURSO_SINCRONO.DATA_FIM
+                        ).toLocaleDateString("pt-PT", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                        })}`}
+
+                        {course?.CURSO_ASSINCRONO && `Datas: ${new Date(
+                            course.CURSO_ASSINCRONO.DATA_INICIO
                           ).toLocaleDateString("pt-PT", {
                             year: "numeric",
                             month: "2-digit",
                             day: "2-digit",
                           })} a ${new Date(
-                            course.CURSO_SINCRONO.DATA_FIM
+                            course.CURSO_ASSINCRONO.DATA_FIM
                           ).toLocaleDateString("pt-PT", {
                             year: "numeric",
                             month: "2-digit",
                             day: "2-digit",
-                          })}`
-                        : ``}
+                          })}`}
                     </h1>
 
                     {course.CURSO_SINCRONO?.DATA_LIMITE_INSCRICAO_S && (

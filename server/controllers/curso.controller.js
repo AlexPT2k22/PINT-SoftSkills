@@ -830,6 +830,7 @@ const updateCursoAssincrono = async (req, res) => {
     if (!curso) {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
+    
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
     const imagem = req.files.find((file) => file.fieldname === "imagem");
@@ -1081,6 +1082,12 @@ const updateCursoCompleto = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
+    const modulosExistentes = await Modulos.findAll({
+      where: { ID_CURSO: curso.ID_CURSO },
+      transaction,
+      order: [["ID_MODULO", "ASC"]],
+    });
+
     // Verificar se é síncrono ou assíncrono
     const cursoSincrono = await CursoSincrono.findOne({
       where: { ID_CURSO: id },
@@ -1103,7 +1110,6 @@ const updateCursoCompleto = async (req, res) => {
 
     let formadorAlterado = false;
     let datasAlteradas = false;
-    let novosModulosAdicionados = false;
     let emailData = {};
 
     // Verificar alteração do formador (apenas para cursos síncronos)
@@ -1230,40 +1236,29 @@ const updateCursoCompleto = async (req, res) => {
     }
 
     let conteudoInfo = "";
+    let novosModulosAdicionados = false;
 
     // Processar módulos se fornecidos
     if (req.body.MODULOS) {
-      const modulos = JSON.parse(req.body.MODULOS);
+      const modulosNovos = JSON.parse(req.body.MODULOS);
+      console.log(`📝 Processando ${modulosNovos.length} módulos novos`);
 
-      // Buscar módulos existentes para comparação
-      const modulosExistentes = await Modulos.findAll({
-        where: { ID_CURSO: curso.ID_CURSO },
-        transaction,
+      // ✅ Mapear módulos por nome para tentar preservar IDs
+      const mapaModulosExistentes = new Map();
+      modulosExistentes.forEach((modulo) => {
+        mapaModulosExistentes.set(modulo.NOME.toLowerCase().trim(), modulo);
       });
 
-      // Se há novos módulos ou módulos foram modificados
-      if (
-        modulos.length > modulosExistentes.length ||
-        req.files?.some((f) => f.fieldname.includes("module_"))
-      ) {
-        novosModulosAdicionados = true;
-        conteudoInfo = `Conteúdo atualizado:<br>`;
-        modulos.forEach((modulo) => {
-          conteudoInfo += `• <strong>${modulo.NOME}</strong><br>`;
-        });
-      }
+      // ✅ Preparar lista de módulos que devem ser mantidos
+      const modulosParaManter = new Set();
+      const modulosAtualizados = [];
+      const modulosParaCriar = [];
 
-      // Remover módulos existentes
-      await Modulos.destroy({
-        where: { ID_CURSO: curso.ID_CURSO },
-        transaction,
-      });
-
-      // Criar novos módulos
-      const uploadedFiles = [];
-
-      for (let i = 0; i < modulos.length; i++) {
-        const modulo = modulos[i];
+      // ✅ Processar cada módulo novo
+      for (let i = 0; i < modulosNovos.length; i++) {
+        const moduloNovo = modulosNovos[i];
+        const nomeModulo = moduloNovo.NOME.toLowerCase().trim();
+        const moduloExistente = mapaModulosExistentes.get(nomeModulo);
 
         const videoFile = req.files?.find(
           (file) => file.fieldname === `module_${i}_video`
@@ -1284,55 +1279,138 @@ const updateCursoCompleto = async (req, res) => {
             "video"
           );
           videoUrl = result.secure_url;
-          uploadedFiles.push({
-            originalname: videoFile.originalname,
-            url: result.secure_url,
-            type: "video_upload",
-            module: modulo.NOME,
-          });
-        } else if (modulo.VIDEO_URL) {
-          videoUrl = modulo.VIDEO_URL;
-          uploadedFiles.push({
-            url: modulo.VIDEO_URL,
-            type: "video_youtube",
-            module: modulo.NOME,
-          });
+          novosModulosAdicionados = true;
+        } else if (moduloNovo.VIDEO_URL) {
+          videoUrl = moduloNovo.VIDEO_URL;
+        } else if (moduloExistente?.VIDEO_URL) {
+          // ✅ Manter vídeo existente se não há novo
+          videoUrl = moduloExistente.VIDEO_URL;
         }
 
         // Processar arquivos de conteúdo
-        for (const contentFile of contentFiles) {
+        if (contentFiles.length > 0) {
+          for (const contentFile of contentFiles) {
+            try {
+              const result = await saveFileToSupabase(
+                contentFile.buffer,
+                contentFile.originalname,
+                `course-update-${curso.ID_CURSO}`
+              );
+              contentUrls.push(result.url);
+              novosModulosAdicionados = true;
+            } catch (error) {
+              console.error("❌ Erro ao upload do arquivo:", error);
+            }
+          }
+        } else if (moduloExistente?.FILE_URL) {
+          // ✅ Manter conteúdo existente se não há novo
           try {
-            const result = await saveFileToSupabase(
-              contentFile.buffer,
-              contentFile.originalname,
-              `course-update-${curso.ID_CURSO}`
-            );
-            contentUrls.push(result.url);
-
-            uploadedFiles.push({
-              originalname: contentFile.originalname,
-              url: result.url,
-              path: result.path,
-              type: "document",
-              module: modulo.NOME,
-            });
-          } catch (error) {
-            console.error("Erro ao upload do arquivo:", error);
+            const existingUrls = JSON.parse(moduloExistente.FILE_URL);
+            contentUrls = Array.isArray(existingUrls) ? existingUrls : [];
+          } catch (e) {
+            contentUrls = [];
           }
         }
 
-        // Criar módulo
-        await Modulos.create(
-          {
+        if (moduloExistente) {
+          // ✅ ATUALIZAR módulo existente (preserva ID e progresso)
+          modulosParaManter.add(moduloExistente.ID_MODULO);
+
+          const dadosAtualizacao = {
+            NOME: moduloNovo.NOME,
+            DESCRICAO: moduloNovo.DESCRICAO,
+            TEMPO_ESTIMADO_MIN: moduloNovo.DURACAO,
+          };
+
+          // Só atualizar vídeo e conteúdo se há mudanças
+          if (videoUrl !== moduloExistente.VIDEO_URL) {
+            dadosAtualizacao.VIDEO_URL = videoUrl;
+          }
+
+          const contentUrlsString = JSON.stringify(contentUrls);
+          if (contentUrlsString !== moduloExistente.FILE_URL) {
+            dadosAtualizacao.FILE_URL = contentUrlsString;
+          }
+
+          modulosAtualizados.push({
+            id: moduloExistente.ID_MODULO,
+            dados: dadosAtualizacao,
+          });
+
+          console.log(
+            `🔄 Módulo "${moduloNovo.NOME}" será atualizado (ID: ${moduloExistente.ID_MODULO})`
+          );
+        } else {
+          // ✅ CRIAR novo módulo
+          modulosParaCriar.push({
             ID_CURSO: curso.ID_CURSO,
-            NOME: modulo.NOME,
-            DESCRICAO: modulo.DESCRICAO,
+            NOME: moduloNovo.NOME,
+            DESCRICAO: moduloNovo.DESCRICAO,
             VIDEO_URL: videoUrl,
             FILE_URL: JSON.stringify(contentUrls),
-            TEMPO_ESTIMADO_MIN: modulo.DURACAO,
-          },
-          { transaction }
+            TEMPO_ESTIMADO_MIN: moduloNovo.DURACAO,
+          });
+
+          novosModulosAdicionados = true;
+          console.log(`➕ Módulo "${moduloNovo.NOME}" será criado`);
+        }
+      }
+
+      // ✅ EXECUTAR as operações de banco de dados
+
+      // 1. Atualizar módulos existentes
+      for (const modulo of modulosAtualizados) {
+        await Modulos.update(modulo.dados, {
+          where: { ID_MODULO: modulo.id },
+          transaction,
+        });
+        console.log(`✅ Módulo ${modulo.id} atualizado`);
+      }
+
+      // 2. Criar novos módulos
+      if (modulosParaCriar.length > 0) {
+        await Modulos.bulkCreate(modulosParaCriar, { transaction });
+        console.log(`✅ ${modulosParaCriar.length} novos módulos criados`);
+      }
+
+      // 3. ⚠️ DELETAR módulos que não estão mais na lista (CUIDADO: isso remove progresso)
+      const modulosParaDeletar = modulosExistentes.filter(
+        (modulo) => !modulosParaManter.has(modulo.ID_MODULO)
+      );
+
+      if (modulosParaDeletar.length > 0) {
+        console.log(
+          `⚠️ ATENÇÃO: ${modulosParaDeletar.length} módulos serão removidos:`,
+          modulosParaDeletar.map((m) => `"${m.NOME}" (ID: ${m.ID_MODULO})`)
         );
+
+        // ✅ Remover progresso dos módulos que serão deletados
+        for (const modulo of modulosParaDeletar) {
+          await ProgressoModulo.destroy({
+            where: { ID_MODULO: modulo.ID_MODULO },
+            transaction,
+          });
+          console.log(
+            `🗑️ Progresso removido do módulo "${modulo.NOME}" (ID: ${modulo.ID_MODULO})`
+          );
+        }
+
+        // ✅ Deletar os módulos
+        await Modulos.destroy({
+          where: {
+            ID_MODULO: modulosParaDeletar.map((m) => m.ID_MODULO),
+          },
+          transaction,
+        });
+        console.log(`🗑️ ${modulosParaDeletar.length} módulos removidos`);
+      }
+
+      // ✅ Preparar informação de conteúdo para notificação
+      if (novosModulosAdicionados) {
+        conteudoInfo = `Conteúdo atualizado:<br>`;
+        modulosNovos.forEach((modulo) => {
+          conteudoInfo += `• <strong>${modulo.NOME}</strong><br>`;
+        });
       }
     }
 
@@ -1446,6 +1524,13 @@ const updateCursoCompleto = async (req, res) => {
       success: true,
       message: "Curso atualizado com sucesso",
       curso: curso,
+      modulosInfo: {
+        existentes: modulosExistentes.length,
+        atualizados: modulosAtualizados?.length || 0,
+        criados: modulosParaCriar?.length || 0,
+        removidos:
+          (modulosExistentes.length || 0) - (modulosParaManter?.size || 0),
+      },
     });
   } catch (error) {
     if (transaction) await transaction.rollback();

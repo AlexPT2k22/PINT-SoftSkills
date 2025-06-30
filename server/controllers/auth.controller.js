@@ -165,11 +165,12 @@ const login = async (req, res) => {
   }
 };
 
+//nao usado
 const linkedIN_url = (_, res) => {
   res.redirect(linkedin_url);
 };
 
-//FIXME:
+//nao usado
 const linkedINLogin = async (req, res) => {
   const { code } = req.query;
   //console.log("Code:", code);
@@ -257,8 +258,8 @@ const linkedINLogin = async (req, res) => {
   }
 };
 
+//nao usado
 const linkedInAssociate = async (req, res) => {
-  //FIXME:
   const { email } = req.query;
   const { url } = req.body;
   console.log(email);
