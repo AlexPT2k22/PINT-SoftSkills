@@ -1237,6 +1237,9 @@ const updateCursoCompleto = async (req, res) => {
 
     let conteudoInfo = "";
     let novosModulosAdicionados = false;
+    const modulosParaManter = new Set();
+    const modulosAtualizados = [];
+    const modulosParaCriar = [];
 
     // Processar módulos se fornecidos
     if (req.body.MODULOS) {
@@ -1248,11 +1251,6 @@ const updateCursoCompleto = async (req, res) => {
       modulosExistentes.forEach((modulo) => {
         mapaModulosExistentes.set(modulo.NOME.toLowerCase().trim(), modulo);
       });
-
-      // ✅ Preparar lista de módulos que devem ser mantidos
-      const modulosParaManter = new Set();
-      const modulosAtualizados = [];
-      const modulosParaCriar = [];
 
       // ✅ Processar cada módulo novo
       for (let i = 0; i < modulosNovos.length; i++) {
