@@ -1473,6 +1473,7 @@ const updateCursoCompleto = async (req, res) => {
     }
 
     await transaction.commit();
+    transaction = null;
 
     // Notificar alteração de formador
     if (formadorAlterado) {
