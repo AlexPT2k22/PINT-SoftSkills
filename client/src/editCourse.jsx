@@ -164,9 +164,7 @@ function EditCourse() {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const response = await axios.get(
-          `${URL}/api/user/teachers`
-        );
+        const response = await axios.get(`${URL}/api/user/teachers`);
         if (response.status === 200) {
           setFormador(response.data);
         }
@@ -183,9 +181,7 @@ function EditCourse() {
     const fetchCourseData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `${URL}/api/cursos/${courseId}`
-        );
+        const response = await axios.get(`${URL}/api/cursos/${courseId}`);
 
         // Store the complete response
         setCourseData(response.data);
@@ -308,9 +304,7 @@ function EditCourse() {
     const getAreas = async () => {
       try {
         setIsLoadingAttributes(true);
-        const response = await axios.get(
-          `${URL}/api/categorias/com-areas`
-        );
+        const response = await axios.get(`${URL}/api/categorias/com-areas`);
         if (response.status === 200) {
           setCategory(response.data);
         } else {
@@ -704,16 +698,7 @@ function EditCourse() {
         formData.append("imagem", courseImage);
       }
 
-      let endpoint;
-      if (isTypeChanged) {
-        // Se mudou o tipo, usar endpoint de conversão
-        endpoint = `${URL}/api/cursos/convert/${courseId}`;
-        formData.append("NEW_TYPE", selectedRadio);
-        formData.append("OLD_TYPE", originalType);
-      } else {
-        // Se não mudou, usar endpoint de atualização normal
-        endpoint = `${URL}/api/cursos/${courseId}/completo`;
-      }
+      const endpoint = `${URL}/api/cursos/${courseId}/completo`;
 
       const response = await axios.put(endpoint, formData, {
         withCredentials: true,
@@ -966,7 +951,7 @@ function EditCourse() {
                                     onChange={handleRadioChange}
                                     checked={selectedRadio === "Assíncrono"}
                                     required
-                                    disabled={isFormador}
+                                    disabled={true}
                                   />
                                   <label
                                     className="form-check-label"
@@ -984,7 +969,7 @@ function EditCourse() {
                                     value="Síncrono"
                                     onChange={handleRadioChange}
                                     checked={selectedRadio === "Síncrono"}
-                                    disabled={isFormador}
+                                    disabled={true}
                                   />
                                   <label
                                     className="form-check-label"

@@ -2029,6 +2029,8 @@ const createSincrono = async (req, res) => {
   }
 };
 
+
+//nao usado devido a varias dependencias
 const convertCursoType = async (req, res) => {
   const { id } = req.params;
   const {
