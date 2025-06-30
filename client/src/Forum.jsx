@@ -14,6 +14,7 @@ import {
   Target,
   Folder,
 } from "lucide-react";
+import Footer from "./components/footer.jsx";
 
 const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -411,6 +412,7 @@ const Forum = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

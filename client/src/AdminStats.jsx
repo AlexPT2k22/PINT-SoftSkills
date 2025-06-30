@@ -377,7 +377,7 @@ const AdminStats = () => {
                     tópicos de fórum pendentes de aprovação.
                     <button
                       className="btn btn-sm btn-outline-warning ms-2"
-                      onClick={() => navigate("/forum-admin")}
+                      onClick={() => navigate("/forum/admin")}
                     >
                       Ver Solicitações
                     </button>

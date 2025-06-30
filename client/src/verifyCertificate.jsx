@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Navbar from "./components/navbar";
 import "./styles/verifyCertificate.css";
+import Footer from "./components/footer";
 
 function VerifyCertificate() {
   const { certificateId } = useParams();
@@ -353,6 +354,7 @@ function VerifyCertificate() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

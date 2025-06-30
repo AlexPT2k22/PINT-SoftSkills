@@ -228,7 +228,7 @@ const responderSolicitacao = async (req, res) => {
         ID_CATEGORIA: solicitacao.ID_CATEGORIA,
         ID_AREA: solicitacao.ID_AREA,
         ID_TOPICO: solicitacao.ID_TOPICO,
-        ID_CRIADOR: solicitacao.userId,
+        ID_CRIADOR: solicitacao.ID_SOLICITANTE,
         TITULO: dadosTopico.titulo || solicitacao.TITULO_SUGERIDO,
         DESCRICAO:
           dadosTopico.descricao ||

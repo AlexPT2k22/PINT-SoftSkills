@@ -11,6 +11,7 @@ import {
   Clock,
   X,
 } from "lucide-react";
+import Footer from "./footer.jsx";
 
 const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -221,9 +222,7 @@ const ForumSolicitarTopico = () => {
               Voltar ao fórum
             </button>
 
-            <h2 className="mb-1">
-              Solicitar um novo tópico de discussão
-            </h2>
+            <h2 className="mb-1">Solicitar um novo tópico de discussão</h2>
             <p className="text-muted mb-0">
               Sugira um novo tópico para discussão. As solicitações são
               analisadas pelos gestores.
@@ -501,6 +500,7 @@ const ForumSolicitarTopico = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };
