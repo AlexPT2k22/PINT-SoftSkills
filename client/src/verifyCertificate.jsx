@@ -108,7 +108,6 @@ function VerifyCertificate() {
         <div className="row justify-content-center">
           <div className="col-lg-8 col-md-10">
             <div className="verification-card card shadow-lg border-0">
-              {/* Header */}
               <div className="card-header text-center text-white">
                 <Award size={48} className="mb-3" color="#39639c" />
                 <h1 className="h2 mb-3 fw-bold titulo">
@@ -121,9 +120,7 @@ function VerifyCertificate() {
                 </p>
               </div>
 
-              {/* Body */}
               <div className="card-body p-4 p-md-5">
-                {/* Search Form - Hide if URL has code */}
                 {!certificateId && (
                   <form onSubmit={handleVerificar} className="mb-4">
                     <div className="input-group input-group-lg verification-input">
@@ -152,17 +149,13 @@ function VerifyCertificate() {
                             Verificando...
                           </>
                         ) : (
-                          <>
-                            <Search size={18} className="me-2" />
-                            Verificar
-                          </>
+                          <>Verificar</>
                         )}
                       </button>
                     </div>
                   </form>
                 )}
 
-                {/* Loading State */}
                 {isLoading && (
                   <div className="text-center py-5">
                     <div
@@ -175,7 +168,6 @@ function VerifyCertificate() {
                   </div>
                 )}
 
-                {/* Error Alert */}
                 {error && (
                   <div className="alert alert-danger border-0 d-flex align-items-center">
                     <XCircle size={24} className="me-3 flex-shrink-0" />
@@ -187,10 +179,8 @@ function VerifyCertificate() {
                   </div>
                 )}
 
-                {/* Success Result */}
                 {isVerified && certificado && (
                   <div className="verification-result">
-                    {/* Success Alert */}
                     <div className="alert alert-success border-0 d-flex align-items-center mb-4">
                       <CheckCircle size={24} className="me-3 flex-shrink-0" />
                       <div>
@@ -200,14 +190,12 @@ function VerifyCertificate() {
                       </div>
                     </div>
 
-                    {/* Certificate Details */}
                     <div className="certificate-details">
                       <h4 className="text-center mb-4 fw-bold">
                         Detalhes do Certificado
                       </h4>
 
                       <div className="row g-3">
-                        {/* Student Name */}
                         <div className="col-md-6">
                           <div className="detail-card card border-0 shadow-sm h-100">
                             <div className="card-body d-flex align-items-center">
@@ -224,7 +212,6 @@ function VerifyCertificate() {
                           </div>
                         </div>
 
-                        {/* Course Name */}
                         <div className="col-md-6">
                           <div className="detail-card card border-0 shadow-sm h-100">
                             <div className="card-body d-flex align-items-center">
@@ -241,7 +228,6 @@ function VerifyCertificate() {
                           </div>
                         </div>
 
-                        {/* Completion Date */}
                         <div className="col-md-6">
                           <div className="detail-card card border-0 shadow-sm h-100">
                             <div className="card-body d-flex align-items-center">
@@ -263,7 +249,6 @@ function VerifyCertificate() {
                           </div>
                         </div>
 
-                        {/* Final Grade */}
                         <div className="col-md-6">
                           <div className="detail-card card border-0 shadow-sm h-100">
                             <div className="card-body d-flex align-items-center">
@@ -286,7 +271,6 @@ function VerifyCertificate() {
                           </div>
                         </div>
 
-                        {/* Verification Code */}
                         <div className="col-12">
                           <div className="detail-card card border-0 shadow-sm">
                             <div className="card-body d-flex align-items-center">
@@ -311,7 +295,6 @@ function VerifyCertificate() {
                   </div>
                 )}
 
-                {/* Instructions - Show only when no code in URL and no results */}
                 {!certificateId && !error && !isVerified && !isLoading && (
                   <div className="verification-instructions">
                     <div className="row g-4 text-center">

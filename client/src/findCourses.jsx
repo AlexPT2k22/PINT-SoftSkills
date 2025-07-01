@@ -133,28 +133,24 @@ function FindCoursesPage() {
     ]
   );
 
-  // Buscar cursos quando filtros mudarem
-  useEffect(() => {
-    fetchCourses(true);
-  }, [
-    searchTerm,
-    selectedCategory,
-    selectedArea,
-    selectedTopic,
-    selectedDifficulty,
-    selectedType,
-    sortBy,
-    selectedRating,
-  ]);
-
   useEffect(() => {
     // Só buscar se tiver pelo menos as categorias carregadas
-    if (
-      categories.length > 0 ||
+    // Só buscar se:
+    // 1. As categorias foram carregadas E há filtros de categoria/área/tópico OU
+    // 2. Há outros tipos de filtros que não dependem das categorias
+    const shouldFetch =
+      (categories.length > 0 &&
+        (selectedCategory || selectedArea || selectedTopic)) ||
       searchTerm ||
       selectedDifficulty ||
-      selectedType
-    ) {
+      selectedType ||
+      selectedRating ||
+      (categories.length > 0 &&
+        !selectedCategory &&
+        !selectedArea &&
+        !selectedTopic);
+
+    if (shouldFetch) {
       fetchCourses(true);
     }
   }, [
