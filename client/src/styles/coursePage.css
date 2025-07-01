@@ -1,44 +1,105 @@
 .banner-curso {
-  height: 500px;
   background-color: #d6dee880;
+  min-height: auto;
+  width: 100%;
+}
+.container-info {
+  margin-top: 100px;
 }
 
 .course-text-h1 {
   font-size: 1rem;
-}
-
-.course-image {
-  width: 530px;
-  height: 300px;
+  margin-bottom: 0;
 }
 
 .course-info-banner {
   border-radius: 10px;
-  margin: -60px auto 0;
-  z-index: 1;
+  margin-top: -20px;
   position: relative;
+  z-index: 1;
   background-color: #fff;
 }
 
+/* Tabs de navegação */
 .course-tab {
   border: none;
-  border-radius: 0;
-  background-color: rgba(0, 0, 0, 0);
-  font-weight: 500;
   color: #37373780;
+  cursor: pointer;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
 }
 
 .course-tab:hover {
-  cursor: pointer;
-  background-color: #ffffff00 !important;
-  color: #373737 !important;
+  color: #373737;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-radius: 0;
 }
 
 .course-tab.active {
-  border: none;
-  border-radius: 0;
-  border-bottom: 3px solid #00b8e0;
-  background-color: rgba(0, 0, 0, 0);
-  font-weight: 500;
+  border-bottom: 3px solid #00b8e0 !important;
   color: #373737;
+  font-weight: 600;
+}
+
+/* Responsividade */
+@media (max-width: 991.98px) {
+  .border-end-lg {
+    border-right: none !important;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .course-info-banner {
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 992px) {
+  .border-end-lg {
+    border-right: 1px solid #dee2e6;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .course-text-h1 {
+    font-size: 0.9rem;
+  }
+
+  .banner-curso {
+    padding: 1.5rem 0;
+  }
+
+  .breadcrumb {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .course-info-banner {
+    padding: 0.5rem !important;
+  }
+
+  .course-info-banner h5 {
+    font-size: 1rem !important;
+  }
+
+  .course-info-banner p {
+    font-size: 0.8rem !important;
+  }
+
+  .banner-curso h1 {
+    font-size: 1.75rem;
+  }
+
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 0.75rem;
+  }
 }
