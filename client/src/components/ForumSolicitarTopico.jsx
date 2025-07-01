@@ -12,12 +12,14 @@ import {
   X,
 } from "lucide-react";
 import Footer from "./footer.jsx";
+import useAuthStore from "../store/authStore.js";
 
 const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const ForumSolicitarTopico = () => {
   const navigate = useNavigate();
-
+  const { user } = useAuthStore();
+  const isGestor = user.perfil === 3;
   const [categorias, setCategorias] = useState([]);
   const [areas, setAreas] = useState([]);
   const [topicos, setTopicos] = useState([]);
@@ -407,7 +409,9 @@ const ForumSolicitarTopico = () => {
           <div className="col-lg-4">
             <div className="card">
               <div className="card-header d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">As minhas solicitações</h6>
+                <h6 className="mb-0">
+                  {isGestor ? "Solicitações" : "As minhas solicitações"}
+                </h6>
                 <button
                   className="btn btn-sm btn-outline-primary"
                   onClick={() =>
@@ -451,6 +455,20 @@ const ForumSolicitarTopico = () => {
                               {formatDate(solicitacao.DATA_CRIACAO)}
                             </small>
                           </div>
+
+                          {isGestor && (
+                            <div className="d-flex justify-content-between align-items-center">
+                              <small className="text-muted">
+                                Solicitado por:{" "}
+                                <a
+                                  className="text-secondary"
+                                  href={`/user/${solicitacao.Solicitante?.ID_UTILIZADOR}`}
+                                >
+                                  {solicitacao.Solicitante?.NOME}
+                                </a>
+                              </small>
+                            </div>
+                          )}
 
                           {solicitacao.RESPOSTA_GESTOR && (
                             <div className="mt-2 p-2 bg-light rounded">
