@@ -11,6 +11,7 @@ const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 function FindCoursesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -190,6 +191,164 @@ function FindCoursesPage() {
     setSearchParams,
   ]);
 
+  const toggleMobileFilters = () => {
+    setShowMobileFilters(!showMobileFilters);
+  };
+
+  const renderFilterContent = () => {
+    return (
+      <>
+        {/* Avaliação */}
+        <div className="find-courses-filter-section">
+          <label className="find-courses-filter-label">Avaliação</label>
+          <div className="find-courses-rating-filters">
+            {[5, 4, 3].map((rating) => (
+              <div key={rating} className="find-courses-rating-item">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="find-courses-rating"
+                  id={`find-courses-rating-${rating}`}
+                  checked={selectedRating === rating.toString()}
+                  onChange={() => setSelectedRating(rating.toString())}
+                />
+                <label
+                  className="find-courses-rating-label"
+                  htmlFor={`find-courses-rating-${rating}`}
+                >
+                  <div className="find-courses-stars">
+                    {Array.from({ length: rating }, (_, i) => (
+                      <Star key={i} size={14} fill="#FFD700" color="#FFD700" />
+                    ))}
+                  </div>
+                  <span className="find-courses-rating-text">
+                    {rating} estrelas ou mais
+                  </span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Categoria */}
+        <div className="find-courses-filter-section">
+          <label className="find-courses-filter-label">Categoria</label>
+          <select
+            className="find-courses-select"
+            value={selectedCategory}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              setSelectedArea("");
+              setSelectedTopic("");
+            }}
+          >
+            <option value="">Todas as categorias</option>
+            {categories.map((category) => (
+              <option
+                key={category.ID_CATEGORIA__PK___}
+                value={category.ID_CATEGORIA__PK___}
+              >
+                {category.NOME__}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Área */}
+        <div className="find-courses-filter-section">
+          <label className="find-courses-filter-label">Área</label>
+          <select
+            className="find-courses-select"
+            value={selectedArea}
+            onChange={(e) => {
+              setSelectedArea(e.target.value);
+              setSelectedTopic("");
+            }}
+            disabled={!selectedCategory}
+          >
+            <option value="">Todas as áreas</option>
+            {filteredAreas.map((area) => (
+              <option key={area.ID_AREA} value={area.ID_AREA}>
+                {area.NOME}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Tópico */}
+        <div className="find-courses-filter-section">
+          <label className="find-courses-filter-label">Tópico</label>
+          <select
+            className="find-courses-select"
+            value={selectedTopic}
+            onChange={(e) => setSelectedTopic(e.target.value)}
+            disabled={!selectedArea}
+          >
+            <option value="">Todos os tópicos</option>
+            {filteredTopics.map((topic) => (
+              <option key={topic.ID_TOPICO} value={topic.ID_TOPICO}>
+                {topic.TITULO}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Dificuldade */}
+        <div className="find-courses-filter-section">
+          <label className="find-courses-filter-label">Dificuldade</label>
+          <div className="find-courses-difficulty-filters">
+            {["Iniciante", "Intermédio", "Difícil"].map((difficulty) => (
+              <div key={difficulty} className="find-courses-difficulty-item">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="find-courses-difficulty"
+                  id={`find-courses-difficulty-${difficulty}`}
+                  checked={selectedDifficulty === difficulty}
+                  onChange={() => setSelectedDifficulty(difficulty)}
+                />
+                <label
+                  className="find-courses-difficulty-label"
+                  htmlFor={`find-courses-difficulty-${difficulty}`}
+                >
+                  {difficulty}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tipo de curso */}
+        <div className="find-courses-filter-section">
+          <label className="find-courses-filter-label">Tipo de curso</label>
+          <div className="find-courses-type-filters">
+            {[
+              { value: "assincrono", label: "Assíncrono" },
+              { value: "sincrono", label: "Síncrono" },
+            ].map((type) => (
+              <div key={type.value} className="find-courses-type-item">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="find-courses-courseType"
+                  id={`find-courses-type-${type.value}`}
+                  checked={selectedType === type.value}
+                  onChange={() => setSelectedType(type.value)}
+                />
+                <label
+                  className="find-courses-type-label"
+                  htmlFor={`find-courses-type-${type.value}`}
+                >
+                  {type.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  };
+
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategory("");
@@ -233,9 +392,61 @@ function FindCoursesPage() {
       <Navbar />
       <div className="find-courses-container">
         <div className="container-fluid">
+          <div className="d-lg-none mb-3 px-3">
+            <button
+              className="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
+              type="button"
+              onClick={toggleMobileFilters}
+              aria-expanded={showMobileFilters}
+              aria-controls="mobileFilters"
+            >
+              <SlidersHorizontal size={18} className="me-2" />
+              Filtros ({hasActiveFilters ? "Aplicados" : "Nenhum"})
+              {showMobileFilters ? (
+                <X size={18} className="ms-auto" />
+              ) : (
+                <Filter size={18} className="ms-auto" />
+              )}
+            </button>
+          </div>
           <div className="row">
             {/* Sidebar de filtros */}
-            <div className="col-lg-2 col-md-2">
+            <div className="col-12 d-lg-none">
+              <div className={`collapse ${showMobileFilters ? 'show' : ''}`} id="mobileFilters">
+                <div className="card card-body mb-3 find-courses-sidebar find-courses-sidebar-mobile">
+                  <div className="find-courses-sidebar-header">
+                    <h5 className="find-courses-sidebar-title">
+                      <SlidersHorizontal size={20} className="me-2" />
+                      Filtros
+                    </h5>
+                    <div className="d-flex gap-2">
+                      {hasActiveFilters && (
+                        <button
+                          className="find-courses-clear-btn"
+                          onClick={clearFilters}
+                        >
+                          Limpar tudo
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Conteúdo dos filtros (igual para desktop e mobile) */}
+                  {renderFilterContent()}
+                  <div className="mt-3 pt-3 border-top">
+                    <button
+                      className="btn btn-primary w-100"
+                      onClick={toggleMobileFilters}
+                    >
+                      Aplicar Filtros
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar de filtros - Desktop (sempre visível) */}
+            <div className="col-lg-3 d-none d-lg-block">
               <div className="find-courses-sidebar">
                 <div className="find-courses-sidebar-header">
                   <h5 className="find-courses-sidebar-title">
@@ -252,179 +463,13 @@ function FindCoursesPage() {
                   )}
                 </div>
 
-                {/* Avaliação */}
-                <div className="find-courses-filter-section">
-                  <label className="find-courses-filter-label">Avaliação</label>
-                  <div className="find-courses-filter-section">
-                    <label className="find-courses-filter-label">
-                      Avaliação
-                    </label>
-                    <div className="find-courses-rating-filters">
-                      {[5, 4, 3].map((rating) => (
-                        <div key={rating} className="find-courses-rating-item">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="find-courses-rating"
-                            id={`find-courses-rating-${rating}`}
-                            checked={selectedRating === rating.toString()}
-                            onChange={() =>
-                              setSelectedRating(rating.toString())
-                            }
-                          />
-                          <label
-                            className="find-courses-rating-label"
-                            htmlFor={`find-courses-rating-${rating}`}
-                          >
-                            <div className="find-courses-stars">
-                              {Array.from({ length: rating }, (_, i) => (
-                                <Star
-                                  key={i}
-                                  size={14}
-                                  fill="#FFD700"
-                                  color="#FFD700"
-                                />
-                              ))}
-                            </div>
-                            <span className="find-courses-rating-text">
-                              {rating} estrelas ou mais
-                            </span>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Categoria */}
-                <div className="find-courses-filter-section">
-                  <label className="find-courses-filter-label">Categoria</label>
-                  <select
-                    className="find-courses-select"
-                    value={selectedCategory}
-                    onChange={(e) => {
-                      setSelectedCategory(e.target.value);
-                      setSelectedArea("");
-                      setSelectedTopic("");
-                    }}
-                  >
-                    <option value="">Todas as categorias</option>
-                    {categories.map((category) => (
-                      <option
-                        key={category.ID_CATEGORIA__PK___}
-                        value={category.ID_CATEGORIA__PK___}
-                      >
-                        {category.NOME__}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Área */}
-                <div className="find-courses-filter-section">
-                  <label className="find-courses-filter-label">Área</label>
-                  <select
-                    className="find-courses-select"
-                    value={selectedArea}
-                    onChange={(e) => {
-                      setSelectedArea(e.target.value);
-                      setSelectedTopic("");
-                    }}
-                    disabled={!selectedCategory}
-                  >
-                    <option value="">Todas as áreas</option>
-                    {filteredAreas.map((area) => (
-                      <option key={area.ID_AREA} value={area.ID_AREA}>
-                        {area.NOME}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Tópico */}
-                <div className="find-courses-filter-section">
-                  <label className="find-courses-filter-label">Tópico</label>
-                  <select
-                    className="find-courses-select"
-                    value={selectedTopic}
-                    onChange={(e) => setSelectedTopic(e.target.value)}
-                    disabled={!selectedArea}
-                  >
-                    <option value="">Todos os tópicos</option>
-                    {filteredTopics.map((topic) => (
-                      <option key={topic.ID_TOPICO} value={topic.ID_TOPICO}>
-                        {topic.TITULO}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Dificuldade */}
-                <div className="find-courses-filter-section">
-                  <label className="find-courses-filter-label">
-                    Dificuldade
-                  </label>
-                  <div className="find-courses-difficulty-filters">
-                    {["Iniciante", "Intermédio", "Difícil"].map(
-                      (difficulty) => (
-                        <div
-                          key={difficulty}
-                          className="find-courses-difficulty-item"
-                        >
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="find-courses-difficulty"
-                            id={`find-courses-difficulty-${difficulty}`}
-                            checked={selectedDifficulty === difficulty}
-                            onChange={() => setSelectedDifficulty(difficulty)}
-                          />
-                          <label
-                            className="find-courses-difficulty-label"
-                            htmlFor={`find-courses-difficulty-${difficulty}`}
-                          >
-                            {difficulty}
-                          </label>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {/* Tipo de curso */}
-                <div className="find-courses-filter-section">
-                  <label className="find-courses-filter-label">
-                    Tipo de curso
-                  </label>
-                  <div className="find-courses-type-filters">
-                    {[
-                      { value: "assincrono", label: "Assíncrono" },
-                      { value: "sincrono", label: "Síncrono" },
-                    ].map((type) => (
-                      <div key={type.value} className="find-courses-type-item">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="find-courses-courseType"
-                          id={`find-courses-type-${type.value}`}
-                          checked={selectedType === type.value}
-                          onChange={() => setSelectedType(type.value)}
-                        />
-                        <label
-                          className="find-courses-type-label"
-                          htmlFor={`find-courses-type-${type.value}`}
-                        >
-                          {type.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {/* Conteúdo dos filtros (igual para desktop e mobile) */}
+                {renderFilterContent()}
               </div>
             </div>
 
             {/* Conteúdo principal */}
-            <div className="col-lg-10 col-md-8">
+            <div className="col-lg-9 col-md-12">
               <div className="find-courses-content">
                 {/* Header com resultados e ordenação */}
                 <div className="find-courses-header">
@@ -603,7 +648,7 @@ function FindCoursesPage() {
                     </div>
                   ) : (
                     courses.length > 0 && (
-                      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-3">
                         {courses.map((course) => (
                           <div className="col" key={course.ID_CURSO}>
                             <CourseCard course={course} />

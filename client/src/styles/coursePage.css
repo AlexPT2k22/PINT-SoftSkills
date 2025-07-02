@@ -1,6 +1,6 @@
 .banner-curso {
   background-color: #d6dee880;
-  min-height: auto;
+  height: 430px;
   width: 100%;
 }
 .container-info {
@@ -14,7 +14,7 @@
 
 .course-info-banner {
   border-radius: 10px;
-  margin-top: -20px;
+  margin-top: -60px;
   position: relative;
   z-index: 1;
   background-color: #fff;
@@ -54,6 +54,7 @@
   .course-info-banner {
     margin-top: 0;
   }
+
 }
 
 @media (min-width: 992px) {
@@ -74,11 +75,18 @@
   .breadcrumb {
     font-size: 0.9rem;
   }
+  .container-info h6 {
+    text-align: start !important;
+  }
 }
 
 @media (max-width: 575.98px) {
   .course-info-banner {
     padding: 0.5rem !important;
+  }
+
+  .container-info h6 {
+    text-align: start !important;
   }
 
   .course-info-banner h5 {
