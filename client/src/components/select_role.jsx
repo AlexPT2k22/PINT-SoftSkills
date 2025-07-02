@@ -10,7 +10,7 @@ function SelectRole() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const userType = useAuthStore((state) => state.userType);
-  const username = user.username;
+  const username = user.nome;
 
   return (
     <div className="role-container p-4 w-50 align-items-center justify-content-center d-flex flex-column">

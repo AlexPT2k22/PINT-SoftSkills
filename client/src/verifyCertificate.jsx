@@ -109,7 +109,6 @@ function VerifyCertificate() {
           <div className="col-lg-8 col-md-10">
             <div className="verification-card card shadow-lg border-0">
               <div className="card-header text-center text-white">
-                <Award size={48} className="mb-3" color="#39639c" />
                 <h1 className="h2 mb-3 fw-bold titulo">
                   Verificação de Certificado
                 </h1>
@@ -124,12 +123,9 @@ function VerifyCertificate() {
                 {!certificateId && (
                   <form onSubmit={handleVerificar} className="mb-4">
                     <div className="input-group input-group-lg verification-input">
-                      <span className="input-group-text bg-light border-end-0">
-                        <Search size={20} className="text-muted" />
-                      </span>
                       <input
                         type="text"
-                        className="form-control border-start-0 border-end-0"
+                        className="form-control border-end-0"
                         placeholder="Digite o código (ex: A1B2C3D4E5F6G7H8)"
                         value={codigo}
                         onChange={(e) =>

@@ -160,12 +160,9 @@ function CourseVideoPage() {
     const fetchCourseData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `${URL}/api/cursos/${courseId}`,
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${URL}/api/cursos/${courseId}`, {
+          withCredentials: true,
+        });
 
         if (response.status !== 200) {
           throw new Error("Failed to fetch course data");
@@ -241,10 +238,9 @@ function CourseVideoPage() {
     const getQuizScore = async () => {
       try {
         // Primeiro, verificar se existe quiz para o curso
-        const response = await axios.get(
-          `${URL}/api/quiz/curso/${courseId}`,
-          { withCredentials: true }
-        );
+        const response = await axios.get(`${URL}/api/quiz/curso/${courseId}`, {
+          withCredentials: true,
+        });
 
         // Se não há quiz para o curso
         if (!response.data.quiz) {
@@ -330,22 +326,35 @@ function CourseVideoPage() {
       <div className="course-page-container">
         <NavbarDashboard />
 
-        <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-4">
-          <div className="container-fluid d-flex justify-content-between p-0 flex-row">
-            <div className="container d-flex p-0 flex-column">
+        <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-2 p-md-4">
+          <div className="container-fluid d-flex flex-column flex-lg-row justify-content-between p-0">
+            {/* Container principal do vídeo e conteúdo */}
+            <div className="container d-flex p-0 flex-column order-1 order-lg-1 mb-3 mb-lg-0">
               {videoID && (
                 <div
                   className="video-player"
                   style={{
                     width: "100%",
-                    height: window.innerHeight <= 900 ? "450px" : "610px",
+                    height:
+                      window.innerWidth <= 768
+                        ? "250px"
+                        : window.innerWidth <= 1024
+                        ? "400px"
+                        : window.innerHeight <= 900
+                        ? "550px"
+                        : "710px",
                   }}
                 >
                   {videoType === "youtube" ? (
-                    // Player do YouTube
                     <iframe
                       width="100%"
-                      height="100%"
+                      height={window.innerWidth <= 768
+                        ? "350px"
+                        : window.innerWidth <= 1024
+                        ? "400px"
+                        : window.innerHeight <= 900
+                        ? "550px"
+                        : "100%"}
                       src={`https://www.youtube.com/embed/${videoID}`}
                       title="YouTube video player"
                       frameBorder="0"
@@ -353,7 +362,6 @@ function CourseVideoPage() {
                       allowFullScreen
                     />
                   ) : (
-                    // Player do Cloudinary
                     <VideoPlayer
                       id={"video-player"}
                       publicId={videoID}
@@ -365,12 +373,14 @@ function CourseVideoPage() {
                 </div>
               )}
 
-              <div className="video-description mt-4">
+              {/* Descrição do vídeo e tabs */}
+              <div className="video-description mt-3 mt-md-4">
                 <div className="container d-flex flex-column p-0">
-                  <div className="container justify-content-start d-flex align-items-center">
-                    <ul className="list-group list-group-horizontal">
+                  {/* Navegação em tabs - responsiva */}
+                  <div className="container justify-content-start d-flex align-items-center p-0">
+                    <ul className="list-group list-group-horizontal nav-tabs-responsive">
                       <a
-                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                        className={`menu  horizontal-list-item pb-0 rounded-0 text-decoration-none course-tab ${
                           index === 0 ? "active" : ""
                         }`}
                         onClick={() => handleIndexChange(0)}
@@ -378,7 +388,7 @@ function CourseVideoPage() {
                         Info
                       </a>
                       <a
-                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 course-tab ${
+                        className={`menu  horizontal-list-item pb-0 text-decoration-none course-tab ${
                           index === 1 ? "active" : ""
                         }`}
                         onClick={() => handleIndexChange(1)}
@@ -386,7 +396,7 @@ function CourseVideoPage() {
                         Material
                       </a>
                       <a
-                        className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                        className={`menu  text-decoration-none horizontal-list-item pb-0 rounded-0 course-tab ${
                           index === 2 ? "active" : ""
                         }`}
                         onClick={() => handleIndexChange(2)}
@@ -395,7 +405,7 @@ function CourseVideoPage() {
                       </a>
                       {courseData?.CURSO_SINCRONO && (
                         <a
-                          className={`list-group-item list-group-item-action horizontal-list-item pb-0 rounded-0 course-tab ${
+                          className={`menu  text-decoration-none horizontal-list-item pb-0 rounded-0 course-tab ${
                             index === 3 ? "active" : ""
                           }`}
                           onClick={() => handleIndexChange(3)}
@@ -416,125 +426,126 @@ function CourseVideoPage() {
                     ></div>
                   </div>
                 </div>
+
+                {/* Conteúdo das tabs */}
                 <div className="d-flex flex-column mt-2">
+                  {/* Tab Info */}
                   {index === 0 && (
-                    <>
-                      <div className="d-flex flex-column">
-                        <div className="container d-flex flex-column p-0 mt-2">
-                          <h3 className="ps-2 fw-normal">
-                            {courseData.MODULOS &&
-                              courseData.MODULOS.find(
-                                (m) => m.ID_MODULO.toString() === moduleId
-                              )?.NOME}
-                          </h3>
-                        </div>
-
-                        <div className="mt-0">
-                          <p className="ps-2 mb-2">
-                            {courseData.MODULOS &&
-                              courseData.MODULOS.find(
-                                (m) => m.ID_MODULO.toString() === moduleId
-                              )?.DESCRICAO}
-                          </p>
-                        </div>
-                        <div className="container d-flex align-items-center p-0">
-                          <div
-                            className="mb-2"
-                            style={{
-                              flex: 1,
-                              height: "1px",
-                              backgroundColor: "#DFE4EA",
-                              marginTop: "-2px",
-                            }}
-                          ></div>
-                        </div>
-                        <div className="d-flex flex-row gap-3 ms-2">
-                          <div className="d-flex flex-column align-items-center ">
-                            <div className="w-100">
-                              <h5 className="fw-normal mb-0">
-                                {formattedDuration}
-                              </h5>
-                            </div>
-                            <h6 className="fw-normal text-muted">
-                              Duração total
-                            </h6>
+                    <div className="d-flex flex-column">
+                      <div className="container d-flex flex-column p-0 mt-2">
+                        <h3 className="ps-2 fw-normal module-title-responsive">
+                          {courseData.MODULOS &&
+                            courseData.MODULOS.find(
+                              (m) => m.ID_MODULO.toString() === moduleId
+                            )?.NOME}
+                        </h3>
+                      </div>
+                      <div className="mt-0">
+                        <p className="ps-2 mb-2 module-description-responsive">
+                          {courseData.MODULOS &&
+                            courseData.MODULOS.find(
+                              (m) => m.ID_MODULO.toString() === moduleId
+                            )?.DESCRICAO}
+                        </p>
+                      </div>
+                      <div className="container d-flex align-items-center p-0">
+                        <div
+                          className="mb-2"
+                          style={{
+                            flex: 1,
+                            height: "1px",
+                            backgroundColor: "#DFE4EA",
+                            marginTop: "-2px",
+                          }}
+                        ></div>
+                      </div>
+                      <div className="d-flex flex-row gap-3 ms-2">
+                        <div className="d-flex flex-column align-items-center">
+                          <div className="w-100">
+                            <h5 className="fw-normal mb-0 duration-text-responsive">
+                              {formattedDuration}
+                            </h5>
                           </div>
+                          <h6 className="fw-normal text-muted duration-label-responsive">
+                            Duração total
+                          </h6>
                         </div>
                       </div>
-                    </>
+                    </div>
                   )}
 
+                  {/* Tab Material */}
                   {index === 1 && (
-                    <>
-                      <div className="d-flex flex-column">
-                        <div className="container d-flex flex-column p-0 mt-2">
-                          <h3 className="ps-2 fw-normal">Material do curso</h3>
-                        </div>
-                        <div className="d-flex flex-row">
-                          <div className="materials-container p-2 w-100">
-                            {courseData.MODULOS &&
-                              (() => {
-                                const currentModule = courseData.MODULOS.find(
-                                  (m) => m.ID_MODULO.toString() === moduleId
-                                );
+                    <div className="d-flex flex-column">
+                      <div className="container d-flex flex-column p-0 mt-2">
+                        <h3 className="ps-2 fw-normal module-title-responsive">
+                          Material do curso
+                        </h3>
+                      </div>
+                      <div className="d-flex flex-row">
+                        <div className="materials-container p-2 w-100">
+                          {courseData.MODULOS &&
+                            (() => {
+                              const currentModule = courseData.MODULOS.find(
+                                (m) => m.ID_MODULO.toString() === moduleId
+                              );
 
-                                if (
-                                  !currentModule?.FILE_URL ||
-                                  currentModule.FILE_URL.length === 0 ||
-                                  currentModule.FILE_URL_ARRAY.length === 0
-                                ) {
-                                  return (
-                                    <div className="alert alert-info mt-3">
-                                      <Info size={16} className="me-1" />
-                                      Não há material disponível para este
-                                      módulo.
-                                    </div>
-                                  );
-                                }
-
-                                const fileUrls = Array.isArray(
-                                  currentModule.FILE_URL
-                                )
-                                  ? currentModule.FILE_URL
-                                  : [currentModule.FILE_URL];
-
+                              if (
+                                !currentModule?.FILE_URL ||
+                                currentModule.FILE_URL.length === 0 ||
+                                currentModule.FILE_URL_ARRAY.length === 0
+                              ) {
                                 return (
-                                  <ul className="list-group">
-                                    {fileUrls.map((material, idx) => (
-                                      <li
-                                        key={idx}
-                                        className="list-group-item d-flex align-items-center border-1 p-3"
-                                      >
-                                        <div className="material-info flex-grow-1">
-                                          <h6 className="mb-0">
-                                            {getFileName(material)}
-                                          </h6>
-                                        </div>
-                                        <a
-                                          href={material}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="btn btn-outline-primary btn-sm"
-                                        >
-                                          Download
-                                        </a>
-                                      </li>
-                                    ))}
-                                  </ul>
+                                  <div className="alert alert-info mt-3">
+                                    <Info size={16} className="me-1" />
+                                    Não há material disponível para este módulo.
+                                  </div>
                                 );
-                              })()}
-                          </div>
+                              }
+
+                              const fileUrls = Array.isArray(
+                                currentModule.FILE_URL
+                              )
+                                ? currentModule.FILE_URL
+                                : [currentModule.FILE_URL];
+
+                              return (
+                                <ul className="list-group">
+                                  {fileUrls.map((material, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="list-group-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center border-1 p-3"
+                                    >
+                                      <div className="material-info flex-grow-1 mb-2 mb-sm-0">
+                                        <h6 className="mb-0 material-filename-responsive">
+                                          {getFileName(material)}
+                                        </h6>
+                                      </div>
+                                      <a
+                                        href={material}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="btn btn-outline-primary btn-sm w-100 w-sm-auto"
+                                      >
+                                        Download
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              );
+                            })()}
                         </div>
                       </div>
-                    </>
+                    </div>
                   )}
 
+                  {/* Tab Notas */}
                   {index === 2 && (
-                    <>
-                      <div className="d-flex flex-column">
-                        <div className="container d-flex flex-column p-0 mt-2">
-                          <h3 className="ps-2 fw-normal">Notas</h3>
-                        </div>
+                    <div className="d-flex flex-column">
+                      <div className="container d-flex flex-column p-0 mt-2">
+                        <h3 className="ps-2 fw-normal module-title-responsive">
+                          Notas
+                        </h3>
                       </div>
                       <NotesPanel
                         moduleId={moduleId}
@@ -543,9 +554,10 @@ function CourseVideoPage() {
                         onResumeVideo={handleResumeVideo}
                         playerRef={cloudinaryPlayerRef}
                       />
-                    </>
+                    </div>
                   )}
 
+                  {/* Tab Anúncios */}
                   {index === 3 && courseData?.CURSO_SINCRONO && (
                     <AnunciosPanel
                       courseId={courseId}
@@ -555,16 +567,27 @@ function CourseVideoPage() {
                 </div>
               </div>
             </div>
+
+            {/* Sidebar dos módulos - responsiva */}
             <div
-              className="container course-sidebar border p-0"
+              className="container course-sidebar border p-0 order-2 order-lg-2"
               style={{
-                width: "28rem",
-                maxHeight: window.innerHeight <= 900 ? "450px" : "610px",
+                width: window.innerWidth <= 1024 ? "100%" : "28rem",
+                maxHeight:
+                  window.innerWidth <= 768
+                    ? "400px"
+                    : window.innerWidth <= 1024
+                    ? "500px"
+                    : window.innerHeight <= 900
+                    ? "450px"
+                    : "610px",
               }}
             >
               <div className="lesson-header">
-                <h5 className="lesson-title mb-1">{courseData.NOME}</h5>
-                <span className="lesson-count">
+                <h5 className="lesson-title mb-1 sidebar-title-responsive">
+                  {courseData.NOME}
+                </h5>
+                <span className="lesson-count sidebar-count-responsive">
                   {courseProgress?.modulosCompletos || 0} de{" "}
                   {courseProgress?.totalModulos || 0} módulos completos (
                   {courseProgress?.percentualProgresso || 0}%)
@@ -604,8 +627,10 @@ function CourseVideoPage() {
                       )}
                     </div>
                     <div className="module-content">
-                      <div className="module-title">{modulo.NOME}</div>
-                      <div className="module-duration">
+                      <div className="module-title module-title-sidebar-responsive">
+                        {modulo.NOME}
+                      </div>
+                      <div className="module-duration module-duration-responsive">
                         {modulo.TEMPO_ESTIMADO_MIN} minutos
                       </div>
                     </div>
@@ -640,10 +665,10 @@ function CourseVideoPage() {
                       )}
                     </div>
                     <div className="module-content">
-                      <div className="module-title">
+                      <div className="module-title module-title-sidebar-responsive">
                         Quiz do curso <SquareArrowOutUpRight size={14} />
                       </div>
-                      <div className="module-duration">
+                      <div className="module-duration module-duration-responsive">
                         {(courseProgress?.percentualProgresso || 0) < 100
                           ? "Complete todos os módulos primeiro"
                           : quiz === true

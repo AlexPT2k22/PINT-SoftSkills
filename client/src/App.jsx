@@ -53,7 +53,7 @@ const ProtectedRoute = ({ children }) => {
       const verifyAuth = async () => {
         try {
           await checkAuth();
-          console.log("Auth check successful:", isAuthenticated, user);
+          //console.log("Auth check successful:", isAuthenticated, user);
         } catch (error) {
           console.error("Auth check failed:", error);
         } finally {
@@ -72,12 +72,12 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    console.log("Not authenticated, redirecting to login");
+    //console.log("Not authenticated, redirecting to login");
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   if (!user?.isVerified && location.pathname !== "/change-password") {
-    console.log("Not verified, redirecting to auth");
+    //console.log("Not verified, redirecting to auth");
     return <Navigate to={`/auth?email=${user.email}`} replace />;
   }
 

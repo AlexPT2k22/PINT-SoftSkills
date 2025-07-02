@@ -264,7 +264,7 @@ function Navbar() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <button type="submit" className="btn btn-primary">
+              <button type="submit" className="btn" style={{ backgroundColor: "#39639c", color: "#fff" }}>
                 Pesquisar
               </button>
             </div>

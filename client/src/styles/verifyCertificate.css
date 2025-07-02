@@ -15,7 +15,6 @@
 
 .verification-input {
   box-shadow: 0 4px 20px rgba(57, 99, 156, 0.1);
-  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -133,12 +132,8 @@
     padding: 1.5rem 1rem;
   }
 
-  .verification-input {
-    flex-direction: column;
-  }
-
   .verification-input .input-group-text,
-  .verification-input .form-control,
+  .verification-input,
   .verification-input .btn {
     border-radius: 0;
   }

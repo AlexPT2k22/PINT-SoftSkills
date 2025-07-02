@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
 
-console.log(import.meta.env.VITE_API_URL);
-
 const url = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const useAuthStore = create((set, get) => ({
@@ -87,7 +85,7 @@ const useAuthStore = create((set, get) => ({
         error: null,
         userPrimeiroLogin: response.data.user.primeiroLogin,
       });
-      console.log("Usuário autenticado com sucesso:", response.data.user);
+      //console.log("Usuário autenticado com sucesso:", response.data.user);
     } catch (error) {
       set({
         error: error.response?.data?.error || "Erro ao fazer login",
@@ -112,6 +110,7 @@ const useAuthStore = create((set, get) => ({
         isAuthenticated: true,
         isCheckingAuth: false,
       });
+      //console.log("Usuário autenticado:", response.data.user);
     } catch (error) {
       //console.log("Erro ao verificar autenticação:", error);
       set({

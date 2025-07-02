@@ -34,4 +34,9 @@
   .sidebar-active {
     margin-left: 0;
   }
+
+  .btn-linked {
+    margin-left: 0 !important;
+    margin-top: 10px;
+  }
 }

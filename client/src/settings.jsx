@@ -173,7 +173,7 @@ function SettingsPage() {
           <div className="settings-container">
             <h2 className="mb-4">Definições</h2>
 
-            <div className="row">
+            <div className="row g-3">
               {/* Perfil do utilizador */}
               <div className="col-lg-4">
                 <div className="card h-100">
@@ -205,7 +205,7 @@ function SettingsPage() {
                       href={`http://localhost:5173/user/${userData?.ID_UTILIZADOR}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-outline-primary btn-sm ms-2"
+                      className="btn btn-linked btn-outline-primary btn-sm ms-2"
                     >
                       <span className="d-flex align-items-center">
                         Ver perfil público
