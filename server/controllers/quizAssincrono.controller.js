@@ -505,7 +505,10 @@ const getProximosQuizzes = async (req, res) => {
         {
           model: Curso,
           attributes: ["NOME"],
-          where: { ESTADO: ["Ativo","Em curso"] }
+        },
+        {
+          model: CursoAssincrono,
+          where: { ESTADO: ["Ativo","Em curso"] },
         },
         {
           model: RespostaQuizAssincrono,

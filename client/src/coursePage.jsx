@@ -590,7 +590,7 @@ function CoursePage() {
                   {/* Botão de Inscrição */}
                   <div className="d-flex justify-content-start mt-3">
                     <button
-                      className="btn btn-primary px-4 py-2"
+                      className="btn btn-primary px-4 py-2 fs-5"
                       onClick={() => handleInscrito()}
                       disabled={isButtonDisabled()}
                     >
@@ -716,17 +716,17 @@ function CoursePage() {
                 {/* O que vai aprender */}
                 <div className="col-lg-6 col-md-12 mb-4 mb-lg-0">
                   <h4 className="mb-3">O que vai aprender</h4>
-                  <div className="row">
+                  <div className="d-flex flex-wrap">
                     {course.OBJETIVOS.map((obj, index) => (
-                      <div className="col-12 mb-3" key={index}>
-                        <div className="d-flex align-items-start">
+                      <div className="mb-3" key={index}>
+                        <div className="d-flex">
                           <Check
                             className="me-3 mt-1 flex-shrink-0"
                             size={24}
                             strokeWidth={1}
                             color="#373737"
                           />
-                          <p className="m-0">{obj.DESCRICAO}</p>
+                          <p className="m-0 me-5">{obj.DESCRICAO}</p>
                         </div>
                       </div>
                     ))}
