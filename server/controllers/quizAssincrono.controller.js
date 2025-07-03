@@ -484,11 +484,25 @@ const getProximosQuizzes = async (req, res) => {
 
     // Buscar cursos assíncronos com seus respectivos cursos base
     const cursosAssincronos = await CursoAssincrono.findAll({
-      where: { ID_CURSO_ASSINCRONO: { [Op.in]: cursoAssincronoIds } },
+      where: {
+        ID_CURSO_ASSINCRONO: { [Op.in]: cursoAssincronoIds },
+        ESTADO: ["Ativo", "Em curso"],
+      },
       include: [
         {
           model: Curso,
           attributes: ["ID_CURSO", "NOME"],
+          include: [
+            {
+              model: CursoAssincrono,
+              where: {
+                ESTADO: ["Ativo", "Em curso"],
+                ID_CURSO_ASSINCRONO: { [Op.in]: cursoAssincronoIds },
+              },
+              attributes: ["ESTADO", "DATA_INICIO", "DATA_FIM"],
+              required: true,
+            },
+          ],
         },
       ],
     });
@@ -505,10 +519,6 @@ const getProximosQuizzes = async (req, res) => {
         {
           model: Curso,
           attributes: ["NOME"],
-        },
-        {
-          model: CursoAssincrono,
-          where: { ESTADO: ["Ativo","Em curso"] },
         },
         {
           model: RespostaQuizAssincrono,
