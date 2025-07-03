@@ -476,6 +476,8 @@ const getProximosQuizzes = async (req, res) => {
       attributes: ["ID_CURSO_ASSINCRONO"],
     });
 
+    const today = new Date();
+
     const cursoAssincronoIds = inscricoes.map(
       (insc) => insc.ID_CURSO_ASSINCRONO
     );
@@ -503,12 +505,13 @@ const getProximosQuizzes = async (req, res) => {
         {
           model: Curso,
           attributes: ["NOME"],
+          where: { ESTADO: ["Ativo","Em curso"] }
         },
         {
           model: RespostaQuizAssincrono,
           as: "RESPOSTAS",
           where: { ID_UTILIZADOR: userId },
-          required: false, // LEFT JOIN - incluir quizzes mesmo sem resposta
+          required: false,
           attributes: ["ID_RESPOSTA", "NOTA", "DATA_SUBMISSAO"],
         },
       ],

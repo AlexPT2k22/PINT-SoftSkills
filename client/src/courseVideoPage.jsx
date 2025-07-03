@@ -516,7 +516,7 @@ function CourseVideoPage() {
                                       key={idx}
                                       className="list-group-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center border-1 p-3"
                                     >
-                                      <div className="material-info flex-grow-1 mb-2 mb-sm-0">
+                                      <div className="material-info flex-grow-1 mb-2 mb-sm-0 w-100">
                                         <h6 className="mb-0 material-filename-responsive">
                                           {getFileName(material)}
                                         </h6>
@@ -525,7 +525,7 @@ function CourseVideoPage() {
                                         href={material}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="btn btn-outline-primary btn-sm w-100 w-sm-auto"
+                                        className="btn btn-outline-primary btn-sm w-sm-auto"
                                       >
                                         Download
                                       </a>

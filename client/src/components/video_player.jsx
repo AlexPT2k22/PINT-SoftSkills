@@ -37,7 +37,6 @@ const VideoPlayer = ({
 
       fluid: false, // Disable fluid to use fixed height
       width: "100%",
-      height: 610, // Set fixed height
       sourceTypes: ["hls"],
       transformation: { streaming_profile: "full_hd" },
       ...playerConfig,

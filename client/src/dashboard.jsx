@@ -2,7 +2,6 @@ import React from "react";
 import Sidebar from "./components/sidebar";
 import NavbarDashboard from "./components/navbarDashboard";
 import useAuthStore from "./store/authStore";
-import CourseCardDashboard from "./components/courseCardDashboard";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Book, Clock, Files, File, GraduationCap, Info } from "lucide-react";
@@ -316,7 +315,7 @@ function Dashboard() {
                         {metricas.cursosAtivos}
                       </h3>
                     </div>
-                    <div className="bg-light rounded-circle p-3">
+                    <div className="bg-light rounded-circle p-3 d-none d-lg-block">
                       <Book size={24} className="text-primary" />
                     </div>
                   </div>
@@ -334,7 +333,7 @@ function Dashboard() {
                         {metricas.proximaAula}
                       </h3>
                     </div>
-                    <div className="bg-light rounded-circle p-3">
+                    <div className="bg-light rounded-circle p-3 d-none d-lg-block">
                       <Clock size={24} className="text-primary" />
                     </div>
                   </div>
@@ -363,7 +362,7 @@ function Dashboard() {
                           : "N/A"}
                       </h3>
                     </div>
-                    <div className="bg-light rounded-circle p-3">
+                    <div className="bg-light rounded-circle p-3 d-none d-lg-block">
                       <GraduationCap size={24} className="text-primary" />
                     </div>
                   </div>
@@ -385,7 +384,7 @@ function Dashboard() {
                           : "N/A"}
                       </h3>
                     </div>
-                    <div className="bg-light rounded-circle p-3">
+                    <div className="bg-light rounded-circle p-3 d-none d-lg-block">
                       <File size={24} className="text-primary" />
                     </div>
                   </div>
