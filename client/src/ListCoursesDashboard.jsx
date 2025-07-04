@@ -435,8 +435,8 @@ function ListCoursesDashboard() {
                 <p className="mt-3 text-muted">A carregar cursos...</p>
               </div>
             ) : (
-              <div className="table-responsive">
-                <table className="table table-hover courses-table">
+              <div className="table-responsive" style={{ overflowX: 'auto', maxWidth: '100%' }}>
+                <table className="table table-hover courses-table" style={{ minWidth: '1200px' }}>
                   <thead>
                     <tr>
                       <th>

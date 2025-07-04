@@ -171,7 +171,9 @@ function GerirUsers() {
       showSuccess("Utilizador atualizado com sucesso!");
     } catch (error) {
       console.error("Error updating user:", error);
-      showError(error.response?.data?.message || "Erro ao atualizar utilizador");
+      showError(
+        error.response?.data?.message || "Erro ao atualizar utilizador"
+      );
     } finally {
       setLoadingButton(false);
     }
@@ -255,8 +257,14 @@ function GerirUsers() {
                 </div>
               </div>
             ) : (
-              <div className="table-responsive">
-                <table className="table table-hover users-table">
+              <div
+                className="table-responsive"
+                style={{ overflowX: "auto", maxWidth: "100%" }}
+              >
+                <table
+                  className="table table-hover users-table"
+                  style={{ minWidth: "800px" }}
+                >
                   <thead>
                     <tr>
                       <th>Utilizador</th>
@@ -276,7 +284,9 @@ function GerirUsers() {
                                 {user?.NOME || "Sem nome"}
                               </div>
                               <div className="user-username">
-                                @{user.USERNAME}
+                                <a className="text-secondary" href={`/user/${user.ID_UTILIZADOR}`}>
+                                  @{user.USERNAME}
+                                </a>
                               </div>
                             </div>
                           </div>

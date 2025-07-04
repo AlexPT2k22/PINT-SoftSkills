@@ -255,7 +255,7 @@ const AdminStats = () => {
         {/* Navigation Tabs */}
         <div className="nav-tabs-container-admin mb-4">
           <ul className="nav nav-tabs-admin nav-fill">
-            <li className="nav-item">
+            <li className="nav-item me-3">
               <button
                 className={`nav-link ${
                   activeTab === "overview" ? "active" : ""
@@ -265,7 +265,7 @@ const AdminStats = () => {
                 <TrendingUp className="me-2" /> Visão Geral
               </button>
             </li>
-            <li className="nav-item">
+            <li className="nav-item me-3">
               <button
                 className={`nav-link ${activeTab === "cursos" ? "active" : ""}`}
                 onClick={() => setActiveTab("cursos")}
@@ -273,7 +273,7 @@ const AdminStats = () => {
                 <BookOpen className="me-2" /> Cursos
               </button>
             </li>
-            <li className="nav-item">
+            <li className="nav-item me-3">
               <button
                 className={`nav-link ${
                   activeTab === "percurso" ? "active" : ""
@@ -821,8 +821,8 @@ const AdminStats = () => {
                 <h3 className="section-title mb-4">
                   Distribuição por Categoria
                 </h3>
-                <div className="table-responsive">
-                  <table className="table table-hover">
+                <div className="table-responsive" style={{ overflowX: 'auto', maxWidth: '100%' }}>
+                  <table className="table table-hover" style={{ minWidth: '600px' }}>
                     <thead className="table-light">
                       <tr>
                         <th>Categoria</th>
@@ -889,8 +889,8 @@ const AdminStats = () => {
                 <h3 className="section-title mb-4">
                   Top 10 Cursos Mais Populares
                 </h3>
-                <div className="table-responsive">
-                  <table className="table table-hover">
+                <div className="table-responsive" style={{ overflowX: 'auto', maxWidth: '100%' }}>
+                  <table className="table table-hover" style={{ minWidth: '700px' }}>
                     <thead className="table-light">
                       <tr>
                         <th>#</th>
@@ -1053,7 +1053,7 @@ const AdminStats = () => {
                     <span className="visually-hidden">Loading...</span>
                   </div>
                   <p className="mt-2">
-                    Carregando dados do percurso formativo...
+                    A carregar dados do percurso formativo...
                   </p>
                 </div>
               ) : percursoData?.percursos ? (
@@ -1075,7 +1075,7 @@ const AdminStats = () => {
                               <div className="card-header">
                                 <div className="d-flex align-items-center justify-content-between">
                                   <div className="user-info-stats">
-                                    <h5 className="mb-0">{user.NOME}</h5>
+                                    <h5 className="mb-0"><a className="text-secondary" href={`/user/${user.ID_UTILIZADOR}`}>{user.NOME}</a></h5>
                                     <small className="text-muted">
                                       {user.USERNAME} | {user.EMAIL}
                                     </small>
@@ -1201,8 +1201,8 @@ const AdminStats = () => {
                   )}
 
                   {viewMode === "table" && (
-                    <div className="table-responsive">
-                      <table className="table table-hover">
+                    <div className="table-responsive" style={{ overflowX: 'auto', maxWidth: '100%' }}>
+                      <table className="table table-hover" style={{ minWidth: '900px' }}>
                         <thead className="table-light">
                           <tr>
                             <th>Nome</th>
@@ -1222,7 +1222,7 @@ const AdminStats = () => {
 
                             return (
                               <tr key={user.ID_UTILIZADOR}>
-                                <td>{user.NOME}</td>
+                                <td><a className="text-secondary" href={`/user/${user.ID_UTILIZADOR}`}>{user.NOME}</a></td>
                                 <td>
                                   {user.EMAIL}
                                   <br />

@@ -287,20 +287,6 @@ function QuizPage() {
                         {((result.notaMinima * 20) / 100).toFixed(1)} valores
                       </span>
                     </div>
-                    <div className="col-md-3">
-                      <h6>Acertos</h6>
-                      <span className="h4">
-                        {result.acertos ||
-                          Math.round(
-                            (result.nota / 20) * quiz.PERGUNTAS.length
-                          )}{" "}
-                        / {quiz.PERGUNTAS.length}
-                      </span>
-                    </div>
-                    <div className="col-md-3">
-                      <h6>Tempo Gasto</h6>
-                      <span className="h4">{result.tempoGasto || "1"} min</span>
-                    </div>
                   </div>
 
                   {result.dataSubmissao && (
