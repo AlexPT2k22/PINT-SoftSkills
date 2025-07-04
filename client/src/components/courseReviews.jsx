@@ -9,6 +9,8 @@ import {
   Trash2,
 } from "lucide-react";
 import useAuthStore from "../store/authStore";
+import ErrorMessage from "./error_message";
+import SuccessMessage from "./sucess_message";
 
 const CourseReviews = ({ courseId, isEnrolled = false }) => {
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -21,6 +23,9 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
   const [submitting, setSubmitting] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { user } = useAuthStore();
 
@@ -80,7 +85,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (reviewForm.estrelas === 0) {
-      alert("Por favor, selecione uma classificação de estrelas");
+      setErrorMessage("Por favor, selecione uma classificação de estrelas");
       return;
     }
 
@@ -95,11 +100,12 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
       if (response.data.success) {
         setMyReview(response.data.review);
         setShowReviewForm(false);
+        setSuccessMessage(myReview ? "Avaliação atualizada com sucesso!" : "Avaliação submetida com sucesso!");
         fetchReviews(1, true); // Atualizar lista de reviews
       }
     } catch (error) {
       console.error("Erro ao submeter review:", error);
-      alert(error.response?.data?.message || "Erro ao submeter review");
+      setErrorMessage(error.response?.data?.message || "Erro ao submeter review");
     } finally {
       setSubmitting(false);
     }
@@ -107,8 +113,6 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
 
   // Eliminar review
   const handleDeleteReview = async () => {
-    if (!confirm("Tem certeza que deseja eliminar a sua avaliação?")) return;
-
     try {
       await axios.delete(`${URL}/api/reviews/${courseId}`, {
         withCredentials: true,
@@ -116,10 +120,12 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
 
       setMyReview(null);
       setReviewForm({ estrelas: 0, comentario: "" });
+      setShowDeleteConfirm(false);
+      setSuccessMessage("Avaliação eliminada com sucesso!");
       fetchReviews(1, true);
     } catch (error) {
       console.error("Erro ao eliminar review:", error);
-      alert("Erro ao eliminar review");
+      setErrorMessage("Erro ao eliminar review");
     }
   };
 
@@ -224,6 +230,15 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
 
   return (
     <div className="p-2">
+      <ErrorMessage 
+        message={errorMessage} 
+        onClose={() => setErrorMessage("")} 
+      />
+      <SuccessMessage 
+        message={successMessage} 
+        onClose={() => setSuccessMessage("")} 
+      />
+      
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4>Avaliações dos alunos</h4>
 
@@ -240,7 +255,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
                 </button>
                 <button
                   className="btn btn-outline-danger btn-sm"
-                  onClick={handleDeleteReview}
+                  onClick={() => setShowDeleteConfirm(true)}
                 >
                   <Trash2 size={16} className="me-1" />
                   Eliminar
@@ -402,6 +417,43 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
           </>
         )}
       </div>
+
+      {/* Modal de confirmação para eliminar */}
+      {showDeleteConfirm && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirmar eliminação</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowDeleteConfirm(false)}
+                />
+              </div>
+              <div className="modal-body">
+                <p>Tem certeza que deseja eliminar a sua avaliação?</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleDeleteReview}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -24,8 +24,8 @@ function SuccessMessage({ message, onClose, duration = 4000 }) {
           top: "30px",
           left: "50%",
           transform: "translateX(-50%)",
-          minWidth: "300px",
-          maxWidth: "80%",
+          minWidth: "350px",
+          maxWidth: "100%",
         }}
       >
         <svg
