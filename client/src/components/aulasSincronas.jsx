@@ -9,6 +9,7 @@ import {
   Users,
   Link as LinkIcon,
 } from "lucide-react";
+import "../styles/aulasSincronas.css"
 
 const AulasSincronas = ({ cursoId, isTeacher = false }) => {
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -178,7 +179,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       {isTeacher && (
         <div className="mb-4">
           <button
-            className="btn btn-primary"
+            className="btn btn-primary w-100 w-md-auto"
             onClick={() => setShowModal(true)}
           >
             Agendar Nova Aula
@@ -197,108 +198,122 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
           Nenhuma aula agendada para este curso.
         </div>
       ) : (
-        <div className="list-group">
+        <div className="aulas-list">
           {Array.isArray(aulas) ? (
             aulas.map((aula) => (
               <div
                 key={aula.ID_AULA}
-                className="list-group-item list-group-item-action flex-column align-items-start"
+                className="card mb-3 aula-card"
               >
-                <div className="d-flex w-100 justify-content-between align-items-center mb-2">
-                  <h5 className="mb-1">{aula.TITULO}</h5>
-                  <span
-                    className={`badge ${getStatusBadgeClass(
-                      aula.ESTADO
-                    )} align-items-center`}
-                  >
-                    {aula.ESTADO}
-                  </span>
-                </div>
-
-                <p className="mb-1">{aula.DESCRICAO}</p>
-
-                <div className="d-flex align-items-center mb-2">
-                  <Calendar size={16} className="me-1" />
-                  <small className="me-3">{formatDate(aula.DATA_AULA)}</small>
-
-                  <Clock size={16} className="me-1" />
-                  <small>
-                    {aula.HORA_INICIO} - {aula.HORA_FIM}
-                  </small>
-                </div>
-
-                <div className="d-flex justify-content-between align-items-center">
-                  <div className="d-flex">
-                    <span className="me-2">Módulo:</span>
-                    <span className="badge bg-secondary align-items-center">
-                      {aula.MODULO?.NOME || "N/A"}
+                <div className="card-body">
+                  <div className="d-flex flex-column flex-md-row justify-content-between align-items-start mb-2">
+                    <h5 className="card-title mb-2 mb-md-0">{aula.TITULO}</h5>
+                    <span
+                      className={`badge ${getStatusBadgeClass(
+                        aula.ESTADO
+                      )} fs-6`}
+                    >
+                      {aula.ESTADO}
                     </span>
                   </div>
 
-                  <div className="d-flex">
-                    {aula.LINK_ZOOM && (
-                      <a
-                        href={aula.LINK_ZOOM}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-outline-primary me-2"
-                      >
-                        <LinkIcon size={16} className="me-1" />
-                        Entrar na Aula
-                      </a>
-                    )}
+                  <p className="card-text mb-3">{aula.DESCRICAO}</p>
 
-                    {isTeacher && (
-                      <>
-                        {aula.ESTADO === "Agendada" && (
-                          <button
-                            className="btn btn-sm btn-success me-2"
-                            onClick={() =>
-                              handleUpdateAulaStatus(
-                                aula.ID_AULA,
-                                "Em andamento"
-                              )
-                            }
-                          >
-                            <Play size={16} className="me-1" />
-                            Iniciar Aula
-                          </button>
-                        )}
+                  <div className="row mb-3">
+                    <div className="col-12 mb-2 mb-md-0">
+                      <div className="d-flex align-items-center">
+                        <Calendar size={16} className="me-2 text-muted" />
+                        <small className="text-muted">{formatDate(aula.DATA_AULA)}</small>
+                      </div>
+                    </div>
+                    <div className="col-12 ">
+                      <div className="d-flex align-items-center">
+                        <Clock size={16} className="me-2 text-muted" />
+                        <small className="text-muted">
+                          {aula.HORA_INICIO} - {aula.HORA_FIM}
+                        </small>
+                      </div>
+                    </div>
+                  </div>
 
-                        {aula.ESTADO === "Em andamento" && (
-                          <button
-                            className="btn btn-sm btn-outline-success me-2"
-                            onClick={() =>
-                              handleUpdateAulaStatus(aula.ID_AULA, "Concluída")
-                            }
-                          >
-                            <CheckCircle size={16} className="me-1" />
-                            Concluir Aula
-                          </button>
-                        )}
+                  <div className="d-flex flex-column flex-md-row justify-content-between align-items-start">
+                    <div className="mb-3 mb-md-0">
+                      <span className="me-2 text-muted">Módulo:</span>
+                      <span className="badge bg-secondary">
+                        {aula.MODULO?.NOME || "N/A"}
+                      </span>
+                    </div>
 
-                        {(aula.ESTADO === "Agendada" ||
-                          aula.ESTADO === "Em andamento") && (
-                          <button
-                            className="btn btn-sm btn-outline-danger me-2"
-                            onClick={() =>
-                              handleUpdateAulaStatus(aula.ID_AULA, "Cancelada")
-                            }
-                          >
-                            <XCircle size={16} className="me-1" />
-                            Cancelar
-                          </button>
-                        )}
-
-                        <button
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => handleOpenPresencasModal(aula)}
+                    <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+                      {aula.LINK_ZOOM && (
+                        <a
+                          href={aula.LINK_ZOOM}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-outline-primary"
                         >
-                          <Users size={16} className="me-1" />
-                          Presenças
-                        </button>
-                      </>
-                    )}
+                          <LinkIcon size={16} className="me-1" />
+                          <span className="d-none d-sm-inline">Entrar na Aula</span>
+                          <span className="d-sm-none">Entrar</span>
+                        </a>
+                      )}
+
+                      {isTeacher && (
+                        <>
+                          {aula.ESTADO === "Agendada" && (
+                            <button
+                              className="btn btn-sm btn-success"
+                              onClick={() =>
+                                handleUpdateAulaStatus(
+                                  aula.ID_AULA,
+                                  "Em andamento"
+                                )
+                              }
+                            >
+                              <Play size={16} className="me-1" />
+                              <span className="d-none d-sm-inline">Iniciar Aula</span>
+                              <span className="d-sm-none">Iniciar</span>
+                            </button>
+                          )}
+
+                          {aula.ESTADO === "Em andamento" && (
+                            <button
+                              className="btn btn-sm btn-outline-success"
+                              onClick={() =>
+                                handleUpdateAulaStatus(aula.ID_AULA, "Concluída")
+                              }
+                            >
+                              <CheckCircle size={16} className="me-1" />
+                              <span className="d-none d-sm-inline">Concluir Aula</span>
+                              <span className="d-sm-none">Concluir</span>
+                            </button>
+                          )}
+
+                          {(aula.ESTADO === "Agendada" ||
+                            aula.ESTADO === "Em andamento") && (
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() =>
+                                handleUpdateAulaStatus(aula.ID_AULA, "Cancelada")
+                              }
+                            >
+                              <XCircle size={16} className="me-1" />
+                              <span className="d-none d-sm-inline">Cancelar</span>
+                              <span className="d-sm-none">Cancelar</span>
+                            </button>
+                          )}
+
+                          <button
+                            className="btn btn-sm btn-outline-secondary"
+                            onClick={() => handleOpenPresencasModal(aula)}
+                          >
+                            <Users size={16} className="me-1" />
+                            <span className="d-none d-sm-inline">Presenças</span>
+                            <span className="d-sm-none">Presenças</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -316,7 +331,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
         role="dialog"
         aria-hidden={!showModal}
       >
-        <div className="modal-dialog" role="document">
+        <div className="modal-dialog modal-lg modal-dialog-scrollable" role="document">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Agendar Nova Aula</h5>
@@ -329,69 +344,89 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
             </div>
             <div className="modal-body">
               <form onSubmit={handleCreateAula}>
-                <div className="mb-3">
-                  <label className="form-label">Título</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={novaAula.TITULO}
-                    onChange={(e) =>
-                      setNovaAula({ ...novaAula, TITULO: e.target.value })
-                    }
-                    required
-                    placeholder="Insira o título da aula"
-                  />
-                </div>
+                <div className="row">
+                  <div className="col-12 mb-3">
+                    <label className="form-label">Título</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={novaAula.TITULO}
+                      onChange={(e) =>
+                        setNovaAula({ ...novaAula, TITULO: e.target.value })
+                      }
+                      required
+                      placeholder="Insira o título da aula"
+                    />
+                  </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Sumário</label>
-                  <textarea
-                    className="form-control"
-                    value={novaAula.DESCRICAO}
-                    onChange={(e) =>
-                      setNovaAula({ ...novaAula, DESCRICAO: e.target.value })
-                    }
-                    placeholder="Insira um breve resumo da aula"
-                    required
-                  ></textarea>
-                </div>
+                  <div className="col-12 mb-3">
+                    <label className="form-label">Sumário</label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={novaAula.DESCRICAO}
+                      onChange={(e) =>
+                        setNovaAula({ ...novaAula, DESCRICAO: e.target.value })
+                      }
+                      placeholder="Insira um breve resumo da aula"
+                      required
+                    ></textarea>
+                  </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Link aula</label>
-                  <input
-                    type="url"
-                    className="form-control"
-                    value={novaAula.LINK_ZOOM}
-                    onChange={(e) =>
-                      setNovaAula({ ...novaAula, LINK_ZOOM: e.target.value })
-                    }
-                    placeholder="Insira o link da aula no Zoom ou outra plataforma"
-                  />
-                </div>
+                  <div className="col-12 mb-3">
+                    <label className="form-label">Link aula</label>
+                    <input
+                      type="url"
+                      className="form-control"
+                      value={novaAula.LINK_ZOOM}
+                      onChange={(e) =>
+                        setNovaAula({ ...novaAula, LINK_ZOOM: e.target.value })
+                      }
+                      placeholder="Insira o link da aula no Zoom ou outra plataforma"
+                    />
+                  </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Data</label>
-                  <input
-                    type="date"
-                    className={`form-control ${
-                      formErrors.data ? "is-invalid" : ""
-                    }`}
-                    value={novaAula.DATA_AULA}
-                    min={getCurrentDate()}
-                    onChange={(e) =>
-                      setNovaAula({ ...novaAula, DATA_AULA: e.target.value })
-                    }
-                    required
-                  />
-                  {formErrors.data && (
-                    <div className="invalid-feedback">
-                      A data da aula deve ser igual ou posterior à data atual.
-                    </div>
-                  )}
-                </div>
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="form-label">Data</label>
+                    <input
+                      type="date"
+                      className={`form-control ${
+                        formErrors.data ? "is-invalid" : ""
+                      }`}
+                      value={novaAula.DATA_AULA}
+                      min={getCurrentDate()}
+                      onChange={(e) =>
+                        setNovaAula({ ...novaAula, DATA_AULA: e.target.value })
+                      }
+                      required
+                    />
+                    {formErrors.data && (
+                      <div className="invalid-feedback">
+                        A data da aula deve ser igual ou posterior à data atual.
+                      </div>
+                    )}
+                  </div>
 
-                <div className="row mb-3">
-                  <div className="col">
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="form-label">Módulo</label>
+                    <select
+                      className="form-select"
+                      value={novaAula.ID_MODULO}
+                      onChange={(e) =>
+                        setNovaAula({ ...novaAula, ID_MODULO: e.target.value })
+                      }
+                      required
+                    >
+                      <option value="">Selecione um módulo</option>
+                      {modulos.map((modulo) => (
+                        <option key={modulo.ID_MODULO} value={modulo.ID_MODULO}>
+                          {modulo.NOME}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-6 col-md-3 mb-3">
                     <label className="form-label">Hora Início</label>
                     <input
                       type="time"
@@ -408,7 +443,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                       required
                     />
                   </div>
-                  <div className="col">
+                  <div className="col-6 col-md-3 mb-3">
                     <label className="form-label">Hora Fim</label>
                     <input
                       type="time"
@@ -429,26 +464,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Módulo</label>
-                  <select
-                    className="form-select"
-                    value={novaAula.ID_MODULO}
-                    onChange={(e) =>
-                      setNovaAula({ ...novaAula, ID_MODULO: e.target.value })
-                    }
-                    required
-                  >
-                    <option value="">Selecione um módulo</option>
-                    {modulos.map((modulo) => (
-                      <option key={modulo.ID_MODULO} value={modulo.ID_MODULO}>
-                        {modulo.NOME}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="modal-footer">
+                <div className="modal-footer border-top-0 px-0">
                   <button
                     type="button"
                     className="btn btn-secondary"
@@ -497,11 +513,12 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
           role="dialog"
           aria-hidden="false"
         >
-          <div className="modal-dialog modal-lg" role="document">
+          <div className="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
-                  Presenças - {selectedAula.TITULO}
+                  <span className="d-none d-md-inline">Presenças - {selectedAula.TITULO}</span>
+                  <span className="d-md-none">Presenças</span>
                 </h5>
                 <button
                   type="button"
@@ -530,18 +547,27 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                           <thead>
                             <tr>
                               <th>Aluno</th>
-                              <th>Presença</th>
+                              <th className="text-center">Presença</th>
                             </tr>
                           </thead>
                           <tbody>
                             {alunos.map((aluno) => (
                               <tr key={aluno.ID_UTILIZADOR}>
                                 <td>
-                                  {aluno.UTILIZADOR.NOME ||
-                                    aluno.UTILIZADOR.USERNAME}
+                                  <div className="d-flex align-items-center">
+                                    <div>
+                                      <div className="fw-medium">
+                                        {aluno.UTILIZADOR.NOME ||
+                                          aluno.UTILIZADOR.USERNAME}
+                                      </div>
+                                      <small className="text-muted d-md-none">
+                                        {aluno.UTILIZADOR.EMAIL}
+                                      </small>
+                                    </div>
+                                  </div>
                                 </td>
-                                <td>
-                                  <div className="form-check form-switch">
+                                <td className="text-center">
+                                  <div className="form-check form-switch d-flex justify-content-center">
                                     <input
                                       className="form-check-input"
                                       type="checkbox"
@@ -556,7 +582,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                                       }}
                                     />
                                     <label
-                                      className="form-check-label"
+                                      className="form-check-label ms-2 d-none d-md-inline"
                                       htmlFor={`presenca-${aluno.ID_UTILIZADOR}`}
                                     >
                                       {presencas[aluno.ID_UTILIZADOR]
@@ -564,6 +590,11 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                                         : "Ausente"}
                                     </label>
                                   </div>
+                                  <small className="d-md-none text-muted">
+                                    {presencas[aluno.ID_UTILIZADOR]
+                                      ? "Presente"
+                                      : "Ausente"}
+                                  </small>
                                 </td>
                               </tr>
                             ))}
@@ -616,10 +647,14 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                         role="status"
                         aria-hidden="true"
                       ></span>
-                      A guardar...
+                      <span className="d-none d-sm-inline">A guardar...</span>
+                      <span className="d-sm-none">...</span>
                     </>
                   ) : (
-                    "Guardar presenças"
+                    <>
+                      <span className="d-none d-sm-inline">Guardar presenças</span>
+                      <span className="d-sm-none">Guardar</span>
+                    </>
                   )}
                 </button>
               </div>

@@ -545,29 +545,33 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                   Ainda não há submissões para esta avaliação.
                 </div>
               ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover">
+                <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                  <table className="table table-hover" style={{ minWidth: '700px' }}>
                     <thead>
                       <tr>
-                        <th>Aluno</th>
-                        <th>Data Submissão</th>
-                        <th>Arquivo</th>
-                        <th>Nota</th>
-                        <th>Ações</th>
+                        <th style={{ minWidth: '150px' }}>Aluno</th>
+                        <th style={{ minWidth: '180px' }}>Data Submissão</th>
+                        <th style={{ minWidth: '120px' }}>Arquivo</th>
+                        <th style={{ minWidth: '100px' }}>Nota</th>
+                        <th style={{ minWidth: '150px' }}>Ações</th>
                       </tr>
                     </thead>
                     <tbody>
                       {submissoes.map((submissao) => (
                         <tr key={submissao.ID_SUBMISSAO}>
                           <td>
-                            {submissao.UTILIZADOR?.NOME ||
-                              submissao.UTILIZADOR?.USERNAME ||
-                              "N/A"}
+                            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>
+                              {submissao.UTILIZADOR?.NOME ||
+                                submissao.UTILIZADOR?.USERNAME ||
+                                "N/A"}
+                            </div>
                           </td>
                           <td>
-                            {new Date(
-                              submissao.DATA_SUBMISSAO
-                            ).toLocaleString()}
+                            <div style={{ whiteSpace: 'nowrap' }}>
+                              {new Date(
+                                submissao.DATA_SUBMISSAO
+                              ).toLocaleString()}
+                            </div>
                           </td>
                           <td>
                             {submissao.URL_ARQUIVO ? (
@@ -576,6 +580,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn btn-sm btn-outline-primary"
+                                style={{ whiteSpace: 'nowrap' }}
                               >
                                 <FileText size={16} className="me-1" />
                                 Ver Arquivo
@@ -619,6 +624,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                                   )
                                   .classList.toggle("d-none");
                               }}
+                              style={{ whiteSpace: 'nowrap' }}
                             >
                               {submissao.NOTA ? "Editar Nota" : "Avaliar"}
                             </button>
@@ -741,15 +747,15 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
         </div>
       ) : (
         <>
-          <div className="table-responsive">
-            <table className="table table-hover">
+          <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <table className="table table-hover" style={{ minWidth: '800px' }}>
               <thead>
                 <tr>
-                  <th>Título</th>
-                  <th>Descrição</th>
-                  <th>Data Limite</th>
-                  <th>Status</th>
-                  <th>Ações</th>
+                  <th style={{ minWidth: '150px' }}>Título</th>
+                  <th style={{ minWidth: '200px' }}>Descrição</th>
+                  <th style={{ minWidth: '180px' }}>Data Limite</th>
+                  <th style={{ minWidth: '100px' }}>Status</th>
+                  <th style={{ minWidth: '200px' }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -765,16 +771,20 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                       <tr key={avaliacao.ID_AVALIACAO_SINCRONA}>
                         <td>{avaliacao.TITULO}</td>
                         <td>
-                          {avaliacao.DESCRICAO?.length > 50
-                            ? avaliacao.DESCRICAO.substring(0, 50) + "..."
-                            : avaliacao.DESCRICAO}
+                          <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {avaliacao.DESCRICAO?.length > 50
+                              ? avaliacao.DESCRICAO.substring(0, 50) + "..."
+                              : avaliacao.DESCRICAO}
+                          </div>
                         </td>
                         <td>
-                          {avaliacao.DATA_LIMITE_REALIZACAO
-                            ? new Date(
-                                avaliacao.DATA_LIMITE_REALIZACAO
-                              ).toLocaleString()
-                            : "-"}
+                          <div style={{ whiteSpace: 'nowrap' }}>
+                            {avaliacao.DATA_LIMITE_REALIZACAO
+                              ? new Date(
+                                  avaliacao.DATA_LIMITE_REALIZACAO
+                                ).toLocaleString()
+                              : "-"}
+                          </div>
                         </td>
                         <td>
                           <span
@@ -791,6 +801,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                             <button
                               className="btn btn-sm btn-outline-primary"
                               onClick={() => openSubmissoesModal(avaliacao)}
+                              style={{ whiteSpace: 'nowrap' }}
                             >
                               <FileText size={16} className="me-1" />
                               Ver Submissões
@@ -798,7 +809,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                           ) : (
                             <>
                               {jaSubmeti ? (
-                                <div>
+                                <div style={{ whiteSpace: 'nowrap' }}>
                                   <span className="badge bg-success me-2">
                                     Submetido
                                   </span>
@@ -819,6 +830,7 @@ const AvaliacoesSincronas = ({ cursoId, isTeacher = false }) => {
                                   className="btn btn-sm btn-primary"
                                   onClick={() => openSubmissaoModal(avaliacao)}
                                   disabled={status !== "Aberto"}
+                                  style={{ whiteSpace: 'nowrap' }}
                                 >
                                   <Upload size={16} className="me-1" />
                                   Submeter Trabalho

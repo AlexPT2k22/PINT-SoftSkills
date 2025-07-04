@@ -161,8 +161,8 @@
 /* Responsividade */
 @media (max-width: 768px) {
   .notifications-dropdown {
-    width: 320px;
-    right: -50px;
+    width: 350px;
+    right: -30px;
   }
 
   .notification-item {

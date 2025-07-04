@@ -28,12 +28,9 @@ const SynchronousCourseView = () => {
     const verificarFormador = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${URL}/api/cursos/${courseId}`,
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${URL}/api/cursos/${courseId}`, {
+          withCredentials: true,
+        });
         setCurso(response.data);
 
         const teacherResponse = await axios.get(

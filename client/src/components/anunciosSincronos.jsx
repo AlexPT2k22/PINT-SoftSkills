@@ -7,7 +7,6 @@ import {
   AlertCircle,
   Plus,
   Send,
-  X,
   Edit,
   Trash2,
 } from "lucide-react";
@@ -254,15 +253,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
               ? "Você pode criar o primeiro anúncio para este curso."
               : "O formador ainda não publicou anúncios para este curso."}
           </p>
-          {isTeacher && (
-            <button
-              className="btn btn-outline-primary mt-3"
-              onClick={() => setShowCreateModal(true)}
-            >
-              <Plus size={16} className="me-1" />
-              Criar anúncio
-            </button>
-          )}
         </div>
       ) : (
         <div className="anuncios-list">
@@ -324,7 +314,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
-                  <MessageSquare size={20} className="me-2" />
                   Novo anúncio
                 </h5>
                 <button
