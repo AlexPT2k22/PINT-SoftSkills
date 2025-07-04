@@ -28,6 +28,7 @@ function Navbar() {
   const [activeArea, setActiveArea] = useState(null);
   const [topics, setTopics] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(true);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -84,17 +85,29 @@ function Navbar() {
     useAuthStore.getState().logout();
     navigate("/");
     setShowUserDropdown(false);
+    setIsNavbarCollapsed(true);
   };
 
   const handleNavigation = (path) => {
     navigate(path);
+    setShowUserDropdown(false);
+    setIsNavbarCollapsed(true);
+  };
+
+  const toggleNavbar = () => {
+    setIsNavbarCollapsed(!isNavbarCollapsed);
+  };
+
+  const closeNavbar = () => {
+    setIsNavbarCollapsed(true);
+    setShowMenu(false);
     setShowUserDropdown(false);
   };
 
   return (
     <nav className="navbar sticky-top navbar-expand-lg">
       <div className="container-fluid">
-        <a className="navbar-brand text ms-2" href="/">
+        <a className="navbar-brand text ms-2" href="/" onClick={closeNavbar}>
           <div className="d-flex align-items-center">
             <img src="/images/Logo.svg" alt="Logo" className="logo" />
           </div>
@@ -103,15 +116,285 @@ function Navbar() {
         <button
           className="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarContent"
+          onClick={toggleNavbar}
+          aria-expanded={!isNavbarCollapsed}
+          aria-controls="navbarContent"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarContent">
-          <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-            {/* Mega Dropdown */}
+        <div
+          className={`navbar-collapse ${
+            isNavbarCollapsed ? "collapse" : "show"
+          }`}
+          id="navbarContent"
+        >
+          {/* Mobile Search Form */}
+          <form
+            className="d-lg-none search-form-mobile"
+            onSubmit={(e) => {
+              handleSearch(e);
+              closeNavbar();
+            }}
+          >
+            <div className="input-group">
+              <span className="input-group-text bg-white border-end-0 search-input-navbar">
+                <Search strokeWidth={1.5} color="#39639C" />
+              </span>
+              <input
+                type="search"
+                className="form-control border-start-0 ps-0 search-input-navbar"
+                placeholder="Procure por um curso"
+                aria-label="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <button
+              type="submit"
+              className="btn mt-2 w-100"
+              style={{ backgroundColor: "#39639c", color: "#fff" }}
+            >
+              Pesquisar
+            </button>
+          </form>
+
+          {/* Mobile Navigation */}
+          <ul className="navbar-nav d-lg-none">
+            {/* Mega Dropdown Mobile */}
+            <li className="nav-item mega-dropdown-wrapper mobile-nav-item">
+              <a
+                className="nav-link d-flex align-items-center justify-content-between text descobrir-link"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowMenu(!showMenu);
+                }}
+              >
+                <span>Descobrir</span>
+                <ChevronDown className="ms-1" size={18} color="#39639c" />
+              </a>
+
+              {/* Mobile Mega Dropdown Content */}
+              {showMenu && (
+                <div className="mega-dropdown">
+                  {/* Categories Panel */}
+                  <div className="categories-panel">
+                    <h6 className="px-3 py-2 mb-0 text-muted">Categorias</h6>
+                    {loading ? (
+                      <div className="loading-item">A carregar...</div>
+                    ) : (
+                      categorias.map((categoria) => (
+                        <div
+                          key={categoria.ID_CATEGORIA__PK___}
+                          className={`category-item ${
+                            activeCategory === categoria.ID_CATEGORIA__PK___
+                              ? "active"
+                              : ""
+                          }`}
+                          onClick={() => {
+                            if (
+                              activeCategory === categoria.ID_CATEGORIA__PK___
+                            ) {
+                              setActiveCategory(null);
+                            } else {
+                              setActiveCategory(categoria.ID_CATEGORIA__PK___);
+                              setActiveArea(null);
+                            }
+                          }}
+                        >
+                          <div className="d-flex justify-content-between align-items-center w-100">
+                            <span>{categoria.NOME__}</span>
+                            <ChevronDown
+                              className={`chevron-icon ${
+                                activeCategory === categoria.ID_CATEGORIA__PK___
+                                  ? "rotate-180"
+                                  : ""
+                              }`}
+                              size={16}
+                              color="#39639c"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Areas Panel */}
+                  {activeCategory && (
+                    <div className="areas-panel">
+                      <h6 className="px-3 py-2 mb-0 text-muted">Áreas</h6>
+                      {categorias
+                        .find(
+                          (cat) => cat.ID_CATEGORIA__PK___ === activeCategory
+                        )
+                        ?.AREAs?.map((area) => (
+                          <div
+                            key={area.ID_AREA}
+                            className={`area-item ${
+                              activeArea === area.ID_AREA ? "active" : ""
+                            }`}
+                            onClick={() => {
+                              if (activeArea === area.ID_AREA) {
+                                setActiveArea(null);
+                              } else {
+                                setActiveArea(area.ID_AREA);
+                              }
+                            }}
+                          >
+                            <div className="d-flex justify-content-between align-items-center w-100">
+                              <span>{area.NOME}</span>
+                              <ChevronDown
+                                className={`chevron-icon ${
+                                  activeArea === area.ID_AREA
+                                    ? "rotate-180"
+                                    : ""
+                                }`}
+                                size={16}
+                                color="#39639c"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+
+                  {/* Topics Panel */}
+                  {activeArea && (
+                    <div className="topics-panel">
+                      <h6 className="px-3 py-2 mb-0 text-muted">Tópicos</h6>
+                      {topics
+                        .filter((topic) => topic.ID_AREA === activeArea)
+                        .map((topic) => (
+                          <div
+                            key={topic.ID_TOPICO}
+                            className="topic-item"
+                            onClick={() => {
+                              const areaDoTopico = categorias
+                                .flatMap((cat) => cat.AREAs || [])
+                                .find((area) =>
+                                  topics.some(
+                                    (t) =>
+                                      t.ID_TOPICO === topic.ID_TOPICO &&
+                                      t.ID_AREA === area.ID_AREA
+                                  )
+                                );
+
+                              const categoriaDoTopico = categorias.find((cat) =>
+                                cat.AREAs?.some(
+                                  (a) => a.ID_AREA === areaDoTopico?.ID_AREA
+                                )
+                              );
+
+                              navigate(
+                                `/find-courses?category=${categoriaDoTopico?.ID_CATEGORIA__PK___}&area=${areaDoTopico?.ID_AREA}&topic=${topic.ID_TOPICO}`
+                              );
+                              closeNavbar();
+                            }}
+                            title={topic.TITULO}
+                          >
+                            {topic.TITULO}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </li>
+
+            {/* Forum Link Mobile */}
+            <li className="nav-item mobile-nav-item">
+              <a className="nav-link text" href="/forum" onClick={closeNavbar}>
+                Fórum
+              </a>
+            </li>
+
+            {/* User Section Mobile */}
+            {isAuthenticated ? (
+              <>
+                {/* Notifications Mobile */}
+                <li className="nav-item mobile-nav-item">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <span className="text" style={{ color: '#39639c' }}>Notificações</span>
+                    <NotificationsDropdown />
+                  </div>
+                </li>
+
+                <li className="nav-item">
+                  <div className="user-section-mobile">
+                    <div className="user-info-mobile">
+                      <div className="user-avatar ms-0">
+                        <CircleUserRound size={32} color="#39639C" />
+                      </div>
+                      <div className="user-details">
+                        <h6>@{user?.username}</h6>
+                        <small className="text-muted">{user?.email}</small>
+                      </div>
+                    </div>
+
+                    <div className="user-actions-mobile">
+                      <button
+                        className="btn"
+                        onClick={() => handleNavigation(`/user/${user?.id}`)}
+                      >
+                        Perfil
+                      </button>
+                      <button
+                        className="btn"
+                        onClick={() => handleNavigation("/dashboard")}
+                      >
+                        Dashboard
+                      </button>
+                      <button
+                        className="btn"
+                        onClick={() => handleNavigation("/dashboard/my-courses")}
+                      >
+                        Os meus Cursos
+                      </button>
+                      <button
+                        className="btn"
+                        onClick={() => handleNavigation("/dashboard/settings")}
+                      >
+                        Configurações
+                      </button>
+                      <button className="btn logout-btn" onClick={handleLogout}>
+                        Sair
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              </>
+            ) : (
+              <li className="nav-item">
+                <div className="auth-buttons-mobile">
+                  <button
+                    className="btn btn-primary button-sign"
+                    type="button"
+                    onClick={() => {
+                      navigate("/login?login=0");
+                      closeNavbar();
+                    }}
+                  >
+                    Criar conta
+                  </button>
+                  <button
+                    className="btn btn-primary button-login"
+                    type="button"
+                    onClick={() => {
+                      navigate("/login?login=1");
+                      closeNavbar();
+                    }}
+                  >
+                    Entrar
+                  </button>
+                </div>
+              </li>
+            )}
+          </ul>
+
+          {/* Desktop Navigation */}
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0 d-none d-lg-flex">
+            {/* Mega Dropdown Desktop */}
             <li className="nav-item mega-dropdown-wrapper">
               <a
                 className="nav-link d-flex align-items-center text descobrir-link"
@@ -126,7 +409,7 @@ function Navbar() {
                 <ChevronDown className="ms-1" size={18} color="#39639c" />
               </a>
 
-              {/* Mega Dropdown Content */}
+              {/* Desktop Mega Dropdown Content */}
               {showMenu && (
                 <div
                   className="mega-dropdown"
@@ -251,7 +534,11 @@ function Navbar() {
             </li>
           </ul>
 
-          <form className="d-flex flex-grow-1 mx-4" onSubmit={handleSearch}>
+          {/* Desktop Search Form */}
+          <form
+            className="d-none d-lg-flex flex-grow-1 mx-4"
+            onSubmit={handleSearch}
+          >
             <div className="input-group">
               <span className="input-group-text bg-white border-end-0 search-input-navbar">
                 <Search strokeWidth={1.5} color="#39639C" />
@@ -264,13 +551,18 @@ function Navbar() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <button type="submit" className="btn" style={{ backgroundColor: "#39639c", color: "#fff" }}>
+              <button
+                type="submit"
+                className="btn"
+                style={{ backgroundColor: "#39639c", color: "#fff" }}
+              >
                 Pesquisar
               </button>
             </div>
           </form>
 
-          <ul className="navbar-nav me-5">
+          {/* Desktop Right Navigation */}
+          <ul className="navbar-nav me-5 d-none d-lg-flex">
             <li className="nav-item">
               <a className="nav-link text align-items-center" href="/forum">
                 Fórum
@@ -293,7 +585,7 @@ function Navbar() {
                     onClick={(e) => {
                       e.preventDefault();
                       setShowUserDropdown(!showUserDropdown);
-                      e.stopPropagation(); // Prevent this click from closing the dropdown immediately
+                      e.stopPropagation();
                     }}
                   >
                     <CircleUserRound

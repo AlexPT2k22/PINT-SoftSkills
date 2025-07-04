@@ -363,29 +363,32 @@ function GerirCategorias() {
           />
         )}
 
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
           <h2>Gerir Categorias, Áreas e Tópicos</h2>
-          <div>
+          <div className="d-flex flex-column flex-sm-row gap-2">
             <button
-              className="btn btn-primary me-2"
+              className="btn btn-primary"
               onClick={() => setShowCategoriaModal(true)}
             >
               <Plus size={16} className="me-1" />
-              Nova Categoria
+              <span className="d-none d-sm-inline">Nova Categoria</span>
+              <span className="d-sm-none">Categoria</span>
             </button>
             <button
-              className="btn btn-success me-2"
+              className="btn btn-success"
               onClick={() => setShowAreaModal(true)}
             >
               <Plus size={16} className="me-1" />
-              Nova Área
+              <span className="d-none d-sm-inline">Nova Área</span>
+              <span className="d-sm-none">Área</span>
             </button>
             <button
               className="btn btn-info"
               onClick={() => setShowTopicoModal(true)}
             >
               <Plus size={16} className="me-1" />
-              Novo Tópico
+              <span className="d-none d-sm-inline">Novo Tópico</span>
+              <span className="d-sm-none">Tópico</span>
             </button>
           </div>
         </div>
@@ -402,10 +405,10 @@ function GerirCategorias() {
               <div key={categoria.ID_CATEGORIA__PK___} className="col-12 mb-3">
                 <div className="card">
                   <div className="card-header">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div className="d-flex align-items-center">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
+                      <div className="d-flex align-items-start flex-grow-1">
                         <button
-                          className="btn btn-link p-0 me-2"
+                          className="btn btn-link p-0 me-2 flex-shrink-0"
                           onClick={() =>
                             toggleCategoria(categoria.ID_CATEGORIA__PK___)
                           }
@@ -416,21 +419,23 @@ function GerirCategorias() {
                             <ChevronRight size={20} />
                           )}
                         </button>
-                        <h5 className="mb-0">
-                          <span className="badge bg-primary me-2">
-                            Categoria
-                          </span>
-                          {categoria.NOME__}
-                        </h5>
-                        {categoria.DESCRICAO__ && (
-                          <small className="text-muted d-block ms-3">
-                            {categoria.DESCRICAO__}
-                          </small>
-                        )}
+                        <div className="flex-grow-1 min-width-0">
+                          <h5 className="mb-1">
+                            <span className="badge bg-primary me-2">
+                              Categoria
+                            </span>
+                            <span className="text-break">{categoria.NOME__}</span>
+                          </h5>
+                          {categoria.DESCRICAO__ && (
+                            <small className="text-muted d-block">
+                              {categoria.DESCRICAO__}
+                            </small>
+                          )}
+                        </div>
                       </div>
-                      <div>
+                      <div className="d-flex gap-2 flex-shrink-0">
                         <button
-                          className="btn btn-outline-primary btn-sm me-2"
+                          className="btn btn-outline-primary btn-sm"
                           onClick={() => {
                             setEditandoCategoria(categoria);
                             setNovaCategoria({
@@ -439,12 +444,14 @@ function GerirCategorias() {
                             });
                             setShowCategoriaModal(true);
                           }}
+                          title="Editar categoria"
                         >
                           <Edit size={14} />
                         </button>
                         <button
                           className="btn btn-outline-danger btn-sm"
                           onClick={() => handleDeleteCategoria(categoria)}
+                          title="Eliminar categoria"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -456,13 +463,13 @@ function GerirCategorias() {
                     <div className="card-body">
                       {getAreasByCategoria(categoria.ID_CATEGORIA__PK___).map(
                         (area) => (
-                          <div key={area.ID_AREA} className="ms-4 mb-3">
+                          <div key={area.ID_AREA} className="ms-2 ms-md-4 mb-3">
                             <div className="card">
                               <div className="card-header bg-light">
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <div className="d-flex align-items-center">
+                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
+                                  <div className="d-flex align-items-start flex-grow-1">
                                     <button
-                                      className="btn btn-link p-0 me-2"
+                                      className="btn btn-link p-0 me-2 flex-shrink-0"
                                       onClick={() => toggleArea(area.ID_AREA)}
                                     >
                                       {expandedAreas[area.ID_AREA] ? (
@@ -471,21 +478,23 @@ function GerirCategorias() {
                                         <ChevronRight size={18} />
                                       )}
                                     </button>
-                                    <h6 className="mb-0">
-                                      <span className="badge bg-success me-2">
-                                        Área
-                                      </span>
-                                      {area.NOME}
-                                    </h6>
-                                    {area.DESCRICAO && (
-                                      <small className="text-muted d-block ms-3">
-                                        {area.DESCRICAO}
-                                      </small>
-                                    )}
+                                    <div className="flex-grow-1 min-width-0">
+                                      <h6 className="mb-1">
+                                        <span className="badge bg-success me-2">
+                                          Área
+                                        </span>
+                                        <span className="text-break">{area.NOME}</span>
+                                      </h6>
+                                      {area.DESCRICAO && (
+                                        <small className="text-muted d-block">
+                                          {area.DESCRICAO}
+                                        </small>
+                                      )}
+                                    </div>
                                   </div>
-                                  <div>
+                                  <div className="d-flex gap-2 flex-shrink-0">
                                     <button
-                                      className="btn btn-outline-primary btn-sm me-2"
+                                      className="btn btn-outline-primary btn-sm"
                                       onClick={() => {
                                         setEditandoArea(area);
                                         setNovaArea({
@@ -496,12 +505,14 @@ function GerirCategorias() {
                                         });
                                         setShowAreaModal(true);
                                       }}
+                                      title="Editar área"
                                     >
                                       <Edit size={12} />
                                     </button>
                                     <button
                                       className="btn btn-outline-danger btn-sm"
                                       onClick={() => handleDeleteArea(area)}
+                                      title="Eliminar área"
                                     >
                                       <Trash2 size={12} />
                                     </button>
@@ -515,28 +526,27 @@ function GerirCategorias() {
                                     (topico) => (
                                       <div
                                         key={topico.ID_TOPICO}
-                                        className="ms-4 mb-2"
+                                        className="ms-2 ms-md-4 mb-2"
                                       >
-                                        <div className="d-flex justify-content-between align-items-center p-2 border rounded">
-                                          <div>
-                                            <div className="d-flex align-items-center">
-                                              <h6 className="mb-0">
+                                        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start p-2 border rounded gap-2">
+                                          <div className="flex-grow-1 min-width-0">
+                                            <div className="d-flex align-items-start">
+                                              <h6 className="mb-1">
                                                 <span className="badge bg-info me-2">
                                                   Tópico
                                                 </span>
-                                                {topico.TITULO}
+                                                <span className="text-break">{topico.TITULO}</span>
                                               </h6>
-
-                                              {topico.DESCRICAO && (
-                                                <small className="text-muted d-block ms-3">
-                                                  {topico.DESCRICAO}
-                                                </small>
-                                              )}
                                             </div>
+                                            {topico.DESCRICAO && (
+                                              <small className="text-muted d-block">
+                                                {topico.DESCRICAO}
+                                              </small>
+                                            )}
                                           </div>
-                                          <div>
+                                          <div className="d-flex gap-2 flex-shrink-0">
                                             <button
-                                              className="btn btn-outline-primary btn-sm me-2"
+                                              className="btn btn-outline-primary btn-sm"
                                               onClick={() => {
                                                 setEditandoTopico(topico);
                                                 setNovoTopico({
@@ -546,6 +556,7 @@ function GerirCategorias() {
                                                 });
                                                 setShowTopicoModal(true);
                                               }}
+                                              title="Editar tópico"
                                             >
                                               <Edit size={12} />
                                             </button>
@@ -554,6 +565,7 @@ function GerirCategorias() {
                                               onClick={() =>
                                                 handleDeleteTopico(topico)
                                               }
+                                              title="Eliminar tópico"
                                             >
                                               <Trash2 size={12} />
                                             </button>
@@ -594,7 +606,7 @@ function GerirCategorias() {
           style={{ display: showCategoriaModal ? "block" : "none" }}
           tabIndex="-1"
         >
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
@@ -641,10 +653,10 @@ function GerirCategorias() {
                     />
                   </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal-footer flex-column flex-sm-row">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-secondary w-100 w-sm-auto order-1 order-sm-0"
                     onClick={() => {
                       setShowCategoriaModal(false);
                       resetCategoriaForm();
@@ -652,7 +664,7 @@ function GerirCategorias() {
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary w-100 w-sm-auto order-0 order-sm-1 mb-2 mb-sm-0">
                     {editandoCategoria ? "Atualizar" : "Criar"}
                   </button>
                 </div>
@@ -667,7 +679,7 @@ function GerirCategorias() {
           style={{ display: showAreaModal ? "block" : "none" }}
           tabIndex="-1"
         >
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
@@ -732,10 +744,10 @@ function GerirCategorias() {
                     />
                   </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal-footer flex-column flex-sm-row">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-secondary w-100 w-sm-auto order-1 order-sm-0"
                     onClick={() => {
                       setShowAreaModal(false);
                       resetAreaForm();
@@ -743,7 +755,7 @@ function GerirCategorias() {
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-success">
+                  <button type="submit" className="btn btn-success w-100 w-sm-auto order-0 order-sm-1 mb-2 mb-sm-0">
                     {editandoArea ? "Atualizar" : "Criar"}
                   </button>
                 </div>
@@ -758,7 +770,7 @@ function GerirCategorias() {
           style={{ display: showTopicoModal ? "block" : "none" }}
           tabIndex="-1"
         >
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
@@ -791,13 +803,15 @@ function GerirCategorias() {
                       <option value="">Selecione uma área</option>
                       {areas.map((area) => (
                         <option key={area.ID_AREA} value={area.ID_AREA}>
-                          {area.NOME} (
-                          {categorias.find(
-                            (c) =>
-                              c.ID_CATEGORIA__PK___ ===
-                              area.Categoria.ID_CATEGORIA__PK___
-                          )?.NOME__ || "Sem categoria"}
-                          )
+                          <span className="text-truncate">
+                            {area.NOME} (
+                            {categorias.find(
+                              (c) =>
+                                c.ID_CATEGORIA__PK___ ===
+                                area.Categoria.ID_CATEGORIA__PK___
+                            )?.NOME__ || "Sem categoria"}
+                            )
+                          </span>
                         </option>
                       ))}
                     </select>
@@ -829,10 +843,10 @@ function GerirCategorias() {
                     />
                   </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal-footer flex-column flex-sm-row">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-secondary w-100 w-sm-auto order-1 order-sm-0"
                     onClick={() => {
                       setShowTopicoModal(false);
                       resetTopicoForm();
@@ -840,7 +854,7 @@ function GerirCategorias() {
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-info">
+                  <button type="submit" className="btn btn-info w-100 w-sm-auto order-0 order-sm-1 mb-2 mb-sm-0">
                     {editandoTopico ? "Atualizar" : "Criar"}
                   </button>
                 </div>

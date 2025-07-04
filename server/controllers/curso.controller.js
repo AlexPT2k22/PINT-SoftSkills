@@ -15,7 +15,6 @@ const {
   ProgressoModulo,
   Notas,
   QuizAssincrono,
-  Review,
 } = require("../models/index.js");
 const { sequelize } = require("../database/database.js");
 const cloudinary = require("cloudinary").v2;
