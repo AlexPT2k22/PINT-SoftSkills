@@ -195,12 +195,12 @@ const Forum = () => {
         {/* Header */}
         <div className="row mb-4">
           <div className="col-12">
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
               <div>
                 <h2 className="mb-1">Fórum</h2>
               </div>
               <button
-                className="btn btn-primary"
+                className="btn btn-primary w-md-auto"
                 onClick={() => navigate("/forum/solicitar-topico")}
               >
                 <Plus size={16} className="me-1" />
@@ -212,7 +212,7 @@ const Forum = () => {
 
         {/* Estatísticas */}
         <div className="row mb-4">
-          <div className="col-md-6">
+          <div className="col-md-6 mb-3 mb-md-0">
             <div className="card h-100">
               <div className="card-body d-flex align-items-center">
                 <div className="me-3">
@@ -258,7 +258,7 @@ const Forum = () => {
             </h6>
 
             <div className="row g-3">
-              <div className="col-md-3">
+              <div className="col-md-3 col-sm-6">
                 <label className="form-label">Categoria</label>
                 <select
                   className="form-select"
@@ -279,7 +279,7 @@ const Forum = () => {
                 </select>
               </div>
 
-              <div className="col-md-3">
+              <div className="col-md-3 col-sm-6">
                 <label className="form-label">Área</label>
                 <select
                   className="form-select"
@@ -296,7 +296,7 @@ const Forum = () => {
                 </select>
               </div>
 
-              <div className="col-md-3">
+              <div className="col-md-3 col-sm-6">
                 <label className="form-label">Tópico</label>
                 <select
                   className="form-select"
@@ -313,7 +313,7 @@ const Forum = () => {
                 </select>
               </div>
 
-              <div className="col-md-3 d-flex align-items-end">
+              <div className="col-md-3 col-sm-6 d-flex align-items-end">
                 <button
                   className="btn btn-outline-secondary w-100"
                   onClick={clearFiltros}
@@ -367,16 +367,16 @@ const Forum = () => {
                           <p className="mb-2 text-muted">{topico.DESCRICAO}</p>
 
                           {/* Breadcrumb */}
-                          <div className="d-flex align-items-center text-sm text-muted mb-2">
+                          <div className="d-flex align-items-center text-sm text-muted mb-2 flex-wrap">
                             <Folder size={14} className="me-1" />
-                            <span>{topico.Categoria?.NOME__}</span>
-                            <ChevronRight size={14} className="mx-1" />
-                            <span>{topico.AREA?.NOME}</span>
-                            <ChevronRight size={14} className="mx-1" />
-                            <span>{topico.TOPICO?.TITULO}</span>
+                            <span className="text-truncate">{topico.Categoria?.NOME__}</span>
+                            <ChevronRight size={14} className="mx-1 flex-shrink-0" />
+                            <span className="text-truncate">{topico.AREA?.NOME}</span>
+                            <ChevronRight size={14} className="mx-1 flex-shrink-0" />
+                            <span className="text-truncate">{topico.TOPICO?.TITULO}</span>
                           </div>
 
-                          <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2">
                             <small className="text-muted">
                               Por:{" "}
                               <strong>
@@ -385,7 +385,7 @@ const Forum = () => {
                               </strong>
                             </small>
 
-                            <div className="d-flex align-items-center gap-3">
+                            <div className="d-flex align-items-center gap-3 flex-wrap">
                               <small className="text-muted">
                                 <MessageSquare size={14} className="me-1" />
                                 {topico.TOTAL_POSTS} resposta(s)
@@ -402,7 +402,7 @@ const Forum = () => {
                           </div>
                         </div>
 
-                        <ChevronRight size={20} className="text-muted ms-2" />
+                        <ChevronRight size={20} className="text-muted ms-2 d-none d-md-block" />
                       </div>
                     </div>
                   ))}

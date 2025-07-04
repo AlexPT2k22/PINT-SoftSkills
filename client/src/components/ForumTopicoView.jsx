@@ -523,15 +523,15 @@ const ForumTopicoView = () => {
                 <p className="text-muted mb-3">{topico?.DESCRICAO}</p>
 
                 {/* Breadcrumb */}
-                <div className="d-flex align-items-center text-muted small mb-3">
-                  <span>{topico?.Categoria?.NOME__}</span>
-                  <ChevronRight size={14} className="mx-1" />
-                  <span>{topico?.AREA?.NOME}</span>
-                  <ChevronRight size={14} className="mx-1" />
-                  <span>{topico?.TOPICO?.TITULO}</span>
+                <div className="d-flex align-items-center text-muted small mb-3 flex-wrap">
+                  <span className="text-truncate">{topico?.Categoria?.NOME__}</span>
+                  <ChevronRight size={14} className="mx-1 flex-shrink-0" />
+                  <span className="text-truncate">{topico?.AREA?.NOME}</span>
+                  <ChevronRight size={14} className="mx-1 flex-shrink-0" />
+                  <span className="text-truncate">{topico?.TOPICO?.TITULO}</span>
                 </div>
 
-                <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                   <small className="text-muted">
                     Criado por:{" "}
                     <strong>
@@ -596,15 +596,18 @@ const ForumTopicoView = () => {
                             key={index}
                             className="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2"
                           >
-                            <span className="small">
-                              {getFileIcon(file.type)} {file.name}
+                            <span className="small flex-grow-1 min-width-0">
+                              {getFileIcon(file.type)}{" "}
+                              <span className="d-inline-block" style={{ maxWidth: "100px" }}>
+                                {file.name}
+                              </span>
                               <span className="text-muted ms-2">
                                 ({(file.size / 1024 / 1024).toFixed(2)} MB)
                               </span>
                             </span>
                             <button
                               type="button"
-                              className="btn btn-sm btn-outline-danger"
+                              className="btn btn-sm btn-outline-danger flex-shrink-0"
                               onClick={() => removeAnexo(index)}
                             >
                               <X size={14} />
@@ -614,7 +617,7 @@ const ForumTopicoView = () => {
                       </div>
                     )}
 
-                    <div className="d-flex justify-content-between align-items-center">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                       <div>
                         <input
                           type="file"
@@ -633,9 +636,10 @@ const ForumTopicoView = () => {
                           }
                         >
                           <Paperclip size={16} className="me-1" />
-                          Anexar Arquivo
+                          <span className="d-none d-sm-inline">Anexar Arquivo</span>
+                          <span className="d-sm-none">Anexar</span>
                         </button>
-                        <small className="text-muted">
+                        <small className="text-muted d-block d-md-inline">
                           Máx: 5 arquivos, 10MB cada
                         </small>
                       </div>
@@ -686,7 +690,7 @@ const ForumTopicoView = () => {
                   <div key={post.ID_FORUM_POST} className="card mb-3">
                     <div className="card-body">
                       <div className="d-flex justify-content-between align-items-start mb-3">
-                        <div className="d-flex align-items-center">
+                        <div className="d-flex align-items-center flex-grow-1">
                           <div className="me-3">
                             <div
                               className="bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
@@ -697,7 +701,7 @@ const ForumTopicoView = () => {
                               </span>
                             </div>
                           </div>
-                          <div>
+                          <div className="flex-grow-1 min-width-0">
                             <h6 className="mb-0">
                               <a
                                 href={`/user/${post.UTILIZADOR?.ID_UTILIZADOR}`}
@@ -706,22 +710,24 @@ const ForumTopicoView = () => {
                                 {post.UTILIZADOR?.NOME}
                               </a>
                             </h6>
-                            <small className="text-muted me-2">
-                              @{post.UTILIZADOR?.USERNAME}
-                            </small>
-                            <small className="text-muted">
-                              {formatDate(post.DATA_CRIACAO)}
-                              {post.ESTADO === "Editado" && (
-                                <span className="ms-2 badge bg-secondary">
-                                  Editado
-                                </span>
-                              )}
-                            </small>
+                            <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-1 gap-sm-2">
+                              <small className="text-muted">
+                                @{post.UTILIZADOR?.USERNAME}
+                              </small>
+                              <small className="text-muted">
+                                {formatDate(post.DATA_CRIACAO)}
+                                {post.ESTADO === "Editado" && (
+                                  <span className="ms-2 badge bg-secondary">
+                                    Editado
+                                  </span>
+                                )}
+                              </small>
+                            </div>
                           </div>
                         </div>
 
                         {user && (
-                          <div className="dropdown position-relative">
+                          <div className="dropdown position-relative flex-shrink-0">
                             <button
                               className="btn btn-outline-secondary btn-sm"
                               onClick={() => toggleDropdown(post.ID_FORUM_POST)}
@@ -808,16 +814,16 @@ const ForumTopicoView = () => {
                           <div className="form-text mb-2">
                             {editContent.length}/5000 caracteres
                           </div>
-                          <div>
+                          <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
                             <button
-                              className="btn btn-primary btn-sm me-2"
+                              className="btn btn-primary btn-sm order-1 order-sm-0"
                               onClick={handleEditPost}
                               disabled={editContent.length < 10}
                             >
                               Salvar
                             </button>
                             <button
-                              className="btn btn-secondary btn-sm"
+                              className="btn btn-secondary btn-sm order-0 order-sm-1"
                               onClick={() => {
                                 setEditingPost(null);
                                 setEditContent("");
@@ -840,40 +846,47 @@ const ForumTopicoView = () => {
                       {post.ANEXOS && post.ANEXOS.length > 0 && (
                         <div className="mb-3">
                           <h6 className="small">Anexos:</h6>
-                          {post.ANEXOS.map((anexo, index) => (
-                            <div
-                              key={index}
-                              className="d-flex align-items-center mb-2"
-                            >
-                              <span className="me-2">
-                                {getFileIcon(anexo.tipo)}
-                              </span>
-                              <a
-                                href={anexo.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-decoration-none me-auto"
+                          <div className="d-flex flex-column gap-2">
+                            {post.ANEXOS.map((anexo, index) => (
+                              <div
+                                key={index}
+                                className="d-flex align-items-center p-2 bg-light rounded"
                               >
-                                {anexo.nome}
-                              </a>
-                              <small className="text-muted me-2">
-                                {(anexo.tamanho / 1024 / 1024).toFixed(2)} MB
-                              </small>
-                              <a
-                                href={anexo.url}
-                                download={anexo.nome}
-                                className="btn btn-outline-primary btn-sm"
-                              >
-                                <Download size={14} />
-                              </a>
-                            </div>
-                          ))}
+                                <span className="me-2">
+                                  {getFileIcon(anexo.tipo)}
+                                </span>
+                                <div className="flex-grow-1 min-width-0">
+                                  <a
+                                    href={anexo.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-decoration-none d-block"
+                                    title={anexo.nome}
+                                  >
+                                    <span className="text-truncate d-inline-block" style={{ maxWidth: "250px" }}>
+                                      {anexo.nome}
+                                    </span>
+                                  </a>
+                                  <small className="text-muted">
+                                    {(anexo.tamanho / 1024 / 1024).toFixed(2)} MB
+                                  </small>
+                                </div>
+                                <a
+                                  href={anexo.url}
+                                  download={anexo.nome}
+                                  className="btn btn-outline-primary btn-sm flex-shrink-0"
+                                >
+                                  <Download size={14} />
+                                </a>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
 
                       {/* Avaliações */}
                       {user && (
-                        <div className="d-flex align-items-center gap-2">
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
                           <button
                             className={`btn btn-sm ${
                               post.userAvaliacao === "LIKE"
@@ -898,7 +911,12 @@ const ForumTopicoView = () => {
                                   : "none"
                               }
                             />
-                            {post.TOTAL_LIKES}
+                            <span className="d-none d-sm-inline">
+                              {post.TOTAL_LIKES}
+                            </span>
+                            <span className="d-sm-none">
+                              {post.TOTAL_LIKES}
+                            </span>
                           </button>
 
                           <button
@@ -917,7 +935,12 @@ const ForumTopicoView = () => {
                             }
                           >
                             <ThumbsDown size={16} className="me-1" />
-                            {post.TOTAL_DISLIKES}
+                            <span className="d-none d-sm-inline">
+                              {post.TOTAL_DISLIKES}
+                            </span>
+                            <span className="d-sm-none">
+                              {post.TOTAL_DISLIKES}
+                            </span>
                           </button>
                         </div>
                       )}

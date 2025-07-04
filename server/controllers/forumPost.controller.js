@@ -50,8 +50,6 @@ const uploadToSupabase = async (file, userId) => {
     const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
     const filePath = `forum-attachments/${userId}/${fileName}`;
 
-    console.log(`🔄 Uploading file to Supabase: ${filePath}`);
-
     // Upload do arquivo
     const { data, error } = await supabaseAdmin.storage
       .from('forum-files')
@@ -61,11 +59,11 @@ const uploadToSupabase = async (file, userId) => {
       });
 
     if (error) {
-      console.error('❌ Supabase upload error:', error);
+      console.error('Supabase upload error:', error);
       throw error;
     }
 
-    console.log(`✅ File uploaded successfully: ${data.path}`);
+    console.log(`File uploaded successfully: ${data.path}`);
 
     // Obter URL pública
     const { data: publicUrlData } = supabaseAdmin.storage
@@ -198,7 +196,6 @@ const createPost = async (req, res) => {
     const uploadedFiles = [];
 
     if (req.files && req.files.length > 0) {
-      console.log(`📎 Processing ${req.files.length} attachments...`);
 
       for (const file of req.files) {
         try {
@@ -214,8 +211,6 @@ const createPost = async (req, res) => {
 
           anexos.push(anexoData);
           uploadedFiles.push(uploadResult);
-
-          console.log(`✅ Attachment uploaded: ${file.originalname}`);
         } catch (error) {
           console.error(`❌ Error uploading ${file.originalname}:`, error);
           
@@ -239,8 +234,6 @@ const createPost = async (req, res) => {
       CONTEUDO: conteudo,
       ANEXOS: anexos.length > 0 ? JSON.stringify(anexos) : null,
     });
-
-    console.log(`✅ Forum post created: ${novoPost.ID_FORUM_POST}`);
 
     // Atualizar contadores do tópico
     await updateTopicoCounters(topicoId);

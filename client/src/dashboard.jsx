@@ -292,7 +292,7 @@ function Dashboard() {
       <Sidebar onToggle={handleSidebarToggle} />
 
       <div className="container mt-4 p-4">
-        <h2 className="mb-4">Bem-vindo, {user.username}</h2>
+        <h2 className="mb-4">Bem-vindo, {user.nome}</h2>
 
         {isLoading ? (
           <div className="d-flex justify-content-center">
