@@ -10,3 +10,4 @@
 - Zustand (State management)
 - Cloudinary (Image and video storage)
 - PDFmaker (For certificates)
+- Supabase (Store files)
