@@ -674,35 +674,42 @@ const getUser = async (req, res) => {
     }
 
     // Busca o utilizador pelo ID
-    const utilizador = await Utilizador.findOne({
-      where: { ID_UTILIZADOR: userId },
-      attributes: [
-        "ID_UTILIZADOR",
-        "USERNAME",
-        "NOME",
-        "LINKEDIN",
-        "DATA_CRIACAO",
-        "ULTIMO_LOGIN",
-        "EMAIL",
-        "XP",
-      ],
-      include: [
-        {
-          model: Perfil,
-          attributes: ["ID_PERFIL", "PERFIL"],
-          through: {
-            model: UtilizadorTemPerfil,
-            attributes: [],
+    const [utilizador, perfilAssociations] = await Promise.all([
+      // 1. Buscar utilizador
+      Utilizador.findByPk(userId, {
+        attributes: [
+          "ID_UTILIZADOR",
+          "USERNAME",
+          "NOME",
+          "LINKEDIN",
+          "DATA_CRIACAO",
+          "ULTIMO_LOGIN",
+          "EMAIL",
+          "XP",
+        ],
+      }),
+
+      // 2. Buscar associações de perfil
+      UtilizadorTemPerfil.findAll({
+        where: { ID_UTILIZADOR: userId },
+        include: [
+          {
+            model: Perfil,
+            attributes: ["ID_PERFIL", "PERFIL"],
           },
-        },
-      ],
-    });
+        ],
+      }),
+    ]);
 
     if (!utilizador) {
       return res.status(404).json({ message: "Utilizador não encontrado" });
     }
 
-    res.status(200).json(utilizador);
+    // Combinar os resultados
+    const result = utilizador.toJSON();
+    result.Perfils = perfilAssociations.map((assoc) => assoc.Perfil);
+
+    res.status(200).json(result);
   } catch (error) {
     console.error("Erro ao buscar utilizador:", error);
     res.status(500).json({ message: error.message });
