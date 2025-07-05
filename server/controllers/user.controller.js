@@ -692,12 +692,7 @@ const getUser = async (req, res) => {
       // 2. Buscar associações de perfil
       UtilizadorTemPerfil.findAll({
         where: { ID_UTILIZADOR: userId },
-        include: [
-          {
-            model: Perfil,
-            attributes: ["ID_PERFIL", "PERFIL"],
-          },
-        ],
+        attributes: ["ID_PERFIL", "PERFIL"],
       }),
     ]);
 
