@@ -674,37 +674,30 @@ const getUser = async (req, res) => {
     }
 
     // Busca o utilizador pelo ID
-    const [utilizador, perfilAssociations] = await Promise.all([
-      // 1. Buscar utilizador
-      Utilizador.findByPk(userId, {
-        attributes: [
-          "ID_UTILIZADOR",
-          "USERNAME",
-          "NOME",
-          "LINKEDIN",
-          "DATA_CRIACAO",
-          "ULTIMO_LOGIN",
-          "EMAIL",
-          "XP",
-        ],
-      }),
-
-      // 2. Buscar associações de perfil
-      UtilizadorTemPerfil.findAll({
-        where: { ID_UTILIZADOR: userId },
-        attributes: ["ID_PERFIL"],
-      }),
-    ]);
+    const utilizador = await Utilizador.findByPk(userId, {
+      attributes: [
+        "ID_UTILIZADOR",
+        "USERNAME",
+        "NOME",
+        "LINKEDIN",
+        "DATA_CRIACAO",
+        "ULTIMO_LOGIN",
+        "EMAIL",
+        "XP",
+      ],
+      include: [
+        {
+            model: UtilizadorTemPerfil,
+            attributes: ["ID_PERFIL"],
+          },
+      ],
+    });
 
     if (!utilizador) {
       return res.status(404).json({ message: "Utilizador não encontrado" });
     }
 
-    // Combinar os resultados
-    const result = utilizador.toJSON();
-    result.Perfils = perfilAssociations.map((assoc) => assoc.Perfil);
-
-    res.status(200).json(result);
+    res.status(200).json(utilizador);
   } catch (error) {
     console.error("Erro ao buscar utilizador:", error);
     res.status(500).json({ message: error.message });
@@ -888,9 +881,7 @@ const getUserStatistics = async (req, res) => {
           quizCompleto = !!respostaQuiz; // Converter para booleano
 
           console.log(
-            `Curso ${cursoId}: Quiz ${quiz.ID_QUIZ} ${
-              quizCompleto ? "completado" : "não completado"
-            }`
+            `Curso ${cursoId}: Quiz ${quiz.ID_QUIZ} ${quizCompleto ? "completado" : "não completado"}`
           );
         }
 
@@ -901,16 +892,12 @@ const getUserStatistics = async (req, res) => {
           quizCompleto
         ) {
           console.log(
-            `Curso ${cursoId} COMPLETADO: ${modulosCompletos}/${totalModulos} módulos e quiz ${
-              quizCompleto ? "completo" : "N/A"
-            }`
+            `Curso ${cursoId} COMPLETADO: ${modulosCompletos}/${totalModulos} módulos e quiz ${quizCompleto ? "completo" : "N/A"}`
           );
           cursosCompletados++;
         } else {
           console.log(
-            `Curso ${cursoId} NÃO completado: ${modulosCompletos}/${totalModulos} módulos e quiz ${
-              quizCompleto ? "completo" : "incompleto/não existe"
-            }`
+            `Curso ${cursoId} NÃO completado: ${modulosCompletos}/${totalModulos} módulos e quiz ${quizCompleto ? "completo" : "incompleto/não existe"}`
           );
         }
       }
@@ -971,9 +958,7 @@ const getUserStatistics = async (req, res) => {
     };
 
     console.log(
-      `Estatísticas para usuário ${userId}: Total=${totalCursos}, Completos=${cursosCompletados}, Ativos=${
-        totalCursos - cursosCompletados
-      }`
+      `Estatísticas para usuário ${userId}: Total=${totalCursos}, Completos=${cursosCompletados}, Ativos=${totalCursos - cursosCompletados}`
     );
 
     res.status(200).json(estatisticas);
