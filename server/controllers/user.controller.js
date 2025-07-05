@@ -687,9 +687,13 @@ const getUser = async (req, res) => {
       ],
       include: [
         {
+          model: Perfil,
+          attributes: ["ID_PERFIL", "PERFIL"],
+          through: {
             model: UtilizadorTemPerfil,
-            attributes: ["ID_PERFIL"],
+            attributes: [],
           },
+        },
       ],
     });
 
