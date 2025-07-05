@@ -674,7 +674,8 @@ const getUser = async (req, res) => {
     }
 
     // Busca o utilizador pelo ID
-    const utilizador = await Utilizador.findByPk(userId, {
+    const utilizador = await Utilizador.findOne({
+      where: { ID_UTILIZADOR: userId },
       attributes: [
         "ID_UTILIZADOR",
         "USERNAME",
@@ -885,7 +886,9 @@ const getUserStatistics = async (req, res) => {
           quizCompleto = !!respostaQuiz; // Converter para booleano
 
           console.log(
-            `Curso ${cursoId}: Quiz ${quiz.ID_QUIZ} ${quizCompleto ? "completado" : "não completado"}`
+            `Curso ${cursoId}: Quiz ${quiz.ID_QUIZ} ${
+              quizCompleto ? "completado" : "não completado"
+            }`
           );
         }
 
@@ -896,12 +899,16 @@ const getUserStatistics = async (req, res) => {
           quizCompleto
         ) {
           console.log(
-            `Curso ${cursoId} COMPLETADO: ${modulosCompletos}/${totalModulos} módulos e quiz ${quizCompleto ? "completo" : "N/A"}`
+            `Curso ${cursoId} COMPLETADO: ${modulosCompletos}/${totalModulos} módulos e quiz ${
+              quizCompleto ? "completo" : "N/A"
+            }`
           );
           cursosCompletados++;
         } else {
           console.log(
-            `Curso ${cursoId} NÃO completado: ${modulosCompletos}/${totalModulos} módulos e quiz ${quizCompleto ? "completo" : "incompleto/não existe"}`
+            `Curso ${cursoId} NÃO completado: ${modulosCompletos}/${totalModulos} módulos e quiz ${
+              quizCompleto ? "completo" : "incompleto/não existe"
+            }`
           );
         }
       }
@@ -962,7 +969,9 @@ const getUserStatistics = async (req, res) => {
     };
 
     console.log(
-      `Estatísticas para usuário ${userId}: Total=${totalCursos}, Completos=${cursosCompletados}, Ativos=${totalCursos - cursosCompletados}`
+      `Estatísticas para usuário ${userId}: Total=${totalCursos}, Completos=${cursosCompletados}, Ativos=${
+        totalCursos - cursosCompletados
+      }`
     );
 
     res.status(200).json(estatisticas);
