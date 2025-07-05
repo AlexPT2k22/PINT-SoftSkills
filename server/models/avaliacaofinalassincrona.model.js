@@ -13,10 +13,6 @@ const AvaliacaoFinalAssincrona = sequelize.define(
     ID_QUIZZ_ASSINCRONO: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: "QUIZZ_ASSINCRONO",
-        key: "ID_QUIZZ_ASSINCRONO",
-      },
     },
     NOTA_FINAL: {
       type: DataTypes.FLOAT,

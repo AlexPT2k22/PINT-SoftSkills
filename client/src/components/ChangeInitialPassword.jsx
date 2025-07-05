@@ -62,55 +62,52 @@ function ChangeInitialPassword() {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center w-50">
-      <div className="reset-container d-flex flex-column justify-content-center align-items-center">
-        {showSuccess && (
-          <SuccessMessage
-            message="Password alterada com sucesso!"
-            onClose={() => setShowSuccess(false)}
-          />
-        )}
-        {message && (
-          <ErrorMessage message={message} onClose={() => setMessage("")} />
-        )}
+    <div className="reset-container">
+      {showSuccess && (
+        <SuccessMessage
+          message="Password alterada com sucesso!"
+          onClose={() => setShowSuccess(false)}
+        />
+      )}
+      {message && (
+        <ErrorMessage message={message} onClose={() => setMessage("")} />
+      )}
 
-        <h2 className="text-center mb-3">Altere a sua password</h2>
-        <p className="text-center text-muted mb-4">
-          No primeiro acesso, é necessário alterar a password para maior
-          segurança
-        </p>
+      <h2 className="text-center mb-3">Altere a sua password</h2>
+      <p className="text-center text-muted mb-4">
+        No primeiro acesso, é necessário alterar a password para maior segurança
+      </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="d-flex flex-column align-items-center"
-        >
-          <input
-            className="reset-password-input mb-3"
-            type="password"
-            placeholder="Nova password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <input
-            className="reset-password-input mb-3"
-            type="password"
-            placeholder="Confirme nova password"
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          <div className="buttons-reset gap-3 d-flex justify-content-center align-items-center">
-            <button type="submit" className="btn btn-primary login-button">
-              {isLoading ? (
-                <ButtonWithLoader isLoading={isLoading} />
-              ) : (
-                "Alterar password"
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
+      <form
+        onSubmit={handleSubmit}
+        className="d-flex flex-column align-items-center w-100"
+      >
+        <input
+          className="reset-password-input mb-3"
+          type="password"
+          placeholder="Nova password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <input
+          className="reset-password-input mb-3"
+          type="password"
+          placeholder="Confirme nova password"
+          required
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+        <div className="buttons-reset gap-3 d-flex justify-content-center align-items-center">
+          <button type="submit" className="btn btn-primary login-button">
+            {isLoading ? (
+              <ButtonWithLoader isLoading={isLoading} />
+            ) : (
+              "Alterar password"
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

@@ -1,18 +1,11 @@
 import React from "react";
 import Slides from "./components/Slides.jsx";
 import ChangeInitialPassword from "./components/ChangeInitialPassword.jsx";
+import "./styles/resetpassword.css";
 
 function ChangePasswordPage() {
   return (
-    <div
-      className="change-password-page-container"
-      style={{
-        height: "100vh",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
+    <div className="change-password-page-container">
       <Slides />
       <ChangeInitialPassword />
     </div>
