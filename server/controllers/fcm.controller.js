@@ -1,5 +1,6 @@
 const { FCMToken, Utilizador } = require("../models/index.js");
 const admin = require("../config/firebase.js");
+const { Op } = require("sequelize");
 
 // Registrar/atualizar token FCM
 const registerFCMToken = async (req, res) => {
@@ -117,56 +118,74 @@ const sendPushNotification = async (userId, title, body, data = {}) => {
       return false;
     }
 
-    const tokenStrings = tokens.map(t => t.TOKEN);
+    console.log(`Enviando notificação push para ${tokens.length} dispositivos do usuário ${userId}`);
 
-    const message = {
-      notification: {
-        title: title,
-        body: body,
-      },
-      data: {
-        ...data,
-        click_action: 'FLUTTER_NOTIFICATION_CLICK',
-        sound: 'default',
-      },
-      tokens: tokenStrings,
-    };
+    let successCount = 0;
+    let failureCount = 0;
+    const failedTokens = [];
 
-    // Enviar notificação
-    const response = await admin.messaging().sendMulticast(message);
+    for (const tokenObj of tokens) {
+      try {
+        const message = {
+          notification: {
+            title: title,
+            body: body,
+          },
+          data: {
+            ...data,
+            type: data.type || 'notification',
+            courseId: data.courseId || '',
+            notificationId: data.notificationId || '',
+            timestamp: data.timestamp || new Date().toISOString(),
+            click_action: 'FLUTTER_NOTIFICATION_CLICK',
+          },
+          token: tokenObj.TOKEN, // Um token por vez
+        };
 
-    console.log(`Notificação push enviada:`, {
-      userId,
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-      totalTokens: tokenStrings.length
-    });
-
-    // Processar tokens inválidos
-    if (response.failureCount > 0) {
-      const failedTokens = [];
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          failedTokens.push(tokenStrings[idx]);
-          console.warn(`Token FCM inválido: ${tokenStrings[idx]}`, resp.error);
+        const response = await admin.messaging().send(message);
+        
+        if (response) {
+          successCount++;
+          console.log(`Notificação enviada para dispositivo ${tokenObj.DEVICE_TYPE}: ${response}`);
         }
-      });
 
-      // Desativar tokens inválidos
-      if (failedTokens.length > 0) {
-        await FCMToken.update(
-          { ATIVO: false },
-          {
-            where: {
-              TOKEN: { [Op.in]: failedTokens }
-            }
-          }
-        );
-        console.log(`${failedTokens.length} tokens FCM inválidos desativados`);
+      } catch (error) {
+        failureCount++;
+        failedTokens.push(tokenObj.TOKEN);
+        
+        console.warn(`Falha ao enviar para token ${tokenObj.TOKEN}:`, {
+          errorCode: error.code,
+          errorMessage: error.message
+        });
+
+        // Verificar se é um erro de token inválido
+        if (error.code === 'messaging/registration-token-not-registered' ||
+            error.code === 'messaging/invalid-registration-token') {
+          console.log(`Marcando token como inválido: ${tokenObj.TOKEN}`);
+        }
       }
     }
 
-    return response.successCount > 0;
+    console.log(`Resultado do envio:`, {
+      userId,
+      successCount,
+      failureCount,
+      totalTokens: tokens.length
+    });
+
+    if (failedTokens.length > 0) {
+      await FCMToken.update(
+        { ATIVO: false },
+        {
+          where: {
+            TOKEN: { [Op.in]: failedTokens }
+          }
+        }
+      );
+      console.log(`${failedTokens.length} tokens FCM inválidos desativados`);
+    }
+
+    return successCount > 0;
 
   } catch (error) {
     console.error("Erro ao enviar notificação push:", error);
@@ -174,21 +193,33 @@ const sendPushNotification = async (userId, title, body, data = {}) => {
   }
 };
 
-// Enviar notificação push para múltiplos usuários
+
 const sendPushNotificationToUsers = async (userIds, title, body, data = {}) => {
   try {
     console.log(`Enviando notificação push para ${userIds.length} usuários`);
 
-    const promises = userIds.map(userId => 
-      sendPushNotification(userId, title, body, data)
-    );
-
-    const results = await Promise.allSettled(promises);
+    let totalSuccess = 0;
     
-    const successCount = results.filter(r => r.status === 'fulfilled' && r.value).length;
-    console.log(`Notificações push enviadas: ${successCount}/${userIds.length}`);
+    // Processar usuários em lotes para evitar sobrecarga
+    const batchSize = 10;
+    for (let i = 0; i < userIds.length; i += batchSize) {
+      const batch = userIds.slice(i, i + batchSize);
+      
+      const promises = batch.map(userId => 
+        sendPushNotification(userId, title, body, data)
+      );
 
-    return successCount;
+      const results = await Promise.allSettled(promises);
+      
+      const batchSuccess = results.filter(r => r.status === 'fulfilled' && r.value).length;
+      totalSuccess += batchSuccess;
+      
+      console.log(`Lote ${Math.floor(i/batchSize) + 1}: ${batchSuccess}/${batch.length} sucessos`);
+    }
+
+    console.log(`Total de notificações push enviadas: ${totalSuccess}/${userIds.length}`);
+
+    return totalSuccess;
 
   } catch (error) {
     console.error("Erro ao enviar notificações push em massa:", error);
