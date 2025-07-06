@@ -74,10 +74,9 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
     return (
       <div className="alert alert-info">
         <FileText size={20} className="me-2" />
-        <strong>Avaliação Final Pendente</strong>
+        <strong>Avaliação final pendente</strong>
         <p className="mb-0 mt-2">
           A sua avaliação final ainda não foi disponibilizada pelo formador.
-          Será notificado assim que estiver disponível.
         </p>
       </div>
     );
@@ -96,7 +95,7 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
       <div className="card shadow-sm">
         <div className="card-header">
           <h5 className="mb-0">
-            Avaliação Final
+            Avaliação final
             {nomeCurso && <span className="ms-2">- {nomeCurso}</span>}
           </h5>
         </div>
@@ -118,7 +117,7 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
               <div className="mb-3">
                 <h6 className="text-muted mb-2">
                   <Calendar size={16} className="me-1" />
-                  Data de Avaliação
+                  Data de avaliação
                 </h6>
                 <p className="mb-0">
                   {new Date(avaliacaoFinal.DATA_AVALIACAO).toLocaleDateString(

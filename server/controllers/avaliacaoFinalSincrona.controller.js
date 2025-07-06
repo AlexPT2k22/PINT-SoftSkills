@@ -246,7 +246,7 @@ const getMinhasAvaliacoesFinais = async (req, res) => {
       if (cursoSincrono) {
         avaliacoesComCurso.push({
           ...avaliacao.toJSON(),
-          curso: cursoSincrono.Curso,
+          curso: cursoSincrono.CURSO,
         });
       }
     }

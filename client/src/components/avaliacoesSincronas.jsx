@@ -1226,58 +1226,6 @@ const AvaliacoesSincronas = ({
       </>
     );
   }
-
-  return (
-    <div className="container p-0">
-      {/* Tabs de Navegação */}
-      <ul className="nav nav-tabs mb-4" id="avaliacoesTabs" role="tablist">
-        <li className="nav-item" role="presentation">
-          <button
-            className={`nav-link ${activeTab === "avaliacoes" ? "active" : ""}`}
-            onClick={() => setActiveTab("avaliacoes")}
-            type="button"
-            role="tab"
-          >
-            <FileText size={16} className="me-1" />
-            Avaliações
-          </button>
-        </li>
-        <li className="nav-item" role="presentation">
-          <button
-            className={`nav-link ${
-              activeTab === "avaliacao-final" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("avaliacao-final")}
-            type="button"
-            role="tab"
-          >
-            <Star size={16} className="me-1" />
-            Avaliação Final
-          </button>
-        </li>
-      </ul>
-
-      {/* Conteúdo das Tabs */}
-      <div className="tab-content">
-        {activeTab === "avaliacoes" && (
-          <div className="tab-pane fade show active">
-            {/* Conteúdo original das avaliações */}
-            {renderAvaliacoesContent()}
-          </div>
-        )}
-
-        {activeTab === "avaliacao-final" && (
-          <div className="tab-pane fade show active">
-            {isTeacher ? (
-              <AvaliacaoFinalFormador cursoId={cursoId} />
-            ) : (
-              <MinhaAvaliacaoFinal cursoId={cursoId} nomeCurso={nomeCurso} />
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
 };
 
 export default AvaliacoesSincronas;

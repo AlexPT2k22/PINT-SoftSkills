@@ -58,12 +58,6 @@ const MeuPercursoFormativo = () => {
     return "Insuficiente";
   };
 
-  const getNotaIcon = (nota) => {
-    if (nota >= 16) return "🌟";
-    if (nota >= 14) return "👍";
-    if (nota >= 10) return "✅";
-    return "❌";
-  };
 
   const calcularEstatisticas = () => {
     if (avaliacoesFinais.length === 0) return null;
@@ -119,8 +113,7 @@ const MeuPercursoFormativo = () => {
     <div className="container p-0">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4>
-          <Trophy className="me-2" size={24} />
-          Meu Percurso Formativo
+          O meu percurso formativo
         </h4>
       </div>
 
@@ -178,7 +171,6 @@ const MeuPercursoFormativo = () => {
             <div className="card h-100 shadow-sm">
               <div className="card-header d-flex justify-content-between align-items-center">
                 <h6 className="mb-0">
-                  <BookOpen size={16} className="me-1" />
                   {avaliacao.curso?.NOME || "Curso"}
                 </h6>
                 <span
@@ -190,9 +182,6 @@ const MeuPercursoFormativo = () => {
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <div>
-                    <span className="h5 me-2">
-                      {getNotaIcon(avaliacao.NOTA_FINAL)}
-                    </span>
                     <span
                       className={`fw-bold text-${getNotaColor(
                         avaliacao.NOTA_FINAL
@@ -268,7 +257,6 @@ const MeuPercursoFormativo = () => {
       {/* Escala de Avaliação */}
       <div className="mt-4 p-3 bg-light rounded">
         <h6 className="text-muted mb-2">
-          <Star size={16} className="me-1" />
           Escala de Avaliação
         </h6>
         <div className="row small">
