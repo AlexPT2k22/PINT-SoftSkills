@@ -260,7 +260,7 @@ const getMeuPercursoFormativo = async (req, res) => {
           // Para cursos síncronos: deve ter completado todas as avaliações
           if (avaliacoesCompletas < avaliacoesSincronas.length) return false;
 
-          if (notaMedia < 47.5) return false;
+          if (notaFinal < 47.5) return false;
 
           return true;
         };

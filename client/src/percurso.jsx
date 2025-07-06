@@ -501,7 +501,7 @@ const MeuPercurso = () => {
                       )}
                       {(() => {
                         const notaMinima = 9.5;
-                        const notaAtual = parseFloat(
+                        const notaAtual = curso.tipo === "Síncrono" ? curso.notaFinal : parseFloat(
                           formatarNota(curso.notaMedia)
                         );
                         return (
@@ -1214,20 +1214,23 @@ const MeuPercurso = () => {
                             <div className="col-md-4">
                               <div className="detail-group">
                                 <h6 className="detail-title">Avaliação</h6>
-                                <div className="detail-item">
-                                  <span className="detail-label">
-                                    Nota média
-                                  </span>
-                                  <span className="detail-value">
-                                    {curso.notaMedia > 0 ? (
-                                      <span className="d-flex align-items-center">
-                                        {formatarNota(curso.notaMedia)} valores
-                                      </span>
-                                    ) : (
-                                      "N/A"
-                                    )}
-                                  </span>
-                                </div>
+                                {curso.tipo === "Assíncrono" && (
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Nota média
+                                    </span>
+                                    <span className="detail-value">
+                                      {curso.notaMedia > 0 ? (
+                                        <span className="d-flex align-items-center">
+                                          {formatarNota(curso.notaMedia)}{" "}
+                                          valores
+                                        </span>
+                                      ) : (
+                                        "N/A"
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
 
                                 {/* Mostrar nota final para cursos síncronos */}
                                 {curso.tipo === "Síncrono" && (
@@ -1270,9 +1273,14 @@ const MeuPercurso = () => {
 
                                             // Verificar nota média (deve ser >= 9.5 valores)
                                             const notaMinima = 9.5;
-                                            const notaAtual = parseFloat(
-                                              formatarNota(curso.notaMedia)
-                                            );
+                                            const notaAtual =
+                                              curso.tipo === "Síncrono"
+                                                ? curso.notaFinal
+                                                : parseFloat(
+                                                    formatarNota(
+                                                      curso.notaMedia
+                                                    )
+                                                  );
 
                                             if (
                                               isNaN(notaAtual) ||
