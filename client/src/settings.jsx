@@ -202,7 +202,7 @@ function SettingsPage() {
                       </a>
                     )}
                     <a
-                      href={`http://localhost:5173/user/${userData?.ID_UTILIZADOR}`}
+                      href={`${URL}/user/${userData?.ID_UTILIZADOR}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-linked btn-outline-primary btn-sm ms-2"
