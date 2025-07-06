@@ -17,6 +17,7 @@ const { connectCloudinary } = require("./database/cloudinary.js");
 const notasRoutes = require("./routes/notas.route.js");
 const certificadoRoutes = require("./routes/certificado.route.js");
 const avaliacaoSincronaRoutes = require("./routes/avaliacaoSincrona.route.js");
+const avaliacaoFinalSincronaRoutes = require("./routes/avaliacaoFinalSincrona.route.js");
 const aulaSincronaRoutes = require("./routes/aulaSincrona.route.js");
 const presencaRoutes = require("./routes/presenca.route");
 const notificacaoRoutes = require("./routes/notificacao.route.js");
@@ -46,7 +47,6 @@ app.use(
         "http://localhost:3000",
         "https://pint-soft-skills.vercel.app",
         "https://pint-soft-skills-alexandres-projects-999f47dc.vercel.app",
-
       ];
 
       // Permitir requests sem origin
@@ -96,6 +96,7 @@ app.use("/api/categorias", categoriaRoutes); // Rota para categorias
 app.use("/api/progress", progressRoute); // Rota para progresso
 app.use("/api/notes", notasRoutes); // Rota para notas
 app.use("/api/avaliacoes", avaliacaoSincronaRoutes); // Rota para avaliações síncronas
+app.use("/api/avaliacoes-finais", avaliacaoFinalSincronaRoutes); // Rota para avaliações finais
 app.use("/api/forum/topicos", forumTopicoRoutes); // Rota para tópicos do fórum
 app.use("/api/admin/stats", adminStatsRoutes); // Rota para estatísticas do admin
 app.use("/api/forum/posts", forumPostRoutes); // Rota para posts do fórum

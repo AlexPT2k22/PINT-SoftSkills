@@ -24,10 +24,12 @@ import {
   XCircle,
   Search,
   Filter,
+  Trophy,
 } from "lucide-react";
 import NavbarDashboard from "./components/navbarDashboard";
 import Sidebar from "./components/sidebar";
 import ErrorMessage from "./components/error_message";
+import MeuPercursoFormativo from "./components/meuPercursoFormativo";
 import "./styles/meuPercurso.css";
 
 const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -1446,6 +1448,17 @@ const MeuPercurso = () => {
                   Os meus cursos
                 </button>
               </li>
+              <li className="nav-item">
+                <button
+                  className={`nav-link ${
+                    activeTab === "avaliacoes-finais" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab("avaliacoes-finais")}
+                >
+                  <Trophy size={18} className="me-2" />
+                  Avaliações Finais
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -1458,6 +1471,7 @@ const MeuPercurso = () => {
               <div className="tab-content">
                 {activeTab === "visaoGeral" && <VisaoGeral />}
                 {activeTab === "cursos" && <CursosList />}
+                {activeTab === "avaliacoes-finais" && <MeuPercursoFormativo />}
               </div>
             )}
           </div>
