@@ -1416,6 +1416,44 @@ const addTeacher = async (req, res) => {
   }
 };
 
+const getNotaMediaAvaliacoesFinais = async (req, res) => {
+  try {
+    const userId = req.user.ID_UTILIZADOR;
+
+    // Buscar todas as avaliações finais do utilizador
+    const { AvaliacaoFinalSincrona } = require("../models/index.js");
+    const avaliacoesFinais = await AvaliacaoFinalSincrona.findAll({
+      where: {
+        UTI_ID_UTILIZADOR2: userId, // Aluno é UTI_ID_UTILIZADOR2
+      },
+      attributes: ["NOTA_FINAL", "DATA_AVALIACAO"],
+    });
+
+    let notaMediaFinal = 0;
+    let totalAvaliacoesFinais = avaliacoesFinais.length;
+
+    if (totalAvaliacoesFinais > 0) {
+      const somaNotasFinais = avaliacoesFinais.reduce(
+        (soma, avaliacao) => soma + parseFloat(avaliacao.NOTA_FINAL),
+        0
+      );
+      notaMediaFinal = somaNotasFinais / totalAvaliacoesFinais;
+    }
+
+    const estatisticas = {
+      notaMediaFinal: parseFloat(notaMediaFinal.toFixed(1)),
+      totalAvaliacoesFinais: totalAvaliacoesFinais,
+      escala: "0-20",
+      cursosCompletados: totalAvaliacoesFinais,
+    };
+
+    res.status(200).json(estatisticas);
+  } catch (error) {
+    console.error("Erro ao buscar nota média das avaliações finais:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getTeachers,
   getCursosAssociados,
@@ -1433,4 +1471,5 @@ module.exports = {
   addXPToUserInternal,
   getNotaMediaCompleta,
   addTeacher,
+  getNotaMediaAvaliacoesFinais,
 };

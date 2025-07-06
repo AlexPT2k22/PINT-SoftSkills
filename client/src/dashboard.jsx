@@ -27,6 +27,12 @@ function Dashboard() {
     trabalhos: { count: 0, media: 0 },
     quizzes: { count: 0, media: 0 },
   });
+  const [notaMediaAvaliacoesFinais, setNotaMediaAvaliacoesFinais] = useState({
+    notaMediaFinal: 0,
+    totalAvaliacoesFinais: 0,
+    cursosCompletados: 0,
+    escala: "0-20",
+  });
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const [proximosTrabalhos, setProximosTrabalhos] = useState([]);
@@ -51,6 +57,7 @@ function Dashboard() {
           trabalhosResponse,
           quizzesResponse,
           notaMediaResponse,
+          notaMediaAvaliacoesFinaisResponse,
         ] = await Promise.all([
           axios.get(`${URL}/api/aulas/all`, {
             withCredentials: true,
@@ -64,9 +71,13 @@ function Dashboard() {
           axios.get(`${URL}/api/user/nota-media`, {
             withCredentials: true,
           }),
+          axios.get(`${URL}/api/user/nota-media-avaliacoes-finais`, {
+            withCredentials: true,
+          }),
         ]);
 
         setNotaMedia(notaMediaResponse.data);
+        setNotaMediaAvaliacoesFinais(notaMediaAvaliacoesFinaisResponse.data);
 
         // Calcular progresso geral
         const progressMap = {};
@@ -345,12 +356,12 @@ function Dashboard() {
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="card-subtitle mb-2 text-muted d-flex align-items-center">
-                        Nota média
-                        {notaMedia.totalAvaliacoes > 0 && (
+                        Nota média <br></br>Cursos assincronos
+                        {notaMedia.quizzes.count > 0 && (
                           <span
                             className="ms-2 text-primary"
                             style={{ cursor: "help" }}
-                            title={`Trabalhos: ${notaMedia.trabalhos.count} (média: ${notaMedia.trabalhos.media}/20)\nQuizzes: ${notaMedia.quizzes.count} (média: ${notaMedia.quizzes.media}/20)`}
+                            title={`Quizzes: ${notaMedia.quizzes.count}`}
                           >
                             <Info size={16} />
                           </span>
@@ -373,19 +384,27 @@ function Dashboard() {
                 <div className="card h-100">
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
-                      <h6 className="card-subtitle mb-2 text-muted">
-                        Próximo trabalho/quiz
+                      <h6 className="card-subtitle mb-2 text-muted d-flex align-items-center">
+                        Nota média <br></br>Cursos sincronos
+                        {notaMediaAvaliacoesFinais.totalAvaliacoesFinais >
+                          0 && (
+                          <span
+                            className="ms-2 text-primary"
+                            style={{ cursor: "help" }}
+                            title={`Cursos completados: ${notaMediaAvaliacoesFinais.cursosCompletados}`}
+                          >
+                            <Info size={16} />
+                          </span>
+                        )}
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
-                        {proximosTrabalhos.length > 0
-                          ? proximosTrabalhos[0].tipo === "quiz"
-                            ? "Quiz disponível"
-                            : proximosTrabalhos[0].dataFormatada
+                        {notaMediaAvaliacoesFinais.totalAvaliacoesFinais > 0
+                          ? `${notaMediaAvaliacoesFinais.notaMediaFinal}/20`
                           : "N/A"}
                       </h3>
                     </div>
                     <div className="bg-light rounded-circle p-3 d-none d-lg-block">
-                      <File size={24} className="text-primary" />
+                      <GraduationCap size={24} className="text-primary" />
                     </div>
                   </div>
                 </div>

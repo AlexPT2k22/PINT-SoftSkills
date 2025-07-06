@@ -60,13 +60,6 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
     return "Insuficiente";
   };
 
-  const getNotaIcon = (nota) => {
-    if (nota >= 16) return "🌟";
-    if (nota >= 14) return "👍";
-    if (nota >= 10) return "✅";
-    return "❌";
-  };
-
   if (loading) {
     return (
       <div className="d-flex justify-content-center my-4">
@@ -101,9 +94,8 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
   return (
     <div className="container p-0">
       <div className="card shadow-sm">
-        <div className="card-header bg-primary text-white">
+        <div className="card-header">
           <h5 className="mb-0">
-            <Award className="me-2" size={20} />
             Avaliação Final
             {nomeCurso && <span className="ms-2">- {nomeCurso}</span>}
           </h5>
@@ -111,10 +103,7 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
         <div className="card-body">
           <div className="row">
             <div className="col-md-6">
-              <div className="text-center mb-4">
-                <div className="display-4 mb-2">
-                  {getNotaIcon(avaliacaoFinal.NOTA_FINAL)}
-                </div>
+              <div className="text-center mb-0 align-items-center d-flex flex-column jusify-content-center">
                 <h2
                   className={`text-${getNotaColor(avaliacaoFinal.NOTA_FINAL)}`}
                 >
@@ -175,7 +164,6 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
 
           <div className="mt-4 p-3 bg-light rounded">
             <h6 className="text-muted mb-2">
-              <Star size={16} className="me-1" />
               Escala de Avaliação
             </h6>
             <div className="row small">
@@ -200,10 +188,9 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
 
           {avaliacaoFinal.NOTA_FINAL >= 10 && (
             <div className="mt-4 alert alert-success">
-              <Award size={20} className="me-2" />
               <strong>Parabéns!</strong> Completou com sucesso este curso.
               {avaliacaoFinal.NOTA_FINAL >= 16 && (
-                <span className="ms-2">Resultado excecional! 🎉</span>
+                <span className="ms-2">Com um resultado excecional!</span>
               )}
             </div>
           )}

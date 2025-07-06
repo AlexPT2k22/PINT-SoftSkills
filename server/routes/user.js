@@ -17,6 +17,7 @@ const {
   updateEvaluationGrade,
   getNotaMediaCompleta,
   addTeacher,
+  getNotaMediaAvaliacoesFinais,
 } = require("../controllers/user.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
@@ -31,6 +32,11 @@ router.post(
 );
 router.get("/teachers", getTeachers);
 router.get("/nota-media", authenticateToken, getNotaMediaCompleta);
+router.get(
+  "/nota-media-avaliacoes-finais",
+  authenticateToken,
+  getNotaMediaAvaliacoesFinais
+);
 router.post("/add-teacher", authenticateToken, addTeacher);
 router.get("/teacher-courses", authenticateToken, getCursosAssociados);
 router.get("/student-courses", authenticateToken, getCursosInscritos);
