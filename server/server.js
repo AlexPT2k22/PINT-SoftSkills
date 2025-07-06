@@ -35,6 +35,9 @@ const {
   updateAsyncCoursesStatus,
   updateSyncCoursesStatus,
 } = require("./jobs/courseStatusUpdater.js");
+const fcmRoutes = require("./routes/fcm.route.js");
+require("./config/firebase.js");
+const { cleanupInactiveTokens } = require("./jobs/fcmCleanup.js");
 const path = require("path");
 const port = process.env.PORT || 4000;
 
@@ -84,6 +87,14 @@ setInterval(
   60 * 60 * 1000
 );
 
+setInterval(
+  async () => {
+    await cleanupInactiveTokens();
+  },
+  24 * 60 * 60 * 1000 // 24 horas
+);
+
+app.use("/api/fcm", fcmRoutes);
 app.use("/api/notificacoes", notificacaoRoutes); // Rota para notificações
 app.use("/api/areas", areaRoute); // Rota para áreas
 app.use("/api/anuncios", anuncioRotas); // Rota para anúncios

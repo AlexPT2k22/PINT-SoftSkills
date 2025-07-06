@@ -16,6 +16,7 @@ const {
   sendGeneralNotificationEmail,
   sendAnnouncementNotificationEmail,
 } = require("../mail/emails.js");
+const { sendPushNotification } = require("./fcm.controller.js");
 
 // Criar nova notificação
 const createNotification = async (
@@ -38,6 +39,21 @@ const createNotification = async (
       LIDA: false,
       EMAIL_ENVIADO: false,
     });
+
+    try {
+      const pushData = {
+        type: type,
+        courseId: courseId.toString(),
+        notificationId: notificacao.ID_NOTIFICACAO.toString(),
+        timestamp: new Date().toISOString(),
+      };
+
+      await sendPushNotification(userId, title, message, pushData);
+      console.log(`Notificação push enviada para usuário ${userId}`);
+    } catch (pushError) {
+      console.warn("Erro ao enviar notificação push:", pushError);
+      // Não falhar se push notification falhar
+    }
 
     // Se indicado, enviar email específico baseado no tipo
     if (shouldSendEmail) {
@@ -107,6 +123,7 @@ const createNotification = async (
                 emailSent = true;
               }
               break;
+
             case "NOVO_ANUNCIO":
               if (emailData?.anuncio && emailData?.formadorNome) {
                 await sendAnnouncementNotificationEmail(
@@ -219,7 +236,7 @@ const notifyAllEnrolled = async (
 
     await Promise.all(promises);
     console.log(
-      `Notificações enviadas para ${inscritosIds.length} inscritos no curso ${courseId}`
+      `Notificações (email + push) enviadas para ${inscritosIds.length} inscritos no curso ${courseId}`
     );
 
     return true;

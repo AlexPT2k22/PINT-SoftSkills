@@ -46,6 +46,16 @@ const ForumAvaliacao = require("./forumAvaliacao.model.js");
 const ForumDenuncia = require("./forumDenuncia.model.js");
 const ForumSolicitacao = require("./forumSolicitacao.model.js");
 const Review = require("./review.model.js");
+const FCMToken = require("./fcmToken.model.js");
+
+Utilizador.hasMany(FCMToken, {
+  foreignKey: "ID_UTILIZADOR",
+  onDelete: "CASCADE",
+});
+
+FCMToken.belongsTo(Utilizador, {
+  foreignKey: "ID_UTILIZADOR",
+});
 
 CursoSincrono.hasMany(AulaSincrona, { foreignKey: "ID_CURSO" });
 AulaSincrona.belongsTo(CursoSincrono, { foreignKey: "ID_CURSO" });
@@ -583,4 +593,5 @@ module.exports = {
   ForumDenuncia,
   ForumSolicitacao,
   Review,
+  FCMToken,
 };
