@@ -13,6 +13,7 @@ const {
   QuizAssincrono,
   SubmissaoAvaliacao,
   AvaliacaoSincrona,
+  AvaliacaoFinalSincrona,
   Modulos,
   Area,
   Categoria,
@@ -236,6 +237,16 @@ const getMeuPercursoFormativo = async (req, res) => {
           notaMedia = notaMedia / submissoesAvaliadas;
         }
 
+        // Buscar avaliação final (nota final do formador)
+        const avaliacaoFinal = await AvaliacaoFinalSincrona.findOne({
+          where: {
+            UTI_ID_UTILIZADOR: cursoSincrono.ID_UTILIZADOR, // Formador
+            UTI_ID_UTILIZADOR2: userId, // Aluno
+          },
+        });
+
+        const notaFinal = avaliacaoFinal ? avaliacaoFinal.NOTA_FINAL : 0;
+
         // Verificar se possui certificado
         const certificado = await Certificado.findOne({
           where: { ID_UTILIZADOR: userId, ID_CURSO: cursoId },
@@ -293,6 +304,7 @@ const getMeuPercursoFormativo = async (req, res) => {
           aulasPresentes: presencas,
           percentualPresenca,
           notaMedia: parseFloat(notaMedia.toFixed(1)),
+          notaFinal: parseFloat(notaFinal.toFixed(1)),
           avaliacoesCompletas,
           totalAvaliacoes: avaliacoesSincronas.length,
           modulosCompletos,

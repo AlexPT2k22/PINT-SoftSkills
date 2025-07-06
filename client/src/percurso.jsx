@@ -1229,6 +1229,24 @@ const MeuPercurso = () => {
                                   </span>
                                 </div>
 
+                                {/* Mostrar nota final para cursos síncronos */}
+                                {curso.tipo === "Síncrono" && (
+                                  <div className="detail-item">
+                                    <span className="detail-label">
+                                      Nota final
+                                    </span>
+                                    <span className="detail-value">
+                                      {curso.notaFinal > 0 ? (
+                                        <span className="d-flex align-items-center">
+                                          {curso.notaFinal} valores
+                                        </span>
+                                      ) : (
+                                        "N/A"
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
+
                                 <div className="detail-item">
                                   <span className="detail-label">
                                     Certificado

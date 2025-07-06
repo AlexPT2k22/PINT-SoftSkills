@@ -274,7 +274,7 @@ function QuizPage() {
                     </p>
                   </div>
 
-                  <div className="row text-center mb-4">
+                  <div className="row text-center mb-4 d-flex justify-content-center">
                     <div className="col-md-3">
                       <h6>Nota Obtida</h6>
                       <span className="h4">

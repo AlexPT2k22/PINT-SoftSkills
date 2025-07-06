@@ -4,7 +4,7 @@ import NavbarDashboard from "./components/navbarDashboard";
 import useAuthStore from "./store/authStore";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Book, Clock, Files, File, GraduationCap, Info } from "lucide-react";
+import { Book, Clock, Files, GraduationCap, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
@@ -369,7 +369,7 @@ function Dashboard() {
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {notaMedia.totalAvaliacoes > 0
-                          ? `${notaMedia.notaMediaGeral}`
+                          ? `${notaMedia.quizzes.media}`
                           : "N/A"}
                       </h3>
                     </div>
@@ -399,7 +399,7 @@ function Dashboard() {
                       </h6>
                       <h3 className="card-title mb-0 text-primary">
                         {notaMediaAvaliacoesFinais.totalAvaliacoesFinais > 0
-                          ? `${notaMediaAvaliacoesFinais.notaMediaFinal}/20`
+                          ? `${notaMediaAvaliacoesFinais.notaMediaFinal}`
                           : "N/A"}
                       </h3>
                     </div>
