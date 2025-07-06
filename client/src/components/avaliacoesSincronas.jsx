@@ -439,7 +439,6 @@ const AvaliacoesSincronas = ({
             type="button"
             role="tab"
           >
-            <FileText size={16} className="me-1" />
             Avaliações
           </button>
         </li>
@@ -452,8 +451,7 @@ const AvaliacoesSincronas = ({
             type="button"
             role="tab"
           >
-            <Star size={16} className="me-1" />
-            Avaliação Final
+            Avaliação final
           </button>
         </li>
       </ul>

@@ -14,6 +14,7 @@ const {
   RespostaQuizAssincrono,
   AvaliacaoSincrona,
   SubmissaoAvaliacao,
+  AvaliacaoFinalSincrona,
   ProgressoModulo,
   Modulos,
   Area,
@@ -470,6 +471,7 @@ const getPercursoFormativo = async (req, res) => {
           respostasQuizzes,
           presencas,
           submissoesAvaliacoes,
+          avaliacoesFinais,
         ] = await Promise.all([
           InscricaoSincrono.count({ where: { ID_UTILIZADOR: userId } }),
           InscricaoAssincrono.count({ where: { ID_UTILIZADOR: userId } }),
@@ -497,6 +499,13 @@ const getPercursoFormativo = async (req, res) => {
               },
             ],
           }),
+          AvaliacaoFinalSincrona.findAll({
+            where: {
+              UTI_ID_UTILIZADOR2: userId,
+              NOTA_FINAL: { [Op.ne]: null },
+            },
+            attributes: ["NOTA_FINAL", "DATA_AVALIACAO"],
+          }),
         ]);
 
         // Calcular estatísticas
@@ -510,7 +519,7 @@ const getPercursoFormativo = async (req, res) => {
           (s) => s.NOTA !== null
         ).length;
 
-        // Calcular nota média geral (quizzes + avaliações síncronas)
+        // Calcular nota média geral (notas finais de cursos síncronos + quizzes de cursos assíncronos)
         let notaMediaGeral = 0;
         let totalAvaliacoes = 0;
         let somaNotas = 0;
@@ -525,11 +534,11 @@ const getPercursoFormativo = async (req, res) => {
           });
         }
 
-        // Somar notas das avaliações síncronas (já em escala 0-20)
-        if (submissoesAvaliacoes.length > 0) {
-          submissoesAvaliacoes.forEach((submissao) => {
-            if (submissao.NOTA !== null) {
-              somaNotas += submissao.NOTA;
+        // Somar notas finais dos cursos síncronos (já em escala 0-20)
+        if (avaliacoesFinais.length > 0) {
+          avaliacoesFinais.forEach((avaliacaoFinal) => {
+            if (avaliacaoFinal.NOTA_FINAL !== null) {
+              somaNotas += avaliacaoFinal.NOTA_FINAL;
               totalAvaliacoes++;
             }
           });
@@ -549,7 +558,7 @@ const getPercursoFormativo = async (req, res) => {
           notaMediaQuizzes = (somaQuizzes / respostasQuizzes.length).toFixed(1);
         }
 
-        // Calcular apenas nota média das avaliações síncronas
+        // Calcular apenas nota média das avaliações síncronas (submissões regulares)
         let notaMediaAvaliacoes = 0;
         if (avaliacoesAvaliadas > 0) {
           const somaAvaliacoes = submissoesAvaliacoes
@@ -558,6 +567,18 @@ const getPercursoFormativo = async (req, res) => {
           notaMediaAvaliacoes = (somaAvaliacoes / avaliacoesAvaliadas).toFixed(
             1
           );
+        }
+
+        // Calcular apenas nota média das avaliações finais (cursos síncronos)
+        let notaMediaAvaliacoesFinais = 0;
+        if (avaliacoesFinais.length > 0) {
+          const somaAvaliacoesFinais = avaliacoesFinais.reduce(
+            (sum, a) => sum + (a.NOTA_FINAL || 0),
+            0
+          );
+          notaMediaAvaliacoesFinais = (
+            somaAvaliacoesFinais / avaliacoesFinais.length
+          ).toFixed(1);
         }
 
         return {
@@ -571,9 +592,11 @@ const getPercursoFormativo = async (req, res) => {
             quizzesRespondidos,
             avaliacoesSubmitidas,
             avaliacoesAvaliadas,
+            avaliacoesFinaisTotal: avaliacoesFinais.length,
             notaMediaGeral: parseFloat(notaMediaGeral),
             notaMediaQuizzes: parseFloat(notaMediaQuizzes),
             notaMediaAvaliacoes: parseFloat(notaMediaAvaliacoes),
+            notaMediaAvaliacoesFinais: parseFloat(notaMediaAvaliacoesFinais),
             presencas,
             progressoGeral:
               progressoModulos.length > 0

@@ -88,8 +88,7 @@ const AvaliacaoFinalFormador = ({ cursoId }) => {
     <div className="container p-0">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4>
-          <Star className="me-2" size={20} />
-          Avaliações Finais do Curso
+          Avaliações finais do curso
         </h4>
       </div>
 
@@ -306,7 +305,7 @@ const VisualizarAvaliacao = ({
           )}
 
           <div className="mb-3">
-            <small className="text-muted">Data de Avaliação:</small>
+            <small className="text-muted">Data de avaliação:</small>
             <br />
             <span>
               {new Date(hasAvaliacao.DATA_AVALIACAO).toLocaleDateString()}
@@ -315,7 +314,7 @@ const VisualizarAvaliacao = ({
 
           <button className="btn btn-outline-primary btn-sm" onClick={onEdit}>
             <Eye size={16} className="me-1" />
-            Editar Avaliação
+            Editar avaliação
           </button>
         </div>
       ) : (
