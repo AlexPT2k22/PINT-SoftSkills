@@ -60,7 +60,7 @@ const getAvaliacoesFinaisByCurso = async (req, res) => {
       console.log("Processando inscrição:", {
         inscricaoId: inscricao.ID_INSCRICAO_SINCRONO,
         alunoId: inscricao.ID_UTILIZADOR,
-        utilizador: inscricao.Utilizador,
+        utilizador: inscricao.UTILIZADOR,
       });
 
       const avaliacaoExistente = await AvaliacaoFinalSincrona.findOne({
@@ -71,7 +71,7 @@ const getAvaliacoesFinaisByCurso = async (req, res) => {
       });
 
       avaliacoesFinais.push({
-        aluno: inscricao.Utilizador,
+        aluno: inscricao.UTILIZADOR,
         avaliacaoFinal: avaliacaoExistente,
         cursoId: cursoId,
       });
