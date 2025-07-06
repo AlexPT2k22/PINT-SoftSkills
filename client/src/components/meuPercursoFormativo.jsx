@@ -226,7 +226,6 @@ const MeuPercursoFormativo = () => {
                         )
                       }
                     >
-                      <FileText size={14} className="me-1" />
                       {expandedCard === avaliacao.ID_AVALIACAO_FINAL_SINCRONA
                         ? "Ocultar observações"
                         : "Ver observações"}

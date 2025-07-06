@@ -13,6 +13,7 @@ const {
   SubmissaoAvaliacao,
   RespostaQuizAssincrono,
   ProgressoModulo,
+  AvaliacaoFinalSincrona
 } = require("../models/index.js");
 const sequelize = require("sequelize");
 const { Op } = require("sequelize");
@@ -717,12 +718,11 @@ const getUserStatistics = async (req, res) => {
       return res.status(400).json({ message: "ID de utilizador inválido" });
     }
 
-    // ✅ OTIMIZADO: Fazer todas as consultas em paralelo
     const [
       utilizador,
       cursosSincronosInscritos,
       cursosAssincronosInscritos,
-      submissoesTrabalhos,
+      avaliacaoFinal, //nota final
       respostasQuizzes,
     ] = await Promise.all([
       // Buscar o utilizador
@@ -760,16 +760,14 @@ const getUserStatistics = async (req, res) => {
         ],
       }),
 
-      // ✅ Buscar notas de trabalhos
-      SubmissaoAvaliacao.findAll({
+      AvaliacaoFinalSincrona.findAll({
         where: {
-          ID_UTILIZADOR: userId,
+          UTI_ID_UTILIZADOR2: userId,
           NOTA: { [Op.ne]: null },
         },
         attributes: ["NOTA"],
       }),
 
-      // ✅ Buscar notas de quizzes
       RespostaQuizAssincrono.findAll({
         where: {
           ID_UTILIZADOR: userId,
@@ -787,14 +785,14 @@ const getUserStatistics = async (req, res) => {
     let totalAvaliacoes = 0;
     let somaNotas = 0;
 
-    // Somar trabalhos (já em escala 0-20)
-    if (submissoesTrabalhos.length > 0) {
-      const somaTrabalhos = submissoesTrabalhos.reduce(
+    // Somar Notas (já em escala 0-20)
+    if (avaliacaoFinal.length > 0) {
+      const somaDasNotas = avaliacaoFinal.reduce(
         (soma, submissao) => soma + parseFloat(submissao.NOTA),
         0
       );
-      somaNotas += somaTrabalhos;
-      totalAvaliacoes += submissoesTrabalhos.length;
+      somaNotas += somaDasNotas;
+      totalAvaliacoes += avaliacaoFinal.length;
     }
 
     // Somar quizzes (converter de 0-100 para 0-20)
