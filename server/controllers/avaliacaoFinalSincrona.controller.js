@@ -238,7 +238,7 @@ const getMinhasAvaliacoesFinais = async (req, res) => {
         include: [
           {
             model: Curso,
-            attributes: ["ID_CURSO", "NOME", "DESCRICAO"],
+            attributes: ["ID_CURSO", "NOME"],
           },
         ],
       });
