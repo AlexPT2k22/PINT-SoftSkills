@@ -18,9 +18,6 @@ const SynchronousCourseView = () => {
   const { user } = useAuthStore.getState();
   const tab = searchParams.get("tab");
 
-  const handleSidebarToggle = (newCollapsedState) => {
-    setCollapsed(newCollapsedState);
-  };
 
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -68,7 +65,7 @@ const SynchronousCourseView = () => {
     <>
       <div className="container-fluid p-0">
         <NavbarDashboard />
-        <Sidebar onToggle={handleSidebarToggle} />
+        <Sidebar />
         <div className={`container mt-4 p-4 `}>
           {loading ? (
             <div className="d-flex justify-content-center">

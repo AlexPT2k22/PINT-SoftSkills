@@ -28,25 +28,45 @@ const getAvaliacoesFinaisByCurso = async (req, res) => {
       });
     }
 
-    // Obter todos os alunos inscritos no curso
+    // Obter todos os alunos inscritos no curso com dados mais detalhados
     const inscricoes = await InscricaoSincrono.findAll({
       where: { ID_CURSO_SINCRONO: cursoId },
       include: [
         {
           model: Utilizador,
           attributes: ["ID_UTILIZADOR", "NOME", "USERNAME", "EMAIL"],
+          required: true, // INNER JOIN para garantir que o utilizador existe
         },
       ],
     });
+
+    console.log(`Curso ID: ${cursoId}, Formador ID: ${userId}`);
+    console.log(
+      `Encontradas ${inscricoes.length} inscrições para o curso ${cursoId}`
+    );
+
+    if (inscricoes.length === 0) {
+      console.log(
+        "Nenhuma inscrição encontrada. Verificando se o curso existe..."
+      );
+      const cursoExiste = await CursoSincrono.findByPk(cursoId);
+      console.log("Curso existe:", !!cursoExiste);
+    }
 
     // Para cada aluno, verificar se já tem avaliação final
     const avaliacoesFinais = [];
 
     for (const inscricao of inscricoes) {
+      console.log("Processando inscrição:", {
+        inscricaoId: inscricao.ID_INSCRICAO_SINCRONO,
+        alunoId: inscricao.ID_UTILIZADOR,
+        utilizador: inscricao.Utilizador,
+      });
+
       const avaliacaoExistente = await AvaliacaoFinalSincrona.findOne({
         where: {
-          UTI_ID_UTILIZADOR: inscricao.ID_UTILIZADOR, // Aluno
-          UTI_ID_UTILIZADOR2: userId, // Formador
+          UTI_ID_UTILIZADOR: userId, // Formador
+          UTI_ID_UTILIZADOR2: inscricao.ID_UTILIZADOR, // Aluno
         },
       });
 
@@ -57,6 +77,7 @@ const getAvaliacoesFinaisByCurso = async (req, res) => {
       });
     }
 
+    console.log("Resultado final:", JSON.stringify(avaliacoesFinais, null, 2));
     res.status(200).json(avaliacoesFinais);
   } catch (error) {
     console.error("Erro ao buscar avaliações finais:", error);

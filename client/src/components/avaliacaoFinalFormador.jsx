@@ -31,6 +31,7 @@ const AvaliacaoFinalFormador = ({ cursoId }) => {
         }
       );
 
+      console.log("Resposta do servidor (avaliações finais):", response.data);
       setAvaliacoes(response.data);
       setError(null);
     } catch (error) {
@@ -110,50 +111,58 @@ const AvaliacaoFinalFormador = ({ cursoId }) => {
               </div>
             </div>
           ) : (
-            avaliacoes.map((avaliacao) => (
-              <div
-                key={avaliacao.aluno.ID_UTILIZADOR}
-                className="col-md-6 mb-4"
-              >
-                <div className="card h-100">
-                  <div className="card-header d-flex justify-content-between align-items-center">
-                    <h6 className="mb-0">
-                      {avaliacao.aluno.NOME || avaliacao.aluno.USERNAME}
-                    </h6>
-                    {avaliacao.avaliacaoFinal && (
-                      <span
-                        className={`badge ${
-                          avaliacao.avaliacaoFinal.NOTA_FINAL >= 10
-                            ? "bg-success"
-                            : "bg-danger"
-                        }`}
-                      >
-                        {avaliacao.avaliacaoFinal.NOTA_FINAL.toFixed(1)}/20
-                      </span>
-                    )}
-                  </div>
-                  <div className="card-body">
-                    {editingId === avaliacao.aluno.ID_UTILIZADOR ? (
-                      <EditarAvaliacaoForm
-                        avaliacao={avaliacao}
-                        onSave={handleSalvarAvaliacao}
-                        onCancel={() => setEditingId(null)}
-                        saving={saving}
-                      />
-                    ) : (
-                      <VisualizarAvaliacao
-                        avaliacao={avaliacao}
-                        onEdit={() =>
-                          setEditingId(avaliacao.aluno.ID_UTILIZADOR)
-                        }
-                        getNotaColor={getNotaColor}
-                        getNotaStatus={getNotaStatus}
-                      />
-                    )}
+            avaliacoes.map((avaliacao) => {
+              // Verificação de segurança para evitar erros
+              if (!avaliacao.aluno) {
+                console.error("Aluno não encontrado na avaliação:", avaliacao);
+                return null;
+              }
+
+              return (
+                <div
+                  key={avaliacao.aluno.ID_UTILIZADOR}
+                  className="col-md-6 mb-4"
+                >
+                  <div className="card h-100">
+                    <div className="card-header d-flex justify-content-between align-items-center">
+                      <h6 className="mb-0">
+                        {avaliacao.aluno.NOME || avaliacao.aluno.USERNAME}
+                      </h6>
+                      {avaliacao.avaliacaoFinal && (
+                        <span
+                          className={`badge ${
+                            avaliacao.avaliacaoFinal.NOTA_FINAL >= 10
+                              ? "bg-success"
+                              : "bg-danger"
+                          }`}
+                        >
+                          {avaliacao.avaliacaoFinal.NOTA_FINAL.toFixed(1)}/20
+                        </span>
+                      )}
+                    </div>
+                    <div className="card-body">
+                      {editingId === avaliacao.aluno.ID_UTILIZADOR ? (
+                        <EditarAvaliacaoForm
+                          avaliacao={avaliacao}
+                          onSave={handleSalvarAvaliacao}
+                          onCancel={() => setEditingId(null)}
+                          saving={saving}
+                        />
+                      ) : (
+                        <VisualizarAvaliacao
+                          avaliacao={avaliacao}
+                          onEdit={() =>
+                            setEditingId(avaliacao.aluno.ID_UTILIZADOR)
+                          }
+                          getNotaColor={getNotaColor}
+                          getNotaStatus={getNotaStatus}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}
@@ -168,6 +177,15 @@ const EditarAvaliacaoForm = ({ avaliacao, onSave, onCancel, saving }) => {
   const [observacao, setObservacao] = useState(
     avaliacao.avaliacaoFinal?.OBSERVACAO || ""
   );
+
+  // Verificação de segurança
+  if (!avaliacao.aluno) {
+    return (
+      <div className="alert alert-warning">
+        Erro ao carregar dados do aluno.
+      </div>
+    );
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -249,6 +267,15 @@ const VisualizarAvaliacao = ({
   getNotaStatus,
 }) => {
   const hasAvaliacao = avaliacao.avaliacaoFinal;
+
+  // Verificação de segurança
+  if (!avaliacao.aluno) {
+    return (
+      <div className="alert alert-warning">
+        Erro ao carregar dados do aluno.
+      </div>
+    );
+  }
 
   return (
     <div>
