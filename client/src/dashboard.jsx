@@ -141,8 +141,18 @@ function Dashboard() {
             }))
             // Filtrar aulas futuras
             .filter((aula) => {
-              const dataAula = new Date(`${aula.data}T${aula.hora}`);
-              return dataAula >= new Date(); // Apenas aulas futuras
+              // Converter data de hoje para formato DD-MM-YYYY
+              const hoje = new Date();
+              const hojeFormatada = hoje
+                .toLocaleDateString("pt-PT", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })
+                .replace(/\//g, "-");
+
+              // Comparar strings de data (DD-MM-YYYY)
+              return aula.data >= hojeFormatada;
             });
 
           setProximasAulas(aulasFormatadas);
