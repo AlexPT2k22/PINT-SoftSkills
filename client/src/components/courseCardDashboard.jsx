@@ -29,7 +29,9 @@ function CourseCardDashboard({
 
   const getCourseStatus = () => {
     if (CURSO_ASSINCRONO) {
-      return CURSO_ASSINCRONO.ESTADO === "Ativo" ? "Em curso" : "Terminado";
+      return CURSO_ASSINCRONO.ESTADO === ("Ativo" || "Em curso")
+        ? "Em curso"
+        : "Terminado";
     }
 
     if (CURSO_SINCRONO) {
@@ -185,7 +187,6 @@ function CourseCardDashboard({
     : CURSO_SINCRONO
     ? "Síncrono"
     : "Não especificado";
-
 
   // Determinar se deve mostrar o botão do quiz
   const shouldShowQuizButton = () => {
