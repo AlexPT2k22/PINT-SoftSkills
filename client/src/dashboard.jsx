@@ -114,78 +114,86 @@ function Dashboard() {
 
         // Processar e formatar os dados da API para o formato que o componente espera
         if (aulasResponse.data && Array.isArray(aulasResponse.data)) {
-          const agora = new Date(); // Data e hora atual
-
+          // Se a API retornar um array de aulas
           const aulasFormatadas = aulasResponse.data
-            // Mapear para o formato do componente PRIMEIRO
-            .map((aula) => ({
-              id: aula.ID_AULA,
-              hora: aula.HORA_INICIO ? aula.HORA_INICIO.substring(0, 5) : "N/A",
-              horaFim: aula.HORA_FIM ? aula.HORA_FIM.substring(0, 5) : "N/A",
-              materia: aula.TITULO,
-              link: aula.LINK_ZOOM,
-              data: new Date(aula.DATA_AULA)
-                .toLocaleDateString("pt-PT", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                })
-                .replace(/\//g, "-"),
-              estado: aula.ESTADO,
-              descricao: aula.DESCRICAO,
-              presenca: aula.PRESENCA_AULAs[0]?.PRESENTE || false,
-              // ✅ ADICIONAR: Datas completas para comparação
-              dataInicio: new Date(`${aula.DATA_AULA}T${aula.HORA_INICIO}`),
-              dataFim: new Date(`${aula.DATA_AULA}T${aula.HORA_FIM}`),
-              dataOriginal: new Date(aula.DATA_AULA),
-            }))
-            // ✅ FILTRAR: Aulas que ainda não terminaram (inclui aulas em andamento)
-            .filter((aula) => {
-              // Mostrar aulas que terminam a partir de agora
-              // Isso inclui:
-              // - Aulas futuras (dataInicio > agora)
-              // - Aulas em andamento (dataInicio <= agora <= dataFim)
-              return aula.dataFim >= agora;
+            .map((aula) => {
+              const dataAula = new Date(aula.DATA_AULA);
+              const dataInicio = new Date(dataAula);
+              const dataFim = new Date(dataAula);
+              if (aula.HORA_INICIO) {
+                const [horaInicio, minutoInicio] = aula.HORA_INICIO.split(":");
+                dataInicio.setHours(
+                  parseInt(horaInicio),
+                  parseInt(minutoInicio),
+                  0,
+                  0
+                );
+              }
+
+              if (aula.HORA_FIM) {
+                const [horaFim, minutoFim] = aula.HORA_FIM.split(":");
+                dataFim.setHours(parseInt(horaFim), parseInt(minutoFim), 0, 0);
+              }
+
+              const aulaFormatada = {
+                id: aula.ID_AULA,
+                hora: aula.HORA_INICIO
+                  ? aula.HORA_INICIO.substring(0, 5)
+                  : "N/A",
+                horaFim: aula.HORA_FIM ? aula.HORA_FIM.substring(0, 5) : "N/A",
+                materia: aula.TITULO,
+                link: aula.LINK_ZOOM,
+                data: dataAula
+                  .toLocaleDateString("pt-PT", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
+                  .replace(/\//g, "-"),
+                estado: aula.ESTADO,
+                descricao: aula.DESCRICAO,
+                presenca: aula.PRESENCA_AULAs[0]?.PRESENTE || false,
+                dataInicio: dataInicio,
+                dataFim: dataFim,
+                dataOriginal: dataAula,
+              };
+              return aulaFormatada;
             })
-            // ✅ ORDENAR: Por data e hora de início
+            .filter((aula) => {
+              const agora = new Date();
+              const passouNoFiltro = aula.dataFim >= agora;
+              const estadosPermitidos = ["Agendada", "Em andamento"];
+              const estadoValido = estadosPermitidos.includes(aula.estado);
+
+              const incluirAula = passouNoFiltro && estadoValido;
+
+              return incluirAula;
+            })
             .sort((a, b) => a.dataInicio - b.dataInicio);
 
           setProximasAulas(aulasFormatadas);
 
-          // ✅ ATUALIZAR: Métrica de próxima aula com lógica melhorada
+          // Também podemos atualizar a métrica de próxima aula
           if (aulasFormatadas.length > 0) {
-            // Filtrar aulas válidas (não canceladas)
+            // Filtrar aulas que não estão canceladas ou concluídas
             const aulasValidas = aulasFormatadas.filter(
-              (aula) => aula.estado !== "Cancelada"
+              (aula) =>
+                aula.estado !== "Cancelada" && aula.estado !== "Concluída"
             );
 
             if (aulasValidas.length > 0) {
-              const proximaAula = aulasValidas[0];
-
-              // Verificar se a próxima aula está acontecendo agora
-              const estaAcontecendoAgora =
-                proximaAula.dataInicio <= agora && proximaAula.dataFim >= agora;
-
-              const textoProximaAula = estaAcontecendoAgora
-                ? `AGORA - ${proximaAula.hora}`
-                : `${proximaAula.hora} (${proximaAula.data})`;
-
               setMetricas((prev) => ({
                 ...prev,
-                proximaAula: textoProximaAula,
+                proximaAula: aulasValidas[0].hora, // Define a hora da próxima aula válida
               }));
             } else {
               setMetricas((prev) => ({
                 ...prev,
-                proximaAula: "N/A",
+                proximaAula: "N/A", // Caso não haja aulas válidas
               }));
             }
-          } else {
-            setMetricas((prev) => ({
-              ...prev,
-              proximaAula: "N/A",
-            }));
           }
+          //console.log(aulasFormatadas);
         } else {
           // Fallback para dados vazios se a API não retornar o esperado
           console.error(
@@ -444,37 +452,19 @@ function Dashboard() {
                     style={{ maxHeight: "500px" }}
                   >
                     {proximasAulas.length > 0 ? (
-                      proximasAulas.map((aula, index) => {
-                        const agora = new Date();
-                        const estaAcontecendoAgora =
-                          aula.dataInicio <= agora && aula.dataFim >= agora;
-                        const aulaPassou = aula.dataFim < agora;
-
-                        return (
+                      proximasAulas
+                        .slice()
+                        .reverse()
+                        .map((aula, index, array) => (
                           <div
                             key={aula.id}
                             className={`d-flex align-items-center justify-content-between pt-3 pb-3 ${
-                              index !== proximasAulas.length - 1
-                                ? "border-bottom"
-                                : ""
-                            } ${
-                              estaAcontecendoAgora
-                                ? "bg-light border-start border-primary border-3"
-                                : ""
+                              index !== array.length - 1 ? "border-bottom" : ""
                             }`}
                           >
                             <div className="d-flex align-items-center">
                               <div className="me-4">
-                                <div className="d-flex align-items-center">
-                                  <h5 className="mb-0">
-                                    {aula.hora} - {aula.horaFim}
-                                  </h5>
-                                  {estaAcontecendoAgora && (
-                                    <span className="badge bg-success ms-2 animate-pulse">
-                                      EM ANDAMENTO
-                                    </span>
-                                  )}
-                                </div>
+                                <h5 className="mb-0">{aula.hora}</h5>
                                 <small className="text-muted">
                                   {aula.data}
                                 </small>
@@ -510,33 +500,24 @@ function Dashboard() {
                                   ? "Presente"
                                   : "Não presente"}
                               </span>
-                              {aula.link && (
-                                <button
-                                  className={`btn ${
-                                    estaAcontecendoAgora
-                                      ? "btn-success"
-                                      : aula.estado === "Agendada"
-                                      ? "btn-primary"
-                                      : "btn-secondary"
-                                  }`}
-                                  onClick={() =>
-                                    handleEntrarAula(aula.id, aula.link)
-                                  }
-                                  disabled={aulaPassou}
-                                >
-                                  {estaAcontecendoAgora
-                                    ? "🔴 ENTRAR AGORA"
-                                    : aula.estado === "Agendada"
-                                    ? "Entrar na Aula"
-                                    : aulaPassou
-                                    ? "Aula Terminada"
-                                    : "Indisponível"}
-                                </button>
-                              )}
+                              {aula.link &&
+                                (aula.estado === "Em andamento" ||
+                                  aula.estado === "Agendada") && (
+                                  <button
+                                    className="btn btn-primary"
+                                    onClick={() =>
+                                      handleEntrarAula(aula.id, aula.link)
+                                    }
+                                  >
+                                    {aula.estado === "Em andamento" ||
+                                    aula.estado === "Agendada"
+                                      ? "Entrar na Aula"
+                                      : "Indisponível"}
+                                  </button>
+                                )}
                             </div>
                           </div>
-                        );
-                      })
+                        ))
                     ) : (
                       <p className="text-center mb-0">
                         Não há aulas agendadas.
