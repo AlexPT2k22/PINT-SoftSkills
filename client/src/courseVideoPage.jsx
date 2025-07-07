@@ -335,14 +335,6 @@ function CourseVideoPage() {
                   className="video-player"
                   style={{
                     width: "100%",
-                    height:
-                      window.innerWidth <= 768
-                        ? "250px"
-                        : window.innerWidth <= 1024
-                        ? "400px"
-                        : window.innerHeight <= 900
-                        ? "550px"
-                        : "710px",
                   }}
                 >
                   {videoType === "youtube" ? (
