@@ -29,7 +29,7 @@ function CourseCardDashboard({
 
   const getCourseStatus = () => {
     if (CURSO_ASSINCRONO) {
-      return CURSO_ASSINCRONO.ESTADO === "Ativo" ? "Ativo" : "Inativo";
+      return CURSO_ASSINCRONO.ESTADO === "Ativo" ? "Em curso" : "Terminado";
     }
 
     if (CURSO_SINCRONO) {

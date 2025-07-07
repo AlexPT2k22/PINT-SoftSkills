@@ -51,7 +51,7 @@ const updateSyncCoursesStatus = async () => {
   try {
     const today = new Date();
 
-    // Cursos que deveriam começar hoje - mudar para "Em curso"
+    // mudar para "Em curso"
     await CursoSincrono.update(
       { ESTADO: "Em curso" },
       {
@@ -63,7 +63,7 @@ const updateSyncCoursesStatus = async () => {
       }
     );
 
-    // Cursos que terminaram - mudar para "Terminado"
+    // mudar para "Terminado"
     await CursoSincrono.update(
       { ESTADO: "Terminado" },
       {
