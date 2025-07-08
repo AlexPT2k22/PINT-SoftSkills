@@ -29,7 +29,7 @@ function AnunciosPanel({ courseId, courseData }) {
         setError("Erro ao carregar anúncios");
       }
     } catch (error) {
-      console.error("Erro ao buscar anúncios:", error);
+      console.error("Erro ao carregar anúncios:", error);
       setError("Não foi possível carregar os anúncios");
     } finally {
       setLoading(false);
@@ -67,9 +67,9 @@ function AnunciosPanel({ courseId, courseData }) {
     return (
       <div className="d-flex flex-column align-items-center justify-content-center py-5">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Carregando anúncios...</span>
+          <span className="visually-hidden">A carregar anúncios...</span>
         </div>
-        <p className="mt-2 text-muted">Carregando anúncios do curso...</p>
+        <p className="mt-2 text-muted">A carregar os anúncios do curso...</p>
       </div>
     );
   }

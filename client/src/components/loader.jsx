@@ -1,6 +1,6 @@
 // Loader.js
 import React from 'react';
-import '../styles/loader.css'; // Estilos do loader
+import '../styles/loader.css';
 
 function Loader() {
   return (

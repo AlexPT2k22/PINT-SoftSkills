@@ -24,7 +24,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
   const [validationErrors, setValidationErrors] = useState({});
   const [showReadOnly, setShowReadOnly] = useState(false);
   const [hasResponses, setHasResponses] = useState(false);
-
   const [quizForm, setQuizForm] = useState({
     titulo: "",
     descricao: "",
@@ -70,19 +69,17 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
       }
     } catch (error) {
       if (error.response?.status !== 404) {
-        console.error("Erro ao buscar quiz:", error);
+        console.error("Erro ao procurar o quiz:", error);
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Função para mostrar modal em modo leitura
   const showQuizReadOnly = () => {
     setShowReadOnly(true);
   };
 
-  //Função para mostrar modal de edição (só se não tiver respostas)
   const showQuizEdit = () => {
     if (hasResponses) {
       setError(
@@ -110,7 +107,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
       setStats(response.data);
       setShowStats(true);
     } catch (error) {
-      console.error("Erro ao buscar estatísticas:", error);
+      console.error("Erro ao procurar as estatísticas:", error);
     }
   };
 
@@ -150,7 +147,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
     const newPerguntas = [...quizForm.perguntas];
     if (newPerguntas[perguntaIndex].opcoes.length > 2) {
       newPerguntas[perguntaIndex].opcoes.splice(opcaoIndex, 1);
-      // Ajustar resposta correta se necessário
       if (newPerguntas[perguntaIndex].resposta_correta >= opcaoIndex) {
         newPerguntas[perguntaIndex].resposta_correta = Math.max(
           0,
@@ -168,16 +164,14 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
     }
   };
 
-  // Função para validar formulário
   const validateQuizForm = () => {
     const errors = {};
 
-    // Validar título
     if (!quizForm.titulo.trim()) {
       errors.titulo = "O título do quiz é obrigatório";
     }
 
-    // Validar tempo limite
+
     if (
       !quizForm.tempo_limite_min ||
       quizForm.tempo_limite_min < 5 ||
@@ -187,21 +181,17 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
         "O tempo limite deve estar entre 5 e 180 minutos";
     }
 
-    // Validar nota mínima
     if (quizForm.nota_minima < 0 || quizForm.nota_minima > 20) {
       errors.nota_minima = "A nota mínima deve estar entre 0 e 20";
     }
 
-    // Validar perguntas
     quizForm.perguntas.forEach((pergunta, pIndex) => {
-      // Validar texto da pergunta
       if (!pergunta.pergunta.trim()) {
         errors[`pergunta_${pIndex}`] = `A pergunta ${
           pIndex + 1
         } não pode estar vazia`;
       }
 
-      // Validar opções
       const opcoesVazias = pergunta.opcoes.filter(
         (opcao) => !opcao.trim()
       ).length;
@@ -211,7 +201,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
         } devem ser preenchidas`;
       }
 
-      // Verificar se tem pelo menos 2 opções
       if (pergunta.opcoes.length < 2) {
         errors[`opcoes_min_${pIndex}`] = `A pergunta ${
           pIndex + 1
@@ -219,7 +208,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
       }
     });
 
-    // Verificar se tem pelo menos uma pergunta
     if (quizForm.perguntas.length === 0) {
       errors.perguntas_geral = "O quiz deve ter pelo menos uma pergunta";
     }
@@ -228,12 +216,9 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
     return Object.keys(errors).length === 0;
   };
 
-  // Atualizar função submitQuiz
   const submitQuiz = async () => {
-    // Limpar erros anteriores
     setValidationErrors({});
 
-    // Validar formulário
     if (!validateQuizForm()) {
       setError("Por favor, corrija os erros indicados antes de continuar");
       return;
@@ -270,7 +255,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
         hasQuiz ? "Quiz atualizado com sucesso!" : "Quiz criado com sucesso!"
       );
     } catch (error) {
-      console.error("Erro ao salvar quiz:", error);
+      console.error("Erro ao guardar quiz:", error);
       setError(
         hasQuiz
           ? "Erro ao atualizar quiz. Verifique os dados e tente novamente."
@@ -280,7 +265,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
   };
 
   const deleteQuiz = async () => {
-    if (confirm("Tem certeza que deseja deletar este quiz?")) {
+    if (confirm("Tem certeza que deseja apagar este quiz?")) {
       try {
         await axios.delete(`${URL}/api/quiz/${quiz.ID_QUIZ}`, {
           withCredentials: true,
@@ -290,28 +275,10 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
         setHasResponses(false);
         setSuccess("Quiz apagado com sucesso!");
       } catch (error) {
-        console.error("Erro ao deletar quiz:", error);
+        console.error("Erro ao apagar quiz:", error);
         setError("Erro ao apagar quiz. Tente novamente mais tarde.");
       }
     }
-  };
-
-  // Função para limpar formulário
-  const resetForm = () => {
-    setQuizForm({
-      titulo: "",
-      descricao: "",
-      perguntas: [
-        {
-          pergunta: "",
-          opcoes: ["", ""],
-          resposta_correta: 0,
-        },
-      ],
-      tempo_limite_min: 30,
-      nota_minima: 10,
-    });
-    setValidationErrors({});
   };
 
   if (courseType !== "Assíncrono" || userRole !== true) {
@@ -319,7 +286,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
   }
 
   if (loading) {
-    return <div className="text-center">Carregando quiz...</div>;
+    return <div className="text-center">A carregar quiz...</div>;
   }
 
   return (
@@ -334,19 +301,19 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
       </div>
       <div className="card">
         <div className="card-header">
-          <h5 className="card-title mb-0">Quiz do Curso</h5>
+          <h5 className="card-title mb-0">Quiz do curso</h5>
         </div>
         <div className="card-body">
           {!hasQuiz ? (
             <div className="text-center">
-              <p className="text-muted">Este curso não possui quiz ainda.</p>
+              <p className="text-muted">Este curso ainda não possui quiz.</p>
               <button
                 className="btn btn-primary"
                 type="button"
                 onClick={() => setShowCreateForm(true)}
               >
                 <Plus size={16} className="me-2" />
-                Criar Quiz
+                Criar quiz
               </button>
             </div>
           ) : (
@@ -412,8 +379,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                 <div className="modal-content">
                   <div className="modal-header text-white">
                     <h5 className="modal-title">
-                      <Eye size={20} className="me-2" />
-                      Visualizar Quiz (Modo Leitura)
+                      Visualizar quiz (modo leitura)
                     </h5>
                     <button
                       className="btn-close btn-close-white"
@@ -425,7 +391,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                     className="modal-body"
                     style={{ maxHeight: "70vh", overflowY: "auto" }}
                   >
-                    {/* Alerta informativo */}
                     <div className="alert alert-warning">
                       <Lock size={16} className="me-2" />
                       <strong>Quiz bloqueado para edição:</strong> Este quiz já
@@ -433,12 +398,11 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       Utilize este modo apenas para visualização.
                     </div>
 
-                    {/* Informações básicas em modo leitura */}
                     <div className="row mb-4">
                       <div className="col-md-8">
                         <div className="mb-3">
                           <label className="form-label fw-bold">
-                            Título do Quiz
+                            Título do quiz
                           </label>
                           <div className="form-control-plaintext border rounded p-2 bg-light">
                             {quiz.TITULO}
@@ -456,7 +420,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       <div className="col-md-4">
                         <div className="mb-3">
                           <label className="form-label fw-bold">
-                            Tempo Limite
+                            Tempo limite
                           </label>
                           <div className="form-control-plaintext border rounded p-2 bg-light">
                             {quiz.TEMPO_LIMITE_MIN} minutos
@@ -464,7 +428,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                         </div>
                         <div className="mb-3">
                           <label className="form-label fw-bold">
-                            Nota Mínima
+                            Nota mínima
                           </label>
                           <div className="form-control-plaintext border rounded p-2 bg-light">
                             {((quiz.NOTA_MINIMA * 20) / 100).toFixed(1)}/20
@@ -473,7 +437,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       </div>
                     </div>
 
-                    {/* Perguntas em modo leitura */}
                     <div className="mb-3">
                       <label className="form-label fw-bold">
                         Perguntas ({quiz.PERGUNTAS.length})
@@ -523,7 +486,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                                   {opcao}
                                   {pergunta.resposta_correta === oIndex && (
                                     <span className="text-success fw-bold ms-2">
-                                      (Resposta Correta)
+                                      (Resposta correta)
                                     </span>
                                   )}
                                 </div>
@@ -534,9 +497,8 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       ))}
                     </div>
 
-                    {/* Informações adicionais */}
                     <div className="alert alert-info">
-                      <h6>Informações do Quiz:</h6>
+                      <h6>Informações do quiz:</h6>
                       <ul className="mb-0">
                         <li>
                           <strong>Total de perguntas:</strong>{" "}
@@ -574,7 +536,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       type="button"
                     >
                       <BarChart3 size={16} className="me-2" />
-                      Ver Estatísticas
+                      Ver estatísticas
                     </button>
                   </div>
                 </div>
@@ -582,7 +544,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
             </div>
           )}
 
-          {/* Modal de criação/edição */}
           {showCreateForm && (
             <div className="modal show d-block" tabIndex="-1">
               <div className="modal-dialog modal-lg">
@@ -604,7 +565,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                     className="modal-body"
                     style={{ maxHeight: "70vh", overflowY: "auto" }}
                   >
-                    {/* Alertas de validação geral */}
                     {Object.keys(validationErrors).length > 0 && (
                       <div className="alert alert-danger">
                         <h6>Corrija os seguintes erros:</h6>
@@ -618,11 +578,10 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       </div>
                     )}
 
-                    {/* Informações básicas - ATUALIZADO */}
                     <div className="row mb-3">
                       <div className="col-md-8">
                         <label className="form-label">
-                          Título do Quiz <span className="text-danger">*</span>
+                          Título do quiz <span className="text-danger">*</span>
                         </label>
                         <input
                           type="text"
@@ -644,7 +603,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       </div>
                       <div className="col-md-4">
                         <label className="form-label">
-                          Tempo Limite (min){" "}
+                          Tempo limite (min){" "}
                           <span className="text-danger">*</span>
                         </label>
                         <input
@@ -699,7 +658,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       </div>
                       <div className="col-md-4">
                         <label className="form-label">
-                          Nota Mínima (escala 0-20){" "}
+                          Nota mínima (escala 0-20){" "}
                           <span className="text-danger">*</span>
                         </label>
                         <input
@@ -729,7 +688,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       </div>
                     </div>
 
-                    {/* Perguntas - ATUALIZADO */}
                     <div className="mb-3">
                       <div className="d-flex justify-content-between align-items-center mb-2">
                         <label className="form-label">
@@ -741,7 +699,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                           onClick={addPergunta}
                         >
                           <Plus size={14} className="me-1" />
-                          Adicionar Pergunta
+                          Adicionar pergunta
                         </button>
                       </div>
 
@@ -858,10 +816,10 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                                 disabled={pergunta.opcoes.length >= 6}
                               >
                                 <Plus size={14} className="me-1" />
-                                Adicionar Opção
+                                Adicionar opção
                               </button>
                               <small className="text-muted">
-                                Marque o radio da resposta correta •{" "}
+                                Marque a opção da resposta correta •{" "}
                                 {pergunta.opcoes.length}/6 opções
                               </small>
                             </div>
@@ -870,7 +828,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                       ))}
                     </div>
 
-                    {/* Avisos importantes */}
                     <div className="alert alert-info">
                       <h6>Avisos importantes:</h6>
                       <ul className="mb-0">
@@ -916,13 +873,12 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
             </div>
           )}
 
-          {/* Modal de estatísticas */}
           {showStats && stats && (
             <div className="modal show d-block" tabIndex="-1">
               <div className="modal-dialog modal-lg">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">Estatísticas do Quiz</h5>
+                    <h5 className="modal-title">Estatísticas do quiz</h5>
                     <button
                       className="btn-close"
                       onClick={() => setShowStats(false)}
@@ -936,7 +892,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                           <h4 className="text-primary">
                             {stats.totalRespostas}
                           </h4>
-                          <small>Total de Respostas</small>
+                          <small>Total de respostas</small>
                         </div>
                       </div>
                       <div className="col-md-3">
@@ -956,7 +912,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                           <h4 className="text-info">
                             {((stats.notaMedia * 20) / 100).toFixed(1)}/20
                           </h4>
-                          <small>Nota Média</small>
+                          <small>Nota média</small>
                         </div>
                       </div>
                     </div>
@@ -967,14 +923,14 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                           className="progress-bar bg-success"
                           style={{ width: `${stats.taxaAprovacao}%` }}
                         >
-                          {stats.taxaAprovacao.toFixed(1)}% Taxa de Aprovação
+                          {stats.taxaAprovacao.toFixed(1)}% Taxa de aprovação
                         </div>
                       </div>
                     </div>
 
                     {stats.respostas.length > 0 && (
                       <div>
-                        <h6>Respostas Individuais:</h6>
+                        <h6>Respostas individuais:</h6>
                         <div className="table-responsive">
                           <table className="table table-sm">
                             <thead>

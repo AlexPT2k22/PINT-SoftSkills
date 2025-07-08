@@ -3,12 +3,9 @@ import axios from "axios";
 import ErrorMessage from "./error_message";
 import useAuthStore from "../store/authStore";
 import {
-  Star,
   Award,
-  FileText,
   Calendar,
   BookOpen,
-  Trophy,
 } from "lucide-react";
 
 const MeuPercursoFormativo = () => {
@@ -17,8 +14,6 @@ const MeuPercursoFormativo = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedCard, setExpandedCard] = useState(null);
-
-  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchMinhasAvaliacoesFinais();
@@ -37,7 +32,7 @@ const MeuPercursoFormativo = () => {
       setAvaliacoesFinais(response.data);
       setError(null);
     } catch (error) {
-      console.error("Erro ao buscar avaliações finais:", error);
+      console.error("Erro ao procurar as avaliações finais:", error);
       setError("Erro ao carregar o percurso formativo. Tente novamente.");
     } finally {
       setLoading(false);
@@ -100,9 +95,9 @@ const MeuPercursoFormativo = () => {
     return (
       <div className="alert alert-info">
         <BookOpen size={20} className="me-2" />
-        <strong>Percurso Formativo Vazio</strong>
+        <strong>Percurso formativo vazio</strong>
         <p className="mb-0 mt-2">
-          Ainda não possui avaliações finais de cursos completados. Quando
+          Ainda não possui avaliações finais de cursos síncronos completados. Quando
           terminar um curso, a avaliação final aparecerá aqui.
         </p>
       </div>
@@ -117,14 +112,13 @@ const MeuPercursoFormativo = () => {
         </h4>
       </div>
 
-      {/* Estatísticas */}
       {estatisticas && (
         <div className="row mb-4">
           <div className="col-md-3 col-sm-6 mb-3">
             <div className="card text-center">
               <div className="card-body">
                 <h2 className="text-primary">{estatisticas.totalCursos}</h2>
-                <p className="mb-0">Cursos Avaliados</p>
+                <p className="mb-0">Cursos avaliados</p>
               </div>
             </div>
           </div>
@@ -134,7 +128,7 @@ const MeuPercursoFormativo = () => {
                 <h2 className="text-success">
                   {estatisticas.cursosCompletados}
                 </h2>
-                <p className="mb-0">Cursos Completados</p>
+                <p className="mb-0">Cursos completados</p>
               </div>
             </div>
           </div>
@@ -144,7 +138,7 @@ const MeuPercursoFormativo = () => {
                 <h2 className={`text-${getNotaColor(estatisticas.mediaGeral)}`}>
                   {estatisticas.mediaGeral.toFixed(1)}
                 </h2>
-                <p className="mb-0">Média Geral</p>
+                <p className="mb-0">Média geral</p>
               </div>
             </div>
           </div>
@@ -154,14 +148,13 @@ const MeuPercursoFormativo = () => {
                 <h2 className="text-info">
                   {estatisticas.taxaSucesso.toFixed(0)}%
                 </h2>
-                <p className="mb-0">Taxa de Sucesso</p>
+                <p className="mb-0">Taxa de sucesso</p>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Lista de Avaliações */}
       <div className="row">
         {avaliacoesFinais.map((avaliacao) => (
           <div
@@ -253,10 +246,9 @@ const MeuPercursoFormativo = () => {
         ))}
       </div>
 
-      {/* Escala de Avaliação */}
       <div className="mt-4 p-3 bg-light rounded">
         <h6 className="text-muted mb-2">
-          Escala de Avaliação
+          Escala de avaliação
         </h6>
         <div className="row small">
           <div className="col-6 col-md-3">

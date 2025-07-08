@@ -20,7 +20,7 @@ const ListaPresenca = ({ aulaId }) => {
       setPresencas(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("Erro ao buscar lista de presença:", error);
+      console.error("Erro ao procurar a  lista de presença:", error);
       setLoading(false);
     }
   };
@@ -39,12 +39,12 @@ const ListaPresenca = ({ aulaId }) => {
 
   return (
     <div className="lista-presenca">
-      <h5 className="mb-4">Lista de Presença</h5>
+      <h5 className="mb-4">Lista de presenças</h5>
 
       {loading ? (
         <div className="d-flex justify-content-center">
           <div className="spinner-border" role="status">
-            <span className="visually-hidden">Carregando...</span>
+            <span className="visually-hidden">A carregar...</span>
           </div>
         </div>
       ) : presencas.length === 0 ? (
@@ -57,7 +57,7 @@ const ListaPresenca = ({ aulaId }) => {
             <thead>
               <tr>
                 <th>Aluno</th>
-                <th>Hora de Entrada</th>
+                <th>Hora de entrada</th>
                 <th>Ações</th>
               </tr>
             </thead>

@@ -102,6 +102,14 @@ function Footer() {
                     Verificar certificado
                   </a>
                 </li>
+                <li className="mb-2">
+                  <a
+                    href="#"
+                    className="text-decoration-none text-secondary"
+                  >
+                    Download da app
+                  </a>
+                </li>
               </ul>
             </div>
 

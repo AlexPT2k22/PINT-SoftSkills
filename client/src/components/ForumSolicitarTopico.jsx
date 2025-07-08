@@ -27,7 +27,6 @@ const ForumSolicitarTopico = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-
   const [formData, setFormData] = useState({
     categoriaId: "",
     areaId: "",
@@ -70,7 +69,7 @@ const ForumSolicitarTopico = () => {
         setCategorias(response.data);
       }
     } catch (error) {
-      console.error("Erro ao buscar categorias:", error);
+      console.error("Erro ao procruar categorias:", error);
     }
   };
 
@@ -94,7 +93,7 @@ const ForumSolicitarTopico = () => {
         }
       }
     } catch (error) {
-      console.error("Erro ao buscar áreas:", error);
+      console.error("Erro ao procurar áreas:", error);
     }
   };
 
@@ -107,7 +106,7 @@ const ForumSolicitarTopico = () => {
         setTopicos(response.data);
       }
     } catch (error) {
-      console.error("Erro ao buscar tópicos:", error);
+      console.error("Erro ao procurar tópicos:", error);
     }
   };
 
@@ -120,7 +119,7 @@ const ForumSolicitarTopico = () => {
         setMinhasSolicitacoes(response.data.solicitacoes);
       }
     } catch (error) {
-      console.error("Erro ao buscar solicitações:", error);
+      console.error("Erro ao procurar solicitações:", error);
     }
   };
 
@@ -213,7 +212,6 @@ const ForumSolicitarTopico = () => {
     <>
       <Navbar />
       <div className="container p-4 mt-4">
-        {/* Header */}
         <div className="row mb-4">
           <div className="col-12">
             <button
@@ -233,7 +231,6 @@ const ForumSolicitarTopico = () => {
         </div>
 
         <div className="row">
-          {/* Formulário */}
           <div className="col-lg-8">
             <div className="card">
               <div className="card-header">
@@ -241,7 +238,6 @@ const ForumSolicitarTopico = () => {
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="card-body">
-                  {/* Mensagens */}
                   {error && (
                     <div className="alert alert-danger">
                       <AlertCircle size={16} className="me-2" />
@@ -257,7 +253,6 @@ const ForumSolicitarTopico = () => {
                     </div>
                   )}
 
-                  {/* Seleção de Categoria */}
                   <div className="row mb-3">
                     <div className="col-md-4">
                       <label className="form-label">Categoria *</label>
@@ -324,7 +319,6 @@ const ForumSolicitarTopico = () => {
                     </div>
                   </div>
 
-                  {/* Título Sugerido */}
                   <div className="mb-3">
                     <label className="form-label">
                       Título sugerido para o tópico de discussão *
@@ -346,9 +340,8 @@ const ForumSolicitarTopico = () => {
                     </div>
                   </div>
 
-                  {/* Justificativa */}
                   <div className="mb-3">
-                    <label className="form-label">Justificativa *</label>
+                    <label className="form-label">Justificação *</label>
                     <textarea
                       className="form-control"
                       rows="4"
@@ -405,7 +398,6 @@ const ForumSolicitarTopico = () => {
             </div>
           </div>
 
-          {/* Sidebar - Minhas Solicitações */}
           <div className="col-lg-4">
             <div className="card">
               <div className="card-header d-flex justify-content-between align-items-center">
@@ -499,7 +491,6 @@ const ForumSolicitarTopico = () => {
               )}
             </div>
 
-            {/* Dicas */}
             <div className="card mt-3">
               <div className="card-header">
                 <h6 className="mb-0">Dicas para uma boa solicitação</h6>
@@ -511,7 +502,7 @@ const ForumSolicitarTopico = () => {
                   <li className="mb-2">
                     Verifique se já não existe um tópico similar
                   </li>
-                  <li className="mb-0">Seja detalhado na justificativa</li>
+                  <li className="mb-0">Seja detalhado na justificação</li>
                 </ul>
               </div>
             </div>

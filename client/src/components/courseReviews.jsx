@@ -26,10 +26,8 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
   const { user } = useAuthStore();
 
-  // fetch reviews
   const fetchReviews = async (pageNum = 1, reset = false) => {
     try {
       const response = await axios.get(
@@ -46,7 +44,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
         );
       }
     } catch (error) {
-      console.error("Erro ao buscar reviews:", error);
+      console.error("Erro ao procurar as reviews:", error);
     } finally {
       setLoading(false);
     }
@@ -71,7 +69,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
       }
     } catch (error) {
       if (error.response?.status !== 404) {
-        console.error("Erro ao buscar minha review:", error);
+        console.error("Erro ao procurar a minha review:", error);
       }
     }
   };
@@ -81,7 +79,6 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
     fetchMyReview();
   }, [courseId, user]);
 
-  // Submeter review
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (reviewForm.estrelas === 0) {
@@ -222,7 +219,7 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
     return (
       <div className="text-center py-4">
         <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
+          <span className="visually-hidden">A carregar...</span>
         </div>
       </div>
     );
@@ -274,15 +271,13 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
         )}
       </div>
 
-      {/* Estatísticas */}
       <ReviewStatistics />
 
-      {/* Formulário de review */}
       {showReviewForm && (
         <div className="card mb-4">
           <div className="card-header">
             <h6 className="mb-0">
-              {myReview ? "Editar Avaliação" : "Avaliar Curso"}
+              {myReview ? "Editar avaliação" : "Avaliar curso"}
             </h6>
           </div>
           <div className="card-body">
@@ -339,7 +334,6 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
         </div>
       )}
 
-      {/* a minha review (se existir) */}
       {myReview && !showReviewForm && (
         <div className="card mb-4 border-primary">
           <div className="card-header text-white">
@@ -363,7 +357,6 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
         </div>
       )}
 
-      {/* Lista de reviews */}
       <div className="reviews-list">
         {reviews.length === 0 ? (
           <div className="text-center py-4">
@@ -399,7 +392,6 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
               </div>
             ))}
 
-            {/* Botão carregar mais */}
             {hasMore && (
               <div className="text-center">
                 <button
@@ -418,7 +410,6 @@ const CourseReviews = ({ courseId, isEnrolled = false }) => {
         )}
       </div>
 
-      {/* Modal de confirmação para eliminar */}
       {showDeleteConfirm && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">

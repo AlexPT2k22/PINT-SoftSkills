@@ -1,4 +1,3 @@
-// client/src/components/NotificationsDropdown.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Bell, Calendar, User, ExternalLink, CheckCheck } from "lucide-react";
@@ -41,7 +40,7 @@ function NotificationsDropdown() {
         setUnreadCount(response.data.filter((notif) => !notif.LIDA).length);
       }
     } catch (error) {
-      console.error("Erro ao buscar notificações:", error);
+      console.error("Erro ao procurar as notificações:", error);
     } finally {
       setLoading(false);
     }
@@ -57,7 +56,6 @@ function NotificationsDropdown() {
         }
       );
 
-      // Atualizar estado local
       setNotifications(
         notifications.map((notif) =>
           notif.ID_NOTIFICACAO === notificationId
@@ -71,12 +69,10 @@ function NotificationsDropdown() {
     }
   };
 
-  // ✅ NOVO: Função para marcar todas como lidas
   const markAllAsRead = async () => {
     try {
       setMarkingAllAsRead(true);
 
-      // Buscar todas as notificações não lidas do usuário
       const allNotificationsResponse = await axios.get(
         `${URL}/api/notificacoes`,
         {
@@ -89,7 +85,6 @@ function NotificationsDropdown() {
           (notif) => !notif.LIDA
         );
 
-        // Marcar todas as não lidas como lidas
         const markAsReadPromises = unreadNotifications.map((notif) =>
           axios.put(
             `${URL}/api/notificacoes/${notif.ID_NOTIFICACAO}/read`,
@@ -99,8 +94,6 @@ function NotificationsDropdown() {
         );
 
         await Promise.all(markAsReadPromises);
-
-        // Atualizar estado local - marcar todas as notificações visíveis como lidas
         setNotifications(
           notifications.map((notif) => ({ ...notif, LIDA: true }))
         );
@@ -198,8 +191,6 @@ function NotificationsDropdown() {
         <div className="notifications-dropdown">
           <div className="notifications-header">
             <h6 className="mb-0">Notificações</h6>
-
-            {/* ✅ ATUALIZADO: Botão de marcar todas como lidas */}
             {unreadCount > 0 && (
               <button
                 className="btn btn-link btn-sm text-primary p-0"
@@ -281,7 +272,6 @@ function NotificationsDropdown() {
         </div>
       )}
 
-      {/* Backdrop para fechar dropdown */}
       {showDropdown && (
         <div
           className="notifications-backdrop"

@@ -20,13 +20,12 @@ function NotesPanel({ moduleId, currentTime }) {
         `${URL}/api/notes/module/${moduleId}`,
         { withCredentials: true }
       );
-      // Sort notes by timestamp
       const sortedNotes = response.data.sort(
         (a, b) => a.TEMPO_VIDEO - b.TEMPO_VIDEO
       );
       setNotes(sortedNotes);
     } catch (error) {
-      console.error("Error fetching notes:", error);
+      console.error("Erro a procurar as notas:", error);
     }
   };
 
@@ -49,7 +48,7 @@ function NotesPanel({ moduleId, currentTime }) {
       );
       setNewNote("");
     } catch (error) {
-      console.error("Error creating note:", error);
+      console.error("Erro a criar a nota:", error);
     }
   };
 
@@ -60,7 +59,7 @@ function NotesPanel({ moduleId, currentTime }) {
       });
       setNotes((prev) => prev.filter((note) => note.ID_NOTA !== noteId));
     } catch (error) {
-      console.error("Error deleting note:", error);
+      console.error("Erro a apagar a nota:", error);
     }
   };
 
@@ -82,7 +81,7 @@ function NotesPanel({ moduleId, currentTime }) {
       setEditingNoteId(null);
       setEditText("");
     } catch (error) {
-      console.error("Error updating note:", error);
+      console.error("Erro a atualizar a nota:", error);
     }
   };
 

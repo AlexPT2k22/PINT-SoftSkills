@@ -3,12 +3,6 @@ import cloudinary from "cloudinary-video-player";
 import "cloudinary-video-player/cld-video-player.min.css";
 import "../styles/video.css";
 
-const formatTime = (timeInSeconds) => {
-  const minutes = Math.floor(timeInSeconds / 60);
-  const seconds = Math.floor(timeInSeconds % 60);
-  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-};
-
 const VideoPlayer = ({
   id,
   publicId,

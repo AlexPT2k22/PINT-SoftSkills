@@ -9,7 +9,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   Flag,
-  Reply,
   Edit,
   Trash2,
   Paperclip,
@@ -18,7 +17,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Send,
-  Upload,
   X,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
@@ -31,7 +29,6 @@ const ForumTopicoView = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const { user } = useAuthStore();
-  const username = user.USERNAME;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [topico, setTopico] = useState(null);
@@ -93,7 +90,7 @@ const ForumTopicoView = () => {
         setTopico(response.data.topico);
       }
     } catch (error) {
-      console.error("Erro ao buscar tópico:", error);
+      console.error("Erro ao procurar tópico:", error);
       setError("Tópico não encontrado");
     } finally {
       setLoading(false);
@@ -117,7 +114,7 @@ const ForumTopicoView = () => {
         setPagination(response.data.pagination);
       }
     } catch (error) {
-      console.error("Erro ao buscar posts:", error);
+      console.error("Erro ao procurar posts:", error);
       setErrorMessage("Erro ao carregar posts");
     } finally {
       setLoadingPosts(false);
@@ -172,7 +169,6 @@ const ForumTopicoView = () => {
     }
 
     try {
-      // 1. Encontrar o post atual
       const currentPost = posts.find((p) => p.ID_FORUM_POST === postId);
       if (!currentPost) {
         console.error("Post não encontrado:", postId);
@@ -181,59 +177,35 @@ const ForumTopicoView = () => {
 
       const avaliacaoAtual = currentPost.userAvaliacao;
 
-      console.log("🎯 Iniciando avaliação:", {
-        postId,
-        tipoClicado: tipo,
-        avaliacaoAtual,
-        likesAtuais: currentPost.TOTAL_LIKES,
-        dislikesAtuais: currentPost.TOTAL_DISLIKES,
-      });
-
-      // 2. Determinar ação baseada no estado atual
       let acao = "";
       let novoTipo = null;
 
       if (avaliacaoAtual === null) {
-        // Usuário não avaliou ainda - adicionar nova avaliação
         acao = "adicionar";
         novoTipo = tipo;
       } else if (avaliacaoAtual === tipo) {
-        // Usuário clicou na mesma avaliação - remover
         acao = "remover";
         novoTipo = null;
       } else {
-        // Usuário mudou de avaliação - trocar
         acao = "trocar";
         novoTipo = tipo;
       }
 
-      console.log("🔄 Ação determinada:", { acao, novoTipo });
-
-      // 3. Calcular novos valores localmente
       let novosLikes = currentPost.TOTAL_LIKES;
       let novosDisikes = currentPost.TOTAL_DISLIKES;
 
-      // Primeiro, reverter avaliação atual se existir
       if (avaliacaoAtual === "LIKE") {
         novosLikes = Math.max(0, novosLikes - 1);
       } else if (avaliacaoAtual === "DISLIKE") {
         novosDisikes = Math.max(0, novosDisikes - 1);
       }
 
-      // Depois, aplicar nova avaliação se houver
       if (novoTipo === "LIKE") {
         novosLikes += 1;
       } else if (novoTipo === "DISLIKE") {
         novosDisikes += 1;
       }
 
-      console.log("📊 Novos valores calculados:", {
-        novosLikes,
-        novosDisikes,
-        novaAvaliacao: novoTipo,
-      });
-
-      // 4. Atualizar estado local de forma otimista
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post.ID_FORUM_POST === postId
@@ -247,7 +219,6 @@ const ForumTopicoView = () => {
         )
       );
 
-      // 5. Enviar requisição para o servidor
       const response = await axios.post(
         `${URL}/api/forum/avaliacoes/post/${postId}`,
         { tipo: novoTipo }, // null se for para remover
@@ -258,11 +229,8 @@ const ForumTopicoView = () => {
         throw new Error(response.data.message || "Erro ao processar avaliação");
       }
 
-      console.log("✅ Resposta do servidor:", response.data);
 
-      // 6. Opcional: Sincronizar com valores do servidor se fornecidos
       if (response.data.contadores) {
-        console.log("🔄 Sincronizando com valores do servidor");
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post.ID_FORUM_POST === postId
@@ -280,12 +248,8 @@ const ForumTopicoView = () => {
         );
       }
 
-      console.log("🎉 Avaliação processada com sucesso!");
     } catch (error) {
-      console.error("❌ Erro ao avaliar post:", error);
-
-      // 7. Reverter mudanças locais em caso de erro
-      console.log("Revertendo mudanças locais...");
+      console.error("Erro ao avaliar post:", error);
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post.ID_FORUM_POST === postId
@@ -299,7 +263,6 @@ const ForumTopicoView = () => {
         )
       );
 
-      // ✅ Usar ErrorMessage
       setErrorMessage(
         error.response?.data?.message ||
           "Erro ao processar avaliação. Tente novamente."
@@ -325,12 +288,10 @@ const ForumTopicoView = () => {
         setPostDenunciado(null);
         setDenunciaData({ motivo: "", descricao: "" });
 
-        // ✅ Usar SuccessMessage
         setSuccessMessage("Denúncia enviada com sucesso");
       }
     } catch (error) {
       console.error("Erro ao denunciar post:", error);
-      // ✅ Usar ErrorMessage
       setErrorMessage(
         error.response?.data?.message || "Erro ao enviar denúncia"
       );
@@ -362,13 +323,10 @@ const ForumTopicoView = () => {
 
         setEditingPost(null);
         setEditContent("");
-
-        // ✅ Usar SuccessMessage
         setSuccessMessage("Post editado com sucesso!");
       }
     } catch (error) {
       console.error("Erro ao editar post:", error);
-      // ✅ Usar ErrorMessage
       setErrorMessage(error.response?.data?.message || "Erro ao editar post");
     }
   };
@@ -385,12 +343,10 @@ const ForumTopicoView = () => {
         );
         fetchTopico(); // Atualizar contadores
 
-        // ✅ Usar SuccessMessage
         setSuccessMessage("Post removido com sucesso!");
       }
     } catch (error) {
-      console.error("Erro ao deletar post:", error);
-      // ✅ Usar ErrorMessage
+      console.error("Erro ao apagar post:", error);
       setErrorMessage(error.response?.data?.message || "Erro ao remover post");
     }
   };
@@ -419,13 +375,11 @@ const ForumTopicoView = () => {
     const maxFiles = 5;
     const maxSize = 10 * 1024 * 1024; // 10MB
 
-    // Validar número de arquivos
     if (novoPost.anexos.length + files.length > maxFiles) {
       setErrorMessage(`Máximo de ${maxFiles} anexos por post`);
       return;
     }
 
-    // Validar tamanho dos arquivos
     const invalidFiles = files.filter((file) => file.size > maxSize);
     if (invalidFiles.length > 0) {
       setErrorMessage(`Alguns arquivos excedem o limite de 10MB`);
@@ -462,7 +416,7 @@ const ForumTopicoView = () => {
       <div className="container py-5">
         <div className="text-center">
           <div className="spinner-border" role="status">
-            <span className="visually-hidden">Carregando...</span>
+            <span className="visually-hidden">A carregar...</span>
           </div>
         </div>
       </div>
@@ -489,8 +443,6 @@ const ForumTopicoView = () => {
   return (
     <>
       <Navbar />
-
-      {/* ✅ Componentes de Mensagem */}
       {successMessage && (
         <SuccessMessage
           message={successMessage}
@@ -506,7 +458,6 @@ const ForumTopicoView = () => {
       )}
 
       <div className="container p-4 mt-4">
-        {/* Header do Tópico */}
         <div className="row mb-4">
           <div className="col-12">
             <button
@@ -521,8 +472,6 @@ const ForumTopicoView = () => {
               <div className="card-body">
                 <h2 className="mb-2">{topico?.TITULO}</h2>
                 <p className="text-muted mb-3">{topico?.DESCRICAO}</p>
-
-                {/* Breadcrumb */}
                 <div className="d-flex align-items-center text-muted small mb-3 flex-wrap">
                   <span className="text-truncate">{topico?.Categoria?.NOME__}</span>
                   <ChevronRight size={14} className="mx-1 flex-shrink-0" />
@@ -554,7 +503,6 @@ const ForumTopicoView = () => {
           </div>
         </div>
 
-        {/* Formulário para Novo Post */}
         {user && (
           <div className="row mb-4">
             <div className="col-12">
@@ -585,7 +533,6 @@ const ForumTopicoView = () => {
                       </div>
                     </div>
 
-                    {/* Anexos */}
                     {novoPost.anexos.length > 0 && (
                       <div className="mb-3">
                         <h6 className="small">
@@ -673,7 +620,6 @@ const ForumTopicoView = () => {
           </div>
         )}
 
-        {/* Lista de Posts */}
         <div className="row">
           <div className="col-12">
             {posts.length === 0 ? (
@@ -736,7 +682,6 @@ const ForumTopicoView = () => {
                               ⋯
                             </button>
 
-                            {/* Dropdown menu controlado por estado */}
                             {dropdownAberto === post.ID_FORUM_POST && (
                               <ul
                                 className="dropdown-menu show position-absolute"
@@ -747,7 +692,6 @@ const ForumTopicoView = () => {
                                   minWidth: "150px",
                                 }}
                               >
-                                {/* Opções do próprio usuário */}
                                 {user.id === post.ID_UTILIZADOR && (
                                   <>
                                     <li>
@@ -771,7 +715,7 @@ const ForumTopicoView = () => {
                                         }}
                                       >
                                         <Trash2 size={16} className="me-2" />
-                                        Deletar
+                                        Apagar
                                       </button>
                                     </li>
                                     <li>
@@ -780,7 +724,6 @@ const ForumTopicoView = () => {
                                   </>
                                 )}
 
-                                {/* Opção disponível para todos */}
                                 <li>
                                   <button
                                     className="dropdown-item d-flex align-items-center"
@@ -800,7 +743,6 @@ const ForumTopicoView = () => {
                         )}
                       </div>
 
-                      {/* Conteúdo do Post */}
                       {editingPost?.ID_FORUM_POST === post.ID_FORUM_POST ? (
                         <div className="mb-3">
                           <textarea
@@ -820,7 +762,7 @@ const ForumTopicoView = () => {
                               onClick={handleEditPost}
                               disabled={editContent.length < 10}
                             >
-                              Salvar
+                              Guardar
                             </button>
                             <button
                               className="btn btn-secondary btn-sm order-0 order-sm-1"
@@ -842,7 +784,6 @@ const ForumTopicoView = () => {
                         </div>
                       )}
 
-                      {/* Anexos */}
                       {post.ANEXOS && post.ANEXOS.length > 0 && (
                         <div className="mb-3">
                           <h6 className="small">Anexos:</h6>
@@ -884,7 +825,6 @@ const ForumTopicoView = () => {
                         </div>
                       )}
 
-                      {/* Avaliações */}
                       {user && (
                         <div className="d-flex align-items-center gap-2 flex-wrap">
                           <button
@@ -948,7 +888,6 @@ const ForumTopicoView = () => {
                   </div>
                 ))}
 
-                {/* Carregar Mais Posts */}
                 {pagination.hasMore && (
                   <div className="text-center">
                     <button
@@ -959,10 +898,10 @@ const ForumTopicoView = () => {
                       {loadingPosts ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" />
-                          Carregando...
+                          A carregar...
                         </>
                       ) : (
-                        "Carregar Mais Posts"
+                        "Carregar mais posts"
                       )}
                     </button>
                   </div>
@@ -998,7 +937,6 @@ const ForumTopicoView = () => {
                         permanentemente da discussão.
                       </p>
 
-                      {/* ✅ Preview do post a ser deletado */}
                       {postToDelete && (
                         <div className="bg-light rounded p-3 mb-3">
                           <small className="text-muted d-block mb-1">
@@ -1016,7 +954,7 @@ const ForumTopicoView = () => {
                           {postToDelete.ANEXOS &&
                             postToDelete.ANEXOS.length > 0 && (
                               <small className="text-muted mt-2 d-block">
-                                📎 {postToDelete.ANEXOS.length} anexo(s)
+                                {postToDelete.ANEXOS.length} anexo(s)
                               </small>
                             )}
                         </div>
@@ -1046,7 +984,6 @@ const ForumTopicoView = () => {
           </div>
         )}
 
-        {/* Modal de Denúncia */}
         {showDenunciaModal && (
           <div
             className="modal show d-block"
@@ -1057,8 +994,7 @@ const ForumTopicoView = () => {
               <div className="modal-content" style={{ zIndex: 1051 }}>
                 <div className="modal-header">
                   <h5 className="modal-title">
-                    <Flag size={20} className="me-2" />
-                    Denunciar Post
+                    Denunciar post
                   </h5>
                   <button
                     type="button"
@@ -1071,7 +1007,7 @@ const ForumTopicoView = () => {
                 </div>
                 <div className="modal-body">
                   <div className="mb-3">
-                    <label className="form-label">Motivo da Denúncia *</label>
+                    <label className="form-label">Motivo da denúncia *</label>
                     <select
                       className="form-select"
                       value={denunciaData.motivo}
@@ -1086,12 +1022,12 @@ const ForumTopicoView = () => {
                       <option value="">Selecione um motivo</option>
                       <option value="Spam">Spam</option>
                       <option value="Conteudo_Inadequado">
-                        Conteúdo Inadequado
+                        Conteúdo inadequado
                       </option>
                       <option value="Linguagem_Ofensiva">
-                        Linguagem Ofensiva
+                        Linguagem ofensiva
                       </option>
-                      <option value="Informacao_Falsa">Informação Falsa</option>
+                      <option value="Informacao_Falsa">Informação falsa</option>
                       <option value="Outro">Outro</option>
                     </select>
                   </div>
@@ -1132,7 +1068,6 @@ const ForumTopicoView = () => {
                     onClick={handleDenunciarPost}
                     disabled={!denunciaData.motivo}
                   >
-                    <Flag size={16} className="me-1" />
                     Denunciar
                   </button>
                 </div>

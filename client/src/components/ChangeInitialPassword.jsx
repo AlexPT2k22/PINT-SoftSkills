@@ -14,8 +14,6 @@ function ChangeInitialPassword() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-
-  const user = useAuthStore((state) => state.user);
   const userType = useAuthStore((state) => state.userType);
 
   const handleSubmit = async (e) => {

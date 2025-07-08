@@ -24,8 +24,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingAnuncio, setDeletingAnuncio] = useState(null);
   const [deleting, setDeleting] = useState(false);
-
-  // Estados do formulário
   const [formData, setFormData] = useState({
     titulo: "",
     conteudo: "",
@@ -50,7 +48,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         setError("Erro ao carregar anúncios");
       }
     } catch (error) {
-      console.error("Erro ao buscar anúncios:", error);
+      console.error("Erro ao carregar anúncios:", error);
       setError("Não foi possível carregar os anúncios");
     } finally {
       setLoading(false);
@@ -146,8 +144,8 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         setDeletingAnuncio(null);
       }
     } catch (error) {
-      console.error("Erro ao excluir anúncio:", error);
-      setError(error.response?.data?.message || "Erro ao excluir anúncio");
+      console.error("Erro ao apagar anúncio:", error);
+      setError(error.response?.data?.message || "Erro ao apagar anúncio");
     } finally {
       setDeleting(false);
     }
@@ -217,7 +215,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
 
   return (
     <div className="anuncios-view">
-      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         {isTeacher && (
           <button
@@ -230,7 +227,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         )}
       </div>
 
-      {/* Mensagem de erro */}
+
       {error && (
         <div className="alert alert-danger alert-dismissible" role="alert">
           <AlertCircle size={16} className="me-2" />
@@ -243,7 +240,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Lista de anúncios */}
+
       {anuncios.length === 0 ? (
         <div className="d-flex flex-column align-items-center justify-content-center py-5">
           <MessageSquare size={64} className="text-muted mb-3" />
@@ -274,7 +271,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                       <button
                         className="btn btn-outline-danger"
                         onClick={() => openDeleteModal(anuncio)}
-                        title="Excluir anúncio"
+                        title="Apagar anúncio"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -307,7 +304,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Modal para criar anúncio */}
       {showCreateModal && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
@@ -355,7 +351,7 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                       onChange={(e) =>
                         setFormData({ ...formData, conteudo: e.target.value })
                       }
-                      placeholder="Escreva aqui o conteúdo do seu anúncio..."
+                      placeholder="Escreva aqui o conteúdo do anúncio..."
                       required
                       disabled={submitting}
                     />
@@ -398,7 +394,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                       </>
                     ) : (
                       <>
-                        <Send size={16} className="me-1" />
                         Publicar anúncio
                       </>
                     )}
@@ -410,7 +405,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Modal para editar anúncio */}
       {showEditModal && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
@@ -496,7 +490,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
                       </>
                     ) : (
                       <>
-                        <Send size={16} className="me-1" />
                         Guardar alterações
                       </>
                     )}
@@ -508,7 +501,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Modal para confirmar exclusão */}
       {showDeleteModal && deletingAnuncio && (
         <div
           className="modal show d-flex align-items-center justify-content-center p-3"
@@ -587,7 +579,6 @@ const AnunciosView = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Backdrop para modais */}
       {(showCreateModal || showEditModal || showDeleteModal) && (
         <div
           className="modal-backdrop show"

@@ -1,7 +1,6 @@
 import "../styles/Login.css";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import Divider from "./Divider.jsx";
 import ErrorMessage from "./error_message.jsx";
 import SuccessMessage from "./sucess_message.jsx";
 import useAuthStore from "../store/authStore.js";

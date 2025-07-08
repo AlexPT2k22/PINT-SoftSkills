@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ErrorMessage from "./error_message";
-import useAuthStore from "../store/authStore";
-import { Star, Award, FileText, Calendar, User } from "lucide-react";
+import { FileText, Calendar, User } from "lucide-react";
 
 const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -10,8 +9,6 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
-
-  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchMinhaAvaliacaoFinal();
@@ -34,7 +31,7 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
       setAvaliacaoFinal(response.data);
       setError(null);
     } catch (error) {
-      console.error("Erro ao buscar avaliação final:", error);
+      console.error("Erro ao procurar a avaliação final:", error);
       if (error.response?.status === 404) {
         setNotFound(true);
         setError(null);
@@ -151,7 +148,7 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
             <div className="mt-4">
               <h6 className="text-muted mb-2">
                 <FileText size={16} className="me-1" />
-                Observações do Formador
+                Observações do formador
               </h6>
               <div className="bg-light p-3 rounded">
                 <p className="mb-0" style={{ whiteSpace: "pre-wrap" }}>
@@ -163,7 +160,7 @@ const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
 
           <div className="mt-4 p-3 bg-light rounded">
             <h6 className="text-muted mb-2">
-              Escala de Avaliação
+              Escala de avaliação
             </h6>
             <div className="row small">
               <div className="col-6 col-md-3">

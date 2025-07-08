@@ -7,7 +7,6 @@ import {
   Settings,
   CircleUserRound,
   ChevronDown,
-  SquareArrowOutUpRight,
 } from "lucide-react";
 import useAuthStore from "../store/authStore.js";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -45,7 +44,7 @@ function Navbar() {
         setCategorias(response.data);
         console.log(response.data);
       } catch (error) {
-        console.error("Erro ao buscar categorias:", error);
+        console.error("Erro ao procurar categorias:", error);
       } finally {
         setLoading(false);
       }
@@ -58,7 +57,7 @@ function Navbar() {
         const response = await axios.get(`${URL}/api/topicos/`);
         setTopics(response.data);
       } catch (error) {
-        console.error("Erro ao buscar tópicos:", error);
+        console.error("Erro ao procurar tópicos:", error);
         setTopics([]);
       }
     };
@@ -129,7 +128,6 @@ function Navbar() {
           }`}
           id="navbarContent"
         >
-          {/* Mobile Search Form */}
           <form
             className="d-lg-none search-form-mobile"
             onSubmit={(e) => {
@@ -159,9 +157,7 @@ function Navbar() {
             </button>
           </form>
 
-          {/* Mobile Navigation */}
           <ul className="navbar-nav d-lg-none">
-            {/* Mega Dropdown Mobile */}
             <li className="nav-item mega-dropdown-wrapper mobile-nav-item">
               <a
                 className="nav-link d-flex align-items-center justify-content-between text descobrir-link"
@@ -175,10 +171,8 @@ function Navbar() {
                 <ChevronDown className="ms-1" size={18} color="#39639c" />
               </a>
 
-              {/* Mobile Mega Dropdown Content */}
               {showMenu && (
                 <div className="mega-dropdown">
-                  {/* Categories Panel */}
                   <div className="categories-panel">
                     <h6 className="px-3 py-2 mb-0 text-muted">Categorias</h6>
                     {loading ? (
@@ -220,7 +214,6 @@ function Navbar() {
                     )}
                   </div>
 
-                  {/* Areas Panel */}
                   {activeCategory && (
                     <div className="areas-panel">
                       <h6 className="px-3 py-2 mb-0 text-muted">Áreas</h6>
@@ -259,7 +252,6 @@ function Navbar() {
                     </div>
                   )}
 
-                  {/* Topics Panel */}
                   {activeArea && (
                     <div className="topics-panel">
                       <h6 className="px-3 py-2 mb-0 text-muted">Tópicos</h6>
@@ -302,17 +294,14 @@ function Navbar() {
               )}
             </li>
 
-            {/* Forum Link Mobile */}
             <li className="nav-item mobile-nav-item">
               <a className="nav-link text" href="/forum" onClick={closeNavbar}>
                 Fórum
               </a>
             </li>
 
-            {/* User Section Mobile */}
             {isAuthenticated ? (
               <>
-                {/* Notifications Mobile */}
                 <li className="nav-item mobile-nav-item">
                   <div className="d-flex align-items-center justify-content-between">
                     <span className="text" style={{ color: '#39639c' }}>Notificações</span>
@@ -392,9 +381,7 @@ function Navbar() {
             )}
           </ul>
 
-          {/* Desktop Navigation */}
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0 d-none d-lg-flex">
-            {/* Mega Dropdown Desktop */}
             <li className="nav-item mega-dropdown-wrapper">
               <a
                 className="nav-link d-flex align-items-center text descobrir-link"
@@ -409,13 +396,11 @@ function Navbar() {
                 <ChevronDown className="ms-1" size={18} color="#39639c" />
               </a>
 
-              {/* Desktop Mega Dropdown Content */}
               {showMenu && (
                 <div
                   className="mega-dropdown"
                   onMouseLeave={() => setShowMenu(false)}
                 >
-                  {/* Left Panel - Categories */}
                   <div className="categories-panel">
                     {loading ? (
                       <div className="loading-item">A carregar...</div>
@@ -448,7 +433,6 @@ function Navbar() {
                     )}
                   </div>
 
-                  {/* Right Panel - Areas */}
                   <div className="areas-panel">
                     {activeCategory && !loading && (
                       <>
@@ -485,7 +469,6 @@ function Navbar() {
                     )}
                   </div>
 
-                  {/* Third Panel - Topics */}
                   <div className="topics-panel">
                     {activeArea && !loading && (
                       <>
@@ -534,7 +517,6 @@ function Navbar() {
             </li>
           </ul>
 
-          {/* Desktop Search Form */}
           <form
             className="d-none d-lg-flex flex-grow-1 mx-4"
             onSubmit={handleSearch}
@@ -561,7 +543,6 @@ function Navbar() {
             </div>
           </form>
 
-          {/* Desktop Right Navigation */}
           <ul className="navbar-nav me-5 d-none d-lg-flex">
             <li className="nav-item">
               <a className="nav-link text align-items-center" href="/forum">
@@ -631,7 +612,7 @@ function Navbar() {
                             handleNavigation("/dashboard/my-courses")
                           }
                         >
-                          <span>Os meus Cursos</span>
+                          <span>Os meus cursos</span>
                         </button>
 
                         <div className="user-dropdown-divider"></div>

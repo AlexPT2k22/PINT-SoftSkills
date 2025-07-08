@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ErrorMessage from "./error_message";
-import useAuthStore from "../store/authStore";
-import { Upload, FileText, Check, X, ExternalLink, Star } from "lucide-react";
+import { Upload, FileText } from "lucide-react";
 import AvaliacaoFinalFormador from "./avaliacaoFinalFormador";
 import MinhaAvaliacaoFinal from "./minhaAvaliacaoFinal";
 
@@ -24,22 +23,17 @@ const AvaliacoesSincronas = ({
   const [uploading, setUploading] = useState(false);
   const [loadingSub, setLoadingSub] = useState(false);
   const [activeTab, setActiveTab] = useState("avaliacoes");
-
-  const { user } = useAuthStore();
-
   const [novaAvaliacao, setNovaAvaliacao] = useState({
     TITULO: "",
     DESCRICAO: "",
     DATA_LIMITE_REALIZACAO: "",
     CRITERIOS: "",
   });
-
   const [novaSubmissao, setNovaSubmissao] = useState({
     ID_AVALIACAO: "",
     DESCRICAO: "",
     ARQUIVO: null,
   });
-
   const [novaNotaSubmissao, setNovaNotaSubmissao] = useState({
     ID_SUBMISSAO: "",
     NOTA: "",
@@ -80,7 +74,7 @@ const AvaliacoesSincronas = ({
       }
       setError(null);
     } catch (error) {
-      console.error("Erro ao buscar avaliações:", error);
+      console.error("Erro ao procurar as avaliações:", error);
       setError("Erro ao carregar avaliações. Por favor, tente novamente.");
       setAvaliacoes([]);
     } finally {
@@ -108,7 +102,7 @@ const AvaliacoesSincronas = ({
       }
       setMinhasSubmissoes(subsPorAvaliacao);
     } catch (error) {
-      console.error("Erro ao buscar submissões:", error);
+      console.error("Erro ao procurar submissões:", error);
     }
   };
 
@@ -131,7 +125,7 @@ const AvaliacoesSincronas = ({
         setSubmissoes([]);
       }
     } catch (error) {
-      console.error("Erro ao buscar submissões da avaliação:", error);
+      console.error("Erro ao procurar as submissões da avaliação:", error);
       setError("Erro ao carregar submissões.");
     } finally {
       setLoadingSub(false);
@@ -284,153 +278,8 @@ const AvaliacoesSincronas = ({
     }
   };
 
-  const renderTabContent = () => {
-    if (activeTab === "avaliacoes") {
-      return (
-        <>
-          {/* Lista de avaliações */}
-          {loading ? (
-            <div className="d-flex justify-content-center my-3">
-              <div className="spinner-border" role="status">
-                <span className="visually-hidden">A carregar...</span>
-              </div>
-            </div>
-          ) : (
-            <div
-              className="table-responsive"
-              style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}
-            >
-              <table
-                className="table table-hover"
-                style={{ minWidth: "800px" }}
-              >
-                <thead>
-                  <tr>
-                    <th style={{ minWidth: "150px" }}>Título</th>
-                    <th style={{ minWidth: "200px" }}>Descrição</th>
-                    <th style={{ minWidth: "180px" }}>Data Limite</th>
-                    <th style={{ minWidth: "100px" }}>Status</th>
-                    <th style={{ minWidth: "200px" }}>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {avaliacoes.length > 0 ? (
-                    avaliacoes.map((avaliacao) => {
-                      const status = getDataStatus(
-                        avaliacao.DATA_LIMITE_REALIZACAO
-                      );
-                      const jaSubmeti =
-                        minhasSubmissoes[avaliacao.ID_AVALIACAO_SINCRONA];
-
-                      return (
-                        <tr key={avaliacao.ID_AVALIACAO_SINCRONA}>
-                          <td>{avaliacao.TITULO}</td>
-                          <td>
-                            <div
-                              style={{
-                                maxWidth: "200px",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {avaliacao.DESCRICAO?.length > 50
-                                ? avaliacao.DESCRICAO.substring(0, 50) + "..."
-                                : avaliacao.DESCRICAO}
-                            </div>
-                          </td>
-                          <td>
-                            <div style={{ whiteSpace: "nowrap" }}>
-                              {avaliacao.DATA_LIMITE_REALIZACAO
-                                ? new Date(
-                                    avaliacao.DATA_LIMITE_REALIZACAO
-                                  ).toLocaleString()
-                                : "-"}
-                            </div>
-                          </td>
-                          <td>
-                            <span
-                              className={`badge ${
-                                status === "Aberto" ? "bg-success" : "bg-danger"
-                              }`}
-                            >
-                              {status}
-                            </span>
-                          </td>
-                          <td>
-                            {isTeacher ? (
-                              // Ações para o professor
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => openSubmissoesModal(avaliacao)}
-                                style={{ whiteSpace: "nowrap" }}
-                              >
-                                <FileText size={16} className="me-1" />
-                                Ver Submissões
-                              </button>
-                            ) : (
-                              <>
-                                {jaSubmeti ? (
-                                  <div style={{ whiteSpace: "nowrap" }}>
-                                    <span className="badge bg-success me-2">
-                                      Submetido
-                                    </span>
-                                    {jaSubmeti.NOTA && (
-                                      <span
-                                        className={`badge ${
-                                          jaSubmeti.NOTA >= 10
-                                            ? "bg-success"
-                                            : "bg-danger"
-                                        }`}
-                                      >
-                                        Nota: {jaSubmeti.NOTA}/20
-                                      </span>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <button
-                                    className="btn btn-sm btn-primary"
-                                    onClick={() =>
-                                      openSubmissaoModal(avaliacao)
-                                    }
-                                    disabled={status !== "Aberto"}
-                                    style={{ whiteSpace: "nowrap" }}
-                                  >
-                                    <Upload size={16} className="me-1" />
-                                    Submeter Trabalho
-                                  </button>
-                                )}
-                              </>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="text-center">
-                        Nenhuma avaliação encontrada.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      );
-    } else if (activeTab === "avaliacaoFinal") {
-      return isTeacher ? (
-        <AvaliacaoFinalFormador cursoId={cursoId} />
-      ) : (
-        <MinhaAvaliacaoFinal cursoId={cursoId} />
-      );
-    }
-  };
-
   return (
     <div className="container p-0">
-      {/* Tabs de Navegação */}
       <ul className="nav nav-tabs mb-4" id="avaliacoesTabs" role="tablist">
         <li className="nav-item" role="presentation">
           <button
@@ -456,11 +305,9 @@ const AvaliacoesSincronas = ({
         </li>
       </ul>
 
-      {/* Conteúdo das Tabs */}
       <div className="tab-content">
         {activeTab === "avaliacoes" && (
           <div className="tab-pane fade show active">
-            {/* Conteúdo original das avaliações */}
             {renderAvaliacoesContent()}
           </div>
         )}
@@ -481,8 +328,6 @@ const AvaliacoesSincronas = ({
   function renderAvaliacoesContent() {
     return (
       <>
-        {/* Resto do código original */}
-        {/* Lista de avaliações */}
         {loading ? (
           <div className="d-flex justify-content-center my-3">
             <div className="spinner-border" role="status">
@@ -550,7 +395,6 @@ const AvaliacoesSincronas = ({
                         </td>
                         <td>
                           {isTeacher ? (
-                            // Ações para o professor
                             <button
                               className="btn btn-sm btn-outline-primary"
                               onClick={() => openSubmissoesModal(avaliacao)}
@@ -586,7 +430,7 @@ const AvaliacoesSincronas = ({
                                   style={{ whiteSpace: "nowrap" }}
                                 >
                                   <Upload size={16} className="me-1" />
-                                  Submeter Trabalho
+                                  Submeter trabalho
                                 </button>
                               )}
                             </>
@@ -619,7 +463,7 @@ const AvaliacoesSincronas = ({
               className="btn btn-primary"
               onClick={() => setShowAvaliacaoModal(true)}
             >
-              Criar Nova Avaliação
+              Criar nova avaliação
             </button>
           </div>
         )}
@@ -628,7 +472,6 @@ const AvaliacoesSincronas = ({
           <ErrorMessage message={error} onClose={() => setError(null)} />
         )}
 
-        {/* Modal para criar nova avaliação (professor) */}
         <div
           className={`modal fade ${showAvaliacaoModal ? "show" : ""}`}
           style={{ display: showAvaliacaoModal ? "block" : "none" }}
@@ -639,7 +482,7 @@ const AvaliacoesSincronas = ({
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Criar Nova Avaliação</h5>
+                <h5 className="modal-title">Criar nova avaliação</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -680,7 +523,7 @@ const AvaliacoesSincronas = ({
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Critérios de Avaliação</label>
+                    <label className="form-label">Critérios de avaliação</label>
                     <textarea
                       className="form-control"
                       value={novaAvaliacao.CRITERIOS}
@@ -694,7 +537,7 @@ const AvaliacoesSincronas = ({
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Data Limite de Entrega</label>
+                    <label className="form-label">Data limite para entrega</label>
                     <input
                       type="datetime-local"
                       className="form-control"
@@ -741,7 +584,6 @@ const AvaliacoesSincronas = ({
           </div>
         </div>
 
-        {/* Modal para submeter trabalho (aluno) */}
         <div
           className={`modal fade ${showSubmissaoModal ? "show" : ""}`}
           style={{ display: showSubmissaoModal ? "block" : "none" }}
@@ -752,7 +594,7 @@ const AvaliacoesSincronas = ({
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Submeter Trabalho</h5>
+                <h5 className="modal-title">Submeter trabalho</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -787,7 +629,7 @@ const AvaliacoesSincronas = ({
                 )}
                 <form onSubmit={handleSubmitSubmissao}>
                   <div className="mb-3">
-                    <label className="form-label">Descrição da Submissão</label>
+                    <label className="form-label">Descrição da submissão</label>
                     <textarea
                       className="form-control"
                       rows="3"
@@ -846,7 +688,6 @@ const AvaliacoesSincronas = ({
           </div>
         </div>
 
-        {/* Modal para ver e avaliar submissões (professor) */}
         <div
           className={`modal fade ${showAvaliarModal ? "show" : ""}`}
           style={{ display: showAvaliarModal ? "block" : "none" }}
@@ -1041,7 +882,6 @@ const AvaliacoesSincronas = ({
                                       type="submit"
                                       className="btn btn-sm btn-success"
                                     >
-                                      <Check size={16} className="me-1" />
                                       Guardar
                                     </button>
                                   </div>
@@ -1068,7 +908,6 @@ const AvaliacoesSincronas = ({
           </div>
         </div>
 
-        {/* Overlays para os modais */}
         {showAvaliacaoModal && (
           <div
             className="modal-backdrop fade show"
@@ -1090,7 +929,6 @@ const AvaliacoesSincronas = ({
           ></div>
         )}
 
-        {/* Lista de avaliações */}
         {loading ? (
           <div className="d-flex justify-content-center my-3">
             <div className="spinner-border" role="status">
@@ -1162,7 +1000,6 @@ const AvaliacoesSincronas = ({
                           </td>
                           <td>
                             {isTeacher ? (
-                              // Ações para o professor
                               <button
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => openSubmissoesModal(avaliacao)}

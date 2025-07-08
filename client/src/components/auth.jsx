@@ -23,8 +23,8 @@ function Auth() {
     if (showSuccess) {
       const timer = setTimeout(() => {
         navigate("/login");
-      }, 500); // Redireciona após 0.5 segundos
-      return () => clearTimeout(timer); // Limpa o timer se o componente for desmontado
+      }, 500); // redireciona após 0.5 segundos
+      return () => clearTimeout(timer);
     }
   }, [showSuccess, navigate]);
 
@@ -59,7 +59,7 @@ function Auth() {
   };
 
   const handleResendCode = async (email) => {
-    console.log(`Reenviando código para ${email}`);
+    console.log(`A reenviar código para ${email}`);
     setMessage("");
     setResendSuccess(false);
     try {
@@ -69,7 +69,7 @@ function Auth() {
       );
 
       if (response.status === 200) {
-        console.log("Código reenviado com sucesso");
+        //console.log("Código reenviado com sucesso");
         setMessage("Código reenviado com sucesso!");
         setResendSuccess(true);
       }
@@ -107,7 +107,6 @@ function Auth() {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").trim();
 
-    // Check if pasted content is a valid numeric string
     if (/^\d+$/.test(pastedData)) {
       const digits = pastedData.split("").slice(0, code.length);
       const newCode = [...code];
@@ -118,14 +117,11 @@ function Auth() {
 
       setCode(newCode);
 
-      // Focus the next empty input or the last one
       const nextEmptyIndex = newCode.findIndex((d) => d === "");
       if (nextEmptyIndex !== -1) {
         reference.current[nextEmptyIndex]?.focus();
       } else {
         reference.current[code.length - 1]?.focus();
-
-        // Auto-submit if a complete code is pasted
         if (newCode.every((digit) => digit !== "")) {
           setTimeout(() => {
             const form = reference.current[0]?.form;

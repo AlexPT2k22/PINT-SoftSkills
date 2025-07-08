@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/course_card.css";
 import { useNavigate } from "react-router-dom";
-import { Pen, Eye, Download, GraduationCap } from "lucide-react";
+import { Pen, Eye, GraduationCap } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import axios from "axios";
 
@@ -14,15 +14,11 @@ function CourseCardDashboard({
 }) {
   const { NOME, CURSO_ASSINCRONO, CURSO_SINCRONO, IMAGEM } = course;
   const navigate = useNavigate();
-
-  // Estados para controlar quiz
   const [hasQuiz, setHasQuiz] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [loadingQuizStatus, setLoadingQuizStatus] = useState(true);
-
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
-  // Verificar status do quiz ao carregar o componente
   useEffect(() => {
     checkQuizStatus();
   }, [course.ID_CURSO]);
@@ -48,22 +44,19 @@ function CourseCardDashboard({
       case "Em curso":
         return "bg-primary";
       case "Ativo":
-        // Para cursos síncronos que ainda não começaram
         if (CURSO_SINCRONO) {
           const hoje = new Date();
           const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
 
-          // Se é síncrono e ainda não começou, mostrar "Brevemente"
           if (hoje < dataInicio) {
             return "bg-info";
           }
         }
-        // Se chegou aqui, não mostrar badge
         return null;
       case "Terminado":
         return "bg-danger";
       default:
-        return null; //
+        return null;
     }
   };
 
@@ -78,7 +71,6 @@ function CourseCardDashboard({
       const hoje = new Date();
       const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
 
-      // Se é síncrono e ainda não começou
       if (hoje < dataInicio) {
         return "Brevemente";
       }
@@ -88,14 +80,12 @@ function CourseCardDashboard({
       return "Terminado";
     }
 
-    return null; // Não mostrar badge
+    return null;
   };
 
   const checkQuizStatus = async () => {
     try {
       setLoadingQuizStatus(true);
-
-      // Verificar se o curso tem quiz
       const quizResponse = await axios.get(
         `${URL}/api/quiz/curso/${course.ID_CURSO}`,
         { withCredentials: true }
@@ -104,7 +94,6 @@ function CourseCardDashboard({
       if (quizResponse.data.hasQuiz) {
         setHasQuiz(true);
 
-        // Verificar se o usuário já completou o quiz
         try {
           const resultResponse = await axios.get(
             `${URL}/api/quiz/${quizResponse.data.quiz.ID_QUIZ}/resultado`,
@@ -115,14 +104,12 @@ function CourseCardDashboard({
             setQuizCompleted(true);
           }
         } catch (resultError) {
-          // Usuário ainda não fez o quiz
           if (resultError.response?.status !== 404) {
             console.error("Erro ao verificar resultado do quiz:", resultError);
           }
         }
       }
     } catch (error) {
-      // Curso não tem quiz
       if (error.response?.status !== 404) {
         console.error("Erro ao verificar quiz:", error);
       }
@@ -132,14 +119,11 @@ function CourseCardDashboard({
   };
 
   const handleClick = () => {
-    // If user has progress, navigate to the first incomplete module
     if (progress > 0 && progress < 100 && course.moduleProgress) {
-      // Find first incomplete module
       const nextModule = course.MODULOS.find(
         (module) => !course.moduleProgress[module.ID_MODULO]
       );
 
-      // If found, navigate to it, otherwise navigate to first module
       if (nextModule) {
         navigate(
           `/dashboard/courses/${course.ID_CURSO}/modules/${nextModule.ID_MODULO}`
@@ -150,7 +134,6 @@ function CourseCardDashboard({
         );
       }
     } else {
-      // If no progress, navigate to first module
       navigate(
         `/dashboard/courses/${course.ID_CURSO}/modules/${course.MODULOS[0].ID_MODULO}`
       );
@@ -168,11 +151,8 @@ function CourseCardDashboard({
     return today >= startDate && today <= endDate;
   };
 
-  // Get user data from auth store
   const user = useAuthStore((state) => state.user);
   const userType = user?.perfil;
-
-  // Check if user is admin or teacher
   const isGestorOrFormador = userType === 3 || userType === 2;
 
   const formatDate = (dateString) => {
@@ -189,9 +169,8 @@ function CourseCardDashboard({
     ? "Síncrono"
     : "Não especificado";
 
-  // Determinar se deve mostrar o botão do quiz
+
   const shouldShowQuizButton = () => {
-    // Só mostra se tem quiz, curso está completo e quiz ainda não foi feito
     return hasQuiz && progress === 100 && !quizCompleted;
   };
 
@@ -229,7 +208,6 @@ function CourseCardDashboard({
           </p>
         </div>
 
-        {/* Progress bar visible for all users */}
         {showProgress && (
           <>
             <div className="mt-3">
@@ -306,20 +284,18 @@ function CourseCardDashboard({
                 <span className="text-muted">O curso ainda não começou</span>
               )}
 
-            {/* Botão do Quiz - aparece quando curso está completo mas quiz não foi feito */}
             {!loadingQuizStatus && shouldShowQuizButton() && (
               <button
                 className="btn btn-info"
                 onClick={handleClickQuiz}
                 title="Fazer Quiz Final"
               >
-                <span className="ms-2">Quiz</span>
+                Quiz
               </button>
             )}
           </div>
         )}
 
-        {/* Edit and See buttons only for Gestor and Formador */}
         {isGestorOrFormador && showButtons && (
           <div className="d-flex gap-2">
             <button

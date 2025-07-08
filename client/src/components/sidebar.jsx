@@ -29,46 +29,32 @@ function Sidebar({ onToggle }) {
   const isFormador = userType === 2;
   const isGestor = userType === 3;
 
-  // funcao para verificar se o link está ativo
   const isActive = (path) => {
     return location.pathname === path; // Verifica se o caminho atual é igual ao caminho do link
   };
 
-  // Handle screen resize to detect mobile view
   useEffect(() => {
     const handleResize = () => {
       setMobileView(window.innerWidth < 992);
-      // Auto-collapse sidebar on mobile
       if (window.innerWidth < 992) {
         setCollapsed(true);
       }
     };
 
-    // Set initial state
     handleResize();
-
-    // Add event listener
     window.addEventListener("resize", handleResize);
-
-    // Clean up
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Handle clicks outside the sidebar to close it
   useEffect(() => {
-    // Handle clicks outside the sidebar
     const handleClickOutside = (event) => {
-      // Get sidebar element
       const sidebarElement = document.querySelector(".sidebar");
-
-      // If sidebar is open (not collapsed) and click is outside sidebar
       if (
         !collapsed &&
         sidebarElement &&
         !sidebarElement.contains(event.target) &&
         !event.target.closest(".sidebar-toggle-btn")
       ) {
-        // Close the sidebar
         setCollapsed(true);
         if (onToggle) {
           onToggle(true);
@@ -76,16 +62,12 @@ function Sidebar({ onToggle }) {
       }
     };
 
-    // Add event listener
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Clean up
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [collapsed, onToggle]);
 
-  // Toggle sidebar
   const toggleSidebar = () => {
     const newCollapsedState = !collapsed;
     setCollapsed(newCollapsedState);
@@ -94,7 +76,6 @@ function Sidebar({ onToggle }) {
     }
   };
 
-  // Toggle sidebar - open only for mobile toggle button
   const openSidebar = () => {
     setCollapsed(false);
     if (onToggle) {
@@ -104,7 +85,6 @@ function Sidebar({ onToggle }) {
 
   return (
     <>
-      {/* Mobile Toggle Button - Only visible on mobile */}
       <button
         className={`sidebar-toggle-btn ${
           mobileView && collapsed ? "visible" : ""
@@ -114,7 +94,6 @@ function Sidebar({ onToggle }) {
         <Menu size={24} />
       </button>
 
-      {/* Sidebar */}
       <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <div className="d-flex justify-content-end align-items-center">
@@ -331,7 +310,6 @@ function Sidebar({ onToggle }) {
         )}
       </div>
 
-      {/* Overlay for mobile - closes sidebar when clicked */}
       {mobileView && !collapsed && (
         <div className="sidebar-overlay" onClick={toggleSidebar}></div>
       )}

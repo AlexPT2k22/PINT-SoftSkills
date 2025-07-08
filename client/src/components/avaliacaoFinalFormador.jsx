@@ -12,8 +12,6 @@ const AvaliacaoFinalFormador = ({ cursoId }) => {
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const { user } = useAuthStore();
-
   useEffect(() => {
     fetchAvaliacoesFinais();
   }, [cursoId]);
@@ -31,12 +29,12 @@ const AvaliacaoFinalFormador = ({ cursoId }) => {
         }
       );
 
-      console.log("Resposta do servidor (avaliações finais):", response.data);
+      //console.log("Resposta do servidor (avaliações finais):", response.data);
       setAvaliacoes(response.data);
       setError(null);
     } catch (error) {
-      console.error("Erro ao buscar avaliações finais:", error);
-      setError("Erro ao carregar avaliações finais. Tente novamente.");
+      console.error("Erro ao procurar as avaliações finais:", error);
+      setError("Erro ao carregar as avaliações finais. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -63,8 +61,8 @@ const AvaliacaoFinalFormador = ({ cursoId }) => {
       setEditingId(null);
       setError(null);
     } catch (error) {
-      console.error("Erro ao salvar avaliação final:", error);
-      setError("Erro ao salvar avaliação final. Tente novamente.");
+      console.error("Erro ao guardar avaliação final:", error);
+      setError("Erro ao guardar avaliação final. Tente novamente.");
     } finally {
       setSaving(false);
     }
@@ -105,13 +103,11 @@ const AvaliacaoFinalFormador = ({ cursoId }) => {
           {avaliacoes.length === 0 ? (
             <div className="col-12">
               <div className="alert alert-info">
-                <FileText size={20} className="me-2" />
                 Ainda não há alunos inscritos neste curso.
               </div>
             </div>
           ) : (
             avaliacoes.map((avaliacao) => {
-              // Verificação de segurança para evitar erros
               if (!avaliacao.aluno) {
                 console.error("Aluno não encontrado na avaliação:", avaliacao);
                 return null;
@@ -177,7 +173,6 @@ const EditarAvaliacaoForm = ({ avaliacao, onSave, onCancel, saving }) => {
     avaliacao.avaliacaoFinal?.OBSERVACAO || ""
   );
 
-  // Verificação de segurança
   if (!avaliacao.aluno) {
     return (
       <div className="alert alert-warning">
@@ -197,7 +192,7 @@ const EditarAvaliacaoForm = ({ avaliacao, onSave, onCancel, saving }) => {
     <form onSubmit={handleSubmit}>
       <div className="mb-3">
         <label className="form-label">
-          <strong>Nota Final (0-20)</strong>
+          <strong>Nota final (0-20)</strong>
         </label>
         <input
           type="number"
@@ -267,7 +262,6 @@ const VisualizarAvaliacao = ({
 }) => {
   const hasAvaliacao = avaliacao.avaliacaoFinal;
 
-  // Verificação de segurança
   if (!avaliacao.aluno) {
     return (
       <div className="alert alert-warning">
@@ -287,7 +281,7 @@ const VisualizarAvaliacao = ({
       {hasAvaliacao ? (
         <div>
           <div className="mb-3">
-            <small className="text-muted">Nota Final:</small>
+            <small className="text-muted">Nota final:</small>
             <br />
             <span className={`h5 ${getNotaColor(hasAvaliacao.NOTA_FINAL)}`}>
               {hasAvaliacao.NOTA_FINAL.toFixed(1)}/20
@@ -313,7 +307,6 @@ const VisualizarAvaliacao = ({
           </div>
 
           <button className="btn btn-outline-primary btn-sm" onClick={onEdit}>
-            <Eye size={16} className="me-1" />
             Editar avaliação
           </button>
         </div>
@@ -321,8 +314,7 @@ const VisualizarAvaliacao = ({
         <div className="text-center py-3">
           <p className="text-muted mb-3">Ainda não avaliado</p>
           <button className="btn btn-primary btn-sm" onClick={onEdit}>
-            <Star size={16} className="me-1" />
-            Avaliar Aluno
+            Avaliar aluno
           </button>
         </div>
       )}

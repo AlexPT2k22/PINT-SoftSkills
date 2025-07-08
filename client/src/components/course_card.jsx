@@ -25,20 +25,17 @@ function CourseCard({ course }) {
       case "Em curso":
         return "bg-primary";
       case "Ativo":
-        // Para cursos síncronos que ainda não começaram
         if (CURSO_SINCRONO) {
           const hoje = new Date();
           const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
 
-          // Se é síncrono e ainda não começou, mostrar "Brevemente"
           if (hoje < dataInicio) {
             return "bg-info";
           }
         }
-        // Se chegou aqui, não mostrar badge
         return null;
       default:
-        return null; // ✅ Não mostrar outros badges
+        return null;
     }
   };
 
@@ -53,13 +50,12 @@ function CourseCard({ course }) {
       const hoje = new Date();
       const dataInicio = new Date(CURSO_SINCRONO.DATA_INICIO);
 
-      // Se é síncrono e ainda não começou
       if (hoje < dataInicio) {
         return "Brevemente";
       }
     }
 
-    return null; // Não mostrar badge
+    return null;
   };
 
   const dificuldadeBadge = (dificuldade) => {
@@ -83,7 +79,6 @@ function CourseCard({ course }) {
   const DATA_INICIO = CURSO_SINCRONO?.DATA_INICIO || "N/A";
   const DATA_FIM = CURSO_SINCRONO?.DATA_FIM || "N/A";
   const VAGAS = CURSO_SINCRONO?.VAGAS || "N/A";
-  //const tempoTotal = CURSO_SINCRONO?.TEMPO_TOTAL || "N/A";
 
   const tipo = CURSO_ASSINCRONO
     ? "Assíncrono"
@@ -146,7 +141,7 @@ function CourseCard({ course }) {
               </div>
               <small className="text-muted">
                 {course.averageRating.toFixed(1)} ({course.totalReviews}{" "}
-                avaliação
+                avaliações
                 {course.totalReviews !== 1 ? "ões" : ""})
               </small>
             </div>

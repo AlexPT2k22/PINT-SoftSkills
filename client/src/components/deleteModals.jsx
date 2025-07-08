@@ -1,5 +1,4 @@
 import React from "react";
-
 const ConfirmDeleteCategoriaModal = ({
   categoria,
   areas,
@@ -28,7 +27,7 @@ const ConfirmDeleteCategoriaModal = ({
         <div className="modal-content">
           <div className="modal-header  text-white">
             <h5 className="modal-title">
-              Confirmar Exclusão da Categoria
+              Confirmar o apagar da categoria
             </h5>
             <button
               type="button"
@@ -41,7 +40,7 @@ const ConfirmDeleteCategoriaModal = ({
               <strong>Atenção!</strong> Esta ação não pode ser desfeita.
             </div>
 
-            <h6>Categoria a ser excluída:</h6>
+            <h6>Categoria a ser apagada:</h6>
             <div className="card mb-3">
               <div className="card-body">
                 <h6 className="card-title">{categoria.NOME__}</h6>
@@ -52,7 +51,7 @@ const ConfirmDeleteCategoriaModal = ({
             {areasAssociadas.length > 0 && (
               <>
                 <h6 className="text-danger">
-                  Áreas que serão excluídas ({areasAssociadas.length}):
+                  Áreas que serão apagadas ({areasAssociadas.length}):
                 </h6>
                 <div
                   className="list-group mb-3"
@@ -74,7 +73,7 @@ const ConfirmDeleteCategoriaModal = ({
             {topicosAssociados.length > 0 && (
               <>
                 <h6 className="text-danger">
-                  Tópicos que serão excluídos ({topicosAssociados.length}):
+                  Tópicos que serão apagados ({topicosAssociados.length}):
                 </h6>
                 <div
                   className="list-group mb-3"
@@ -94,8 +93,7 @@ const ConfirmDeleteCategoriaModal = ({
             )}
 
             <p className="text-muted">
-              Digite <strong>"CONFIRMAR"</strong> para prosseguir com a
-              exclusão:
+              Digite <strong>"CONFIRMAR"</strong> para prosseguir:
             </p>
             <input
               type="text"
@@ -131,10 +129,10 @@ const ConfirmDeleteCategoriaModal = ({
                     className="spinner-border spinner-border-sm me-2"
                     role="status"
                   ></span>
-                  Excluindo...
+                  A apagar...
                 </>
               ) : (
-                "Excluir Categoria"
+                "Apagar categoria"
               )}
             </button>
           </div>
@@ -169,7 +167,7 @@ const ConfirmDeleteAreaModal = ({
         <div className="modal-content">
           <div className="modal-header  text-white">
             <h5 className="modal-title">
-              Confirmar Exclusão da Área
+              Confirmar o apagar da área
             </h5>
             <button
               type="button"
@@ -182,7 +180,7 @@ const ConfirmDeleteAreaModal = ({
               <strong>Atenção!</strong> Esta ação não pode ser desfeita.
             </div>
 
-            <h6>Área a ser excluída:</h6>
+            <h6>Área a ser apagada:</h6>
             <div className="card mb-3">
               <div className="card-body">
                 <h6 className="card-title">{area.NOME}</h6>
@@ -193,7 +191,7 @@ const ConfirmDeleteAreaModal = ({
             {topicosAssociados.length > 0 && (
               <>
                 <h6 className="text-danger">
-                  Tópicos que serão excluídos ({topicosAssociados.length}):
+                  Tópicos que serão apagados ({topicosAssociados.length}):
                 </h6>
                 <div
                   className="list-group mb-3"
@@ -213,8 +211,7 @@ const ConfirmDeleteAreaModal = ({
             )}
 
             <p className="text-muted">
-              Digite <strong>"CONFIRMAR"</strong> para prosseguir com a
-              exclusão:
+              Digite <strong>"CONFIRMAR"</strong> para prosseguir:
             </p>
             <input
               type="text"
@@ -250,10 +247,10 @@ const ConfirmDeleteAreaModal = ({
                     className="spinner-border spinner-border-sm me-2"
                     role="status"
                   ></span>
-                  Excluindo...
+                  A apagar...
                 </>
               ) : (
-                "Excluir Área"
+                "Apagar área"
               )}
             </button>
           </div>
@@ -283,7 +280,7 @@ const ConfirmDeleteTopicoModal = ({
         <div className="modal-content">
           <div className="modal-header  text-white">
             <h5 className="modal-title">
-              Confirmar Exclusão do Tópico
+              Confirmar o apagar do tópico
             </h5>
             <button
               type="button"
@@ -296,7 +293,7 @@ const ConfirmDeleteTopicoModal = ({
               <strong>Atenção!</strong> Esta ação não pode ser desfeita.
             </div>
 
-            <h6>Tópico a ser excluído:</h6>
+            <h6>Tópico a ser apagado:</h6>
             <div className="card mb-3">
               <div className="card-body">
                 <h6 className="card-title">{topico.TITULO}</h6>
@@ -305,8 +302,7 @@ const ConfirmDeleteTopicoModal = ({
             </div>
 
             <p className="text-muted">
-              Digite <strong>"CONFIRMAR"</strong> para prosseguir com a
-              exclusão:
+              Digite <strong>"CONFIRMAR"</strong> para prosseguir:
             </p>
             <input
               type="text"
@@ -342,10 +338,10 @@ const ConfirmDeleteTopicoModal = ({
                     className="spinner-border spinner-border-sm me-2"
                     role="status"
                   ></span>
-                  Excluindo...
+                  A apagar...
                 </>
               ) : (
-                "Excluir Tópico"
+                "Apagar tópico"
               )}
             </button>
           </div>

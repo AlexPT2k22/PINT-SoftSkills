@@ -1,17 +1,9 @@
-/* ================================= */
-/*        LAYOUT PRINCIPAL           */
-/* ================================= */
-
 @media (max-width: 1200px) {
   .admin-stats-container {
     margin-left: 0;
     padding: 1rem;
   }
 }
-
-/* ================================= */
-/*        HEADER DA PÁGINA           */
-/* ================================= */
 
 .stats-title {
   color: #2c3e50;
@@ -43,10 +35,6 @@
   }
 }
 
-/* ================================= */
-/*        NAVEGAÇÃO TABS             */
-/* ================================= */
-
 .nav-tabs-container-admin {
   background: white;
   border-radius: 8px;
@@ -70,10 +58,6 @@
   color: white;
 }
 
-/* ================================= */
-/*        CARDS E SEÇÕES             */
-/* ================================= */
-
 .section-title {
   color: #2c3e50;
   font-weight: 600;
@@ -83,7 +67,6 @@
   margin-bottom: 1rem;
 }
 
-/* Summary Cards */
 .summary-section {
   margin-bottom: 2rem;
 }
@@ -127,7 +110,6 @@
   font-size: 0.9rem;
 }
 
-/* Stats Cards */
 .stats-sections {
   display: flex;
   flex-direction: column;
@@ -187,7 +169,6 @@
   margin-top: 0.75rem;
 }
 
-/* Progress */
 .progress {
   height: 15px;
   border-radius: 4px;
@@ -198,9 +179,6 @@
   border-radius: 4px;
 }
 
-/* ================================= */
-/*        TABELAS                    */
-/* ================================= */
 
 .table-responsive {
   border-radius: 8px;
@@ -230,9 +208,7 @@
   border-bottom: 1px solid #f8f9fa;
 }
 
-/* ================================= */
-/*        FILTROS                    */
-/* ================================= */
+
 
 .filters-section .card {
   border: none;
@@ -270,7 +246,6 @@
   color: #6c757d;
 }
 
-/* View Toggle */
 .view-toggle .btn-group .btn {
   border-radius: 6px;
   font-weight: 500;
@@ -296,10 +271,6 @@
   background-color: #39639c;
   color: white;
 }
-
-/* ================================= */
-/*        CARDS PERCURSO             */
-/* ================================= */
 
 .user-percurso-card {
   border: none;
@@ -351,7 +322,6 @@
   margin-bottom: 0;
 }
 
-/* Detalhes do usuário */
 .user-details-stats {
   background-color: #f8f9fa;
   padding: 1rem;
@@ -383,10 +353,6 @@
   text-align: right;
 }
 
-/* ================================= */
-/*        CARDS GRÁFICOS             */
-/* ================================= */
-
 .charts-tab .card {
   border: none;
   border-radius: 8px;
@@ -411,10 +377,6 @@
 .charts-tab .card-body {
   padding: 1.5rem;
 }
-
-/* ================================= */
-/*        LOADING E ALERTAS          */
-/* ================================= */
 
 .loading-container {
   display: flex;
@@ -443,10 +405,6 @@
   padding: 1rem;
 }
 
-/* ================================= */
-/*        PAGINAÇÃO                  */
-/* ================================= */
-
 .pagination {
   margin-bottom: 0;
 }
@@ -471,20 +429,12 @@
   cursor: not-allowed;
 }
 
-/* ================================= */
-/*        BADGES E UTILITÁRIOS       */
-/* ================================= */
-
 .badge {
   font-weight: 500;
   padding: 0.4rem 0.75rem;
   border-radius: 12px;
   font-size: 0.8rem;
 }
-
-/* ================================= */
-/*        RESPONSIVIDADE             */
-/* ================================= */
 
 @media (max-width: 992px) {
   .stats-title {

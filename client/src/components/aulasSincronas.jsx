@@ -59,7 +59,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       setAulas(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("Erro ao buscar aulas:", error);
+      console.error("Erro ao encontrar aulas:", error);
       setLoading(false);
     }
   };
@@ -67,10 +67,10 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
   const fetchModulos = async () => {
     try {
       const response = await axios.get(`${URL}/api/cursos/${cursoId}`);
-      console.log("Curso", response.data.MODULOS);
+      //console.log("Curso", response.data.MODULOS);
       setModulos(response.data.MODULOS || []);
     } catch (error) {
-      console.error("Erro ao buscar módulos:", error);
+      console.error("Erro ao procurar módulos:", error);
     }
   };
 
@@ -120,7 +120,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       });
       fetchAulas();
     } catch (error) {
-      console.error("Erro ao atualizar estado da aula:", error);
+      console.error("Erro ao atualizar o estado da aula:", error);
     }
   };
 
@@ -147,18 +147,13 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
     setSelectedAula(aula);
     setLoadingStudents(true);
 
-    // Buscar alunos e dados de presença já existentes
     Promise.all([
-      // Buscar alunos inscritos no curso
       axios.get(`${URL}/api/cursos/${cursoId}/alunos`),
-
-      // Buscar registros de presença existentes para esta aula
       axios.get(`${URL}/api/aulas/${aula.ID_AULA}/presenca`),
     ])
       .then(([studentsResponse, attendanceResponse]) => {
         setAlunos(studentsResponse.data);
 
-        // Criar objeto de lookup para presenças por ID de aluno
         const presencasPorAluno = {};
         attendanceResponse.data.forEach((registro) => {
           presencasPorAluno[registro.ID_UTILIZADOR] = registro.PRESENTE;
@@ -167,7 +162,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
         setPresencas(presencasPorAluno);
       })
       .catch((error) => {
-        console.error("Erro ao buscar dados de presenças:", error);
+        console.error("Erro ao procurar dados de presenças:", error);
       })
       .finally(() => {
         setLoadingStudents(false);
@@ -182,7 +177,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
             className="btn btn-primary w-100 w-md-auto"
             onClick={() => setShowModal(true)}
           >
-            Agendar Nova Aula
+            Agendar uma nova aula
           </button>
         </div>
       )}
@@ -190,7 +185,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
       {loading ? (
         <div className="d-flex justify-content-center">
           <div className="spinner-border" role="status">
-            <span className="visually-hidden">Carregando...</span>
+            <span className="visually-hidden">A carregar...</span>
           </div>
         </div>
       ) : aulas.length === 0 ? (
@@ -253,7 +248,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                           className="btn btn-sm btn-outline-primary"
                         >
                           <LinkIcon size={16} className="me-1" />
-                          <span className="d-none d-sm-inline">Entrar na Aula</span>
+                          <span className="d-none d-sm-inline">Entrar na aula</span>
                           <span className="d-sm-none">Entrar</span>
                         </a>
                       )}
@@ -271,7 +266,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                               }
                             >
                               <Play size={16} className="me-1" />
-                              <span className="d-none d-sm-inline">Iniciar Aula</span>
+                              <span className="d-none d-sm-inline">Iniciar aula</span>
                               <span className="d-sm-none">Iniciar</span>
                             </button>
                           )}
@@ -284,7 +279,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
                               }
                             >
                               <CheckCircle size={16} className="me-1" />
-                              <span className="d-none d-sm-inline">Concluir Aula</span>
+                              <span className="d-none d-sm-inline">Concluir aula</span>
                               <span className="d-sm-none">Concluir</span>
                             </button>
                           )}
@@ -334,7 +329,7 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
         <div className="modal-dialog modal-lg modal-dialog-scrollable" role="document">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Agendar Nova Aula</h5>
+              <h5 className="modal-title">Agendar uma nova aula</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -504,7 +499,6 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
         ></div>
       )}
 
-      {/* Modal de presenças */}
       {selectedAula && (
         <div
           className={`modal fade show`}
@@ -663,7 +657,6 @@ const AulasSincronas = ({ cursoId, isTeacher = false }) => {
         </div>
       )}
 
-      {/* Background escuro para o modal de presenças */}
       {selectedAula && (
         <div
           className="modal-backdrop fade show"

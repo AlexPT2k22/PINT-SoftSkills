@@ -91,7 +91,7 @@ const ForumAdmin = () => {
         }
       }
     } catch (error) {
-      console.error("Erro ao buscar áreas:", error);
+      console.error("Erro ao procurar áreas:", error);
       setErrorMessage("Erro ao carregar áreas");
     }
   };
@@ -105,7 +105,7 @@ const ForumAdmin = () => {
         setTopicos(response.data);
       }
     } catch (error) {
-      console.error("Erro ao buscar tópicos:", error);
+      console.error("Erro ao procurar tópicos:", error);
       setErrorMessage("Erro ao carregar tópicos");
     }
   };
@@ -119,7 +119,7 @@ const ForumAdmin = () => {
         setNumTopicos(response.data.count);
       }
     } catch (error) {
-      console.error("Erro ao buscar tópicos:", error);
+      console.error("Erro ao procurar tópicos:", error);
       setErrorMessage("Erro ao carregar estatísticas de tópicos");
     }
   };
@@ -133,7 +133,7 @@ const ForumAdmin = () => {
         setCategorias(response.data);
       }
     } catch (error) {
-      console.error("Erro ao buscar categorias:", error);
+      console.error("Erro ao procurar categorias:", error);
       setErrorMessage("Erro ao carregar categorias");
     }
   };
@@ -151,7 +151,7 @@ const ForumAdmin = () => {
         setSolicitacoes(response.data.solicitacoes);
       }
     } catch (error) {
-      console.error("Erro ao buscar solicitações:", error);
+      console.error("Erro ao procurar solicitações:", error);
       setErrorMessage("Erro ao carregar solicitações pendentes");
     } finally {
       setLoading(false);
@@ -171,7 +171,7 @@ const ForumAdmin = () => {
         setDenuncias(response.data.denuncias);
       }
     } catch (error) {
-      console.error("Erro ao buscar denúncias:", error);
+      console.error("Erro ao procurar denúncias:", error);
       setErrorMessage("Erro ao carregar denúncias pendentes");
     } finally {
       setLoading(false);
@@ -202,9 +202,9 @@ const ForumAdmin = () => {
         );
       }
     } catch (error) {
-      console.error("Erro ao responder solicitação:", error);
+      console.error("Erro ao responder á solicitação:", error);
       setErrorMessage(
-        error.response?.data?.message || "Erro ao responder solicitação"
+        error.response?.data?.message || "Erro ao responder á solicitação"
       );
     } finally {
       setLoadingButton(false);
@@ -344,7 +344,6 @@ const ForumAdmin = () => {
       )}
 
       <div className="container mt-4 p-4">
-        {/* Header */}
         <div className="row mb-4">
           <div className="col-10">
             <h2 className="mb-1">Painel administrativo do fórum</h2>
@@ -359,14 +358,13 @@ const ForumAdmin = () => {
           </div>
         </div>
 
-        {/* Estatísticas */}
         <div className="row mb-4">
           <div className="col-md-4">
             <div className="card text-center">
               <div className="card-body">
                 <Clock size={24} className="text-warning mb-2" />
                 <h4>{solicitacoes.length}</h4>
-                <small>Solicitações Pendentes</small>
+                <small>Solicitações pendentes</small>
               </div>
             </div>
           </div>
@@ -375,7 +373,7 @@ const ForumAdmin = () => {
               <div className="card-body">
                 <Flag size={24} className="text-danger mb-2" />
                 <h4>{denuncias.length}</h4>
-                <small>Denúncias Pendentes</small>
+                <small>Denúncias pendentes</small>
               </div>
             </div>
           </div>
@@ -384,13 +382,12 @@ const ForumAdmin = () => {
               <div className="card-body">
                 <MessageSquare size={24} className="text-primary mb-2" />
                 <h4>{numTopicos !== null ? numTopicos : "..."}</h4>
-                <small>Total Tópicos</small>
+                <small>Total tópicos</small>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Navegação por Tabs */}
         <div className="row mb-4">
           <div className="col-12">
             <ul className="nav nav-tabs">
@@ -424,27 +421,25 @@ const ForumAdmin = () => {
                   onClick={() => setActiveTab("criar")}
                 >
                   <Plus size={16} className="me-1" />
-                  Criar Tópico
+                  Criar tópico
                 </button>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Conteúdo das Tabs */}
         <div className="row">
           <div className="col-12">
-            {/* Tab Solicitações */}
             {activeTab === "solicitacoes" && (
               <div className="card">
                 <div className="card-header">
-                  <h5 className="mb-0">Solicitações Pendentes</h5>
+                  <h5 className="mb-0">Solicitações pendentes</h5>
                 </div>
                 <div className="card-body">
                   {loading ? (
                     <div className="text-center py-3">
                       <div className="spinner-border" />
-                      <p className="mt-2">Carregando solicitações...</p>
+                      <p className="mt-2">A carregar as solicitações...</p>
                     </div>
                   ) : solicitacoes.length === 0 ? (
                     <div className="text-center py-5">
@@ -461,7 +456,7 @@ const ForumAdmin = () => {
                       <table className="table">
                         <thead>
                           <tr>
-                            <th>Título Sugerido</th>
+                            <th>Título sugerido</th>
                             <th>Categoria/Área/Tópico</th>
                             <th>Solicitante</th>
                             <th>Data</th>
@@ -510,17 +505,16 @@ const ForumAdmin = () => {
               </div>
             )}
 
-            {/* Tab Denúncias */}
             {activeTab === "denuncias" && (
               <div className="card">
                 <div className="card-header">
-                  <h5 className="mb-0">Denúncias Pendentes</h5>
+                  <h5 className="mb-0">Denúncias pendentes</h5>
                 </div>
                 <div className="card-body">
                   {loading ? (
                     <div className="text-center py-3">
                       <div className="spinner-border" />
-                      <p className="mt-2">Carregando denúncias...</p>
+                      <p className="mt-2">A carregar as denúncias...</p>
                     </div>
                   ) : denuncias.length === 0 ? (
                     <div className="text-center py-5">
@@ -603,7 +597,6 @@ const ForumAdmin = () => {
               </div>
             )}
 
-            {/* Tab Criar Tópico */}
             {activeTab === "criar" && (
               <div className="card">
                 <div className="card-header">
@@ -640,7 +633,7 @@ const ForumAdmin = () => {
                 <div className="modal-header">
                   <h5 className="modal-title">
                     <Plus size={20} className="me-2" />
-                    Criar Novo Tópico de Fórum
+                    Criar novo tópico
                   </h5>
                   <button
                     type="button"
@@ -657,7 +650,6 @@ const ForumAdmin = () => {
                       para todos os utilizadores.
                     </div>
 
-                    {/* Seleção de Categoria/Área/Tópico */}
                     <div className="row mb-3">
                       <div className="col-md-4">
                         <label className="form-label">Categoria *</label>
@@ -738,10 +730,9 @@ const ForumAdmin = () => {
                       </div>
                     </div>
 
-                    {/* Título do Tópico de Fórum */}
                     <div className="mb-3">
                       <label className="form-label">
-                        Título do Tópico de Discussão *
+                        Título do tópico de discussão *
                       </label>
                       <input
                         type="text"
@@ -764,7 +755,6 @@ const ForumAdmin = () => {
                       </div>
                     </div>
 
-                    {/* Descrição */}
                     <div className="mb-3">
                       <label className="form-label">Descrição *</label>
                       <textarea
@@ -789,12 +779,11 @@ const ForumAdmin = () => {
                       </div>
                     </div>
 
-                    {/* Preview da hierarquia */}
                     {novoTopico.categoriaId &&
                       novoTopico.areaId &&
                       novoTopico.topicoId && (
                         <div className="alert alert-secondary">
-                          <h6 className="mb-2">Preview da localização:</h6>
+                          <h6 className="mb-2">Preview:</h6>
                           <small className="text-muted">
                             <strong>Categoria:</strong>{" "}
                             {
@@ -856,7 +845,7 @@ const ForumAdmin = () => {
                       ) : (
                         <>
                           <Plus size={16} className="me-1" />
-                          Criar Tópico
+                          Criar tópico
                         </>
                       )}
                     </button>
@@ -872,7 +861,6 @@ const ForumAdmin = () => {
           </div>
         )}
 
-        {/* Modal Resposta Solicitação */}
         {showRespostaModal && solicitacaoSelecionada && (
           <div
             className="modal show d-block"
@@ -882,7 +870,7 @@ const ForumAdmin = () => {
             <div className="modal-dialog modal-lg">
               <div className="modal-content" style={{ zIndex: 1051 }}>
                 <div className="modal-header">
-                  <h5 className="modal-title">Analisar Solicitação</h5>
+                  <h5 className="modal-title">Analisar solicitação</h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -890,9 +878,8 @@ const ForumAdmin = () => {
                   />
                 </div>
                 <div className="modal-body">
-                  {/* Detalhes da Solicitação */}
                   <div className="mb-4">
-                    <h6>Detalhes da Solicitação</h6>
+                    <h6>Detalhes da solicitação</h6>
                     <div className="bg-light p-3 rounded">
                       <p className="mb-1">
                         <strong>Título:</strong>{" "}
@@ -905,7 +892,7 @@ const ForumAdmin = () => {
                         {solicitacaoSelecionada.TOPICO?.TITULO}
                       </p>
                       <p className="mb-1">
-                        <strong>Justificativa:</strong>{" "}
+                        <strong>Justificação:</strong>{" "}
                         {solicitacaoSelecionada.JUSTIFICATIVA}
                       </p>
                       <p className="mb-0">
@@ -915,7 +902,6 @@ const ForumAdmin = () => {
                     </div>
                   </div>
 
-                  {/* Decisão */}
                   <div className="mb-3">
                     <label className="form-label">Decisão *</label>
                     <select
@@ -934,10 +920,9 @@ const ForumAdmin = () => {
                     </select>
                   </div>
 
-                  {/* Resposta */}
                   <div className="mb-3">
                     <label className="form-label">
-                      Resposta ao Solicitante
+                      Resposta ao solicitante
                     </label>
                     <textarea
                       className="form-control"
@@ -953,12 +938,11 @@ const ForumAdmin = () => {
                     />
                   </div>
 
-                  {/* Dados do Tópico (se aprovado) */}
                   {respostaData.decisao === "Aprovado" && (
                     <div className="border-top pt-3">
-                      <h6>Dados do Tópico</h6>
+                      <h6>Dados do tópico</h6>
                       <div className="mb-3">
-                        <label className="form-label">Título do Tópico</label>
+                        <label className="form-label">Título do tópico</label>
                         <input
                           type="text"
                           className="form-control"
@@ -976,7 +960,7 @@ const ForumAdmin = () => {
                       </div>
                       <div className="mb-3">
                         <label className="form-label">
-                          Descrição do Tópico
+                          Descrição do tópico
                         </label>
                         <textarea
                           className="form-control"
@@ -1015,7 +999,7 @@ const ForumAdmin = () => {
                     ) : (
                       <>
                         <CheckCircle size={16} className="me-1" />
-                        Confirmar Decisão
+                        Confirmar decisão
                       </>
                     )}
                   </button>

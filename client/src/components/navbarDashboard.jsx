@@ -3,9 +3,6 @@ import React, { useState, useEffect } from "react";
 import {
   CircleUserRound,
   ChevronDown,
-  User,
-  Settings,
-  LogOut,
 } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +16,6 @@ function NavbarDashboard({ showIcons = true }) {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".user-dropdown-wrapper")) {
@@ -78,11 +74,9 @@ function NavbarDashboard({ showIcons = true }) {
           }`}
           id="navbarContent"
         >
-          {/* Mobile Navigation */}
           <div className="d-lg-none">
             {showIcons && (
               <ul className="navbar-nav">
-                {/* Forum Link Mobile */}
                 <li className="nav-item mobile-nav-item">
                   <a
                     className="nav-link text"
@@ -93,7 +87,6 @@ function NavbarDashboard({ showIcons = true }) {
                   </a>
                 </li>
 
-                {/* Notifications Mobile */}
                 <li className="nav-item mobile-nav-item">
                   <div className="d-flex align-items-center justify-content-between">
                     <span className="text" style={{ color: "#39639c" }}>
@@ -103,7 +96,6 @@ function NavbarDashboard({ showIcons = true }) {
                   </div>
                 </li>
 
-                {/* User Section Mobile */}
                 <li className="nav-item">
                   <div className="user-section-mobile">
                     <div className="user-info-mobile">
@@ -135,7 +127,7 @@ function NavbarDashboard({ showIcons = true }) {
                           handleNavigation("/dashboard/my-courses")
                         }
                       >
-                        Os meus Cursos
+                        Os meus cursos
                       </button>
                       <button className="btn logout-btn" onClick={handleLogout}>
                         Sair
@@ -147,7 +139,6 @@ function NavbarDashboard({ showIcons = true }) {
             )}
           </div>
 
-          {/* Desktop Navigation */}
           <div className="d-none d-lg-flex align-items-center ms-auto me-5">
             {showIcons && (
               <ul className="navbar-nav flex-row">
@@ -221,7 +212,7 @@ function NavbarDashboard({ showIcons = true }) {
                               handleNavigation("/dashboard/my-courses")
                             }
                           >
-                            <span>Os meus Cursos</span>
+                            <span>Os meus cursos</span>
                           </button>
 
                           <div className="user-dropdown-divider"></div>
@@ -236,7 +227,6 @@ function NavbarDashboard({ showIcons = true }) {
                       </div>
                     )}
 
-                    {/* Backdrop para fechar dropdown */}
                     {showUserDropdown && (
                       <div
                         className="user-dropdown-backdrop"
