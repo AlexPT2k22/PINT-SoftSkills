@@ -20,7 +20,6 @@
   background-color: #fff;
 }
 
-/* Tabs de navegação */
 .course-tab {
   border: none;
   color: #37373780;
@@ -44,7 +43,6 @@
   font-weight: 600;
 }
 
-/* Responsividade */
 @media (max-width: 991.98px) {
   .border-end-lg {
     border-right: none !important;

@@ -36,7 +36,6 @@
   font-size: 0.9rem;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .user-header-card .row {
     text-align: center;
@@ -152,7 +151,6 @@
   border-radius: 10px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .stat-card {
     margin-bottom: 1rem;

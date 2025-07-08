@@ -48,7 +48,6 @@
   color: #2c5282;
 }
 
-/* Custom indicators styles */
 .custom-indicators {
   gap: 0.5rem;
 }
@@ -68,7 +67,6 @@
   background-color: #2c5282;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .left-panel {
     display: none;

@@ -140,7 +140,6 @@
   }
 }
 
-/* Custom responsive utilities */
 @media (min-width: 768px) {
   .w-md-auto {
     width: auto !important;

@@ -11,7 +11,6 @@
   border: 1px solid #ffffff;
 }
 
-/* Sidebar móvel */
 .find-courses-sidebar-mobile {
   max-width: 100%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -19,7 +18,6 @@
   position: relative;
 }
 
-/* Filtro button para dispositivos móveis */
 .btn-filter-mobile {
   width: 100%;
   margin-bottom: 1rem;
@@ -41,7 +39,6 @@
   box-shadow: 0 0 0 0.25rem rgba(57, 99, 156, 0.25);
 }
 
-/* Card grid responsivo */
 .find-courses-grid .row-cols-1 {
   --bs-gutter-x: 1rem;
 }
@@ -51,7 +48,6 @@
   border: 1px solid #ffffff;
 }
 
-/* Sidebar de filtros */
 .find-courses-sidebar {
   background: white;
   border-radius: 12px;
@@ -97,7 +93,6 @@
   text-decoration: underline;
 }
 
-/* Seções de filtros */
 .find-courses-filter-section {
   border-bottom: 1px solid #f0f0f0;
   padding-bottom: 1rem;
@@ -118,7 +113,6 @@
   font-size: 0.95rem;
 }
 
-/* Filtros de avaliação */
 .find-courses-rating-filters {
   display: flex;
   flex-direction: column;
@@ -147,7 +141,6 @@
   color: #666;
 }
 
-/* Filtros de dificuldade e tipo */
 .find-courses-difficulty-filters,
 .find-courses-type-filters {
   display: flex;
@@ -170,7 +163,6 @@
   color: #333;
 }
 
-/* Selects personalizados */
 .find-courses-select {
   width: 100%;
   padding: 0.5rem;
@@ -194,13 +186,11 @@
   cursor: not-allowed;
 }
 
-/* Conteúdo principal */
 .find-courses-content {
   padding: 1rem;
   min-height: 600px;
 }
 
-/* Header do conteúdo */
 .find-courses-header {
   display: flex;
   justify-content: space-between;
@@ -246,7 +236,6 @@
   box-shadow: 0 0 0 0.2rem rgba(57, 99, 156, 0.25);
 }
 
-/* Filtros ativos */
 .find-courses-active-filters {
   padding: 1rem;
   margin-bottom: 2rem;
@@ -302,7 +291,6 @@
   opacity: 1;
 }
 
-/* Grid de cursos */
 .find-courses-grid {
   margin-top: 1rem;
 }
@@ -318,7 +306,6 @@
   padding: 0.75rem;
 }
 
-/* Sem resultados */
 .find-courses-no-results {
   text-align: center;
   padding: 3rem 2rem;
@@ -355,7 +342,6 @@
   background-color: #2c4f7e;
 }
 
-/* Botão carregar mais */
 .find-courses-load-more {
   text-align: center;
   margin-top: 3rem;
@@ -384,13 +370,12 @@
   cursor: not-allowed;
 }
 
-/* Loading indicator */
+
 .find-courses-loading {
   text-align: center;
   padding: 2rem 0;
 }
 
-/* Input radio e checkbox customizados */
 .find-courses-sidebar .form-check-input:checked {
   background-color: #39639c;
   border-color: #39639c;
@@ -401,7 +386,6 @@
   box-shadow: 0 0 0 0.25rem rgba(57, 99, 156, 0.25);
 }
 
-/* Scrollbar customizada para a sidebar */
 .find-courses-sidebar::-webkit-scrollbar {
   width: 6px;
 }
@@ -420,7 +404,6 @@
   background: #a1a1a1;
 }
 
-/* Responsividade */
 @media (max-width: 991.98px) {
   .find-courses-sidebar {
     position: relative;
@@ -494,7 +477,6 @@
   }
 }
 
-/* Ajuste para o botão de mostrar mais */
 .find-courses-load-more {
   margin-top: 2rem;
   margin-bottom: 1rem;

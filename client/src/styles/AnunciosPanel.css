@@ -15,7 +15,6 @@
   font-size: 0.95rem;
 }
 
-/* Scrollbar customizada */
 .anuncios-panel::-webkit-scrollbar {
   width: 6px;
 }
@@ -34,7 +33,6 @@
   background: #a8a8a8;
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
   .anuncios-panel .card-body {
     padding: 1rem;

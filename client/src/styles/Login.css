@@ -120,7 +120,7 @@
 }
 
 .login-button:hover {
-  background-color: #2563eb !important; /* para o css não ser sobrescrito pelo bootstrap */
+  background-color: #2563eb !important;
   color: white;
 }
 

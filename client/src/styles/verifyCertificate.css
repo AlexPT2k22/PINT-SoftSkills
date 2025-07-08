@@ -118,7 +118,6 @@
   border: none;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .verification-card .card-header {
     padding: 2rem 1rem;

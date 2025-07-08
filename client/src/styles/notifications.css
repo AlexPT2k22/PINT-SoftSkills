@@ -1,9 +1,6 @@
-/* client/src/styles/notifications.css */
 .notifications-dropdown-wrapper {
   position: relative;
 }
-
-
 
 .notifications-dropdown {
   position: absolute;
@@ -158,7 +155,6 @@
   background: transparent;
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
   .notifications-dropdown {
     width: 350px;
@@ -175,7 +171,6 @@
   }
 }
 
-/* Scrollbar customizada */
 .notifications-list::-webkit-scrollbar {
   width: 4px;
 }

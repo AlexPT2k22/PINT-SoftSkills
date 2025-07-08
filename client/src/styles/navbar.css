@@ -4,7 +4,7 @@
   font-size: 1.1rem;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%; /* 1.875rem */
+  line-height: 150%; 
   text-decoration: none;
 }
 
@@ -148,7 +148,6 @@
   cursor: pointer;
 }
 
-/* Mobile Styles */
 @media (max-width: 992px) {
   .navbar {
     padding: 0.5rem 1rem;
@@ -192,7 +191,6 @@
     font-size: 1rem;
   }
 
-  /* Search form on mobile */
   .search-form-mobile {
     margin: 1rem 0;
   }
@@ -201,7 +199,6 @@
     font-size: 0.9rem;
   }
 
-  /* Mega dropdown mobile */
   .mega-dropdown-wrapper {
     position: relative;
     width: 100%;
@@ -244,7 +241,6 @@
     border-bottom: none;
   }
 
-  /* User dropdown mobile */
   .user-dropdown {
     position: static;
     width: 100%;
@@ -253,7 +249,6 @@
     border-radius: 0.5rem;
   }
 
-  /* Auth buttons mobile */
   .auth-buttons-mobile {
     display: flex;
     flex-direction: column;
@@ -267,12 +262,10 @@
     font-size: 1rem;
   }
 
-  /* Hide desktop elements on mobile */
   .desktop-only {
     display: none;
   }
 
-  /* Mobile specific spacing */
   .mobile-nav-item {
     display: block;
     padding: 0.5rem 0;
@@ -297,7 +290,6 @@
     background-color: #00b7e00e;
   }
 
-  /* Forum link mobile */
   .forum-link-mobile {
     display: block;
     padding: 0.75rem 0;
@@ -365,7 +357,6 @@
   }
 }
 
-/* Tablet styles */
 @media (max-width: 1200px) and (min-width: 993px) {
   .search-input-navbar {
     max-width: 40rem;
