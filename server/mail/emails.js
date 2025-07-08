@@ -11,7 +11,7 @@ const {
   COURSE_LINK_CHANGE_EMAIL_TEMPLATE,
   COURSE_NEW_CONTENT_EMAIL_TEMPLATE,
   COURSE_GENERAL_NOTIFICATION_EMAIL_TEMPLATE,
-  COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE
+  COURSE_NEW_ANNOUNCEMENT_EMAIL_TEMPLATE,
 } = require("./emailTemplates.js");
 require("dotenv").config();
 
@@ -145,7 +145,6 @@ const sendEnrollmentConfirmationEmail = async (
   try {
     console.log(`Enviando email de confirmação de inscrição para ${email}`);
 
-    // Formatar datas
     const dataInicio = new Date(
       tipoCurso === "sincrono"
         ? curso.CURSO_SINCRONO?.DATA_INICIO
@@ -158,7 +157,6 @@ const sendEnrollmentConfirmationEmail = async (
         : curso.CURSO_ASSINCRONO?.DATA_FIM
     ).toLocaleDateString("pt-PT");
 
-    // Informação específica do tipo de curso
     const tipoCursoInfo =
       tipoCurso === "sincrono"
         ? `Formador: <strong>${formador?.NOME || "A confirmar"}</strong><br>`
@@ -269,7 +267,6 @@ const sendAnnouncementNotificationEmail = async (
   }
 };
 
-// Nova função para alteração de datas
 const sendDateChangeNotificationEmail = async (
   nome,
   email,
@@ -323,7 +320,6 @@ const sendDateChangeNotificationEmail = async (
   }
 };
 
-// Nova função para alteração de link de aula
 const sendLinkChangeNotificationEmail = async (
   nome,
   email,
@@ -361,7 +357,6 @@ const sendLinkChangeNotificationEmail = async (
   }
 };
 
-// Nova função para novo conteúdo
 const sendNewContentNotificationEmail = async (
   nome,
   email,
@@ -394,7 +389,6 @@ const sendNewContentNotificationEmail = async (
   }
 };
 
-// Nova função genérica para notificações
 const sendGeneralNotificationEmail = async (
   nome,
   email,
@@ -430,7 +424,6 @@ const sendGeneralNotificationEmail = async (
   }
 };
 
-// Atualizar module.exports
 module.exports = {
   sendVerificationEmail,
   sendResetEmail,
@@ -443,5 +436,5 @@ module.exports = {
   sendLinkChangeNotificationEmail,
   sendNewContentNotificationEmail,
   sendGeneralNotificationEmail,
-  sendAnnouncementNotificationEmail
+  sendAnnouncementNotificationEmail,
 };

@@ -10,14 +10,12 @@ const {
 const { Op } = require("sequelize");
 const { sequelize } = require("../models/index.js");
 
-// Criar ou atualizar review
 const createOrUpdateReview = async (req, res) => {
   try {
     const { cursoId } = req.params;
     const { estrelas, comentario } = req.body;
     const userId = req.user.ID_UTILIZADOR;
 
-    // Validar estrelas
     if (!estrelas || estrelas < 0 || estrelas > 5) {
       return res.status(400).json({
         success: false,
@@ -25,7 +23,6 @@ const createOrUpdateReview = async (req, res) => {
       });
     }
 
-    // Verificar se o curso existe
     const curso = await Curso.findByPk(cursoId);
     if (!curso) {
       return res.status(404).json({
@@ -34,7 +31,6 @@ const createOrUpdateReview = async (req, res) => {
       });
     }
 
-    // Verificar se o utilizador está inscrito no curso
     const [inscricaoSincrona, inscricaoAssincrona] = await Promise.all([
       InscricaoSincrono.findOne({
         where: { ID_UTILIZADOR: userId },
@@ -63,7 +59,6 @@ const createOrUpdateReview = async (req, res) => {
       });
     }
 
-    // Verificar se já existe uma review
     const reviewExistente = await Review.findOne({
       where: {
         ID_UTILIZADOR: userId,
@@ -73,7 +68,6 @@ const createOrUpdateReview = async (req, res) => {
 
     let review;
     if (reviewExistente) {
-      // Atualizar review existente
       await reviewExistente.update({
         ESTRELAS: estrelas,
         COMENTARIO: comentario || null,
@@ -81,7 +75,6 @@ const createOrUpdateReview = async (req, res) => {
       });
       review = reviewExistente;
     } else {
-      // Criar nova review
       review = await Review.create({
         ID_UTILIZADOR: userId,
         ID_CURSO: cursoId,
@@ -91,7 +84,6 @@ const createOrUpdateReview = async (req, res) => {
       });
     }
 
-    // Buscar review com dados do utilizador
     const reviewCompleta = await Review.findByPk(review.ID_REVIEW, {
       include: [
         {
@@ -118,7 +110,6 @@ const createOrUpdateReview = async (req, res) => {
   }
 };
 
-// Buscar reviews de um curso
 const getReviewsByCurso = async (req, res) => {
   try {
     const { cursoId } = req.params;
@@ -140,8 +131,8 @@ const getReviewsByCurso = async (req, res) => {
       offset: offset,
     });
 
-    // Calcular estatísticas usando query SQL direto
-    const estatisticasResult = await sequelize.query(`
+    const estatisticasResult = await sequelize.query(
+      `
       SELECT 
         AVG("ESTRELAS") as "mediaEstrelas",
         COUNT("ID_REVIEW") as "totalReviews",
@@ -153,10 +144,12 @@ const getReviewsByCurso = async (req, res) => {
         COUNT(CASE WHEN "ESTRELAS" = 0 THEN 1 END) as "estrelas0"
       FROM "REVIEW"
       WHERE "ID_CURSO" = :cursoId
-    `, {
-      replacements: { cursoId },
-      type: sequelize.QueryTypes.SELECT
-    });
+    `,
+      {
+        replacements: { cursoId },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
 
     const estatisticas = estatisticasResult[0] || {};
 
@@ -183,7 +176,7 @@ const getReviewsByCurso = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro ao buscar reviews:", error);
+    console.error("Erro ao procurar reviews:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -191,7 +184,6 @@ const getReviewsByCurso = async (req, res) => {
   }
 };
 
-// Buscar review específica do utilizador para um curso
 const getMyReview = async (req, res) => {
   try {
     const { cursoId } = req.params;
@@ -216,7 +208,7 @@ const getMyReview = async (req, res) => {
       review,
     });
   } catch (error) {
-    console.error("Erro ao buscar review do utilizador:", error);
+    console.error("Erro ao procurar review do utilizador:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -224,7 +216,6 @@ const getMyReview = async (req, res) => {
   }
 };
 
-// Eliminar review
 const deleteReview = async (req, res) => {
   try {
     const { cursoId } = req.params;

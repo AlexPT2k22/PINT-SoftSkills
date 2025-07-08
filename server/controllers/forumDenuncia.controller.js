@@ -6,7 +6,6 @@ const {
   UtilizadorTemPerfil,
 } = require("../models/index.js");
 
-// Criar denúncia
 const criarDenuncia = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -36,7 +35,6 @@ const criarDenuncia = async (req, res) => {
       });
     }
 
-    // Verificar se o usuário já denunciou este post
     const denunciaExistente = await ForumDenuncia.findOne({
       where: {
         ID_FORUM_POST: postId,
@@ -72,13 +70,11 @@ const criarDenuncia = async (req, res) => {
   }
 };
 
-// Listar denúncias (apenas gestores)
 const listarDenuncias = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { estado = "Pendente", page = 1, limit = 10 } = req.query;
 
-    // Verificar se é gestor
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -144,7 +140,6 @@ const apagarDenuncia = async (req, res) => {
     const userId = req.user.ID_UTILIZADOR;
     const { denunciaId } = req.params;
 
-    // Verificar se é gestor
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });

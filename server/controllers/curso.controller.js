@@ -31,14 +31,12 @@ const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
 
 const saveFileToSupabase = async (buffer, fileName, userId = "system") => {
   try {
-    // Gerar nome único para o arquivo
     const fileExtension = fileName.split(".").pop();
     const uniqueFileName = `${Date.now()}-$${fileName}.${fileExtension}`;
     const filePath = `course-modules/${userId}/${uniqueFileName}`;
 
-    // Upload do arquivo
     const { data, error } = await supabaseAdmin.storage
-      .from("course-files") // Bucket para arquivos de curso
+      .from("course-files")
       .upload(filePath, buffer, {
         contentType: getContentType(fileExtension),
         upsert: false,
@@ -49,7 +47,6 @@ const saveFileToSupabase = async (buffer, fileName, userId = "system") => {
       throw error;
     }
 
-    // Obter URL pública
     const { data: publicUrlData } = supabaseAdmin.storage
       .from("course-files")
       .getPublicUrl(data.path);
@@ -108,7 +105,6 @@ const streamUpload = (
   originalFilename = null
 ) => {
   return new Promise((resolve, reject) => {
-    // Extract extension from original filename if provided
     let fileExtension = "";
     let publicId = "";
 
@@ -130,8 +126,8 @@ const streamUpload = (
       access_mode: "public",
       eager: [
         {
-          streaming_profile: "full_hd", // Cria HLS com múltiplas resoluções
-          format: "m3u8", // Garante formato de streaming
+          streaming_profile: "full_hd",
+          format: "m3u8",
         },
       ],
     };
@@ -148,7 +144,6 @@ const streamUpload = (
       }
     );
 
-    // Create stream from buffer
     const readable = new Readable();
     readable.push(buffer);
     readable.push(null);
@@ -166,13 +161,12 @@ const determineCoursesStatus = (startDate, endDate) => {
   } else if (start <= today && end >= today) {
     return "Em curso";
   } else if (start > today) {
-    return "Ativo"; // Future course
+    return "Ativo";
   }
 
-  return "Ativo"; // Default
+  return "Ativo";
 };
 
-// para ir buscar todos os cursos
 const getCursos = async (_, res) => {
   try {
     const cursos = await Curso.findAll({
@@ -206,17 +200,15 @@ const getCursos = async (_, res) => {
     });
     res.status(200).json(cursos);
   } catch (error) {
-    console.error("Erro ao buscar os cursos:", error);
+    console.error("Erro ao procurar os cursos:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// para ir buscar um curso específico pelo id
 const getCursoById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // procurar o curso pelo id, incluindo as áreas e categorias com um left join
     const curso = await Curso.findByPk(id, {
       include: [
         {
@@ -281,7 +273,7 @@ const getCursoById = async (req, res) => {
             "FILE_URL",
           ],
           as: "MODULOS",
-          order: [["ID_MODULO", "ASC"]], // Ordenar módulos por ID para manter consistência
+          order: [["ID_MODULO", "ASC"]],
         },
         {
           model: QuizAssincrono,
@@ -311,16 +303,13 @@ const getCursoById = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    // Processar dados dos módulos para o frontend
     const cursoProcesado = curso.toJSON();
 
     if (cursoProcesado.MODULOS) {
       cursoProcesado.MODULOS = cursoProcesado.MODULOS.map((modulo) => {
-        // Processar FILE_URL se for JSON string
         let fileUrls = [];
         if (modulo.FILE_URL) {
           try {
-            // Tentar fazer parse se for JSON
             if (
               typeof modulo.FILE_URL === "string" &&
               modulo.FILE_URL.startsWith("[")
@@ -342,7 +331,7 @@ const getCursoById = async (req, res) => {
 
         return {
           ...modulo,
-          FILE_URL_ARRAY: fileUrls, // Adicionar versão processada para o frontend
+          FILE_URL_ARRAY: fileUrls,
           HAS_VIDEO: !!modulo.VIDEO_URL,
           HAS_CONTENT: fileUrls.length > 0,
           VIDEO_TYPE: modulo.VIDEO_URL
@@ -361,10 +350,10 @@ const getCursoById = async (req, res) => {
 
     res.status(200).json(cursoProcesado);
   } catch (error) {
-    console.error(`Erro ao buscar curso com id ${id}:`, error);
+    console.error(`Erro ao procurar curso com id ${id}:`, error);
     res
       .status(500)
-      .json({ error: "Erro ao buscar curso", details: error.message });
+      .json({ error: "Erro ao procurar curso", details: error.message });
   }
 };
 
@@ -401,13 +390,11 @@ const getCursosPopulares = async (req, res) => {
       limit: 8,
     });
 
-    // Buscar dados de review para cada curso
     const cursosComReviews = await Promise.all(
       cursos.map(async (curso) => {
         const cursoData = curso.toJSON();
 
         try {
-          // Buscar estatísticas de review para este curso específico
           const reviewStats = await sequelize.query(
             `
             SELECT 
@@ -427,7 +414,7 @@ const getCursosPopulares = async (req, res) => {
           cursoData.totalReviews = parseInt(stats.totalReviews) || 0;
         } catch (error) {
           console.warn(
-            `Erro ao buscar reviews para curso ${curso.ID_CURSO}:`,
+            `Erro ao procurar reviews para curso ${curso.ID_CURSO}:`,
             error
           );
           cursoData.averageRating = 0;
@@ -440,7 +427,7 @@ const getCursosPopulares = async (req, res) => {
 
     res.status(200).json(cursosComReviews);
   } catch (error) {
-    console.error("Erro ao buscar os cursos populares:", error);
+    console.error("Erro ao procurar os cursos populares:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -450,7 +437,6 @@ const verifyTeacher = async (req, res) => {
   const userId = req.user.ID_UTILIZADOR;
 
   try {
-    // Verificar se o curso existe
     const curso = await Curso.findByPk(courseId);
     if (!curso) {
       return res.status(404).json({
@@ -460,7 +446,6 @@ const verifyTeacher = async (req, res) => {
       });
     }
 
-    // Verificar se é um curso síncrono (só cursos síncronos têm formador)
     const cursoSincrono = await CursoSincrono.findOne({
       where: { ID_CURSO: courseId },
       include: [
@@ -472,7 +457,6 @@ const verifyTeacher = async (req, res) => {
     });
 
     if (!cursoSincrono) {
-      // Curso assíncrono - não tem formador específico
       return res.status(200).json({
         success: true,
         message: "Curso assíncrono - sem formador específico",
@@ -481,7 +465,6 @@ const verifyTeacher = async (req, res) => {
       });
     }
 
-    // Verificar se o utilizador é o formador do curso síncrono
     const isTeacher = cursoSincrono.ID_UTILIZADOR === userId;
 
     res.status(200).json({
@@ -499,7 +482,6 @@ const verifyTeacher = async (req, res) => {
   }
 };
 
-//Criar um curso
 const createCurso = async (req, res) => {
   const {
     NOME,
@@ -539,7 +521,6 @@ const createCurso = async (req, res) => {
       DATA_CRIACAO__: new Date(),
     });
 
-    // Adicionar habilidades e objetivos ao curso
     const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
       return { DESCRICAO: habilidade.trim() };
     });
@@ -563,11 +544,9 @@ const createCurso = async (req, res) => {
       ),
     ]);
 
-    // Adicionar módulos ao curso
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
 
-      // Procurar vídeo e conteúdo pelo nome que definiste no formData
       const videoFile = req.files.find(
         (file) => file.fieldname === `module_${i}_video`
       );
@@ -578,7 +557,6 @@ const createCurso = async (req, res) => {
       let videoUrl = null;
       let contentUrl = null;
 
-      // Upload do vídeo para o Cloudinary
       if (videoFile) {
         const result = await cloudinary.uploader.upload(videoFile.path, {
           resource_type: "video",
@@ -588,7 +566,6 @@ const createCurso = async (req, res) => {
         videoUrl = result.secure_url;
       }
 
-      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
       if (contentFile) {
         const result = await cloudinary.uploader.upload(contentFile.path, {
           resource_type: "raw",
@@ -638,7 +615,6 @@ const updateCurso = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    // verifica se é exatamente o mesmo curso com os mesmos dados
     const cursoExistente = await Curso.findOne({
       where: {
         NOME,
@@ -698,7 +674,6 @@ const updateCursoSincrono = async (req, res) => {
   } = req.body;
 
   try {
-    // Buscar dados anteriores para comparação
     const curso = await Curso.findByPk(id);
     const cursoSincrono = await CursoSincrono.findOne({
       where: { ID_CURSO: id },
@@ -709,12 +684,10 @@ const updateCursoSincrono = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    // Verificar alterações e preparar dados para email
     let formadorAlterado = false;
     let datasAlteradas = false;
     let emailData = {};
 
-    // Verificar alteração do formador
     if (ID_UTILIZADOR && ID_UTILIZADOR !== cursoSincrono.ID_UTILIZADOR) {
       formadorAlterado = true;
       const formadorAnterior =
@@ -728,7 +701,6 @@ const updateCursoSincrono = async (req, res) => {
         novoFormador?.NOME || novoFormador?.USERNAME || "Não definido";
     }
 
-    // Verificar alteração das datas
     if (
       (DATA_INICIO && DATA_INICIO !== cursoSincrono.DATA_INICIO) ||
       (DATA_FIM && DATA_FIM !== cursoSincrono.DATA_FIM)
@@ -746,7 +718,6 @@ const updateCursoSincrono = async (req, res) => {
         "Não definido";
     }
 
-    // Realizar as atualizações (código existente)
     await curso.update({
       NOME,
       DESCRICAO_OBJETIVOS__,
@@ -763,7 +734,6 @@ const updateCursoSincrono = async (req, res) => {
       DATA_LIMITE_INSCRICAO_S: DATA_LIMITE_INSCRICAO,
     });
 
-    // Notificar alteração de formador
     if (formadorAlterado) {
       await notifyAllEnrolled(
         id,
@@ -774,7 +744,6 @@ const updateCursoSincrono = async (req, res) => {
       );
     }
 
-    // Notificar alteração de datas
     if (datasAlteradas) {
       const novaDataInicio = new Date(
         emailData.novaDataInicio
@@ -829,7 +798,7 @@ const updateCursoAssincrono = async (req, res) => {
     if (!curso) {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
-    
+
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
     const imagem = req.files.find((file) => file.fieldname === "imagem");
@@ -861,11 +830,9 @@ const updateCursoAssincrono = async (req, res) => {
       return res.status(404).json({ error: "Curso Assincrono não encontrado" });
     }
 
-    // ✅ NOVO: Verificar alterações para notificações
     let datasAlteradas = false;
     let emailData = {};
 
-    // Verificar alteração das datas
     if (
       (DATA_INICIO && DATA_INICIO !== cursoAssincrono.DATA_INICIO) ||
       (DATA_FIM && DATA_FIM !== cursoAssincrono.DATA_FIM)
@@ -876,10 +843,9 @@ const updateCursoAssincrono = async (req, res) => {
       emailData.dataAnteriorFim = cursoAssincrono.DATA_FIM;
       emailData.novaDataInicio = DATA_INICIO || cursoAssincrono.DATA_INICIO;
       emailData.novaDataFim = DATA_FIM || cursoAssincrono.DATA_FIM;
-      emailData.formador = "Curso Assíncrono"; // Cursos assíncronos não têm formador específico
+      emailData.formador = "Curso Assíncrono";
     }
 
-    // Adicionar habilidades e objetivos ao curso
     const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
       return { DESCRICAO: habilidade.trim() };
     });
@@ -888,12 +854,10 @@ const updateCursoAssincrono = async (req, res) => {
       return { DESCRICAO: objetivo.trim() };
     });
 
-    // Remover as habilidades existentes do curso
     await Habilidades.destroy({
       where: { ID_CURSO: curso.ID_CURSO },
     });
 
-    // Remover os objetivos existentes do curso
     await Objetivos.destroy({
       where: { ID_CURSO: curso.ID_CURSO },
     });
@@ -913,7 +877,6 @@ const updateCursoAssincrono = async (req, res) => {
       ),
     ]);
 
-    //Destroy dos modulos existentes
     await Modulos.destroy({
       where: { ID_CURSO: curso.ID_CURSO },
     });
@@ -921,11 +884,9 @@ const updateCursoAssincrono = async (req, res) => {
     let novosModulosAdicionados = false;
     let conteudoInfo = "";
 
-    // Adicionar módulos ao curso
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
 
-      // Procurar vídeo e conteúdo pelo nome que definiste no formData
       const videoFile = req.files.find(
         (file) => file.fieldname === `module_${i}_video`
       );
@@ -936,7 +897,6 @@ const updateCursoAssincrono = async (req, res) => {
       let videoUrl = null;
       let contentUrl = null;
 
-      // Upload do vídeo para o Cloudinary
       if (videoFile) {
         const result = await streamUpload(
           videoFile.buffer,
@@ -948,7 +908,6 @@ const updateCursoAssincrono = async (req, res) => {
         novosModulosAdicionados = true;
       }
 
-      // Upload do conteúdo (pdf/doc/etc.) para o Cloudinary
       if (contentFile) {
         const result = await streamUpload(
           contentFile.buffer,
@@ -1004,7 +963,6 @@ const updateCursoAssincrono = async (req, res) => {
       ESTADO: novoEstado,
     });
 
-    // Notificar alteração de datas
     if (datasAlteradas) {
       const novaDataInicioFormatada = new Date(
         emailData.novaDataInicio
@@ -1028,7 +986,6 @@ const updateCursoAssincrono = async (req, res) => {
       );
     }
 
-    // Notificar novo conteúdo adicionado
     if (novosModulosAdicionados) {
       await notifyAllEnrolled(
         id,
@@ -1064,8 +1021,8 @@ const updateCursoCompleto = async (req, res) => {
     HABILIDADES,
     OBJETIVOS,
     ID_TOPICO,
-    ID_UTILIZADOR, // Para cursos síncronos
-    VAGAS, // Para cursos síncronos
+    ID_UTILIZADOR,
+    VAGAS,
     DATA_LIMITE_INSCRICAO,
   } = req.body;
 
@@ -1074,7 +1031,6 @@ const updateCursoCompleto = async (req, res) => {
   try {
     transaction = await sequelize.transaction();
 
-    // Buscar o curso
     const curso = await Curso.findByPk(id, { transaction });
     if (!curso) {
       await transaction.rollback();
@@ -1087,7 +1043,6 @@ const updateCursoCompleto = async (req, res) => {
       order: [["ID_MODULO", "ASC"]],
     });
 
-    // Verificar se é síncrono ou assíncrono
     const cursoSincrono = await CursoSincrono.findOne({
       where: { ID_CURSO: id },
       transaction,
@@ -1111,7 +1066,6 @@ const updateCursoCompleto = async (req, res) => {
     let datasAlteradas = false;
     let emailData = {};
 
-    // Verificar alteração do formador (apenas para cursos síncronos)
     if (
       cursoSincrono &&
       ID_UTILIZADOR &&
@@ -1167,7 +1121,6 @@ const updateCursoCompleto = async (req, res) => {
         : "Curso Assíncrono";
     }
 
-    // Processar imagem se fornecida
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
 
@@ -1182,7 +1135,6 @@ const updateCursoCompleto = async (req, res) => {
       imagemPublicId = result.public_id;
     }
 
-    // Atualizar curso base
     await curso.update(
       {
         NOME,
@@ -1196,7 +1148,6 @@ const updateCursoCompleto = async (req, res) => {
       { transaction }
     );
 
-    // Processar habilidades e objetivos
     if (HABILIDADES && OBJETIVOS) {
       const habilidadesArray = HABILIDADES.split(",")
         .map((habilidade) => ({ DESCRICAO: habilidade.trim() }))
@@ -1206,7 +1157,6 @@ const updateCursoCompleto = async (req, res) => {
         .map((objetivo) => ({ DESCRICAO: objetivo.trim() }))
         .filter((o) => o.DESCRICAO);
 
-      // Remover existentes
       await Promise.all([
         Habilidades.destroy({
           where: { ID_CURSO: curso.ID_CURSO },
@@ -1215,7 +1165,6 @@ const updateCursoCompleto = async (req, res) => {
         Objetivos.destroy({ where: { ID_CURSO: curso.ID_CURSO }, transaction }),
       ]);
 
-      // Criar novos
       await Promise.all([
         Habilidades.bulkCreate(
           habilidadesArray.map((habilidade) => ({
@@ -1240,18 +1189,15 @@ const updateCursoCompleto = async (req, res) => {
     const modulosAtualizados = [];
     const modulosParaCriar = [];
 
-    // Processar módulos se fornecidos
     if (req.body.MODULOS) {
       const modulosNovos = JSON.parse(req.body.MODULOS);
       console.log(`📝 Processando ${modulosNovos.length} módulos novos`);
 
-      // ✅ Mapear módulos por nome para tentar preservar IDs
       const mapaModulosExistentes = new Map();
       modulosExistentes.forEach((modulo) => {
         mapaModulosExistentes.set(modulo.NOME.toLowerCase().trim(), modulo);
       });
 
-      // ✅ Processar cada módulo novo
       for (let i = 0; i < modulosNovos.length; i++) {
         const moduloNovo = modulosNovos[i];
         const nomeModulo = moduloNovo.NOME.toLowerCase().trim();
@@ -1268,7 +1214,6 @@ const updateCursoCompleto = async (req, res) => {
         let videoUrl = null;
         let contentUrls = [];
 
-        // Processar vídeo
         if (videoFile) {
           const result = await streamUpload(
             videoFile.buffer,
@@ -1280,11 +1225,9 @@ const updateCursoCompleto = async (req, res) => {
         } else if (moduloNovo.VIDEO_URL) {
           videoUrl = moduloNovo.VIDEO_URL;
         } else if (moduloExistente?.VIDEO_URL) {
-          // ✅ Manter vídeo existente se não há novo
           videoUrl = moduloExistente.VIDEO_URL;
         }
 
-        // Processar arquivos de conteúdo
         if (contentFiles.length > 0) {
           for (const contentFile of contentFiles) {
             try {
@@ -1300,7 +1243,6 @@ const updateCursoCompleto = async (req, res) => {
             }
           }
         } else if (moduloExistente?.FILE_URL) {
-          // ✅ Manter conteúdo existente se não há novo
           try {
             const existingUrls = JSON.parse(moduloExistente.FILE_URL);
             contentUrls = Array.isArray(existingUrls) ? existingUrls : [];
@@ -1310,7 +1252,6 @@ const updateCursoCompleto = async (req, res) => {
         }
 
         if (moduloExistente) {
-          // ✅ ATUALIZAR módulo existente (preserva ID e progresso)
           modulosParaManter.add(moduloExistente.ID_MODULO);
 
           const dadosAtualizacao = {
@@ -1319,7 +1260,6 @@ const updateCursoCompleto = async (req, res) => {
             TEMPO_ESTIMADO_MIN: moduloNovo.DURACAO,
           };
 
-          // Só atualizar vídeo e conteúdo se há mudanças
           if (videoUrl !== moduloExistente.VIDEO_URL) {
             dadosAtualizacao.VIDEO_URL = videoUrl;
           }
@@ -1338,7 +1278,6 @@ const updateCursoCompleto = async (req, res) => {
             `🔄 Módulo "${moduloNovo.NOME}" será atualizado (ID: ${moduloExistente.ID_MODULO})`
           );
         } else {
-          // ✅ CRIAR novo módulo
           modulosParaCriar.push({
             ID_CURSO: curso.ID_CURSO,
             NOME: moduloNovo.NOME,
@@ -1353,9 +1292,6 @@ const updateCursoCompleto = async (req, res) => {
         }
       }
 
-      // ✅ EXECUTAR as operações de banco de dados
-
-      // 1. Atualizar módulos existentes
       for (const modulo of modulosAtualizados) {
         await Modulos.update(modulo.dados, {
           where: { ID_MODULO: modulo.id },
@@ -1364,13 +1300,11 @@ const updateCursoCompleto = async (req, res) => {
         console.log(`✅ Módulo ${modulo.id} atualizado`);
       }
 
-      // 2. Criar novos módulos
       if (modulosParaCriar.length > 0) {
         await Modulos.bulkCreate(modulosParaCriar, { transaction });
         console.log(`✅ ${modulosParaCriar.length} novos módulos criados`);
       }
 
-      // 3. ⚠️ DELETAR módulos que não estão mais na lista (CUIDADO: isso remove progresso)
       const modulosParaDeletar = modulosExistentes.filter(
         (modulo) => !modulosParaManter.has(modulo.ID_MODULO)
       );
@@ -1381,7 +1315,6 @@ const updateCursoCompleto = async (req, res) => {
           modulosParaDeletar.map((m) => `"${m.NOME}" (ID: ${m.ID_MODULO})`)
         );
 
-        // ✅ Remover progresso dos módulos que serão deletados
         for (const modulo of modulosParaDeletar) {
           await ProgressoModulo.destroy({
             where: { ID_MODULO: modulo.ID_MODULO },
@@ -1392,7 +1325,6 @@ const updateCursoCompleto = async (req, res) => {
           );
         }
 
-        // ✅ Deletar os módulos
         await Modulos.destroy({
           where: {
             ID_MODULO: modulosParaDeletar.map((m) => m.ID_MODULO),
@@ -1402,7 +1334,6 @@ const updateCursoCompleto = async (req, res) => {
         console.log(`🗑️ ${modulosParaDeletar.length} módulos removidos`);
       }
 
-      // ✅ Preparar informação de conteúdo para notificação
       if (novosModulosAdicionados) {
         conteudoInfo = `Conteúdo atualizado:<br>`;
         modulosNovos.forEach((modulo) => {
@@ -1411,7 +1342,6 @@ const updateCursoCompleto = async (req, res) => {
       }
     }
 
-    // Atualizar dados específicos do tipo de curso
     if (cursoSincrono) {
       const today = new Date();
       const novaDataInicio = DATA_INICIO
@@ -1421,7 +1351,6 @@ const updateCursoCompleto = async (req, res) => {
         ? new Date(DATA_FIM)
         : cursoSincrono.DATA_FIM;
 
-      // Determinar o estado com base nas novas datas
       let novoEstado = cursoSincrono.ESTADO;
 
       if (novaDataFim < today) {
@@ -1429,7 +1358,7 @@ const updateCursoCompleto = async (req, res) => {
       } else if (novaDataInicio <= today && novaDataFim >= today) {
         novoEstado = "Em curso";
       } else if (novaDataInicio > today) {
-        novoEstado = "Ativo"; // Curso ainda não começou
+        novoEstado = "Ativo";
       }
       await cursoSincrono.update(
         {
@@ -1454,7 +1383,6 @@ const updateCursoCompleto = async (req, res) => {
         ? new Date(DATA_FIM)
         : cursoAssincrono.DATA_FIM;
 
-      // Determinar estado
       let novoEstado = "Inativo";
       if (novaDataInicio <= today && novaDataFim >= today) {
         novoEstado = "Ativo";
@@ -1472,7 +1400,6 @@ const updateCursoCompleto = async (req, res) => {
     await transaction.commit();
     transaction = null;
 
-    // Notificar alteração de formador
     if (formadorAlterado) {
       await notifyAllEnrolled(
         id,
@@ -1483,7 +1410,6 @@ const updateCursoCompleto = async (req, res) => {
       );
     }
 
-    // Notificar alteração de datas
     if (datasAlteradas) {
       const novaDataInicio = new Date(
         emailData.novaDataInicio
@@ -1507,7 +1433,6 @@ const updateCursoCompleto = async (req, res) => {
       );
     }
 
-    // Notificar novo conteúdo
     if (novosModulosAdicionados) {
       await notifyAllEnrolled(
         id,
@@ -1586,7 +1511,6 @@ const createAssincrono = async (req, res) => {
     const NUMERO_CURSOS_ASSINCRONOS = await CursoAssincrono.count();
     const ADD_COURSE = NUMERO_CURSOS_ASSINCRONOS + 1;
 
-    // Adicionar habilidades e objetivos ao curso
     const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
       return { DESCRICAO: habilidade.trim() };
     });
@@ -1610,26 +1534,22 @@ const createAssincrono = async (req, res) => {
       ),
     ]);
 
-    // Adicionar módulos ao curso
-    const uploadedFiles = []; // Track all uploaded files
+    const uploadedFiles = [];
 
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
 
-      // Procurar vídeo pelo nome que definiste no formData
       const videoFile = req.files.find(
         (file) => file.fieldname === `module_${i}_video`
       );
 
-      // Procurar múltiplos arquivos de conteúdo
       const contentFiles = req.files.filter((file) => {
         return file.fieldname.startsWith(`module_${i}_content_`);
       });
 
       let videoUrl = null;
-      let contentUrls = []; // Array para guardar múltiplas URLs
+      let contentUrls = [];
 
-      // Verificar se o módulo tem pelo menos uma das três opções
       const hasVideoFile = videoFile ? true : false;
       const hasVideoURL = modulo.VIDEO_URL ? true : false;
       const hasContentFiles = contentFiles && contentFiles.length > 0;
@@ -1639,7 +1559,6 @@ const createAssincrono = async (req, res) => {
           `Módulo "${modulo.NOME}" não tem conteúdo. Criando apenas estrutura...`
         );
 
-        // Criar módulo mesmo sem conteúdo (apenas com descrição e duração)
         await Modulos.create({
           ID_CURSO: curso.ID_CURSO,
           NOME: modulo.NOME,
@@ -1649,16 +1568,14 @@ const createAssincrono = async (req, res) => {
           TEMPO_ESTIMADO_MIN: modulo.DURACAO,
         });
 
-        continue; // Pular para o próximo módulo
+        continue;
       }
 
-      // Determinar fonte do vídeo: arquivo upload OU URL do YouTube
       if (videoFile) {
-        // CASO 1: Upload de arquivo de vídeo
         const result = await streamUpload(
           videoFile.buffer,
           `cursos/${NOME}/modulos/videos`,
-          "video" // Especificar que é vídeo
+          "video"
         );
         videoUrl = result.secure_url;
 
@@ -1674,7 +1591,6 @@ const createAssincrono = async (req, res) => {
           `Vídeo uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
         );
       } else if (modulo.VIDEO_URL) {
-        // CASO 2: URL do YouTube
         videoUrl = modulo.VIDEO_URL;
 
         uploadedFiles.push({
@@ -1688,7 +1604,6 @@ const createAssincrono = async (req, res) => {
         );
       }
 
-      // Upload dos conteúdos (pdf/doc/etc.) para o servidor local
       if (contentFiles && contentFiles.length > 0) {
         for (const contentFile of contentFiles) {
           try {
@@ -1702,7 +1617,7 @@ const createAssincrono = async (req, res) => {
             uploadedFiles.push({
               originalname: contentFile.originalname,
               url: result.url,
-              path: result.path, // Para poder deletar depois
+              path: result.path,
               type: "document",
               module: modulo.NOME,
             });
@@ -1712,13 +1627,12 @@ const createAssincrono = async (req, res) => {
         }
       }
 
-      // Criar o módulo na base de dados
       await Modulos.create({
         ID_CURSO: curso.ID_CURSO,
         NOME: modulo.NOME,
         DESCRICAO: modulo.DESCRICAO,
-        VIDEO_URL: videoUrl, // Pode ser URL do Cloudinary ou URL do YouTube
-        FILE_URL: JSON.stringify(contentUrls), // Guardar como JSON string
+        VIDEO_URL: videoUrl,
+        FILE_URL: JSON.stringify(contentUrls),
         TEMPO_ESTIMADO_MIN: modulo.DURACAO,
       });
 
@@ -1783,12 +1697,10 @@ const createSincrono = async (req, res) => {
   let transaction;
 
   try {
-    // Start a transaction
     transaction = await sequelize.transaction();
 
     const modulos = JSON.parse(req.body.MODULOS);
 
-    // verifica se o curso já existe
     const cursoExistente = await Curso.findOne({
       where: {
         NOME,
@@ -1831,7 +1743,6 @@ const createSincrono = async (req, res) => {
       { transaction }
     );
 
-    // Adicionar habilidades e objetivos ao curso
     const habilidadesArray = HABILIDADES.split(",").map((habilidade) => {
       return { DESCRICAO: habilidade.trim() };
     });
@@ -1857,13 +1768,11 @@ const createSincrono = async (req, res) => {
       ),
     ]);
 
-    // Adicionar módulos ao curso
-    const uploadedFiles = []; // Track all uploaded files
+    const uploadedFiles = [];
 
     for (let i = 0; i < modulos.length; i++) {
       const modulo = modulos[i];
 
-      // Procurar vídeo e conteúdo pelo nome no formData
       const videoFile = req.files.find(
         (file) => file.fieldname === `module_${i}_video`
       );
@@ -1874,7 +1783,6 @@ const createSincrono = async (req, res) => {
       let videoUrl = null;
       let contentUrls = [];
 
-      // Verificar se o módulo tem pelo menos uma das três opções
       const hasVideoFile = videoFile ? true : false;
       const hasVideoURL = modulo.VIDEO_URL ? true : false;
       const hasContentFiles = contentFiles && contentFiles.length > 0;
@@ -1899,9 +1807,7 @@ const createSincrono = async (req, res) => {
         continue;
       }
 
-      // Determinar fonte do vídeo: arquivo upload OU URL do YouTube
       if (videoFile) {
-        // CASO 1: Upload de arquivo de vídeo
         const result = await streamUpload(
           videoFile.buffer,
           `cursos/${NOME}/modulos/videos`,
@@ -1921,7 +1827,6 @@ const createSincrono = async (req, res) => {
           `Vídeo síncrono uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
         );
       } else if (modulo.VIDEO_URL) {
-        // CASO 2: URL do YouTube
         videoUrl = modulo.VIDEO_URL;
 
         uploadedFiles.push({
@@ -1935,7 +1840,6 @@ const createSincrono = async (req, res) => {
         );
       }
 
-      // Upload dos conteúdos (pdf/doc/etc.) para o servidor local
       if (contentFiles && contentFiles.length > 0) {
         for (const contentFile of contentFiles) {
           try {
@@ -1980,10 +1884,9 @@ const createSincrono = async (req, res) => {
       );
     }
 
-    // Lidar com formador
     let formadorId = ID_FORMADOR;
     if (ID_FORMADOR === 0 || ID_FORMADOR === "0") {
-      formadorId = null; // Se não houver formador, definir como null
+      formadorId = null;
     }
 
     const cursoSincrono = await CursoSincrono.create(
@@ -1998,7 +1901,6 @@ const createSincrono = async (req, res) => {
       { transaction }
     );
 
-    // Commit transaction
     await transaction.commit();
 
     res.status(201).json({
@@ -2021,15 +1923,12 @@ const createSincrono = async (req, res) => {
       },
     });
   } catch (error) {
-    // Rollback transaction on error
     if (transaction) await transaction.rollback();
     console.error("Erro ao criar curso síncrono:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-
-//nao usado devido a varias dependencias
 const convertCursoType = async (req, res) => {
   const { id } = req.params;
   const {
@@ -2042,8 +1941,8 @@ const convertCursoType = async (req, res) => {
     HABILIDADES,
     OBJETIVOS,
     ID_TOPICO,
-    ID_UTILIZADOR, // Para conversão para síncrono
-    VAGAS, // Para conversão para síncrono
+    ID_UTILIZADOR,
+    VAGAS,
     NEW_TYPE,
     OLD_TYPE,
     DATA_LIMITE_INSCRICAO,
@@ -2054,7 +1953,6 @@ const convertCursoType = async (req, res) => {
   try {
     transaction = await sequelize.transaction();
 
-    // Buscar o curso
     const curso = await Curso.findByPk(id, { transaction });
     if (!curso) {
       await transaction.rollback();
@@ -2063,7 +1961,6 @@ const convertCursoType = async (req, res) => {
 
     console.log(`Convertendo curso ${id} de ${OLD_TYPE} para ${NEW_TYPE}`);
 
-    // Processar imagem se fornecida
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
 
@@ -2078,7 +1975,6 @@ const convertCursoType = async (req, res) => {
       imagemPublicId = result.public_id;
     }
 
-    // Atualizar curso base
     await curso.update(
       {
         NOME,
@@ -2092,7 +1988,6 @@ const convertCursoType = async (req, res) => {
       { transaction }
     );
 
-    // REMOVER TIPO ANTIGO
     if (OLD_TYPE === "Síncrono") {
       await CursoSincrono.destroy({ where: { ID_CURSO: id }, transaction });
       console.log("Removido dados de curso síncrono");
@@ -2101,7 +1996,6 @@ const convertCursoType = async (req, res) => {
       console.log("Removido dados de curso assíncrono");
     }
 
-    // ✅ CRIAR NOVO TIPO
     if (NEW_TYPE === "Síncrono") {
       const numeroSincronos = await CursoSincrono.count({ transaction });
       await CursoSincrono.create(
@@ -2130,7 +2024,6 @@ const convertCursoType = async (req, res) => {
       console.log("✅ Criado como curso assíncrono");
     }
 
-    // Processar habilidades e objetivos
     if (HABILIDADES && OBJETIVOS) {
       const habilidadesArray = HABILIDADES.split(",")
         .map((habilidade) => ({ DESCRICAO: habilidade.trim() }))
@@ -2140,7 +2033,6 @@ const convertCursoType = async (req, res) => {
         .map((objetivo) => ({ DESCRICAO: objetivo.trim() }))
         .filter((o) => o.DESCRICAO);
 
-      // Remover existentes
       await Promise.all([
         Habilidades.destroy({
           where: { ID_CURSO: curso.ID_CURSO },
@@ -2149,7 +2041,6 @@ const convertCursoType = async (req, res) => {
         Objetivos.destroy({ where: { ID_CURSO: curso.ID_CURSO }, transaction }),
       ]);
 
-      // Criar novos
       await Promise.all([
         Habilidades.bulkCreate(
           habilidadesArray.map((habilidade) => ({
@@ -2168,17 +2059,14 @@ const convertCursoType = async (req, res) => {
       ]);
     }
 
-    // Processar módulos se fornecidos
     if (req.body.MODULOS) {
       const modulos = JSON.parse(req.body.MODULOS);
 
-      // Remover módulos existentes
       await Modulos.destroy({
         where: { ID_CURSO: curso.ID_CURSO },
         transaction,
       });
 
-      // Criar novos módulos
       for (let i = 0; i < modulos.length; i++) {
         const modulo = modulos[i];
 
@@ -2193,7 +2081,6 @@ const convertCursoType = async (req, res) => {
         let videoUrl = null;
         let contentUrls = [];
 
-        // Processar vídeo
         if (videoFile) {
           const result = await streamUpload(
             videoFile.buffer,
@@ -2205,7 +2092,6 @@ const convertCursoType = async (req, res) => {
           videoUrl = modulo.VIDEO_URL;
         }
 
-        // Processar arquivos de conteúdo
         for (const contentFile of contentFiles) {
           try {
             const result = await saveFileToSupabase(
@@ -2219,7 +2105,6 @@ const convertCursoType = async (req, res) => {
           }
         }
 
-        // Criar módulo
         await Modulos.create(
           {
             ID_CURSO: curso.ID_CURSO,
@@ -2254,16 +2139,13 @@ const convertCursoType = async (req, res) => {
   }
 };
 
-//nao é usada
 const deleteCurso = async (req, res) => {
   const { id } = req.params;
   let transaction;
 
   try {
-    // Start transaction correctly
     transaction = await sequelize.transaction();
 
-    // Find the course with all its related data
     const curso = await Curso.findByPk(id, {
       include: [
         { model: Modulos, as: "MODULOS" },
@@ -2271,7 +2153,7 @@ const deleteCurso = async (req, res) => {
         { model: CursoSincrono },
         { model: Objetivos, as: "OBJETIVOS" },
         { model: Habilidades, as: "HABILIDADES" },
-        { model: Topico, as: "Topico" }, // Add Topico to make sure it's included
+        { model: Topico, as: "Topico" },
       ],
       transaction,
     });
@@ -2281,7 +2163,6 @@ const deleteCurso = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    // 1. Clean up Cloudinary course image
     if (curso.IMAGEM_PUBLIC_ID) {
       try {
         await cloudinary.uploader.destroy(curso.IMAGEM_PUBLIC_ID);
@@ -2291,17 +2172,13 @@ const deleteCurso = async (req, res) => {
           `Failed to delete course image: ${curso.IMAGEM_PUBLIC_ID}`,
           err
         );
-        // Continue with deletion even if image deletion fails
       }
     }
 
-    // 2. Clean up module files
     if (curso.MODULOS && curso.MODULOS.length > 0) {
       for (const modulo of curso.MODULOS) {
-        // Process video deletion
         if (modulo.VIDEO_URL) {
           try {
-            // Extract public_id from Cloudinary URL
             const publicId = extractCloudinaryPublicId(modulo.VIDEO_URL);
             if (publicId) {
               await cloudinary.uploader.destroy(publicId, {
@@ -2317,17 +2194,15 @@ const deleteCurso = async (req, res) => {
           }
         }
 
-        // Process content files deletion
         if (modulo.FILE_URL) {
           try {
             let fileUrls = modulo.FILE_URL;
 
-            // Handle both string and JSON array formats
             if (typeof fileUrls === "string") {
               try {
                 fileUrls = JSON.parse(fileUrls);
               } catch (e) {
-                fileUrls = [fileUrls]; // Treat as single URL if not JSON
+                fileUrls = [fileUrls];
               }
             }
 
@@ -2346,15 +2221,11 @@ const deleteCurso = async (req, res) => {
       }
     }
 
-    // 3. Delete associated records in correct order
-
-    // Clear progress records
     await ProgressoModulo.destroy({
       where: { ID_CURSO: id },
       transaction,
     }).catch((err) => console.warn("Error deleting module progress", err));
 
-    // Delete inscriptions for sync courses
     if (curso.CursoSincrono) {
       await InscricaoSincrono.destroy({
         where: { ID_CURSO_SINCRONO: curso.CursoSincrono.ID_CURSO },
@@ -2367,7 +2238,6 @@ const deleteCurso = async (req, res) => {
       }).catch((err) => console.warn("Error deleting attendance records", err));
     }
 
-    // Delete associated notes
     await Promise.all(
       (curso.MODULOS || []).map(async (modulo) => {
         try {
@@ -2384,13 +2254,11 @@ const deleteCurso = async (req, res) => {
       })
     ).catch((err) => console.warn("Error in notes deletion process", err));
 
-    // Delete modules
     await Modulos.destroy({
       where: { ID_CURSO: id },
       transaction,
     });
 
-    // Delete objectives and skills
     await Objetivos.destroy({
       where: { ID_CURSO: id },
       transaction,
@@ -2401,7 +2269,6 @@ const deleteCurso = async (req, res) => {
       transaction,
     });
 
-    // Delete CursoAssincrono
     if (curso.CursoAssincrono) {
       await CursoAssincrono.destroy({
         where: { ID_CURSO: id },
@@ -2409,7 +2276,6 @@ const deleteCurso = async (req, res) => {
       });
     }
 
-    // Delete CursoSincrono
     if (curso.CursoSincrono) {
       await CursoSincrono.destroy({
         where: { ID_CURSO: id },
@@ -2417,15 +2283,12 @@ const deleteCurso = async (req, res) => {
       });
     }
 
-    // Finally delete the main course record
     await curso.destroy({ transaction });
 
-    // Commit transaction
     await transaction.commit();
 
     res.status(200).json({ message: "Curso apagado com sucesso" });
   } catch (error) {
-    // Rollback transaction on error
     if (transaction) await transaction.rollback();
     console.error("Erro ao deletar curso:", error);
     res.status(500).json({ message: error.message });
@@ -2438,12 +2301,10 @@ function extractCloudinaryPublicId(url) {
   return match ? match[1] : null;
 }
 
-// nao é usado
 async function deleteFile(fileUrl) {
   if (!fileUrl) return;
 
   if (fileUrl.includes("supabase")) {
-    // Arquivo do Supabase - extrair path
     try {
       const url = new URL(fileUrl);
       const pathMatch = url.pathname.match(
@@ -2457,7 +2318,6 @@ async function deleteFile(fileUrl) {
       console.warn("Erro ao deletar arquivo do Supabase:", error);
     }
   } else if (fileUrl.includes("localhost") || fileUrl.includes(BACKEND_URL)) {
-    // Arquivo local
     const localPath = fileUrl.split(/localhost:\d+|https?:\/\/[^\/]+/)[1];
     if (localPath) {
       const fullPath = path.join(__dirname, "..", "public", localPath);
@@ -2467,7 +2327,6 @@ async function deleteFile(fileUrl) {
       }
     }
   } else if (fileUrl.includes("cloudinary")) {
-    // Arquivo do Cloudinary (manter lógica existente)
     const publicId = extractCloudinaryPublicId(fileUrl);
     if (publicId) {
       try {
@@ -2484,7 +2343,6 @@ async function deleteFile(fileUrl) {
   }
 }
 
-// Para cursos Sincronos
 const getInscritos = async (req, res) => {
   const { id } = req.params;
 
@@ -2595,10 +2453,8 @@ const searchCursos = async (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    // Construir condições WHERE para o curso principal (sem filtrar por ESTADO ainda)
     const whereConditions = {};
 
-    // Pesquisa por nome e descrição
     if (search) {
       whereConditions[Op.or] = [
         { NOME: { [Op.iLike]: `%${search}%` } },
@@ -2606,7 +2462,6 @@ const searchCursos = async (req, res) => {
       ];
     }
 
-    // Filtros específicos
     if (difficulty) {
       whereConditions[Op.and] = whereConditions[Op.and] || [];
       whereConditions[Op.and].push({ DIFICULDADE_CURSO__: difficulty });
@@ -2622,7 +2477,6 @@ const searchCursos = async (req, res) => {
       whereConditions[Op.and].push({ ID_TOPICO: topic });
     }
 
-    // Configurar includes
     const includeArray = [
       {
         model: Area,
@@ -2677,16 +2531,14 @@ const searchCursos = async (req, res) => {
       },
     ];
 
-    // Filtro por tipo de curso
     if (type === "sincrono") {
-      includeArray[2].required = false; // CursoAssincrono não obrigatório
-      includeArray[3].required = true; // CursoSincrono obrigatório
+      includeArray[2].required = false;
+      includeArray[3].required = true;
     } else if (type === "assincrono") {
-      includeArray[2].required = true; // CursoAssincrono obrigatório
-      includeArray[3].required = false; // CursoSincrono não obrigatório
+      includeArray[2].required = true;
+      includeArray[3].required = false;
     }
 
-    // Definir ordem
     let orderClause;
     switch (sortBy) {
       case "oldest":
@@ -2739,10 +2591,9 @@ const searchCursos = async (req, res) => {
         ];
         break;
       default:
-        orderClause = [["DATA_CRIACAO__", "DESC"]]; // newest
+        orderClause = [["DATA_CRIACAO__", "DESC"]];
     }
 
-    // Buscar todos os cursos primeiro
     const { rows: allCourses } = await Curso.findAndCountAll({
       where: whereConditions,
       include: includeArray,
@@ -2753,12 +2604,10 @@ const searchCursos = async (req, res) => {
 
     console.log(`Encontrados ${allCourses.length} cursos no total`);
 
-    //dados das review separadamente para cada curso
     const coursesWithReviews = await Promise.all(
       allCourses.map(async (curso) => {
         const cursoData = curso.toJSON();
 
-        // Buscar estatísticas de review para este curso específico
         try {
           const reviewStats = await sequelize.query(
             `
@@ -2779,7 +2628,7 @@ const searchCursos = async (req, res) => {
           cursoData.totalReviews = parseInt(stats.totalReviews) || 0;
         } catch (error) {
           console.warn(
-            `Erro ao buscar reviews para curso ${curso.ID_CURSO}:`,
+            `Erro ao procurar reviews para curso ${curso.ID_CURSO}:`,
             error
           );
           cursoData.averageRating = 0;
@@ -2790,9 +2639,7 @@ const searchCursos = async (req, res) => {
       })
     );
 
-    // FILTRAR os cursos para mostrar apenas os ativos
     const coursesAtivos = coursesWithReviews.filter((curso) => {
-      // Verificar se é assíncrono ativo
       if (
         curso.CURSO_ASSINCRONO &&
         (curso.CURSO_ASSINCRONO.ESTADO === "Ativo" ||
@@ -2801,7 +2648,6 @@ const searchCursos = async (req, res) => {
         return true;
       }
 
-      // Verificar se é síncrono ativo
       if (curso.CURSO_SINCRONO && curso.CURSO_SINCRONO.ESTADO === "Ativo") {
         return true;
       }
@@ -2813,7 +2659,6 @@ const searchCursos = async (req, res) => {
       `Após filtrar por estado: ${coursesAtivos.length} cursos ativos`
     );
 
-    // Filtrar por rating se especificado
     let coursesFiltered = coursesAtivos;
     if (rating) {
       const minRating = parseFloat(rating);
@@ -2922,7 +2767,7 @@ const getCursosByFormador = async (req, res) => {
 
     res.status(200).json(cursos);
   } catch (error) {
-    console.error("Erro ao buscar cursos do formador:", error);
+    console.error("Erro ao procurar cursos do formador:", error);
     res.status(500).json({ message: error.message });
   }
 };

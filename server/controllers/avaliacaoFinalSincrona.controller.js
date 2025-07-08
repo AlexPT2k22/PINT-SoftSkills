@@ -28,14 +28,14 @@ const getAvaliacoesFinaisByCurso = async (req, res) => {
       });
     }
 
-    // Obter todos os alunos inscritos no curso com dados mais detalhados
+    // Obter todos os alunos inscritos no curso
     const inscricoes = await InscricaoSincrono.findAll({
       where: { ID_CURSO_SINCRONO: cursoId },
       include: [
         {
           model: Utilizador,
           attributes: ["ID_UTILIZADOR", "NOME", "USERNAME", "EMAIL"],
-          required: true, // INNER JOIN para garantir que o utilizador existe
+          required: true,
         },
       ],
     });
@@ -80,7 +80,7 @@ const getAvaliacoesFinaisByCurso = async (req, res) => {
     console.log("Resultado final:", JSON.stringify(avaliacoesFinais, null, 2));
     res.status(200).json(avaliacoesFinais);
   } catch (error) {
-    console.error("Erro ao buscar avaliações finais:", error);
+    console.error("Erro ao procurar avaliações finais:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -123,8 +123,8 @@ const criarOuAtualizarAvaliacaoFinal = async (req, res) => {
     // Verificar se já existe avaliação final
     const avaliacaoExistente = await AvaliacaoFinalSincrona.findOne({
       where: {
-        UTI_ID_UTILIZADOR: formadorId, // Formador é UTI_ID_UTILIZADOR
-        UTI_ID_UTILIZADOR2: alunoId, // Aluno é UTI_ID_UTILIZADOR2
+        UTI_ID_UTILIZADOR: formadorId,
+        UTI_ID_UTILIZADOR2: alunoId,
       },
     });
 
@@ -183,10 +183,10 @@ const getMinhaAvaliacaoFinal = async (req, res) => {
       });
     }
 
-    // Buscar avaliação final do aluno
+    // procurar avaliação final do aluno
     const avaliacaoFinal = await AvaliacaoFinalSincrona.findOne({
       where: {
-        UTI_ID_UTILIZADOR2: alunoId, // Aluno é UTI_ID_UTILIZADOR2
+        UTI_ID_UTILIZADOR2: alunoId, // Aluno
       },
       include: [
         {
@@ -205,7 +205,7 @@ const getMinhaAvaliacaoFinal = async (req, res) => {
 
     res.status(200).json(avaliacaoFinal);
   } catch (error) {
-    console.error("Erro ao buscar avaliação final:", error);
+    console.error("Erro ao procurar avaliação final:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -234,7 +234,7 @@ const getMinhasAvaliacoesFinais = async (req, res) => {
     for (const avaliacao of avaliacoesFinais) {
       // Encontrar o curso através do formador
       const cursoSincrono = await CursoSincrono.findOne({
-        where: { ID_UTILIZADOR: avaliacao.UTI_ID_UTILIZADOR }, // Formador é UTI_ID_UTILIZADOR
+        where: { ID_UTILIZADOR: avaliacao.UTI_ID_UTILIZADOR }, // Formador
         include: [
           {
             model: Curso,
@@ -253,7 +253,7 @@ const getMinhasAvaliacoesFinais = async (req, res) => {
 
     res.status(200).json(avaliacoesComCurso);
   } catch (error) {
-    console.error("Erro ao buscar avaliações finais do utilizador:", error);
+    console.error("Erro ao procurar avaliações finais do utilizador:", error);
     res.status(500).json({ message: error.message });
   }
 };

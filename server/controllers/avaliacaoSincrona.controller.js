@@ -21,11 +21,9 @@ const uploadAvaliacaoToSupabase = async (file, userId, avaliacaoId) => {
     const uniqueFileName = `${Date.now()}-$${fileName}.${fileExtension}`;
     const filePath = `avaliacoes-submissoes/${avaliacaoId}/${userId}/${uniqueFileName}`;
 
-    console.log(`Uploading evaluation file to Supabase: ${filePath}`);
-
     // Upload do arquivo
     const { data, error } = await supabaseAdmin.storage
-      .from("course-files") // Mesmo bucket usado para arquivos de curso
+      .from("course-files")
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
         upsert: false,
@@ -36,9 +34,6 @@ const uploadAvaliacaoToSupabase = async (file, userId, avaliacaoId) => {
       throw error;
     }
 
-    console.log(`Evaluation file uploaded successfully: ${data.path}`);
-
-    // Obter URL pública
     const { data: publicUrlData } = supabaseAdmin.storage
       .from("course-files")
       .getPublicUrl(data.path);
@@ -104,7 +99,7 @@ const saveEvaluationFile = async (file, userId, avaliacaoId) => {
   const filename = `${Date.now()}-${file.originalname}`;
   const filePath = path.join(uploadDir, filename);
 
-  // Salvar arquivo
+  // guardar arquivo
   fs.writeFileSync(filePath, file.buffer);
 
   return {
@@ -211,7 +206,7 @@ const getMinhasSubmissoesByCurso = async (req, res) => {
 
     res.status(200).json(submissoes);
   } catch (error) {
-    console.error("Erro ao buscar minhas submissões:", error);
+    console.error("Erro ao procurar minhas submissões:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -232,7 +227,7 @@ const getSubmissoesByAvaliacao = async (req, res) => {
 
     res.status(200).json(submissoes);
   } catch (error) {
-    console.error("Erro ao buscar submissões da avaliação:", error);
+    console.error("Erro ao procurar submissões da avaliação:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -281,7 +276,7 @@ const submeterTrabalho = async (req, res) => {
               await deleteAvaliacaoFromSupabase(pathMatch[1]);
             }
           } else if (submissaoExistente.URL_ARQUIVO.startsWith("/uploads/")) {
-            // Arquivo local - deletar se existir
+            // Arquivo local - apagar se existir
             const localPath = path.join(
               __dirname,
               "..",
@@ -373,7 +368,7 @@ const getProximasAvaliacoes = async (req, res) => {
         {
           model: SubmissaoAvaliacao,
           where: { ID_UTILIZADOR: userId },
-          required: false, // LEFT JOIN
+          required: false,
         },
       ],
       order: [["DATA_LIMITE_REALIZACAO", "ASC"]],
@@ -381,7 +376,7 @@ const getProximasAvaliacoes = async (req, res) => {
 
     res.status(200).json(avaliacoes);
   } catch (error) {
-    console.error("Erro ao buscar próximas avaliações:", error);
+    console.error("Erro ao procurar próximas avaliações:", error);
     res.status(500).json({ message: error.message });
   }
 };

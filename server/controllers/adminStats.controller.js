@@ -26,12 +26,10 @@ const {
 const { Op } = require("sequelize");
 const { sequelize } = require("../database/database.js");
 
-// Estatísticas gerais da plataforma
 const getGeneralStats = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // Verificar se é admin
     const isAdmin = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -43,45 +41,32 @@ const getGeneralStats = async (req, res) => {
       });
     }
 
-    // Executar todas as consultas em paralelo para melhor performance
     const [
-      // Utilizadores
       totalUtilizadores,
       utilizadorFormandos,
       utilizadorFormadores,
       utilizadorGestores,
       utilizadoresAtivos30Dias,
       utilizadoresNovos30Dias,
-
-      // Cursos
       totalCursos,
       cursosSincronos,
       cursosAssincronos,
       cursosAtivos,
-
-      // Inscrições
       totalInscricoesSincronas,
       totalInscricoesAssincronas,
       inscricoes30Dias,
-
-      // Fórum
       totalTopicosForumAtivos,
       totalPostsForum,
       postsForumUltimos30Dias,
       solicitacoesForumPendentes,
-
-      // Avaliações e Progresso
       totalQuizzes,
       totalRespostasQuizzes,
       totalAvaliacoesSincronas,
       totalSubmissoes,
       totalModulosCompletos,
-
-      // Aulas
       totalAulasSincronas,
       aulasProximos7Dias,
     ] = await Promise.all([
-      // Utilizadores
       Utilizador.count(),
       UtilizadorTemPerfil.count({ where: { ID_PERFIL: 1 } }),
       UtilizadorTemPerfil.count({ where: { ID_PERFIL: 2 } }),
@@ -101,7 +86,6 @@ const getGeneralStats = async (req, res) => {
         },
       }),
 
-      // Cursos
       Curso.count(),
       CursoSincrono.count(),
       CursoAssincrono.count(),
@@ -126,7 +110,6 @@ const getGeneralStats = async (req, res) => {
         },
       }),
 
-      // Inscrições
       InscricaoSincrono.count(),
       InscricaoAssincrono.count(),
       Promise.all([
@@ -146,7 +129,6 @@ const getGeneralStats = async (req, res) => {
         }),
       ]).then(([sinc, assinc]) => sinc + assinc),
 
-      // Fórum
       ForumTopico.count({ where: { ESTADO: "Ativo" } }),
       ForumPost.count({ where: { ESTADO: { [Op.in]: ["Ativo", "Editado"] } } }),
       ForumPost.count({
@@ -158,15 +140,11 @@ const getGeneralStats = async (req, res) => {
         },
       }),
       ForumSolicitacao.count({ where: { ESTADO: "Pendente" } }),
-
-      // Avaliações
       QuizAssincrono.count({ where: { ATIVO: true } }),
       RespostaQuizAssincrono.count(),
       AvaliacaoSincrona.count(),
       SubmissaoAvaliacao.count(),
       ProgressoModulo.count({ where: { COMPLETO: true } }),
-
-      // Aulas
       AulaSincrona.count(),
       AulaSincrona.count({
         where: {
@@ -180,7 +158,6 @@ const getGeneralStats = async (req, res) => {
       }),
     ]);
 
-    // Calcular estatísticas adicionais
     const taxaCrescimentoUtilizadores =
       totalUtilizadores > 0
         ? ((utilizadoresNovos30Dias / totalUtilizadores) * 100).toFixed(2)
@@ -264,7 +241,7 @@ const getGeneralStats = async (req, res) => {
       dataAtualizacao: new Date(),
     });
   } catch (error) {
-    console.error("Erro ao buscar estatísticas gerais:", error);
+    console.error("Erro ao procurar estatísticas gerais:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -272,12 +249,10 @@ const getGeneralStats = async (req, res) => {
   }
 };
 
-// Estatísticas de cursos detalhadas
 const getCursosStats = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // Verificar se é admin
     const isAdmin = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -289,7 +264,6 @@ const getCursosStats = async (req, res) => {
       });
     }
 
-    // Usar query SQL direta para estatísticas por categoria
     const estatisticasPorCategoria = await sequelize.query(
       `
       SELECT 
@@ -323,7 +297,6 @@ const getCursosStats = async (req, res) => {
       { type: sequelize.QueryTypes.SELECT }
     );
 
-    // Top 10 cursos mais populares
     const cursosMaisPopulares = await sequelize.query(
       `
       SELECT 
@@ -350,7 +323,6 @@ const getCursosStats = async (req, res) => {
       { type: sequelize.QueryTypes.SELECT }
     );
 
-    // Formatar dados para o frontend
     const cursosFormatados = cursosMaisPopulares.map((curso) => ({
       ID_CURSO: curso.ID_CURSO,
       NOME: curso.NOME,
@@ -369,7 +341,7 @@ const getCursosStats = async (req, res) => {
       cursosMaisPopulares: cursosFormatados,
     });
   } catch (error) {
-    console.error("Erro ao buscar estatísticas de cursos:", error);
+    console.error("Erro ao procurar estatísticas de cursos:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -377,7 +349,6 @@ const getCursosStats = async (req, res) => {
   }
 };
 
-// Percurso formativo por utilizador
 const getPercursoFormativo = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -390,7 +361,6 @@ const getPercursoFormativo = async (req, res) => {
       perfil = "",
     } = req.query;
 
-    // Verificar se é admin
     const isAdmin = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -404,7 +374,6 @@ const getPercursoFormativo = async (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    // Construir filtros
     const whereConditions = {};
 
     if (nome) {
@@ -428,7 +397,6 @@ const getPercursoFormativo = async (req, res) => {
       };
     }
 
-    // Filtro por perfil
     const includeConditions = [
       {
         model: Perfil,
@@ -439,7 +407,6 @@ const getPercursoFormativo = async (req, res) => {
       },
     ];
 
-    // Buscar utilizadores com filtros
     const { count, rows: utilizadores } = await Utilizador.findAndCountAll({
       where: whereConditions,
       include: includeConditions,
@@ -458,12 +425,10 @@ const getPercursoFormativo = async (req, res) => {
       distinct: true,
     });
 
-    // Para cada utilizador, buscar seu percurso formativo
     const percursosFormativos = await Promise.all(
       utilizadores.map(async (utilizador) => {
         const userId = utilizador.ID_UTILIZADOR;
 
-        // Buscar estatísticas básicas
         const [
           inscricoesSincronas,
           inscricoesAssincronas,
@@ -508,7 +473,6 @@ const getPercursoFormativo = async (req, res) => {
           }),
         ]);
 
-        // Calcular estatísticas
         const totalCursos = inscricoesSincronas + inscricoesAssincronas;
         const modulosCompletos = progressoModulos.filter(
           (p) => p.COMPLETO
@@ -519,22 +483,19 @@ const getPercursoFormativo = async (req, res) => {
           (s) => s.NOTA !== null
         ).length;
 
-        // Calcular nota média geral (notas finais de cursos síncronos + quizzes de cursos assíncronos)
         let notaMediaGeral = 0;
         let totalAvaliacoes = 0;
         let somaNotas = 0;
 
-        // Somar notas dos quizzes (converter de 0-100 para 0-20)
         if (respostasQuizzes.length > 0) {
           respostasQuizzes.forEach((quiz) => {
             if (quiz.NOTA !== null) {
-              somaNotas += (quiz.NOTA * 20) / 100; // Converter de 0-100 para 0-20
+              somaNotas += (quiz.NOTA * 20) / 100;
               totalAvaliacoes++;
             }
           });
         }
 
-        // Somar notas finais dos cursos síncronos (já em escala 0-20)
         if (avaliacoesFinais.length > 0) {
           avaliacoesFinais.forEach((avaliacaoFinal) => {
             if (avaliacaoFinal.NOTA_FINAL !== null) {
@@ -548,7 +509,6 @@ const getPercursoFormativo = async (req, res) => {
           notaMediaGeral = (somaNotas / totalAvaliacoes).toFixed(1);
         }
 
-        // Calcular apenas nota média dos quizzes
         let notaMediaQuizzes = 0;
         if (respostasQuizzes.length > 0) {
           const somaQuizzes = respostasQuizzes.reduce(
@@ -558,7 +518,6 @@ const getPercursoFormativo = async (req, res) => {
           notaMediaQuizzes = (somaQuizzes / respostasQuizzes.length).toFixed(1);
         }
 
-        // Calcular apenas nota média das avaliações síncronas (submissões regulares)
         let notaMediaAvaliacoes = 0;
         if (avaliacoesAvaliadas > 0) {
           const somaAvaliacoes = submissoesAvaliacoes
@@ -569,7 +528,6 @@ const getPercursoFormativo = async (req, res) => {
           );
         }
 
-        // Calcular apenas nota média das avaliações finais (cursos síncronos)
         let notaMediaAvaliacoesFinais = 0;
         if (avaliacoesFinais.length > 0) {
           const somaAvaliacoesFinais = avaliacoesFinais.reduce(
@@ -605,7 +563,6 @@ const getPercursoFormativo = async (req, res) => {
                   )
                 : 0,
             xp: utilizador.XP || 0,
-            // Detalhes das avaliações síncronas
             avaliacoesDetalhes: submissoesAvaliacoes.map((submissao) => ({
               titulo: submissao.AVALIACAO_SINCRONA?.TITULO || "N/A",
               cursoId: submissao.AVALIACAO_SINCRONA?.ID_CURSO || null,
@@ -631,7 +588,7 @@ const getPercursoFormativo = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro ao buscar percurso formativo:", error);
+    console.error("Erro ao procurar percurso formativo:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -639,12 +596,10 @@ const getPercursoFormativo = async (req, res) => {
   }
 };
 
-// Dados para gráficos dashboard
 const getDashboardCharts = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // Verificar se é admin
     const isAdmin = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -656,7 +611,6 @@ const getDashboardCharts = async (req, res) => {
       });
     }
 
-    // Inscrições por mês (últimos 12 meses)
     const inscricoesPorMes = await sequelize.query(
       `
       SELECT 
@@ -675,7 +629,6 @@ const getDashboardCharts = async (req, res) => {
       { type: sequelize.QueryTypes.SELECT }
     );
 
-    // Utilizadores por perfil
     const utilizadoresPorPerfil = await sequelize.query(
       `
       SELECT 
@@ -689,7 +642,6 @@ const getDashboardCharts = async (req, res) => {
       { type: sequelize.QueryTypes.SELECT }
     );
 
-    // Atividade do fórum (posts por mês)
     const atividadeForumPorMes = await sequelize.query(
       `
       SELECT 
@@ -713,7 +665,7 @@ const getDashboardCharts = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro ao buscar dados dos gráficos:", error);
+    console.error("Erro ao procurar dados dos gráficos:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",

@@ -8,7 +8,7 @@ const cursoRoute = require("./routes/curso.route.js");
 const areaRoute = require("./routes/area.route.js");
 const progressRoute = require("./routes/progresso.route.js");
 const { connectDB, sequelize } = require("./database/database.js");
-require("./models/index.js"); // Importar todos os modelos para garantir que estão registados
+require("./models/index.js");
 const categoriaRoutes = require("./routes/categoria.route.js");
 const topicoRoutes = require("./routes/topico.route");
 const cookieparser = require("cookie-parser");

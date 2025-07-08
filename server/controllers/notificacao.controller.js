@@ -18,7 +18,6 @@ const {
 } = require("../mail/emails.js");
 const { sendPushNotification } = require("./fcm.controller.js");
 
-// Criar nova notificação
 const createNotification = async (
   userId,
   courseId,
@@ -52,10 +51,8 @@ const createNotification = async (
       console.log(`Notificação push enviada para usuário ${userId}`);
     } catch (pushError) {
       console.warn("Erro ao enviar notificação push:", pushError);
-      // Não falhar se push notification falhar
     }
 
-    // Se indicado, enviar email específico baseado no tipo
     if (shouldSendEmail) {
       const user = await Utilizador.findByPk(userId);
       const curso = await Curso.findByPk(courseId, {
@@ -138,7 +135,6 @@ const createNotification = async (
               break;
 
             default:
-              // Usar template genérico para outros tipos
               await sendGeneralNotificationEmail(
                 user.NOME || user.USERNAME,
                 user.EMAIL,
@@ -152,7 +148,6 @@ const createNotification = async (
               break;
           }
 
-          // Marcar como enviado se o email foi enviado com sucesso
           if (emailSent) {
             await notificacao.update({ EMAIL_ENVIADO: true });
           }
@@ -169,7 +164,6 @@ const createNotification = async (
   }
 };
 
-// Notificar todos os inscritos em um curso
 const notifyAllEnrolled = async (
   courseId,
   title,
@@ -178,7 +172,6 @@ const notifyAllEnrolled = async (
   emailData = null
 ) => {
   try {
-    // Verificar tipo de curso
     const curso = await Curso.findByPk(courseId, {
       include: [
         { model: CursoSincrono, required: false },
@@ -193,7 +186,6 @@ const notifyAllEnrolled = async (
 
     let inscritosIds = [];
 
-    // Buscar IDs de usuários inscritos
     if (curso.CURSO_SINCRONO) {
       const inscricoes = await InscricaoSincrono.findAll({
         where: { ID_CURSO_SINCRONO: curso.CURSO_SINCRONO.ID_CURSO },
@@ -218,10 +210,8 @@ const notifyAllEnrolled = async (
       ];
     }
 
-    // Remover duplicados
     inscritosIds = [...new Set(inscritosIds)];
 
-    // Criar notificações para cada inscrito com dados de email
     const promises = inscritosIds.map((userId) =>
       createNotification(
         userId,
@@ -246,7 +236,6 @@ const notifyAllEnrolled = async (
   }
 };
 
-// Buscar notificações de um usuário
 const getUserNotifications = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -264,12 +253,11 @@ const getUserNotifications = async (req, res) => {
 
     res.status(200).json(notificacoes);
   } catch (error) {
-    console.error("Erro ao buscar notificações:", error);
+    console.error("Erro ao procurar notificações:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Marcar notificação como lida
 const markNotificationAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;

@@ -40,7 +40,7 @@ const calcularNotaFinal = async (userId, courseId) => {
     ]);
 
     if (cursoSincrono) {
-      // Para cursos síncronos: buscar notas das avaliações
+      // Para cursos síncronos: procurar notas das avaliações
       const submissoes = await SubmissaoAvaliacao.findAll({
         where: { ID_UTILIZADOR: userId },
         include: [
@@ -61,7 +61,7 @@ const calcularNotaFinal = async (userId, courseId) => {
     }
 
     if (cursoAssincrono) {
-      // Para cursos assíncronos: buscar notas dos quizzes
+      // Para cursos assíncronos: procurar notas dos quizzes
       const respostas = await RespostaQuizAssincrono.findAll({
         where: { ID_UTILIZADOR: userId },
         include: [
@@ -97,12 +97,10 @@ const calcularNotaFinal = async (userId, courseId) => {
 
 const verificarConclusaoCurso = async (userId, courseId) => {
   try {
-    // Get total modules for the course
     const totalModulos = await Modulos.count({
       where: { ID_CURSO: courseId },
     });
 
-    // Get completed modules for the user
     const modulosCompletos = await ProgressoModulo.count({
       where: {
         ID_UTILIZADOR: userId,
@@ -111,7 +109,6 @@ const verificarConclusaoCurso = async (userId, courseId) => {
       },
     });
 
-    // Return true if all modules are completed
     return totalModulos > 0 && totalModulos === modulosCompletos;
   } catch (error) {
     console.error("Error verifying course completion:", error);
@@ -123,8 +120,6 @@ const gerarCertificado = async (req, res) => {
   try {
     const { courseId } = req.params;
     const userId = req.user.ID_UTILIZADOR;
-
-    // Verify course completion
     const cursoCompleto = await verificarConclusaoCurso(userId, courseId);
 
     if (!cursoCompleto) {
@@ -135,7 +130,6 @@ const gerarCertificado = async (req, res) => {
       });
     }
 
-    // Check if certificate already exists
     let certificado = await Certificado.findOne({
       where: {
         ID_UTILIZADOR: userId,
@@ -152,7 +146,6 @@ const gerarCertificado = async (req, res) => {
       });
     }
 
-    // Get course and user data
     const [curso, usuario] = await Promise.all([
       Curso.findByPk(courseId),
       Utilizador.findByPk(userId),
@@ -168,33 +161,26 @@ const gerarCertificado = async (req, res) => {
     // Calcular nota final
     const notaFinal = await calcularNotaFinal(userId, courseId);
 
-    // Create certificates directory if it doesn't exist
     const certificatesDir = path.join(__dirname, "../public/certificates");
     if (!fs.existsSync(certificatesDir)) {
       fs.mkdirSync(certificatesDir, { recursive: true });
     }
 
-    // Generate PDF path
     const pdfPath = path.join(
       certificatesDir,
       `${certificado.CODIGO_VERIFICACAO}.pdf`
     );
     const pdfUrl = `/certificates/${certificado.CODIGO_VERIFICACAO}.pdf`;
 
-    // Create PDF with better styling
     const doc = new PDFDocument({
       layout: "landscape",
       size: "A4",
       margin: 0,
     });
 
-    // Pipe the PDF to a file
     doc.pipe(fs.createWriteStream(pdfPath));
-
-    // Add background pattern
     doc.rect(0, 0, doc.page.width, doc.page.height).fill("#f8f9fa");
 
-    // Add border
     const borderWidth = 20;
     doc
       .rect(
@@ -207,9 +193,7 @@ const gerarCertificado = async (req, res) => {
       .lineWidth(2)
       .stroke();
 
-    // Add decorative corners
     const cornerSize = 40;
-    // Top left corner
     doc
       .polygon(
         [borderWidth, borderWidth],
@@ -217,7 +201,6 @@ const gerarCertificado = async (req, res) => {
         [borderWidth, borderWidth + cornerSize]
       )
       .fill("#39639c");
-    // Top right corner
     doc
       .polygon(
         [doc.page.width - borderWidth, borderWidth],
@@ -225,7 +208,6 @@ const gerarCertificado = async (req, res) => {
         [doc.page.width - borderWidth, borderWidth + cornerSize]
       )
       .fill("#39639c");
-    // Bottom left corner
     doc
       .polygon(
         [borderWidth, doc.page.height - borderWidth],
@@ -233,7 +215,6 @@ const gerarCertificado = async (req, res) => {
         [borderWidth, doc.page.height - borderWidth - cornerSize]
       )
       .fill("#39639c");
-    // Bottom right corner
     doc
       .polygon(
         [doc.page.width - borderWidth, doc.page.height - borderWidth],
@@ -248,14 +229,11 @@ const gerarCertificado = async (req, res) => {
       )
       .fill("#39639c");
 
-    // Add logo
     const logoPath = path.join(__dirname, "../public/images/Logo.png");
     doc.image(logoPath, 50, 50, { width: 150 });
 
-    // Center all content
-    const centerY = doc.page.height / 2 - 100; // Adjust starting Y position
+    const centerY = doc.page.height / 2 - 100; 
 
-    // Add certificate content
     doc
       .font("Helvetica-Bold")
       .fontSize(42)
@@ -296,7 +274,6 @@ const gerarCertificado = async (req, res) => {
         align: "center",
       });
 
-    // Add date
     const dateStr = new Date().toLocaleDateString("pt-BR", {
       day: "numeric",
       month: "long",
@@ -311,7 +288,6 @@ const gerarCertificado = async (req, res) => {
         align: "center",
       });
 
-    // Create custom QR code with logo
     const qrSize = 100;
     const qrOptions = {
       errorCorrectionLevel: "H",
@@ -322,19 +298,16 @@ const gerarCertificado = async (req, res) => {
       },
     };
 
-    // Generate QR code with verification URL
     const qrCodeDataUrl = await QRCode.toDataURL(
       // é necessario o await!
       `${FRONTEND_URL}/verify-certificate/${certificado.CODIGO_VERIFICACAO}`,
       qrOptions
     );
 
-    // Add QR code
     doc.image(qrCodeDataUrl, 100, doc.page.height - 150, {
       width: qrSize,
     });
 
-    // Add verification code
     doc
       .font("Helvetica")
       .fontSize(10)
@@ -346,10 +319,8 @@ const gerarCertificado = async (req, res) => {
         { align: "center", width: 200 }
       );
 
-    // Finalize PDF
     doc.end();
 
-    // Update certificate URL in database
     await certificado.update({ URL_CERTIFICADO: pdfUrl });
 
     return res.status(200).json({

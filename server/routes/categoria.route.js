@@ -8,7 +8,7 @@ const {
   deleteCategoria,
 } = require("../controllers/categoria.controller.js");
 
-// /categorias/com-areas
+
 router.get("/com-areas", getCategoriasWithAreas);
 router.get("/", getCategorias);
 router.post("/", createCategoria);

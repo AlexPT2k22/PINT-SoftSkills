@@ -41,24 +41,23 @@ const getTeachers = async (req, res) => {
               { ID_PERFIL: 3 },
               { PERFIL: "Gestor" },
             ],
-          }, // filtra os perfis de formador e gestor
-          attributes: [], // não traz os dados do perfil, só usa para filtrar
-          through: { attributes: [] }, // não traz dados da tabela intermédia
+          },
+          attributes: [],
+          through: { attributes: [] },
         },
       ],
     });
     res.status(200).json(teachers);
   } catch (error) {
-    console.error("Erro ao buscar os professores:", error);
+    console.error("Erro ao procurar os professores:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
 const getCursosAssociados = async (req, res) => {
   try {
-    const id = req.user.ID_UTILIZADOR; // ID do utilizador
+    const id = req.user.ID_UTILIZADOR;
 
-    // Look for synchronous courses where this user is the teacher
     const cursos = await Curso.findAll({
       include: [
         {
@@ -83,7 +82,7 @@ const getCursosAssociados = async (req, res) => {
 
     res.status(200).json(cursos);
   } catch (error) {
-    console.error("Erro ao buscar os cursos associados:", error);
+    console.error("Erro ao procurar os cursos associados:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -98,7 +97,6 @@ const inscreverEmCurso = async (req, res) => {
     console.log("ID do curso:", courseId);
     console.log("Tipo de curso:", courseType);
 
-    // First get the basic course info to determine type if not provided
     const cursoBase = await Curso.findByPk(courseId);
     if (!cursoBase) {
       return res.status(404).json({
@@ -107,7 +105,6 @@ const inscreverEmCurso = async (req, res) => {
       });
     }
 
-    // Handle based on course type
     if (courseType.toLowerCase() === "sincrono") {
       return await inscreverEmCursoSincrono(userId, courseId, req, res);
     } else if (courseType.toLowerCase() === "assincrono") {
@@ -129,7 +126,6 @@ const inscreverEmCurso = async (req, res) => {
 
 const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
   try {
-    // Verificar se o curso existe
     const curso = await CursoSincrono.findByPk(courseId);
     if (!curso) {
       return res.status(404).json({
@@ -150,7 +146,6 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       }
     }
 
-    // Verificar se o usuário já está inscrito
     const inscricaoExistente = await InscricaoSincrono.findOne({
       where: {
         ID_UTILIZADOR: userId,
@@ -165,7 +160,6 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       });
     }
 
-    // Verificar se há vagas disponíveis
     if (curso.VAGAS <= 0) {
       return res.status(400).json({
         success: false,
@@ -173,7 +167,6 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       });
     }
 
-    // Criar nova inscrição
     const novaInscricao = await InscricaoSincrono.create({
       ID_UTILIZADOR: userId,
       ID_CURSO_SINCRONO: courseId,
@@ -183,12 +176,10 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       DATA_LIMITE_INSCRICAO_S: curso.DATA_LIMITE_INSCRICAO_S,
     });
 
-    // Atualizar número de vagas
     await curso.update({
       VAGAS: curso.VAGAS - 1,
     });
 
-    // Buscar informações completas do curso e usuário para o email
     const cursoCompleto = await Curso.findByPk(courseId, {
       include: [{ model: CursoSincrono }],
     });
@@ -198,7 +189,6 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
       ? await Utilizador.findByPk(curso.ID_UTILIZADOR)
       : null;
 
-    // Enviar email de confirmação
     await sendEnrollmentConfirmationEmail(
       user.NOME || user.USERNAME,
       user.EMAIL,
@@ -223,7 +213,6 @@ const inscreverEmCursoSincrono = async (userId, courseId, req, res) => {
 
 const inscreverEmCursoAssincrono = async (userId, courseId, req, res) => {
   try {
-    // Verificar se o curso existe
     const curso = await CursoAssincrono.findOne({
       where: { ID_CURSO: courseId },
     });
@@ -235,11 +224,10 @@ const inscreverEmCursoAssincrono = async (userId, courseId, req, res) => {
       });
     }
 
-    // Verificar se o usuário já está inscrito
     const inscricaoExistente = await InscricaoAssincrono.findOne({
       where: {
         ID_UTILIZADOR: userId,
-        ID_CURSO_ASSINCRONO: curso.ID_CURSO_ASSINCRONO, // Use the correct ID from curso
+        ID_CURSO_ASSINCRONO: curso.ID_CURSO_ASSINCRONO,
       },
     });
 
@@ -250,7 +238,6 @@ const inscreverEmCursoAssincrono = async (userId, courseId, req, res) => {
       });
     }
 
-    // Criar nova inscrição
     const novaInscricao = await InscricaoAssincrono.create({
       ID_UTILIZADOR: userId,
       ID_CURSO_ASSINCRONO: curso.ID_CURSO_ASSINCRONO,
@@ -258,14 +245,12 @@ const inscreverEmCursoAssincrono = async (userId, courseId, req, res) => {
       ESTADO: "Ativo",
     });
 
-    // Buscar informações completas do curso e usuário para o email
     const cursoCompleto = await Curso.findByPk(courseId, {
       include: [{ model: CursoAssincrono }],
     });
 
     const user = await Utilizador.findByPk(userId);
 
-    // Enviar email de confirmação
     await sendEnrollmentConfirmationEmail(
       user.NOME || user.USERNAME,
       user.EMAIL,
@@ -313,7 +298,6 @@ const verificarInscricao = async (req, res) => {
       }
     }
 
-    // Check asynchronous course enrollment
     const cursoAssincrono = await CursoAssincrono.findOne({
       where: { ID_CURSO: courseId },
     });
@@ -358,7 +342,7 @@ const getCursosInscritos = async (req, res) => {
             ID_UTILIZADOR: id,
           },
           required: true,
-          attributes: [], // Não precisamos dos dados da inscrição, só filtrar
+          attributes: [],
         },
       ],
     });
@@ -381,7 +365,7 @@ const getCursosInscritos = async (req, res) => {
         },
       ],
       where: {
-        ESTADO: ["Ativo", "Em curso"], // Filtrar apenas cursos ativos
+        ESTADO: ["Ativo", "Em curso"],
       },
     });
 
@@ -412,7 +396,7 @@ const getCursosInscritos = async (req, res) => {
         {
           model: CursoAssincrono,
           where: {
-            ESTADO: ["Ativo", "Em curso"], // Filtrar apenas cursos assíncronos ativos
+            ESTADO: ["Ativo", "Em curso"],
           },
           required: false,
         },
@@ -438,7 +422,7 @@ const getCursosInscritos = async (req, res) => {
     console.log("Cursos inscritos encontrados:", cursosInscritos.length);
     res.status(200).json(cursosInscritos);
   } catch (error) {
-    console.error("Erro ao buscar cursos inscritos:", error);
+    console.error("Erro ao procurar cursos inscritos:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -449,7 +433,6 @@ const updateUser = async (req, res) => {
     const { nome, currentPassword, newPassword, confirmPassword, linkedIn } =
       req.body;
 
-    // Verifica se o utilizador existe
     const utilizador = await Utilizador.findByPk(userId);
     if (!utilizador) {
       return res.status(404).json({ message: "Utilizador não encontrado" });
@@ -460,14 +443,12 @@ const updateUser = async (req, res) => {
       utilizador.PASSWORD
     );
 
-    // Verifica se a senha atual está correta
     if (currentPassword && !isPasswordValid) {
       return res.status(400).json({ message: "Senha atual incorreta" });
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    // Atualiza a senha se fornecida
     if (newPassword && newPassword === confirmPassword) {
       utilizador.PASSWORD = hashedNewPassword;
       sendConfirmationEmail(
@@ -484,16 +465,13 @@ const updateUser = async (req, res) => {
     if (linkedIn) {
       utilizador.LINKEDIN = linkedIn;
     } else if (!linkedIn && utilizador.LINKEDIN) {
-      // Se o LinkedIn não for fornecido, remove o link existente
       utilizador.LINKEDIN = null;
     }
 
-    // Atualiza o nome se fornecido
     if (nome) {
       utilizador.NOME = nome;
     }
 
-    // Salva as alterações no utilizador
     await utilizador.save();
 
     res.status(200).json({
@@ -524,7 +502,7 @@ const getUsers = async (req, res) => {
     const utilizadores = await Utilizador.findAll({
       attributes: ["ID_UTILIZADOR", "USERNAME", "NOME", "EMAIL", "LINKEDIN"],
       where: {
-        ID_UTILIZADOR: { [Op.ne]: req.user.ID_UTILIZADOR }, // Exclui o utilizador atual
+        ID_UTILIZADOR: { [Op.ne]: req.user.ID_UTILIZADOR },
       },
       include: [
         {
@@ -540,7 +518,7 @@ const getUsers = async (req, res) => {
 
     res.status(200).json(utilizadores);
   } catch (error) {
-    console.error("Erro ao buscar utilizadores:", error);
+    console.error("Erro ao procurar utilizadores:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -549,11 +527,10 @@ const getProfiles = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // Verifica se o utilizador tem o perfil de gestor
     const userIsAdmin = await UtilizadorTemPerfil.findOne({
       where: {
         ID_UTILIZADOR: userId,
-        ID_PERFIL: 3, // ID do perfil de gestor
+        ID_PERFIL: 3,
       },
     });
 
@@ -563,14 +540,13 @@ const getProfiles = async (req, res) => {
       });
     }
 
-    // Busca todos os perfis
     const perfis = await Perfil.findAll({
       attributes: ["ID_PERFIL", "PERFIL"],
     });
 
     res.status(200).json(perfis);
   } catch (error) {
-    console.error("Erro ao buscar perfis:", error);
+    console.error("Erro ao procurar perfis:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -581,11 +557,10 @@ const changeUser = async (req, res) => {
     const userId = req.params.id;
     const { NOME, EMAIL, LINKEDIN, profileId } = req.body;
 
-    // Verifica se o utilizador tem o perfil de gestor
     const userIsAdmin = await UtilizadorTemPerfil.findOne({
       where: {
         ID_UTILIZADOR: adminId,
-        ID_PERFIL: 3, // ID do perfil de gestor
+        ID_PERFIL: 3,
       },
     });
 
@@ -594,18 +569,16 @@ const changeUser = async (req, res) => {
         message: "Acesso negado. Apenas gestores podem atualizar utilizadores.",
       });
     }
-    // Verifica se o ID do utilizador a ser atualizado é válido
+
     if (!userId || isNaN(userId)) {
       return res.status(400).json({ message: "ID de utilizador inválido" });
     }
 
-    // Verifica se o utilizador existe
     const utilizador = await Utilizador.findByPk(userId);
     if (!utilizador) {
       return res.status(404).json({ message: "Utilizador não encontrado" });
     }
 
-    // Atualiza o nome e username
     if (NOME) {
       utilizador.NOME = NOME;
     }
@@ -615,11 +588,10 @@ const changeUser = async (req, res) => {
     }
 
     if (EMAIL) {
-      // Verifica se o email já está em uso por outro utilizador
       const emailExistente = await Utilizador.findOne({
         where: {
           EMAIL: EMAIL,
-          ID_UTILIZADOR: { [Op.ne]: userId }, // Exclui o utilizador atual
+          ID_UTILIZADOR: { [Op.ne]: userId },
         },
       });
 
@@ -629,7 +601,6 @@ const changeUser = async (req, res) => {
       utilizador.EMAIL = EMAIL;
     }
 
-    // Atualiza o perfil se fornecido
     if (profileId) {
       const perfilExistente = await Perfil.findByPk(profileId);
       if (!perfilExistente) {
@@ -652,7 +623,6 @@ const changeUser = async (req, res) => {
       );
     }
 
-    // Salva as alterações no utilizador
     await utilizador.save();
 
     res.status(200).json({
@@ -669,12 +639,10 @@ const getUser = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Verifica se o ID do utilizador é válido
     if (!userId || isNaN(userId)) {
       return res.status(400).json({ message: "ID de utilizador inválido" });
     }
 
-    // Busca o utilizador pelo ID
     const utilizador = await Utilizador.findByPk(userId, {
       attributes: [
         "ID_UTILIZADOR",
@@ -704,7 +672,7 @@ const getUser = async (req, res) => {
 
     res.status(200).json(utilizador);
   } catch (error) {
-    console.error("Erro ao buscar utilizador:", error);
+    console.error("Erro ao procurar utilizador:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -713,7 +681,6 @@ const getUserStatistics = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Verifica se o ID do utilizador é válido
     if (!userId || isNaN(userId)) {
       return res.status(400).json({ message: "ID de utilizador inválido" });
     }
@@ -722,13 +689,11 @@ const getUserStatistics = async (req, res) => {
       utilizador,
       cursosSincronosInscritos,
       cursosAssincronosInscritos,
-      avaliacaoFinal, //nota final
+      avaliacaoFinal,
       respostasQuizzes,
     ] = await Promise.all([
-      // Buscar o utilizador
       Utilizador.findByPk(userId),
 
-      // Buscar cursos síncronos inscritos
       InscricaoSincrono.findAll({
         where: { ID_UTILIZADOR: userId },
         include: [
@@ -744,7 +709,6 @@ const getUserStatistics = async (req, res) => {
         ],
       }),
 
-      // Buscar cursos assíncronos inscritos
       InscricaoAssincrono.findAll({
         where: { ID_UTILIZADOR: userId },
         include: [
@@ -780,12 +744,10 @@ const getUserStatistics = async (req, res) => {
       return res.status(404).json({ message: "Utilizador não encontrado" });
     }
 
-    // ✅ Calcular nota média unificada (escala 0-20)
     let notaMediaCompleta = 0;
     let totalAvaliacoes = 0;
     let somaNotas = 0;
 
-    // Somar Notas Finais (já em escala 0-20)
     if (avaliacaoFinal.length > 0) {
       const somaDasNotas = avaliacaoFinal.reduce(
         (soma, submissao) => soma + parseFloat(submissao.NOTA_FINAL),
@@ -795,7 +757,6 @@ const getUserStatistics = async (req, res) => {
       totalAvaliacoes += avaliacaoFinal.length;
     }
 
-    // Somar quizzes (converter de 0-100 para 0-20)
     if (respostasQuizzes.length > 0) {
       const somaQuizzesConvertida = respostasQuizzes.reduce(
         (soma, resposta) => {
@@ -845,13 +806,11 @@ const getUserStatistics = async (req, res) => {
         RespostaQuizAssincrono,
       } = require("../models/index.js");
 
-      // Para cada curso, verificar completude
       for (const cursoId of cursosIds) {
         console.log(
           `Verificando completude do curso ${cursoId} para usuário ${userId}...`
         );
 
-        // 1. Verificar módulos
         const totalModulos = await Modulos.count({
           where: { ID_CURSO: cursoId },
         });
@@ -864,15 +823,13 @@ const getUserStatistics = async (req, res) => {
           },
         });
 
-        // 2. Verificar quiz (se existir)
         const quiz = await QuizAssincrono.findOne({
           where: { ID_CURSO: cursoId, ATIVO: true },
         });
 
-        let quizCompleto = true; // Se não tiver quiz, considera completo
+        let quizCompleto = true;
 
         if (quiz) {
-          // Se tiver quiz, verifica se foi completado
           const respostaQuiz = await RespostaQuizAssincrono.findOne({
             where: {
               ID_UTILIZADOR: userId,
@@ -880,14 +837,13 @@ const getUserStatistics = async (req, res) => {
             },
           });
 
-          quizCompleto = !!respostaQuiz; // Converter para booleano
+          quizCompleto = !!respostaQuiz;
 
           console.log(
             `Curso ${cursoId}: Quiz ${quiz.ID_QUIZ} ${quizCompleto ? "completado" : "não completado"}`
           );
         }
 
-        // Se todos os módulos estão completos E o quiz (se existir) também está completo
         if (
           totalModulos > 0 &&
           modulosCompletos === totalModulos &&
@@ -905,7 +861,6 @@ const getUserStatistics = async (req, res) => {
       }
     }
 
-    // Total de cursos
     const totalCursos =
       cursosSincronosInscritos.length + cursosAssincronosInscritos.length;
 
@@ -965,7 +920,7 @@ const getUserStatistics = async (req, res) => {
 
     res.status(200).json(estatisticas);
   } catch (error) {
-    console.error("Erro ao buscar estatísticas do utilizador:", error);
+    console.error("Erro ao procurar estatísticas do utilizador:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -1002,11 +957,11 @@ const addXPToUserInternal = async (
 };
 
 const XP_VALUES = {
-  MODULO_COMPLETO: 10, // XP por completar um módulo
-  CURSO_COMPLETO: 50, // XP bônus por completar curso inteiro
-  NOTA_EXCELENTE: 25, // XP bônus por nota >= 18
-  NOTA_BOA: 15, // XP bônus por nota >= 15
-  NOTA_SATISFATORIA: 5, // XP bônus por nota >= 10
+  MODULO_COMPLETO: 10,
+  CURSO_COMPLETO: 50,
+  NOTA_EXCELENTE: 25,
+  NOTA_BOA: 15,
+  NOTA_SATISFATORIA: 5,
 };
 
 const completeModule = async (req, res) => {
@@ -1018,7 +973,6 @@ const completeModule = async (req, res) => {
       `Tentando completar módulo ${moduloId} do curso ${cursoId} para utilizador ${userId}`
     );
 
-    // Verificar se o módulo existe
     const modulo = await Modulos.findOne({
       where: {
         ID_MODULO: moduloId,
@@ -1033,7 +987,6 @@ const completeModule = async (req, res) => {
       });
     }
 
-    // Verificar se já existe progresso para este módulo
     const { ProgressoModulo } = require("../models/index.js");
     let progressoExistente = await ProgressoModulo.findOne({
       where: {
@@ -1052,7 +1005,6 @@ const completeModule = async (req, res) => {
         jaCompleto = true;
         console.log(`Módulo ${moduloId} já estava completo`);
       } else {
-        // Marcar como completo
         await progressoExistente.update({
           COMPLETO: true,
           DATA_COMPLETO: new Date(),
@@ -1061,7 +1013,6 @@ const completeModule = async (req, res) => {
         console.log(`Módulo ${moduloId} marcado como completo`);
       }
     } else {
-      // Criar novo registo de progresso
       await ProgressoModulo.create({
         ID_UTILIZADOR: userId,
         ID_CURSO: cursoId,
@@ -1073,7 +1024,6 @@ const completeModule = async (req, res) => {
       console.log(`Novo progresso criado para módulo ${moduloId}`);
     }
 
-    // Verificar se completou o curso inteiro (só se não estava já completo)
     if (!jaCompleto) {
       const totalModulos = await Modulos.count({
         where: { ID_CURSO: cursoId },
@@ -1100,7 +1050,6 @@ const completeModule = async (req, res) => {
       }
     }
 
-    // Atualizar XP do utilizador
     let resultadoXP = null;
     if (xpGanho > 0) {
       const reason = cursoCompleto
@@ -1134,15 +1083,13 @@ const updateEvaluationGrade = async (req, res) => {
     const { submissaoId, nota } = req.body;
     const professorId = req.user.ID_UTILIZADOR;
 
-    // Verificar se o utilizador é um professor
     const isProfessor = await UtilizadorTemPerfil.findOne({
       where: {
         ID_UTILIZADOR: professorId,
-        ID_PERFIL: { [Op.in]: [2, 3] }, // ID do perfil de formador
+        ID_PERFIL: { [Op.in]: [2, 3] },
       },
     });
 
-    // Buscar a submissão
     const { SubmissaoAvaliacao } = require("../models/index.js");
     const submissao = await SubmissaoAvaliacao.findByPk(submissaoId);
 
@@ -1156,13 +1103,11 @@ const updateEvaluationGrade = async (req, res) => {
     const notaAnterior = submissao.NOTA;
     const notaNumerica = parseFloat(nota);
 
-    // Atualizar a nota
     await submissao.update({
       NOTA: notaNumerica,
       DATA_AVALIACAO: new Date(),
     });
 
-    // Calcular XP por nota (só se não tinha nota antes)
     let xpGanho = 0;
     if (notaAnterior === null) {
       if (notaNumerica >= 18) {
@@ -1176,7 +1121,6 @@ const updateEvaluationGrade = async (req, res) => {
         console.log(`Nota satisfatória (${notaNumerica}/20)! ${xpGanho} XP`);
       }
 
-      // Dar XP ao utilizador
       if (xpGanho > 0) {
         const resultadoXP = await addXPToUserInternal(
           submissao.ID_UTILIZADOR,
@@ -1220,17 +1164,15 @@ const getNotaMediaCompleta = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // 1. Buscar notas de trabalhos (avaliações síncronas)
     const { SubmissaoAvaliacao } = require("../models/index.js");
     const submissoesTrabalhos = await SubmissaoAvaliacao.findAll({
       where: {
         ID_UTILIZADOR: userId,
-        NOTA: { [Op.ne]: null }, // Só submissões que já foram avaliadas
+        NOTA: { [Op.ne]: null },
       },
       attributes: ["NOTA"],
     });
 
-    // 2. Buscar notas de quizzes
     const { RespostaQuizAssincrono } = require("../models/index.js");
     const respostasQuizzes = await RespostaQuizAssincrono.findAll({
       where: {
@@ -1239,24 +1181,20 @@ const getNotaMediaCompleta = async (req, res) => {
       attributes: ["NOTA"],
     });
 
-    // 3. Calcular nota média geral
     let notaMediaGeral = 0;
     let totalAvaliacoes = 0;
     let somaNotas = 0;
 
-    // Somar notas dos trabalhos (escala 0-20)
     if (submissoesTrabalhos.length > 0) {
       const somaTrabalhos = submissoesTrabalhos.reduce(
         (soma, submissao) => soma + parseFloat(submissao.NOTA),
         0
       );
 
-      // Adicionar diretamente a soma dos trabalhos
       somaNotas += somaTrabalhos;
       totalAvaliacoes += submissoesTrabalhos.length;
     }
 
-    // Somar notas dos quizzes (escala 0-20)
     if (respostasQuizzes.length > 0) {
       const somaQuizzesConvertida = respostasQuizzes.reduce(
         (soma, resposta) => {
@@ -1270,12 +1208,10 @@ const getNotaMediaCompleta = async (req, res) => {
       totalAvaliacoes += respostasQuizzes.length;
     }
 
-    // Calcular média geral na escala 0-20
     if (totalAvaliacoes > 0) {
       notaMediaGeral = somaNotas / totalAvaliacoes;
     }
 
-    // 4. Calcular estatísticas detalhadas
     const estatisticas = {
       notaMediaGeral: parseFloat(notaMediaGeral.toFixed(1)),
       totalAvaliacoes: totalAvaliacoes,
@@ -1326,11 +1262,10 @@ const addTeacher = async (req, res) => {
     const adminId = req.user.ID_UTILIZADOR;
     const { NOME, EMAIL } = req.body;
 
-    // Verificar se é gestor
     const userIsAdmin = await UtilizadorTemPerfil.findOne({
       where: {
         ID_UTILIZADOR: adminId,
-        ID_PERFIL: 3, // ID do perfil de gestor
+        ID_PERFIL: 3,
       },
     });
 
@@ -1340,14 +1275,12 @@ const addTeacher = async (req, res) => {
       });
     }
 
-    // Validações
     if (!NOME || !EMAIL) {
       return res.status(400).json({
         message: "Nome e email são obrigatórios",
       });
     }
 
-    // Verificar se o email já existe
     const emailExistente = await Utilizador.findOne({
       where: { EMAIL: EMAIL },
     });
@@ -1358,14 +1291,12 @@ const addTeacher = async (req, res) => {
       });
     }
 
-    // Gerar dados do utilizador
-    const USERNAME = EMAIL.split("@")[0]; // Username baseado no email
-    const PASSWORD = crypto.randomBytes(12).toString("hex"); // Password aleatória
+    const USERNAME = EMAIL.split("@")[0];
+    const PASSWORD = crypto.randomBytes(12).toString("hex");
     const hashedPassword = await bcrypt.hash(PASSWORD, 10);
     const verificationToken = Math.floor(100000 + Math.random() * 900000);
-    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Criar utilizador
     const utilizador = await Utilizador.create({
       USERNAME: USERNAME,
       NOME: NOME,
@@ -1379,13 +1310,11 @@ const addTeacher = async (req, res) => {
       DATA_CRIACAO: new Date(),
     });
 
-    // Associar perfil de formador (ID_PERFIL = 2)
     await UtilizadorTemPerfil.create({
       ID_UTILIZADOR: utilizador.ID_UTILIZADOR,
-      ID_PERFIL: 2, // Formador
+      ID_PERFIL: 2,
     });
 
-    // Enviar email de boas-vindas específico para formadores
     await EmailFormadorNovo(
       utilizador.USERNAME,
       utilizador.NOME,
@@ -1418,11 +1347,10 @@ const getNotaMediaAvaliacoesFinais = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // Buscar todas as avaliações finais do utilizador
     const { AvaliacaoFinalSincrona } = require("../models/index.js");
     const avaliacoesFinais = await AvaliacaoFinalSincrona.findAll({
       where: {
-        UTI_ID_UTILIZADOR2: userId, // Aluno é UTI_ID_UTILIZADOR2
+        UTI_ID_UTILIZADOR2: userId,
       },
       attributes: ["NOTA_FINAL", "DATA_AVALIACAO"],
     });
@@ -1447,7 +1375,7 @@ const getNotaMediaAvaliacoesFinais = async (req, res) => {
 
     res.status(200).json(estatisticas);
   } catch (error) {
-    console.error("Erro ao buscar nota média das avaliações finais:", error);
+    console.error("Erro ao procurar nota média das avaliações finais:", error);
     res.status(500).json({ message: error.message });
   }
 };

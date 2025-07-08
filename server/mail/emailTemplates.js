@@ -957,7 +957,6 @@ const COURSE_TEACHER_CHANGE_EMAIL_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// Template para alteração de datas
 const COURSE_DATE_CHANGE_EMAIL_TEMPLATE = `<!DOCTYPE html>
 <html lang="pt-PT">
 <head>
@@ -1228,7 +1227,6 @@ const COURSE_LINK_CHANGE_EMAIL_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// Template para novo conteúdo adicionado
 const COURSE_NEW_CONTENT_EMAIL_TEMPLATE = `<!DOCTYPE html>
 <html lang="pt-PT">
 <head>

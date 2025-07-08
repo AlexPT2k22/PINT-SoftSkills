@@ -15,7 +15,7 @@ const getNotasPorModulo = async (req, res) => {
 
     res.status(200).json(notas);
   } catch (error) {
-    console.error("Error fetching notes:", error);
+    console.error("Erro:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -34,7 +34,7 @@ const criarNota = async (req, res) => {
 
     res.status(201).json(novaNota);
   } catch (error) {
-    console.error("Error creating note:", error);
+    console.error("Erro:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -53,7 +53,7 @@ const atualizarNota = async (req, res) => {
     });
 
     if (!nota) {
-      return res.status(404).json({ message: "Note not found" });
+      return res.status(404).json({ message: "Nota não encontrada" });
     }
 
     nota.CONTEUDO = content;
@@ -62,7 +62,7 @@ const atualizarNota = async (req, res) => {
 
     res.status(200).json(nota);
   } catch (error) {
-    console.error("Error updating note:", error);
+    console.error("Erro a atualizar a nota:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -80,12 +80,12 @@ const apagarNota = async (req, res) => {
     });
 
     if (result === 0) {
-      return res.status(404).json({ message: "Note not found" });
+      return res.status(404).json({ message: "Nota não encontrada" });
     }
 
-    res.status(200).json({ message: "Note deleted successfully" });
+    res.status(200).json({ message: "Note apagada" });
   } catch (error) {
-    console.error("Error deleting note:", error);
+    console.error("Erro:", error);
     res.status(500).json({ message: error.message });
   }
 };

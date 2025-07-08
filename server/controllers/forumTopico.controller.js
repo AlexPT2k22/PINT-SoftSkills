@@ -9,7 +9,6 @@ const {
 } = require("../models/index.js");
 const { Op } = require("sequelize");
 
-// Listar todos os tópicos do fórum por categoria/área/tópico
 const getTopicosForum = async (req, res) => {
   try {
     const { categoriaId, areaId, topicoId, page = 1, limit = 10 } = req.query;
@@ -74,13 +73,11 @@ const getTopicosForum = async (req, res) => {
   }
 };
 
-// Criar novo tópico do fórum (apenas gestores)
 const createTopicoForum = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { categoriaId, areaId, topicoId, titulo, descricao } = req.body;
 
-    // Verificar se é gestor
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -92,14 +89,12 @@ const createTopicoForum = async (req, res) => {
       });
     }
 
-    // ✅ CORREÇÃO: Verificar apenas se já existe tópico com o MESMO TÍTULO
-    // Permitir múltiplos tópicos de fórum para a mesma categoria/área/tópico
     const topicoExistente = await ForumTopico.findOne({
       where: {
         ID_CATEGORIA: categoriaId,
         ID_AREA: areaId,
         ID_TOPICO: topicoId,
-        TITULO: titulo, // ✅ MANTER: Verificar pelo título
+        TITULO: titulo,
         ESTADO: "Ativo",
       },
     });
@@ -121,7 +116,6 @@ const createTopicoForum = async (req, res) => {
       DESCRICAO: descricao,
     });
 
-    // Buscar o tópico criado com as relações
     const topicoCompleto = await ForumTopico.findByPk(
       novoTopico.ID_FORUM_TOPICO,
       {
@@ -161,7 +155,6 @@ const createTopicoForum = async (req, res) => {
   }
 };
 
-// Buscar um tópico específico
 const getTopicoForumById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -209,7 +202,6 @@ const getTopicoForumById = async (req, res) => {
   }
 };
 
-// Atualizar contadores do tópico
 const updateTopicoCounters = async (topicoId) => {
   try {
     const totalPosts = await ForumPost.count({

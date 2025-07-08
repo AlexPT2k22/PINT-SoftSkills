@@ -7,7 +7,6 @@ const {
 } = require("../models/index.js");
 const { Op } = require("sequelize");
 
-// Criar uma nova aula
 const createAula = async (req, res) => {
   try {
     const {
@@ -33,7 +32,6 @@ const createAula = async (req, res) => {
       ESTADO: "Agendada",
     });
 
-    // Encontrar todos os alunos inscritos no curso para criar registros de presença
     const inscricoes = await InscricaoSincrono.findAll({
       where: {
         ID_CURSO_SINCRONO: ID_CURSO,
@@ -41,7 +39,6 @@ const createAula = async (req, res) => {
       attributes: ["ID_UTILIZADOR"],
     });
 
-    // Criar registros de presença para cada aluno inscrito
     if (inscricoes.length > 0) {
       const presencas = inscricoes.map((inscricao) => ({
         ID_AULA: aula.ID_AULA,
@@ -59,7 +56,6 @@ const createAula = async (req, res) => {
   }
 };
 
-// Obter aulas de um curso
 const getAulasByCurso = async (req, res) => {
   try {
     const { cursoId } = req.params;
@@ -80,12 +76,11 @@ const getAulasByCurso = async (req, res) => {
 
     res.status(200).json(aulas);
   } catch (error) {
-    console.error("Erro ao buscar aulas:", error);
+    console.error("Erro ao procurar aulas:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Atualizar estado de uma aula
 const updateAulaStatus = async (req, res) => {
   try {
     const { aulaId } = req.params;
@@ -108,7 +103,6 @@ const updateAulaStatus = async (req, res) => {
   }
 };
 
-// Registrar presença
 const marcarPresenca = async (req, res) => {
   try {
     const { aulaId } = req.params;
@@ -142,7 +136,6 @@ const marcarPresenca = async (req, res) => {
   }
 };
 
-// Obter lista de presença para uma aula
 const getListaPresenca = async (req, res) => {
   try {
     const { aulaId } = req.params;
@@ -159,7 +152,7 @@ const getListaPresenca = async (req, res) => {
 
     res.status(200).json(presencas);
   } catch (error) {
-    console.error("Erro ao buscar lista de presença:", error);
+    console.error("Erro ao procurar lista de presença:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -192,7 +185,7 @@ const getAllAulasSincronas = async (req, res) => {
 
     res.status(200).json(aulas);
   } catch (error) {
-    console.error("Erro ao buscar todas as aulas síncronas:", error);
+    console.error("Erro ao procurar todas as aulas síncronas:", error);
     res.status(500).json({ message: error.message });
   }
 };

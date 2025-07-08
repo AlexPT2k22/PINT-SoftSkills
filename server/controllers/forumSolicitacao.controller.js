@@ -8,7 +8,6 @@ const {
   UtilizadorTemPerfil,
 } = require("../models/index.js");
 
-// Criar solicitação de tópico
 const criarSolicitacao = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -60,7 +59,6 @@ const criarSolicitacao = async (req, res) => {
       JUSTIFICATIVA: justificativa,
     });
 
-    // Buscar solicitação completa
     const solicitacaoCompleta = await ForumSolicitacao.findByPk(
       novaSolicitacao.ID_FORUM_SOLICITACAO,
       {
@@ -101,13 +99,11 @@ const criarSolicitacao = async (req, res) => {
   }
 };
 
-// Listar solicitações (gestores veem todas, usuários veem apenas as suas)
 const listarSolicitacoes = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { estado, page = 1, limit = 10 } = req.query;
 
-    // Verificar se é gestor
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -179,14 +175,12 @@ const listarSolicitacoes = async (req, res) => {
   }
 };
 
-// Responder solicitação (apenas gestores)
 const responderSolicitacao = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { solicitacaoId } = req.params;
-    const { decisao, resposta, dadosTopico } = req.body; // decisao: "Aprovado" ou "Rejeitado"
+    const { decisao, resposta, dadosTopico } = req.body;
 
-    // Verificar se é gestor
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -214,7 +208,6 @@ const responderSolicitacao = async (req, res) => {
       });
     }
 
-    // Atualizar solicitação
     await solicitacao.update({
       ESTADO: decisao,
       ID_GESTOR_RESPOSTA: userId,
@@ -222,7 +215,6 @@ const responderSolicitacao = async (req, res) => {
       DATA_RESPOSTA: new Date(),
     });
 
-    // Se aprovado, criar o tópico do fórum
     if (decisao === "Aprovado" && dadosTopico) {
       await ForumTopico.create({
         ID_CATEGORIA: solicitacao.ID_CATEGORIA,

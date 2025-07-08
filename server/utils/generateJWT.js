@@ -14,7 +14,7 @@ function generateJWT(res, user) {
     httpOnly: true,
     secure: true,
     sameSite: "None",
-    maxAge: 3600000 * 4, // 4 hour in milliseconds
+    maxAge: 3600000 * 4, // 4 horas
   });
 
   return token;

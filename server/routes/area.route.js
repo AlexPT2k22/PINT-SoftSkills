@@ -7,7 +7,6 @@ const {
   deleteArea,
 } = require("../controllers/area.controller.js");
 
-// /api/areas/*
 router.get("/", getAreas);
 router.post("/", addArea);
 router.put("/:ID_AREA", updateArea);

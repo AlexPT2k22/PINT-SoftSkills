@@ -5,7 +5,6 @@ const getCursoProgresso = async (req, res) => {
     const userId = req.user.ID_UTILIZADOR;
     const { courseId } = req.params;
 
-    // Calcular progresso do curso
     const totalModulos = await Modulos.count({
       where: { ID_CURSO: courseId },
     });
@@ -18,7 +17,6 @@ const getCursoProgresso = async (req, res) => {
       },
     });
 
-    // Calcular percentual de progresso
     const percentualProgresso =
       totalModulos > 0
         ? Math.round((modulosCompletos / totalModulos) * 100)
@@ -31,7 +29,7 @@ const getCursoProgresso = async (req, res) => {
       totalModulos,
     });
   } catch (error) {
-    console.error("Erro ao buscar progresso do curso:", error);
+    console.error("Erro ao procurar progresso do curso:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -44,7 +42,6 @@ const getModulosProgresso = async (req, res) => {
     const userId = req.user.ID_UTILIZADOR;
     const { courseId } = req.params;
 
-    // Buscar todos os módulos do curso
     const modulos = await Modulos.findAll({
       where: { ID_CURSO: courseId },
       attributes: ["ID_MODULO", "NOME"],
@@ -58,7 +55,6 @@ const getModulosProgresso = async (req, res) => {
       });
     }
 
-    // Buscar registros de progresso para este usuário e curso
     const progressos = await ProgressoModulo.findAll({
       where: {
         ID_UTILIZADOR: userId,
@@ -68,7 +64,6 @@ const getModulosProgresso = async (req, res) => {
       attributes: ["ID_MODULO", "DATA_COMPLETO"],
     });
 
-    // Criar mapa de IDs de módulos completos
     const modulosCompletosMap = {};
     progressos.forEach((progresso) => {
       modulosCompletosMap[progresso.ID_MODULO] = {
@@ -77,7 +72,6 @@ const getModulosProgresso = async (req, res) => {
       };
     });
 
-    // Preparar resultado com status de cada módulo
     const resultado = modulos.map((modulo) => ({
       id: modulo.ID_MODULO,
       nome: modulo.NOME,
@@ -85,7 +79,6 @@ const getModulosProgresso = async (req, res) => {
       dataCompleto: modulosCompletosMap[modulo.ID_MODULO]?.dataCompleto || null,
     }));
 
-    // Calcular estatísticas gerais
     const totalModulos = modulos.length;
     const modulosCompletos = progressos.length;
     const percentualProgresso = Math.round(
@@ -100,7 +93,7 @@ const getModulosProgresso = async (req, res) => {
       totalModulos,
     });
   } catch (error) {
-    console.error("Erro ao buscar progresso dos módulos:", error);
+    console.error("Erro ao procurar progresso dos módulos:", error);
     res.status(500).json({
       success: false,
       message: error.message,

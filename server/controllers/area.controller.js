@@ -15,7 +15,7 @@ const getAreas = async (req, res) => {
     });
     res.status(200).json(areas);
   } catch (error) {
-    console.error("Erro ao buscar as áreas:", error);
+    console.error("Erro ao procurar as áreas:", error);
     res.status(500).json({ message: error.message });
   }
 };

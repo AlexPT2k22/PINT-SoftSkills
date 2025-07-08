@@ -10,7 +10,7 @@ const {
 } = require("../models/index.js");
 const { Op } = require("sequelize");
 
-// Criar quiz para curso assíncrono
+
 const createQuiz = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -23,9 +23,9 @@ const createQuiz = async (req, res) => {
       NOTA_MINIMA,
     } = req.body;
 
-    // Verificar se é gestor
+    
     const userProfile = await UtilizadorTemPerfil.findOne({
-      where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 }, // 3 = Gestor
+      where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 }, 
     });
 
     if (!userProfile) {
@@ -34,7 +34,7 @@ const createQuiz = async (req, res) => {
       });
     }
 
-    // Verificar se o curso existe e é assíncrono
+    
     const curso = await Curso.findByPk(ID_CURSO, {
       include: [{ model: CursoAssincrono }],
     });
@@ -47,7 +47,7 @@ const createQuiz = async (req, res) => {
       });
     }
 
-    // Verificar se já existe um quiz para este curso
+    
     const quizExistente = await QuizAssincrono.findOne({
       where: { ID_CURSO },
     });
@@ -58,14 +58,14 @@ const createQuiz = async (req, res) => {
       });
     }
 
-    // Validar perguntas
+    
     if (!Array.isArray(PERGUNTAS) || PERGUNTAS.length === 0) {
       return res.status(400).json({
         message: "É necessário adicionar pelo menos uma pergunta",
       });
     }
 
-    // Validar formato das perguntas
+    
     const perguntasValidas = PERGUNTAS.every(
       (pergunta) =>
         pergunta.pergunta &&
@@ -87,7 +87,7 @@ const createQuiz = async (req, res) => {
       DESCRICAO,
       PERGUNTAS,
       TEMPO_LIMITE_MIN: TEMPO_LIMITE_MIN || 30,
-      NOTA_MINIMA: (NOTA_MINIMA * 100) / 20 || 50, // Convertendo para escala de 0 a 100
+      NOTA_MINIMA: (NOTA_MINIMA * 100) / 20 || 50, 
       CRIADO_POR: userId,
     });
 
@@ -102,7 +102,7 @@ const createQuiz = async (req, res) => {
   }
 };
 
-// Obter quiz de um curso
+
 const getQuizByCurso = async (req, res) => {
   try {
     const { cursoId } = req.params;
@@ -139,12 +139,12 @@ const getQuizByCurso = async (req, res) => {
       quiz,
     });
   } catch (error) {
-    console.error("Erro ao buscar quiz:", error);
+    console.error("Erro ao procurar quiz:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Atualizar quiz
+
 const updateQuiz = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -158,7 +158,7 @@ const updateQuiz = async (req, res) => {
       ATIVO,
     } = req.body;
 
-    // Verificar se é gestor
+    
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -176,7 +176,7 @@ const updateQuiz = async (req, res) => {
       });
     }
 
-    // Validar perguntas se fornecidas
+    
     if (PERGUNTAS) {
       if (!Array.isArray(PERGUNTAS) || PERGUNTAS.length === 0) {
         return res.status(400).json({
@@ -220,14 +220,14 @@ const updateQuiz = async (req, res) => {
   }
 };
 
-// Submeter resposta ao quiz
+
 const submitQuizResponse = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { quizId } = req.params;
     const { RESPOSTAS, TEMPO_GASTO_MIN } = req.body;
 
-    // Verificar se o quiz existe
+    
     const quiz = await QuizAssincrono.findByPk(quizId);
     if (!quiz || !quiz.ATIVO) {
       return res.status(404).json({
@@ -235,7 +235,7 @@ const submitQuizResponse = async (req, res) => {
       });
     }
 
-    // Verificar se o usuário está inscrito no curso
+    
     const cursoAssincrono = await CursoAssincrono.findOne({
       where: { ID_CURSO: quiz.ID_CURSO },
     });
@@ -255,7 +255,7 @@ const submitQuizResponse = async (req, res) => {
       }
     }
 
-    // Verificar se já respondeu
+    
     const respostaExistente = await RespostaQuizAssincrono.findOne({
       where: { ID_QUIZ: quizId, ID_UTILIZADOR: userId },
     });
@@ -266,7 +266,7 @@ const submitQuizResponse = async (req, res) => {
       });
     }
 
-    // Calcular nota
+    
     const perguntas = quiz.PERGUNTAS;
     let acertos = 0;
 
@@ -281,7 +281,7 @@ const submitQuizResponse = async (req, res) => {
 
     const nota = (acertos / perguntas.length) * 100;
 
-    // Salvar resposta
+    
     const resposta = await RespostaQuizAssincrono.create({
       ID_QUIZ: quizId,
       ID_UTILIZADOR: userId,
@@ -290,7 +290,7 @@ const submitQuizResponse = async (req, res) => {
       TEMPO_GASTO_MIN: TEMPO_GASTO_MIN || null,
     });
 
-    // Verificar se passou
+    
     const passou = nota >= quiz.NOTA_MINIMA;
 
     res.status(201).json({
@@ -310,7 +310,7 @@ const submitQuizResponse = async (req, res) => {
   }
 };
 
-// Obter resultado do quiz do usuário
+
 const getUserQuizResult = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -345,18 +345,18 @@ const getUserQuizResult = async (req, res) => {
       notaMinima: resposta.QuizAssincrono.NOTA_MINIMA,
     });
   } catch (error) {
-    console.error("Erro ao buscar resultado:", error);
+    console.error("Erro ao procurar resultado:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Obter estatísticas do quiz (para gestores)
+
 const getQuizStats = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { quizId } = req.params;
 
-    // Verificar se é gestor
+    
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -419,18 +419,18 @@ const getQuizStats = async (req, res) => {
 
     res.status(200).json(stats);
   } catch (error) {
-    console.error("Erro ao buscar estatísticas:", error);
+    console.error("Erro ao procurar estatísticas:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Deletar quiz
+
 const deleteQuiz = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { quizId } = req.params;
 
-    // Verificar se é gestor
+    
     const userProfile = await UtilizadorTemPerfil.findOne({
       where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
     });
@@ -448,12 +448,12 @@ const deleteQuiz = async (req, res) => {
       });
     }
 
-    // Deletar respostas primeiro
+    
     await RespostaQuizAssincrono.destroy({
       where: { ID_QUIZ: quizId },
     });
 
-    // Deletar quiz
+    
     await quiz.destroy();
 
     res.status(200).json({
@@ -470,7 +470,7 @@ const getProximosQuizzes = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // Buscar cursos assíncronos em que o usuário está inscrito
+    
     const inscricoes = await InscricaoAssincrono.findAll({
       where: { ID_UTILIZADOR: userId },
       attributes: ["ID_CURSO_ASSINCRONO"],
@@ -482,7 +482,7 @@ const getProximosQuizzes = async (req, res) => {
       (insc) => insc.ID_CURSO_ASSINCRONO
     );
 
-    // Buscar cursos assíncronos com seus respectivos cursos base
+    
     const cursosAssincronos = await CursoAssincrono.findAll({
       where: {
         ID_CURSO_ASSINCRONO: { [Op.in]: cursoAssincronoIds },
@@ -509,7 +509,7 @@ const getProximosQuizzes = async (req, res) => {
 
     const cursoIds = cursosAssincronos.map((ca) => ca.ID_CURSO);
 
-    // Buscar quizzes ativos desses cursos
+    
     const quizzes = await QuizAssincrono.findAll({
       where: {
         ID_CURSO: { [Op.in]: cursoIds },
@@ -531,15 +531,15 @@ const getProximosQuizzes = async (req, res) => {
       order: [["DATA_CRIACAO", "ASC"]],
     });
 
-    // Filtrar apenas quizzes não respondidos ou que o usuário pode refazer
+    
     const quizzesPendentes = quizzes.filter((quiz) => {
-      // Se não tem respostas, está pendente
+      
       return quiz.RESPOSTAS.length === 0;
     });
 
     res.status(200).json(quizzesPendentes);
   } catch (error) {
-    console.error("Erro ao buscar próximos quizzes:", error);
+    console.error("Erro ao procurar próximos quizzes:", error);
     res.status(500).json({ message: error.message });
   }
 };

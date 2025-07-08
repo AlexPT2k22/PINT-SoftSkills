@@ -23,12 +23,10 @@ const {
 } = require("../models/index.js");
 const { Op } = require("sequelize");
 
-// Obter o percurso formativo completo do formando atual
 const getMeuPercursoFormativo = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
 
-    // Obter dados básicos do utilizador
     const utilizador = await Utilizador.findByPk(userId, {
       attributes: [
         "ID_UTILIZADOR",
@@ -47,7 +45,6 @@ const getMeuPercursoFormativo = async (req, res) => {
       });
     }
 
-    // 1. Cursos síncronos em que o formando está inscrito
     const inscricoesSincronas = await InscricaoSincrono.findAll({
       where: { ID_UTILIZADOR: userId },
       include: [
@@ -80,7 +77,7 @@ const getMeuPercursoFormativo = async (req, res) => {
               ],
             },
             {
-              model: Utilizador, // Formador
+              model: Utilizador,
               attributes: ["NOME", "USERNAME"],
             },
           ],
@@ -89,7 +86,6 @@ const getMeuPercursoFormativo = async (req, res) => {
       order: [["DATA_INSCRICAO", "DESC"]],
     });
 
-    // 2. Cursos assíncronos em que o formando está inscrito
     const inscricoesAssincronas = await InscricaoAssincrono.findAll({
       where: { ID_UTILIZADOR: userId },
       include: [
@@ -127,14 +123,12 @@ const getMeuPercursoFormativo = async (req, res) => {
       order: [["DATA_INSCRICAO", "DESC"]],
     });
 
-    // 3. Processar cursos síncronos com dados detalhados
     const cursosSincronos = await Promise.all(
       inscricoesSincronas.map(async (inscricao) => {
         const curso = inscricao.CURSO_SINCRONO.CURSO;
         const cursoId = curso.ID_CURSO;
         const cursoSincrono = inscricao.CURSO_SINCRONO;
 
-        // Obter módulos e calcular duração total
         const modulos = await Modulos.findAll({
           where: { ID_CURSO: cursoId },
           attributes: ["ID_MODULO", "NOME", "TEMPO_ESTIMADO_MIN", "DESCRICAO"],
@@ -145,7 +139,6 @@ const getMeuPercursoFormativo = async (req, res) => {
           0
         );
 
-        // Progressos nos módulos
         const progressos = await ProgressoModulo.findAll({
           where: {
             ID_UTILIZADOR: userId,
@@ -160,7 +153,6 @@ const getMeuPercursoFormativo = async (req, res) => {
             ? Math.round((modulosCompletos / totalModulos) * 100)
             : 0;
 
-        // Informações de aulas e presenças
         const aulas = await AulaSincrona.findAll({
           where: { ID_CURSO: cursoId },
           include: [
@@ -177,12 +169,10 @@ const getMeuPercursoFormativo = async (req, res) => {
           aula.PRESENCA_AULAs?.some((p) => p.PRESENTE)
         ).length;
 
-        // Calcular horas de presença
         let horasPresenca = 0;
         aulas.forEach((aula) => {
           const presente = aula.PRESENCA_AULAs?.some((p) => p.PRESENTE);
           if (presente && aula.HORA_INICIO && aula.HORA_FIM) {
-            // Converter HORA_INICIO e HORA_FIM para minutos
             const [horaInicio, minutoInicio] =
               aula.HORA_INICIO.split(":").map(Number);
             const [horaFim, minutoFim] = aula.HORA_FIM.split(":").map(Number);
@@ -190,7 +180,6 @@ const getMeuPercursoFormativo = async (req, res) => {
             const minutosInicio = horaInicio * 60 + minutoInicio;
             const minutosFim = horaFim * 60 + minutoFim;
 
-            // Calcular duração da aula em horas
             const duracaoMinutos = minutosFim - minutosInicio;
             const duracaoHoras = duracaoMinutos / 60;
 
@@ -198,13 +187,11 @@ const getMeuPercursoFormativo = async (req, res) => {
           }
         });
 
-        // Arredondar para 1 casa decimal
         horasPresenca = parseFloat(horasPresenca.toFixed(1));
 
         const percentualPresenca =
           aulas.length > 0 ? Math.round((presencas / aulas.length) * 100) : 0;
 
-        // Informações de avaliações
         const avaliacoesSincronas = await AvaliacaoSincrona.findAll({
           where: { ID_CURSO: cursoId },
           include: [
@@ -237,27 +224,22 @@ const getMeuPercursoFormativo = async (req, res) => {
           notaMedia = notaMedia / submissoesAvaliadas;
         }
 
-        // Buscar avaliação final (nota final do formador)
         const avaliacaoFinal = await AvaliacaoFinalSincrona.findOne({
           where: {
-            UTI_ID_UTILIZADOR: cursoSincrono.ID_UTILIZADOR, // Formador
-            UTI_ID_UTILIZADOR2: userId, // Aluno
+            UTI_ID_UTILIZADOR: cursoSincrono.ID_UTILIZADOR,
+            UTI_ID_UTILIZADOR2: userId,
           },
         });
 
         const notaFinal = avaliacaoFinal ? avaliacaoFinal.NOTA_FINAL : 0;
 
-        // Verificar se possui certificado
         const certificado = await Certificado.findOne({
           where: { ID_UTILIZADOR: userId, ID_CURSO: cursoId },
         });
 
-        // Determinar elegibilidade para certificado
         const podeReceberCertificado = () => {
-          // Deve ter completado 100% dos módulos
           if (percentualConcluido < 100) return false;
 
-          // Para cursos síncronos: deve ter completado todas as avaliações
           if (avaliacoesCompletas < avaliacoesSincronas.length) return false;
 
           if (notaFinal < 9.5) return false;
@@ -265,7 +247,6 @@ const getMeuPercursoFormativo = async (req, res) => {
           return true;
         };
 
-        // Determinar estado do curso
         const hoje = new Date();
         const dataInicio = new Date(cursoSincrono.DATA_INICIO);
         const dataFim = new Date(cursoSincrono.DATA_FIM);
@@ -314,7 +295,7 @@ const getMeuPercursoFormativo = async (req, res) => {
           certificadoCodigo: certificado?.CODIGO_VERIFICACAO || null,
           vagas: cursoSincrono.VAGAS,
           elegiveParaCertificado: podeReceberCertificado(),
-          // Detalhes específicos das aulas
+
           aulasDetalhes: aulas.map((aula) => ({
             id: aula.ID_AULA,
             data: aula.DATA_AULA,
@@ -326,14 +307,12 @@ const getMeuPercursoFormativo = async (req, res) => {
       })
     );
 
-    // 4. Processar cursos assíncronos com dados detalhados
     const cursosAssincronos = await Promise.all(
       inscricoesAssincronas.map(async (inscricao) => {
         const curso = inscricao.CURSO_ASSINCRONO.CURSO;
         const cursoId = curso.ID_CURSO;
         const cursoAssincrono = inscricao.CURSO_ASSINCRONO;
 
-        // Obter módulos e calcular duração total
         const modulos = await Modulos.findAll({
           where: { ID_CURSO: cursoId },
           attributes: ["ID_MODULO", "NOME", "TEMPO_ESTIMADO_MIN", "DESCRICAO"],
@@ -344,7 +323,6 @@ const getMeuPercursoFormativo = async (req, res) => {
           0
         );
 
-        // Progressos nos módulos
         const progressos = await ProgressoModulo.findAll({
           where: {
             ID_UTILIZADOR: userId,
@@ -359,7 +337,6 @@ const getMeuPercursoFormativo = async (req, res) => {
             ? Math.round((modulosCompletos / totalModulos) * 100)
             : 0;
 
-        // Informações de quizzes
         const quizzes = await QuizAssincrono.findAll({
           where: { ID_CURSO: cursoId },
           include: [
@@ -391,12 +368,10 @@ const getMeuPercursoFormativo = async (req, res) => {
           notaMedia = notaMedia / quizzesRespondidos;
         }
 
-        // Verificar se possui certificado
         const certificado = await Certificado.findOne({
           where: { ID_UTILIZADOR: userId, ID_CURSO: cursoId },
         });
 
-        // Determinar estado baseado no progresso
         let estado;
         if (percentualConcluido === 0) {
           estado = "Não iniciado";
@@ -406,12 +381,9 @@ const getMeuPercursoFormativo = async (req, res) => {
           estado = "Em andamento";
         }
 
-        // Determinar elegibilidade para certificado
         const podeReceberCertificado = () => {
-          // Deve ter completado 100% dos módulos
           if (percentualConcluido < 100) return false;
 
-          // Para cursos assíncronos: deve ter respondido todos os quizzes
           if (quizzesRespondidos < quizzes.length) return false;
 
           if (notaMedia < 47.5) return false;
@@ -444,7 +416,7 @@ const getMeuPercursoFormativo = async (req, res) => {
           hasCertificado: !!certificado,
           certificadoCodigo: certificado?.CODIGO_VERIFICACAO || null,
           elegiveParaCertificado: podeReceberCertificado(),
-          // Detalhes específicos dos módulos
+
           modulosDetalhes: modulos.map((modulo, index) => {
             const progresso = progressos.find(
               (p) => p.ID_MODULO === modulo.ID_MODULO
@@ -462,7 +434,6 @@ const getMeuPercursoFormativo = async (req, res) => {
       })
     );
 
-    // 5. Estatísticas gerais
     const totalCursos = cursosSincronos.length + cursosAssincronos.length;
     const cursosCompletos = [...cursosSincronos, ...cursosAssincronos].filter(
       (curso) => curso.percentualConcluido === 100
@@ -479,13 +450,11 @@ const getMeuPercursoFormativo = async (req, res) => {
       (curso) => curso.hasCertificado
     ).length;
 
-    // Calcular horas de presença total (só cursos síncronos)
     const totalHorasPresenca = cursosSincronos.reduce(
       (total, curso) => total + (curso.horasPresenca || 0),
       0
     );
 
-    // Calcular nota média geral
     const cursosComNota = [...cursosSincronos, ...cursosAssincronos].filter(
       (curso) => curso.notaMedia > 0
     );
@@ -495,7 +464,6 @@ const getMeuPercursoFormativo = async (req, res) => {
           cursosComNota.length
         : 0;
 
-    // 6. Preparar resposta
     const resultado = {
       success: true,
       utilizador: {
@@ -519,7 +487,7 @@ const getMeuPercursoFormativo = async (req, res) => {
           totalCursos > 0
             ? Math.round((cursosCompletos / totalCursos) * 100)
             : 0,
-        // Estatísticas por tipo
+
         estatisticasPorTipo: {
           sincronos: {
             total: cursosSincronos.length,
@@ -554,7 +522,7 @@ const getMeuPercursoFormativo = async (req, res) => {
 
     res.status(200).json(resultado);
   } catch (error) {
-    console.error("Erro ao buscar percurso formativo:", error);
+    console.error("Erro ao procurar percurso formativo:", error);
     res.status(500).json({
       success: false,
       message: "Erro ao obter percurso formativo",
@@ -562,13 +530,11 @@ const getMeuPercursoFormativo = async (req, res) => {
   }
 };
 
-// Obter detalhes específicos de um curso do percurso
 const getDetalhesCursoPercurso = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { cursoId } = req.params;
 
-    // Verificar se o utilizador está inscrito no curso
     const [inscricaoSincrona, inscricaoAssincrona] = await Promise.all([
       InscricaoSincrono.findOne({
         where: { ID_UTILIZADOR: userId },
@@ -638,12 +604,10 @@ const getDetalhesCursoPercurso = async (req, res) => {
       });
     }
 
-    // Buscar progresso detalhado
     const progressos = await ProgressoModulo.findAll({
       where: { ID_UTILIZADOR: userId, ID_CURSO: cursoId },
     });
 
-    // Buscar certificado
     const certificado = await Certificado.findOne({
       where: { ID_UTILIZADOR: userId, ID_CURSO: cursoId },
     });
@@ -651,7 +615,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
     let detalhesEspecificos = {};
 
     if (inscricaoSincrona) {
-      // Detalhes específicos para curso síncrono
       const aulas = await AulaSincrona.findAll({
         where: { ID_CURSO: cursoId },
         include: [
@@ -694,7 +657,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
         })),
       };
     } else {
-      // Detalhes específicos para curso assíncrono
       const quizzes = await QuizAssincrono.findAll({
         where: { ID_CURSO: cursoId },
         include: [
@@ -767,7 +729,7 @@ const getDetalhesCursoPercurso = async (req, res) => {
 
     res.status(200).json(resultado);
   } catch (error) {
-    console.error("Erro ao buscar detalhes do curso:", error);
+    console.error("Erro ao procurar detalhes do curso:", error);
     res.status(500).json({
       success: false,
       message: "Erro ao obter detalhes do curso",

@@ -21,9 +21,7 @@ const {
 } = require("../controllers/user.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
-// rota para /user/*
 router.get("/", authenticateToken, getUsers);
-
 router.post("/complete-module", authenticateToken, completeModule);
 router.post(
   "/update-evaluation-grade",

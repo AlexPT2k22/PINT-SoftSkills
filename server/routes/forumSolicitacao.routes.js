@@ -7,7 +7,6 @@ const {
 } = require("../controllers/forumSolicitacao.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
 
-// Rotas autenticadas
 router.post("/", authenticateToken, criarSolicitacao);
 router.get("/", authenticateToken, listarSolicitacoes);
 router.put("/:solicitacaoId/responder", authenticateToken, responderSolicitacao);

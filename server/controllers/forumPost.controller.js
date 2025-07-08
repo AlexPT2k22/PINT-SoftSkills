@@ -8,30 +8,32 @@ const { updateTopicoCounters } = require("./forumTopico.controller.js");
 const { supabaseAdmin } = require("../database/supabase.js");
 const multer = require("multer");
 const { Op } = require("sequelize");
-const crypto = require('crypto');
+const crypto = require("crypto");
 
-// Configuração do multer para usar memory storage
 const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
-  limits: { 
-    fileSize: 10 * 1024 * 1024, // 10MB
-    files: 5 // Máximo 5 arquivos
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 5,
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|ppt|pptx|xlsx/;
-    const extname = allowedTypes.test(
-      file.originalname.toLowerCase()
-    );
+    const extname = allowedTypes.test(file.originalname.toLowerCase());
     const allowedMimeTypes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
-      'application/pdf', 'application/msword', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain', 'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/plain",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ];
 
     if (extname && allowedMimeTypes.includes(file.mimetype)) {
@@ -42,64 +44,55 @@ const upload = multer({
   },
 });
 
-// Função para upload de arquivo para Supabase
 const uploadToSupabase = async (file, userId) => {
   try {
-    // Gerar nome único para o arquivo
-    const fileExtension = file.originalname.split('.').pop();
+    const fileExtension = file.originalname.split(".").pop();
     const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
     const filePath = `forum-attachments/${userId}/${fileName}`;
 
-    // Upload do arquivo
     const { data, error } = await supabaseAdmin.storage
-      .from('forum-files')
+      .from("forum-files")
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
-        upsert: false
+        upsert: false,
       });
 
     if (error) {
-      console.error('Supabase upload error:', error);
+      console.error("Supabase upload error:", error);
       throw error;
     }
 
-    console.log(`File uploaded successfully: ${data.path}`);
-
-    // Obter URL pública
     const { data: publicUrlData } = supabaseAdmin.storage
-      .from('forum-files')
+      .from("forum-files")
       .getPublicUrl(data.path);
 
     return {
       path: data.path,
       publicUrl: publicUrlData.publicUrl,
-      fileName: fileName
+      fileName: fileName,
     };
-
   } catch (error) {
-    console.error('❌ Error uploading to Supabase:', error);
+    console.error("Error uploading to Supabase:", error);
     throw error;
   }
 };
 
-// Função para deletar arquivo do Supabase
 const deleteFromSupabase = async (filePath) => {
   try {
     const { error } = await supabaseAdmin.storage
-      .from('forum-files')
+      .from("forum-files")
       .remove([filePath]);
 
     if (error) {
-      console.warn('⚠️ Warning deleting file from Supabase:', error);
+      console.warn("Warning deleting file from Supabase:", error);
     } else {
-      console.log(`🗑️ File deleted from Supabase: ${filePath}`);
+      console.log(`File deleted from Supabase: ${filePath}`);
     }
   } catch (error) {
-    console.warn('⚠️ Warning deleting file from Supabase:', error);
+    console.warn("Warning deleting file from Supabase:", error);
   }
 };
 
-// Listar posts de um tópico
 const getPostsByTopico = async (req, res) => {
   try {
     const { topicoId } = req.params;
@@ -129,20 +122,16 @@ const getPostsByTopico = async (req, res) => {
       offset: offset,
     });
 
-    // Processar posts para incluir informações de avaliação do usuário atual
     const postsProcessados = posts.map((post) => {
       const postJson = post.toJSON();
 
-      // Anexos como array
       postJson.ANEXOS = postJson.ANEXOS ? JSON.parse(postJson.ANEXOS) : [];
 
-      // Avaliação do usuário atual
       const userAvaliacao = postJson.FORUM_AVALIACAOs?.find(
         (av) => av.ID_UTILIZADOR === userId
       );
       postJson.userAvaliacao = userAvaliacao?.TIPO || null;
 
-      // Remover array de avaliações detalhadas
       delete postJson.FORUM_AVALIACAOs;
 
       return postJson;
@@ -159,7 +148,7 @@ const getPostsByTopico = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro ao buscar posts:", error);
+    console.error("Erro ao procurar posts:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -167,19 +156,11 @@ const getPostsByTopico = async (req, res) => {
   }
 };
 
-// Criar novo post
 const createPost = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { topicoId, conteudo } = req.body;
 
-    console.log('📝 Creating new forum post...', {
-      userId,
-      topicoId,
-      filesCount: req.files?.length || 0
-    });
-
-    // Verificar se o tópico existe e está ativo
     const topico = await ForumTopico.findOne({
       where: { ID_FORUM_TOPICO: topicoId, ESTADO: "Ativo" },
     });
@@ -191,20 +172,18 @@ const createPost = async (req, res) => {
       });
     }
 
-    // Processar anexos se existirem
     let anexos = [];
     const uploadedFiles = [];
 
     if (req.files && req.files.length > 0) {
-
       for (const file of req.files) {
         try {
           const uploadResult = await uploadToSupabase(file, userId);
-          
+
           const anexoData = {
             nome: file.originalname,
             url: uploadResult.publicUrl,
-            path: uploadResult.path, // Para poder deletar depois
+            path: uploadResult.path,
             tipo: file.mimetype,
             tamanho: file.size,
           };
@@ -213,12 +192,11 @@ const createPost = async (req, res) => {
           uploadedFiles.push(uploadResult);
         } catch (error) {
           console.error(`❌ Error uploading ${file.originalname}:`, error);
-          
-          // Cleanup files já uploaded em caso de erro
+
           for (const uploaded of uploadedFiles) {
             await deleteFromSupabase(uploaded.path);
           }
-          
+
           return res.status(500).json({
             success: false,
             message: `Erro ao fazer upload do arquivo ${file.originalname}`,
@@ -227,7 +205,6 @@ const createPost = async (req, res) => {
       }
     }
 
-    // Criar o post
     const novoPost = await ForumPost.create({
       ID_FORUM_TOPICO: topicoId,
       ID_UTILIZADOR: userId,
@@ -235,10 +212,8 @@ const createPost = async (req, res) => {
       ANEXOS: anexos.length > 0 ? JSON.stringify(anexos) : null,
     });
 
-    // Atualizar contadores do tópico
     await updateTopicoCounters(topicoId);
 
-    // Buscar o post criado com as relações
     const postCompleto = await ForumPost.findByPk(novoPost.ID_FORUM_POST, {
       include: [
         {
@@ -257,7 +232,6 @@ const createPost = async (req, res) => {
       post: postJson,
       message: "Post criado com sucesso",
     });
-
   } catch (error) {
     console.error("❌ Erro ao criar post:", error);
     res.status(500).json({
@@ -267,7 +241,6 @@ const createPost = async (req, res) => {
   }
 };
 
-// Editar post
 const updatePost = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -283,7 +256,6 @@ const updatePost = async (req, res) => {
       });
     }
 
-    // Verificar se o usuário é o autor do post
     if (post.ID_UTILIZADOR !== userId) {
       return res.status(403).json({
         success: false,
@@ -310,7 +282,6 @@ const updatePost = async (req, res) => {
   }
 };
 
-// Deletar post
 const deletePost = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
@@ -325,7 +296,6 @@ const deletePost = async (req, res) => {
       });
     }
 
-    // Verificar se o usuário é o autor do post
     if (post.ID_UTILIZADOR !== userId) {
       return res.status(403).json({
         success: false,
@@ -333,28 +303,23 @@ const deletePost = async (req, res) => {
       });
     }
 
-    // Deletar anexos do Supabase se existirem
     if (post.ANEXOS) {
       try {
         const anexos = JSON.parse(post.ANEXOS);
-        console.log(`🗑️ Deleting ${anexos.length} attachments from Supabase...`);
-        
+
         for (const anexo of anexos) {
           if (anexo.path) {
             await deleteFromSupabase(anexo.path);
           }
         }
       } catch (error) {
-        console.warn('⚠️ Error parsing or deleting attachments:', error);
+        console.warn("⚠️ Error parsing or deleting attachments:", error);
       }
     }
 
     await post.update({ ESTADO: "Removido" });
 
-    // Atualizar contadores do tópico
     await updateTopicoCounters(post.ID_FORUM_TOPICO);
-
-    console.log(`✅ Forum post deleted: ${postId}`);
 
     res.status(200).json({
       success: true,
@@ -382,7 +347,7 @@ const getAllPostsForum = async (req, res) => {
       posts,
     });
   } catch (error) {
-    console.error("Erro ao buscar posts:", error);
+    console.error("Erro ao procurar posts:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",

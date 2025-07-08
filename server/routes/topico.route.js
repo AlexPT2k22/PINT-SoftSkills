@@ -3,7 +3,6 @@ const router = express.Router();
 const topicoController = require("../controllers/topico.controller");
 const { authenticateToken } = require("../middlewares/authmiddleware");
 
-// Get all topics
 router.get("/", topicoController.getAllTopicos);
 router.get("/by-area/:areaId", topicoController.getTopicosByArea);
 router.post("/", authenticateToken, topicoController.createTopico);

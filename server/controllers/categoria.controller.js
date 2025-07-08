@@ -1,6 +1,5 @@
 const { Categoria, Area } = require("../models/index.js");
 
-// Get all categories with their areas
 const getCategoriasWithAreas = async (req, res) => {
   try {
     const categorias = await Categoria.findAll({
@@ -15,7 +14,7 @@ const getCategoriasWithAreas = async (req, res) => {
 
     res.status(200).json(categorias);
   } catch (error) {
-    console.error("Erro ao buscar categorias:", error);
+    console.error("Erro ao procurar categorias:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -28,7 +27,7 @@ const getCategorias = async (req, res) => {
 
     res.status(200).json(categorias);
   } catch (error) {
-    console.error("Erro ao buscar categorias:", error);
+    console.error("Erro ao procurar categorias:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -43,7 +42,6 @@ const createCategoria = async (req, res) => {
         .json({ message: "Nome é obrigatório" });
     }
 
-    // Check if the category already exists
     const existingCategoria = await Categoria.findOne({
       where: { NOME__: NOME__ },
     });

@@ -1,14 +1,12 @@
 const { ForumAvaliacao, ForumPost, Utilizador } = require("../models/index.js");
 const { Op } = require("sequelize");
 
-// Avaliar post (like/dislike)
 const avaliarPost = async (req, res) => {
   try {
     const userId = req.user.ID_UTILIZADOR;
     const { postId } = req.params;
-    const { tipo } = req.body; // "LIKE", "DISLIKE" ou null
+    const { tipo } = req.body;
 
-    // Validação do tipo
     if (tipo !== null && !["LIKE", "DISLIKE"].includes(tipo)) {
       return res.status(400).json({
         success: false,
@@ -16,7 +14,6 @@ const avaliarPost = async (req, res) => {
       });
     }
 
-    // Verificar se o post existe
     const post = await ForumPost.findByPk(postId, {
       attributes: ["ID_FORUM_POST", "ID_UTILIZADOR", "ESTADO"],
     });
@@ -28,7 +25,6 @@ const avaliarPost = async (req, res) => {
       });
     }
 
-    // Verificar se o post está ativo
     if (!["Ativo", "Editado"].includes(post.ESTADO)) {
       return res.status(400).json({
         success: false,
@@ -36,7 +32,6 @@ const avaliarPost = async (req, res) => {
       });
     }
 
-    // Buscar avaliação existente
     const avaliacaoExistente = await ForumAvaliacao.findOne({
       where: {
         ID_FORUM_POST: postId,
@@ -47,7 +42,6 @@ const avaliarPost = async (req, res) => {
     let action, message;
 
     if (tipo === null) {
-      // Remover avaliação se existir
       if (avaliacaoExistente) {
         await avaliacaoExistente.destroy();
         action = "removed";
@@ -58,18 +52,15 @@ const avaliarPost = async (req, res) => {
       }
     } else if (avaliacaoExistente) {
       if (avaliacaoExistente.TIPO === tipo) {
-        // Remover se for a mesma avaliação
         await avaliacaoExistente.destroy();
         action = "removed";
         message = `${tipo.toLowerCase()} removido`;
       } else {
-        // Atualizar se for diferente
         await avaliacaoExistente.update({ TIPO: tipo });
         action = "updated";
         message = `Avaliação alterada para ${tipo.toLowerCase()}`;
       }
     } else {
-      // Criar nova avaliação
       await ForumAvaliacao.create({
         ID_FORUM_POST: postId,
         ID_UTILIZADOR: userId,
@@ -79,15 +70,12 @@ const avaliarPost = async (req, res) => {
       message = `${tipo.toLowerCase()} adicionado`;
     }
 
-    // Atualizar contadores
     await atualizarContadoresPost(postId);
 
-    // Buscar contadores atualizados
     const postAtualizado = await ForumPost.findByPk(postId, {
       attributes: ["TOTAL_LIKES", "TOTAL_DISLIKES"],
     });
 
-    // Determinar o tipo final da avaliação do usuário
     const avaliacaoFinal = await ForumAvaliacao.findOne({
       where: {
         ID_FORUM_POST: postId,
@@ -115,7 +103,6 @@ const avaliarPost = async (req, res) => {
   }
 };
 
-// Função para atualizar contadores de likes/dislikes
 const atualizarContadoresPost = async (postId) => {
   try {
     const totalLikes = await ForumAvaliacao.count({
@@ -138,7 +125,6 @@ const atualizarContadoresPost = async (postId) => {
   }
 };
 
-// Obter avaliações de um post
 const getAvaliacoesPost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -165,7 +151,7 @@ const getAvaliacoesPost = async (req, res) => {
       ...resumo,
     });
   } catch (error) {
-    console.error("Erro ao buscar avaliações:", error);
+    console.error("Erro ao procurar avaliações:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",

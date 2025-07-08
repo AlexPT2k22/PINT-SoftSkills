@@ -1,12 +1,10 @@
 const { CursoAssincrono, CursoSincrono } = require("../models/index.js");
 const { Op } = require("sequelize");
 
-// Função para atualizar status de cursos assíncronos
 const updateAsyncCoursesStatus = async () => {
   try {
     const today = new Date();
 
-    // Courses that should start today - change to "Em curso"
     await CursoAssincrono.update(
       { ESTADO: "Em curso" },
       {
@@ -18,7 +16,6 @@ const updateAsyncCoursesStatus = async () => {
       }
     );
 
-    // Courses that have ended - change to "Terminado"
     await CursoAssincrono.update(
       { ESTADO: "Terminado" },
       {
@@ -29,7 +26,6 @@ const updateAsyncCoursesStatus = async () => {
       }
     );
 
-    // Future courses that are "Inativo" should be activated
     await CursoAssincrono.update(
       { ESTADO: "Ativo" },
       {
@@ -46,12 +42,10 @@ const updateAsyncCoursesStatus = async () => {
   }
 };
 
-// Função para atualizar status de cursos síncronos
 const updateSyncCoursesStatus = async () => {
   try {
     const today = new Date();
 
-    // mudar para "Em curso"
     await CursoSincrono.update(
       { ESTADO: "Em curso" },
       {
@@ -63,7 +57,6 @@ const updateSyncCoursesStatus = async () => {
       }
     );
 
-    // mudar para "Terminado"
     await CursoSincrono.update(
       { ESTADO: "Terminado" },
       {

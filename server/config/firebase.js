@@ -1,7 +1,6 @@
 const admin = require('firebase-admin');
 require('dotenv').config();
 
-// Verificar se já foi inicializado
 if (!admin.apps.length) {
   const serviceAccount = {
     type: "service_account",

@@ -9,7 +9,6 @@ const {
 } = require("../models");
 const { Op } = require("sequelize");
 
-// Get all topics
 const getAllTopicos = async (req, res) => {
   try {
     const topicos = await Topico.findAll({
@@ -28,7 +27,6 @@ const getAllTopicos = async (req, res) => {
   }
 };
 
-// Get topics by area
 const getTopicosByArea = async (req, res) => {
   try {
     const { areaId } = req.params;
@@ -43,7 +41,6 @@ const getTopicosByArea = async (req, res) => {
   }
 };
 
-// Create new topic
 const createTopico = async (req, res) => {
   try {
     const user = req.user;
@@ -51,7 +48,6 @@ const createTopico = async (req, res) => {
 
     console.log("User from token:", user);
 
-    // Check if the user has the required role
     const userPerfil = await UtilizadorTemPerfil.findOne({
       where: {
         ID_UTILIZADOR: user.ID_UTILIZADOR,
@@ -97,7 +93,6 @@ const createTopico = async (req, res) => {
   }
 };
 
-// Update topic
 const updateTopico = async (req, res) => {
   try {
     const { id } = req.params;
@@ -131,7 +126,6 @@ const updateTopico = async (req, res) => {
   }
 };
 
-// Delete topic
 const deleteTopico = async (req, res) => {
   try {
     const { id } = req.params;
@@ -141,9 +135,6 @@ const deleteTopico = async (req, res) => {
     if (!topico) {
       return res.status(404).json({ message: "Tópico não encontrado" });
     }
-
-    // Check if the topic is associated with any courses, by area
-    //FIXME: This is a placeholder for the actual logic to check associations
 
     await topico.destroy();
     res.json({ message: "Tópico excluído com sucesso" });

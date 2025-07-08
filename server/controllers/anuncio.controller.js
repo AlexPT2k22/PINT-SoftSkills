@@ -6,7 +6,6 @@ const {
 } = require("../models/index.js");
 const { notifyAllEnrolled } = require("./notificacao.controller.js");
 
-// Buscar anúncios de um curso
 const getAnunciosByCurso = async (req, res) => {
   try {
     const { cursoId } = req.params;
@@ -40,7 +39,7 @@ const getAnunciosByCurso = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro ao buscar anúncios:", error);
+    console.error("Erro ao procurar anúncios:", error);
     res.status(500).json({
       success: false,
       message: "Erro interno do servidor",
@@ -106,7 +105,6 @@ const createAnuncio = async (req, res) => {
   }
 };
 
-// Editar anúncio
 const updateAnuncio = async (req, res) => {
   const { anuncioId } = req.params;
   const { titulo, conteudo } = req.body;
@@ -120,7 +118,6 @@ const updateAnuncio = async (req, res) => {
   }
 
   try {
-    // Verificar se o anúncio existe
     const anuncio = await Anuncio.findByPk(anuncioId);
     if (!anuncio) {
       return res.status(404).json({
@@ -129,9 +126,7 @@ const updateAnuncio = async (req, res) => {
       });
     }
 
-    // Verificar se o usuário é o autor do anúncio
     if (anuncio.ID_UTILIZADOR !== userId) {
-      // Ou se é gestor
       const userProfile = await UtilizadorTemPerfil.findOne({
         where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
       });
@@ -144,7 +139,6 @@ const updateAnuncio = async (req, res) => {
       }
     }
 
-    // Atualizar anúncio
     await anuncio.update({
       TITULO: titulo,
       CONTEUDO: conteudo,
@@ -163,13 +157,11 @@ const updateAnuncio = async (req, res) => {
   }
 };
 
-// Excluir anúncio
 const deleteAnuncio = async (req, res) => {
   const { anuncioId } = req.params;
   const userId = req.user.ID_UTILIZADOR;
 
   try {
-    // Verificar se o anúncio existe
     const anuncio = await Anuncio.findByPk(anuncioId);
     if (!anuncio) {
       return res.status(404).json({
@@ -178,9 +170,7 @@ const deleteAnuncio = async (req, res) => {
       });
     }
 
-    // Verificar se o usuário é o autor do anúncio
     if (anuncio.ID_UTILIZADOR !== userId) {
-      // Ou se é gestor
       const userProfile = await UtilizadorTemPerfil.findOne({
         where: { ID_UTILIZADOR: userId, ID_PERFIL: 3 },
       });
@@ -193,7 +183,6 @@ const deleteAnuncio = async (req, res) => {
       }
     }
 
-    // Excluir anúncio
     await anuncio.destroy();
 
     res.status(200).json({

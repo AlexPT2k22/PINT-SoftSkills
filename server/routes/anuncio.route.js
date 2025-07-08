@@ -6,11 +6,9 @@ const {
   deleteAnuncio,
 } = require("../controllers/anuncio.controller.js");
 const { authenticateToken } = require("../middlewares/authmiddleware.js");
-
 const router = express.Router();
 
-router.use(authenticateToken); // todas as rotas necessitam token
-
+router.use(authenticateToken);
 router.get("/curso/:cursoId", getAnunciosByCurso);
 router.post("/", createAnuncio);
 router.put("/:anuncioId", updateAnuncio);

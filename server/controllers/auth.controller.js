@@ -214,7 +214,7 @@ const linkedINLogin = async (req, res) => {
     const lastName = userProfile.family_name;
     //console.log("Username:", username);
     //console.log("Email:", email);
-    console.log(userProfile);
+    //console.log(userProfile);
     //console.log(`Primeiro nome: ${firstName}`);
     //console.log(`Ultimo nome: ${lastName}`);
 
@@ -230,15 +230,13 @@ const linkedINLogin = async (req, res) => {
       },
     });
     if (userExist) {
-      console.log(`Sucesso`);
+      //console.log(`Sucesso`);
       //console.log(userExist);
       return res.redirect(`${URL}/api/dashboard?username=${LinkedinUsername}`);
     } else {
       //return res.status(401).json({ error: "User não existe" });
       const password = crypto.randomBytes(16).toString("hex");
       const hashedPassword = await bcrypt.hash(password, 10);
-      console.log(password);
-      console.log(hashedPassword);
       const user = await User.create({
         username: LinkedinUsername,
         email: email,

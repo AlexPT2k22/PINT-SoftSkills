@@ -1,17 +1,14 @@
 const { PresencaAula } = require("../models/index.js");
 
-// Registrar múltiplas presenças de uma vez
 const registrarPresencasEmMassa = async (req, res) => {
   try {
     const { aulaId } = req.params;
     const { presencas } = req.body;
 
-    // Processar cada presença do array
     const resultados = [];
     for (const item of presencas) {
       const { ID_UTILIZADOR, PRESENTE } = item;
 
-      // Verificar se já existe registro para este aluno nesta aula
       let presenca = await PresencaAula.findOne({
         where: {
           ID_AULA: aulaId,

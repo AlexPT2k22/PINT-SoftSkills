@@ -8,7 +8,6 @@ const {
 } = require("../controllers/adminStats.controller.js");
 const {authenticateToken} = require("../middlewares/authmiddleware.js");
 
-// Rotas para estatísticas administrativas
 router.get("/general", authenticateToken, getGeneralStats);
 router.get("/percurso-formativo", authenticateToken, getPercursoFormativo);
 router.get("/cursos", authenticateToken, getCursosStats);
