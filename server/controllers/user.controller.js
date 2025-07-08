@@ -941,17 +941,13 @@ const addXPToUserInternal = async (
     const novoXP = xpAtual + parseInt(xpAmount);
 
     await utilizador.update({ XP: novoXP });
-
-    console.log(
-      `✅ ${xpAmount} XP adicionado ao utilizador ${userId}: ${xpAtual} → ${novoXP} (${reason})`
-    );
     return {
       xpAnterior: xpAtual,
       xpNovo: novoXP,
       xpAdicionado: parseInt(xpAmount),
     };
   } catch (error) {
-    console.error("❌ Erro ao adicionar XP:", error);
+    console.error("Erro ao adicionar XP:", error);
     return false;
   }
 };
@@ -968,10 +964,6 @@ const completeModule = async (req, res) => {
   try {
     const userId = req.user?.ID_UTILIZADOR || req.body.userId;
     const { cursoId, moduloId } = req.body;
-
-    console.log(
-      `Tentando completar módulo ${moduloId} do curso ${cursoId} para utilizador ${userId}`
-    );
 
     const modulo = await Modulos.findOne({
       where: {

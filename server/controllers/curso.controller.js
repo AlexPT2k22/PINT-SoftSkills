@@ -2166,10 +2166,9 @@ const deleteCurso = async (req, res) => {
     if (curso.IMAGEM_PUBLIC_ID) {
       try {
         await cloudinary.uploader.destroy(curso.IMAGEM_PUBLIC_ID);
-        console.log(`Deleted course image: ${curso.IMAGEM_PUBLIC_ID}`);
       } catch (err) {
         console.warn(
-          `Failed to delete course image: ${curso.IMAGEM_PUBLIC_ID}`,
+          `Nao foi possivel apagar a imagem: ${curso.IMAGEM_PUBLIC_ID}`,
           err
         );
       }
@@ -2184,7 +2183,6 @@ const deleteCurso = async (req, res) => {
               await cloudinary.uploader.destroy(publicId, {
                 resource_type: "video",
               });
-              console.log(`Deleted module video: ${publicId}`);
             }
           } catch (err) {
             console.warn(
@@ -2323,7 +2321,6 @@ async function deleteFile(fileUrl) {
       const fullPath = path.join(__dirname, "..", "public", localPath);
       if (fs.existsSync(fullPath)) {
         fs.unlinkSync(fullPath);
-        console.log(`Deleted local file: ${fullPath}`);
       }
     }
   } else if (fileUrl.includes("cloudinary")) {
@@ -2338,7 +2335,6 @@ async function deleteFile(fileUrl) {
           console.warn(`Failed to delete Cloudinary asset: ${publicId}`);
         }
       }
-      console.log(`Deleted Cloudinary file: ${publicId}`);
     }
   }
 }

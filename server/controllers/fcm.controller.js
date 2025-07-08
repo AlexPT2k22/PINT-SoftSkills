@@ -242,7 +242,6 @@ const cleanupOldTokens = async (req, res) => {
       }
     });
 
-    console.log(`${deletedCount} tokens FCM antigos removidos`);
 
     res.status(200).json({
       success: true,

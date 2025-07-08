@@ -285,7 +285,6 @@ const submeterTrabalho = async (req, res) => {
             );
             if (fs.existsSync(localPath)) {
               fs.unlinkSync(localPath);
-              console.log(`Deleted old local file: ${localPath}`);
             }
           }
         } catch (error) {
