@@ -595,8 +595,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
       ],
     });
 
-    console.log(curso);
-
     if (!curso) {
       return res.status(404).json({
         success: false,
@@ -638,7 +636,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
         ],
       });
 
-      // Calcular nota média das avaliações síncronas
       let notaMedia = 0;
       let submissoesAvaliadas = 0;
 
@@ -656,7 +653,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
         notaMedia = notaMedia / submissoesAvaliadas;
       }
 
-      // Obter nota final
       const cursoSincrono = inscricaoSincrona.CURSO_SINCRONO;
       const avaliacaoFinal = await AvaliacaoFinalSincrona.findOne({
         where: {
@@ -667,7 +663,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
 
       const notaFinal = avaliacaoFinal ? avaliacaoFinal.NOTA_FINAL : 0;
 
-      // Calculate eligibility for synchronous course
       const percentualConcluido =
         curso.MODULOS?.length > 0
           ? Math.round(
@@ -724,7 +719,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
         ],
       });
 
-      // Calcular nota média dos quizzes assíncronos
       let notaMedia = 0;
       let quizzesRespondidos = 0;
 
@@ -744,7 +738,6 @@ const getDetalhesCursoPercurso = async (req, res) => {
         notaMedia = notaMedia / quizzesRespondidos;
       }
 
-      // Calculate eligibility for asynchronous course
       const percentualConcluido =
         curso.MODULOS?.length > 0
           ? Math.round(
