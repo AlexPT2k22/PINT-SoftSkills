@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+ProjetoAI2 - PV26465/
 
 client/node_modules
 server/node_modules
