@@ -476,14 +476,16 @@ const MeuPercurso = () => {
                       )}
                       {(() => {
                         const notaMinima = 9.5;
-                        const notaAtual = curso.tipo === "Síncrono" ? curso.notaFinal : parseFloat(
-                          formatarNota(curso.notaMedia)
-                        );
+                        const notaAtual =
+                          curso.tipo === "Síncrono"
+                            ? curso.notaFinal
+                            : (curso.notaMedia * 20) / 100;
                         return (
                           (isNaN(notaAtual) || notaAtual < notaMinima) && (
                             <li>
                               Obter nota média mínima de {notaMinima} valores
-                              (atual: {notaAtual || 0}/20 valores)
+                              (atual: {notaAtual ? notaAtual.toFixed(1) : 0}/20
+                              valores)
                             </li>
                           )
                         );
@@ -521,8 +523,7 @@ const MeuPercurso = () => {
 
   const formatarNota = (nota) => {
     if (!nota || nota === 0) return "N/A";
-    const notaConvertida = (nota * 20) / 100;
-    return notaConvertida.toFixed(1);
+    return parseFloat(nota).toFixed(1);
   };
 
   const formatarHoras = (minutos) => {
@@ -1183,7 +1184,10 @@ const MeuPercurso = () => {
                                     <span className="detail-value">
                                       {curso.notaMedia > 0 ? (
                                         <span className="d-flex align-items-center">
-                                          {formatarNota(curso.notaMedia)}{" "}
+                                          {(
+                                            (curso.notaMedia * 20) /
+                                            100
+                                          ).toFixed(1)}{" "}
                                           valores
                                         </span>
                                       ) : (
@@ -1229,15 +1233,17 @@ const MeuPercurso = () => {
                                           (() => {
                                             let temPendencias = false;
                                             let motivoPendencia = "";
-                                            const notaMinima = 9.5;
-                                            const notaAtual =
-                                              curso.tipo === "Síncrono"
-                                                ? curso.notaFinal
-                                                : parseFloat(
-                                                    formatarNota(
-                                                      curso.notaMedia
-                                                    )
-                                                  );
+
+                                            let notaAtual, notaMinima;
+
+                                            if (curso.tipo === "Síncrono") {
+                                              notaAtual = curso.notaFinal;
+                                              notaMinima = 9.5;
+                                            } else {
+                                              notaAtual =
+                                                (curso.notaMedia * 20) / 100;
+                                              notaMinima = 9.5;
+                                            }
 
                                             if (
                                               isNaN(notaAtual) ||
@@ -1245,7 +1251,9 @@ const MeuPercurso = () => {
                                             ) {
                                               temPendencias = true;
                                               motivoPendencia = `Nota média insuficiente (${
-                                                notaAtual || 0
+                                                notaAtual
+                                                  ? notaAtual.toFixed(1)
+                                                  : 0
                                               }/20 valores - mínimo: ${notaMinima})`;
                                             }
 

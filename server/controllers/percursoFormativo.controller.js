@@ -638,8 +638,39 @@ const getDetalhesCursoPercurso = async (req, res) => {
         ],
       });
 
+      // Calcular nota média das avaliações síncronas
+      let notaMedia = 0;
+      let submissoesAvaliadas = 0;
+
+      avaliacoes.forEach((avaliacao) => {
+        const submissoes = avaliacao.SUBMISSAO_AVALIACAOs || [];
+        submissoes.forEach((submissao) => {
+          if (submissao.NOTA !== null) {
+            notaMedia += submissao.NOTA;
+            submissoesAvaliadas++;
+          }
+        });
+      });
+
+      if (submissoesAvaliadas > 0) {
+        notaMedia = notaMedia / submissoesAvaliadas;
+      }
+
+      // Obter nota final
+      const cursoSincrono = inscricaoSincrona.CURSO_SINCRONO;
+      const avaliacaoFinal = await AvaliacaoFinalSincrona.findOne({
+        where: {
+          UTI_ID_UTILIZADOR: cursoSincrono.ID_UTILIZADOR,
+          UTI_ID_UTILIZADOR2: userId,
+        },
+      });
+
+      const notaFinal = avaliacaoFinal ? avaliacaoFinal.NOTA_FINAL : 0;
+
       detalhesEspecificos = {
         tipo: "Síncrono",
+        notaMedia: parseFloat(notaMedia.toFixed(1)),
+        notaFinal: parseFloat(notaFinal.toFixed(1)),
         aulas: aulas.map((aula) => ({
           id: aula.ID_AULA,
           data: aula.DATA_AULA,
@@ -669,8 +700,29 @@ const getDetalhesCursoPercurso = async (req, res) => {
         ],
       });
 
+      // Calcular nota média dos quizzes assíncronos
+      let notaMedia = 0;
+      let quizzesRespondidos = 0;
+
+      quizzes.forEach((quiz) => {
+        const respostas = quiz.RESPOSTAS || [];
+        if (respostas.length > 0) {
+          quizzesRespondidos++;
+          respostas.forEach((resposta) => {
+            if (resposta.NOTA !== null) {
+              notaMedia += resposta.NOTA;
+            }
+          });
+        }
+      });
+
+      if (quizzesRespondidos > 0) {
+        notaMedia = notaMedia / quizzesRespondidos;
+      }
+
       detalhesEspecificos = {
         tipo: "Assíncrono",
+        notaMedia: parseFloat(notaMedia.toFixed(1)),
         quizzes: quizzes.map((quiz) => ({
           id: quiz.ID_QUIZ,
           titulo: quiz.TITULO,
