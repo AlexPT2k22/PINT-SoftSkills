@@ -24,7 +24,6 @@ function VerifyCertificate() {
   const [error, setError] = useState(null);
   const [isVerified, setIsVerified] = useState(false);
 
-  // Check if there's a code in URL on component mount
   useEffect(() => {
     const codeFromUrl = certificateId;
     if (codeFromUrl) {
@@ -96,7 +95,6 @@ function VerifyCertificate() {
     setCertificado(null);
     setError(null);
     setIsVerified(false);
-    // Clear URL parameters
     window.history.pushState({}, "", "/verificar-certificado");
   };
 

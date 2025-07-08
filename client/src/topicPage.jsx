@@ -49,8 +49,6 @@ function TopicManagement() {
   return (
     <div className="container mt-4">
       <h2>Gestão de Tópicos</h2>
-      
-      {/* Topic Creation Form */}
       <div className="card mb-4">
         <div className="card-header">
           <h5 className="card-title mb-0">Novo Tópico</h5>
@@ -99,8 +97,6 @@ function TopicManagement() {
           </form>
         </div>
       </div>
-
-      {/* Topics List */}
       <div className="card">
         <div className="card-header">
           <h5 className="card-title mb-0">Tópicos Existentes</h5>

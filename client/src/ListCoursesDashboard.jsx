@@ -141,7 +141,6 @@ function ListCoursesDashboard() {
     return matchesSearch && matchesType && matchesStatus && matchesCategory;
   });
 
-  // Limpar filtros
   const clearFilters = () => {
     setSearchTerm("");
     setFilterType("");
@@ -149,18 +148,15 @@ function ListCoursesDashboard() {
     setFilterCategory("");
   };
 
-  // Verificar se tem filtros ativos
   const hasActiveFilters =
     searchTerm || filterType || filterStatus || filterCategory;
 
-  // Obter categorias únicas
   const uniqueCategories = [
     ...new Set(
       courses.map((course) => course.AREA?.Categoria?.NOME__).filter(Boolean)
     ),
   ];
 
-  // Obter status únicos
   const uniqueStatuses = [
     ...new Set(
       courses
@@ -202,13 +198,11 @@ function ListCoursesDashboard() {
     ),
   ];
 
-  // Função para formatar data
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("pt-PT");
   };
 
-  // Função para obter status badge
   const getStatusBadge = (course) => {
     let status;
     let badgeClass;
@@ -285,14 +279,12 @@ function ListCoursesDashboard() {
             />
           )}
 
-          {/* Header */}
           <div className="courses-management-header mb-0">
             <h2 className="courses-title">
               {isFormador && !isGestor ? "Os Meus Cursos" : "Gerir Cursos"}
             </h2>
           </div>
 
-          {/* Filtros e Pesquisa */}
           <div className="courses-filters-section">
             <div className="row g-3">
               <div className="col-md-4">
@@ -308,7 +300,6 @@ function ListCoursesDashboard() {
                 </div>
               </div>
 
-              {/* ✅ Mostrar filtros de tipo apenas para gestores */}
               {isGestor && (
                 <div className="col-md-2">
                   <select
@@ -323,7 +314,6 @@ function ListCoursesDashboard() {
                 </div>
               )}
 
-              {/* ✅ Filtro de status disponível para todos */}
               <div className="col-md-2">
                 <select
                   className="form-select"
@@ -372,7 +362,6 @@ function ListCoursesDashboard() {
             </div>
           </div>
 
-          {/* Tags de filtros ativos */}
           {hasActiveFilters && (
             <div className="courses-active-filters">
               <div className="filter-tags">
@@ -425,7 +414,6 @@ function ListCoursesDashboard() {
             </div>
           )}
 
-          {/* Tabela de Cursos */}
           <div className="courses-table-section">
             {isLoadingAssets ? (
               <div className="text-center p-5">
@@ -447,7 +435,6 @@ function ListCoursesDashboard() {
                         <Filter size={16} className="me-2" />
                         Categoria/Área
                       </th>
-                      {/* ✅ Mostrar coluna de tipo apenas para gestores */}
                       {isGestor && <th>Tipo</th>}
                       <th>
                         <User size={16} className="me-2" />
@@ -491,7 +478,6 @@ function ListCoursesDashboard() {
                               </div>
                             </div>
                           </td>
-                          {/* ✅ Mostrar tipo apenas para gestores */}
                           {isGestor && (
                             <td>
                               <span

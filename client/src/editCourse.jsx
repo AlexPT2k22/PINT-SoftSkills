@@ -50,11 +50,8 @@ function EditCourse() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isValid, setIsValid] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Data fetched from API
   const [category, setCategory] = useState([]);
   const [Formador, setFormador] = useState([]);
-
   const modalStyles = {
     modalOverlay: {
       position: "fixed",
@@ -109,12 +106,10 @@ function EditCourse() {
     },
   };
 
-  // Handler for sidebar toggle
   const handleSidebarToggle = (newCollapsedState) => {
     setCollapsed(newCollapsedState);
   };
 
-  // Handler for radio button changes
   const handleRadioChange = (e) => {
     const { name, value } = e.target;
 
@@ -138,29 +133,24 @@ function EditCourse() {
     }
   };
 
-  // Handler for category selection
   const handleCategoryChange = (e) => {
     const categoryId = e.target.value;
     setSelectedCategory(categoryId);
-    // Reset area selection when category changes
     setSelectedArea("");
   };
 
-  // Atualizar o campo de habilidades e objetivos
   const atualizarCampo = (setState, state, index, value) => {
     const copia = [...state];
     copia[index] = value;
     setState(copia);
   };
 
-  // Remover o campo de habilidades e objetivos
   const removerCampo = (setState, state, index) => {
     const copia = [...state];
     copia.splice(index, 1);
     setState(copia);
   };
 
-  // Fetch teachers for synchronous courses
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
@@ -169,29 +159,24 @@ function EditCourse() {
           setFormador(response.data);
         }
       } catch (error) {
-        console.error("Error fetching teachers:", error);
+        console.error("Erro a ir buscar formadores:", error);
       }
     };
 
     fetchTeachers();
   }, []);
 
-  // Main useEffect to fetch course data and areas
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
         setIsLoading(true);
         const response = await axios.get(`${URL}/api/cursos/${courseId}`);
 
-        // Store the complete response
         setCourseData(response.data);
-
-        // Populate individual form fields
         setCourseName(response.data.NOME || "");
         setCourseDescription(response.data.DESCRICAO_OBJETIVOS__ || "");
         setCourseDifficulty(response.data.DIFICULDADE_CURSO__ || "");
 
-        // Set image preview se existir
         if (response.data.IMAGEM) {
           setImagePreview(response.data.IMAGEM);
         }
@@ -204,7 +189,6 @@ function EditCourse() {
           }
         }
 
-        // Set course type
         const isSynchronous = response.data.CURSO_SINCRONO != null;
         setCourseType(isSynchronous ? "Síncrono" : "Assíncrono");
         setSelectedRadio(isSynchronous ? "Síncrono" : "Assíncrono");
@@ -213,17 +197,14 @@ function EditCourse() {
           setSelectedTopic(response.data.ID_TOPICO.toString());
         }
 
-        // Set teacher if available
         if (response.data.CURSO_SINCRONO) {
           setSelectedTeacher(response.data.CURSO_SINCRONO.ID_UTILIZADOR);
         }
 
-        // Set available seats
         if (response.data.CURSO_SINCRONO?.VAGAS) {
           setAvailableSeats(response.data.CURSO_SINCRONO.VAGAS);
         }
 
-        // Set dates
         if (response.data.CURSO_SINCRONO) {
           const startDateISO = response.data.CURSO_SINCRONO.DATA_INICIO;
           const endDateISO = response.data.CURSO_SINCRONO.DATA_FIM;
@@ -250,7 +231,6 @@ function EditCourse() {
           }
         }
 
-        // Set course objectives and habilities
         if (response.data.OBJETIVOS && response.data.OBJETIVOS.length > 0) {
           const extractedObjectives = response.data.OBJETIVOS.map((obj) =>
             obj.DESCRICAO?.trim()
@@ -269,7 +249,6 @@ function EditCourse() {
           setCourseHabilities([""]);
         }
 
-        // Set modules
         if (response.data.MODULOS && response.data.MODULOS.length > 0) {
           const modulesList = [
             "",
@@ -280,11 +259,10 @@ function EditCourse() {
                 description: modulo.DESCRICAO || "",
                 videoFile: null,
                 videoURL: modulo.VIDEO_URL || null,
-                // não criar objetos falsos para arquivos existentes
-                contentFile: [], // Deixar vazio para arquivos existentes
-                existingContentUrls: modulo.FILE_URL_ARRAY || [], // Guardar URLs existentes separadamente
+                contentFile: [],
+                existingContentUrls: modulo.FILE_URL_ARRAY || [],
                 duration: modulo.TEMPO_ESTIMADO_MIN || 30,
-                hasExistingContent: modulo.HAS_CONTENT || false, // Flag para indicar se tem conteúdo existente
+                hasExistingContent: modulo.HAS_CONTENT || false,
               },
             })),
           ];
@@ -295,7 +273,7 @@ function EditCourse() {
 
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching course data:", error);
+        console.error("Error ao buscar dados do curso:", error);
         setError("Erro ao buscar dados do curso. Tente novamente mais tarde.");
         setIsLoading(false);
       }
@@ -308,11 +286,11 @@ function EditCourse() {
         if (response.status === 200) {
           setCategory(response.data);
         } else {
-          setError("Erro ao buscar áreas. Tente novamente mais tarde.");
+          setError("Erro ao procurar as  áreas. Tente novamente mais tarde.");
         }
         setIsLoadingAttributes(false);
       } catch (error) {
-        console.error("Error fetching areas:", error);
+        console.error("Erro a buscar as áreas:", error);
         setError("Erro ao buscar áreas. Tente novamente mais tarde.");
         setIsLoadingAttributes(false);
       }
@@ -322,31 +300,18 @@ function EditCourse() {
     getAreas();
   }, [courseId]);
 
-  // Segundo useEffect para definir a categoria e área selecionadas
   useEffect(() => {
     if (category.length > 0 && courseData?.AREA?.Categoria) {
-      // Convert to numbers for consistent comparison
       const categoryIdFromAPI = Number(
         courseData.AREA.Categoria.ID_CATEGORIA__PK___
       );
-      const areaIdFromAPI = Number(courseData.ID_AREA); // Changed from courseData.ID_AREA to courseData.AREA.ID_AREA
+      const areaIdFromAPI = Number(courseData.ID_AREA);
 
-      // Convert to strings for form values which require strings
       setSelectedCategory(categoryIdFromAPI);
       setSelectedArea(areaIdFromAPI);
-
-      console.log(
-        "Set category to:",
-        categoryIdFromAPI,
-        ",area to:",
-        areaIdFromAPI,
-        "Categories available:",
-        category.map((c) => c.ID_CATEGORIA__PK___)
-      );
     }
   }, [category, courseData]);
 
-  // Funções para modal
   const handleShow = () => {
     setShowModal(true);
     document.body.style.overflow = "hidden";
@@ -359,7 +324,6 @@ function EditCourse() {
     document.body.style.overflow = "";
   };
 
-  // Função para validar arquivos
   const validateFiles = (files, maxTotalSizeMB = 50) => {
     const totalSizeBytes = Array.from(files).reduce(
       (sum, file) => sum + file.size,
@@ -379,7 +343,6 @@ function EditCourse() {
     return { valid: true };
   };
 
-  // Função para adicionar novo módulo
   const handleNovoModulo = () => {
     const novoModulo = courseModules[0].trim();
 
@@ -397,7 +360,6 @@ function EditCourse() {
     }
   };
 
-  // Função para submeter conteúdo do módulo
   const handleModuleContentSubmit = (e) => {
     e.preventDefault();
 
@@ -406,15 +368,12 @@ function EditCourse() {
     const moduleVideoURL = e.target.moduleVideoURL.value;
     const moduleContentInput = e.target.moduleContent;
     const moduleDuration = e.target.moduleDuration.value;
-
-    // Validações
     const hasVideoFile = moduleVideoInput.files.length > 0;
     const hasVideoURL = moduleVideoURL.trim() !== "";
     const hasContentFiles = moduleContentInput.files.length > 0;
     const hasExistingVideo =
       currentModuleData?.videoFile || currentModuleData?.videoURL;
 
-    // ✅ Corrigir: verificar conteúdo existente corretamente
     const hasExistingContent =
       currentModuleData?.hasExistingContent ||
       (currentModuleData?.existingContentUrls &&
@@ -456,7 +415,6 @@ function EditCourse() {
       return;
     }
 
-    // Determinar fonte de vídeo
     let videoSource = null;
     if (hasVideoFile) {
       videoSource = { type: "file", data: moduleVideoInput.files[0] };
@@ -468,15 +426,12 @@ function EditCourse() {
       videoSource = { type: "url", data: currentModuleData.videoURL };
     }
 
-    // ✅ Corrigir: lidar com arquivos de conteúdo adequadamente
     let contentFile = [];
     let existingContentUrls = [];
 
     if (hasContentFiles) {
-      // Se novos arquivos foram selecionados, usar os novos
       contentFile = Array.from(moduleContentInput.files);
     } else if (hasExistingContent) {
-      // Se mantendo conteúdo existente, preservar as URLs
       existingContentUrls = currentModuleData.existingContentUrls || [];
     }
 
@@ -495,8 +450,8 @@ function EditCourse() {
         description: moduleDescription,
         videoFile: videoSource?.type === "file" ? videoSource.data : null,
         videoURL: videoSource?.type === "url" ? videoSource.data : null,
-        contentFile: contentFile, // ✅ Agora só contém arquivos reais
-        existingContentUrls: existingContentUrls, // ✅ URLs existentes separadas
+        contentFile: contentFile,
+        existingContentUrls: existingContentUrls,
         duration: moduleDuration,
         hasExistingContent: existingContentUrls.length > 0,
       };
@@ -528,7 +483,7 @@ function EditCourse() {
           setTopics(response.data);
         }
       } catch (error) {
-        console.error("Error fetching topics:", error);
+        console.error("Erro ao buscar os tópicos:", error);
       }
     };
 
@@ -541,7 +496,6 @@ function EditCourse() {
     }
   }, [courseData]);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -555,11 +509,9 @@ function EditCourse() {
       return;
     }
 
-    // Determinar se o tipo mudou
     const originalType = courseData.CURSO_SINCRONO ? "Síncrono" : "Assíncrono";
     const isTypeChanged = originalType !== selectedRadio;
 
-    // Validações específicas para cada tipo
     if (selectedRadio === "Síncrono" && (!selectedTeacher || !availableSeats)) {
       setError(
         "Para cursos síncronos, é obrigatório selecionar um formador e definir o número de vagas."
@@ -620,7 +572,6 @@ function EditCourse() {
         formData.append("DATA_LIMITE_INSCRICAO", enrollmentDeadline);
       }
 
-      // Adicionar objetivos e habilidades
       const filteredObjectives = courseObjectives
         .slice(1)
         .filter((obj) => obj.trim() !== "");
@@ -631,7 +582,6 @@ function EditCourse() {
         .filter((ability) => ability.trim() !== "");
       formData.append("HABILIDADES", filteredHabilities.join(","));
 
-      // Adicionar módulos
       const modulesToSend = courseModules
         .slice(1)
         .filter(
@@ -660,18 +610,14 @@ function EditCourse() {
 
       formData.append("MODULOS", JSON.stringify(modulesToSend));
 
-      // Anexar arquivos de vídeo e conteúdo
       courseModules.slice(1).forEach((module, index) => {
         if (module && typeof module !== "string" && module.data) {
-          // Anexar vídeo se existir
           if (module.data.videoFile && module.data.videoFile instanceof File) {
             formData.append(`module_${index}_video`, module.data.videoFile);
           }
 
-          // ✅ Corrigir: só anexar arquivos reais, não objetos fake
           if (module.data.contentFile && module.data.contentFile.length > 0) {
             module.data.contentFile.forEach((file, fileIndex) => {
-              // Verificar se é um arquivo real antes de anexar
               if (file instanceof File) {
                 formData.append(
                   `module_${index}_content_${fileIndex}`,
@@ -684,7 +630,6 @@ function EditCourse() {
         }
       });
 
-      // Adicionar dados específicos do tipo de curso
       if (selectedRadio === "Síncrono") {
         formData.append("ID_UTILIZADOR", selectedTeacher);
         formData.append("VAGAS", availableSeats);
@@ -693,7 +638,6 @@ function EditCourse() {
         formData.append("COURSE_TYPE", "Assíncrono");
       }
 
-      // Adicionar imagem se selecionada
       if (courseImage) {
         formData.append("imagem", courseImage);
       }
@@ -714,7 +658,7 @@ function EditCourse() {
         }
       }
     } catch (error) {
-      console.error("Error updating course:", error);
+      console.error("Erro a atualizar curso:", error);
       setError(
         error.response?.data?.message ||
           "Erro ao atualizar o curso. Tente novamente mais tarde."
@@ -776,7 +720,7 @@ function EditCourse() {
                   <div className="card-body">
                     {isLoadingAttributes || isLoading ? (
                       <div className="spinner-border">
-                        <span className="visually-hidden">Loading...</span>
+                        <span className="visually-hidden">A carregar...</span>
                       </div>
                     ) : (
                       <>
@@ -1190,8 +1134,8 @@ function EditCourse() {
                           onClick={() => {
                             if (courseObjectives[0].trim() !== "") {
                               const newObjectives = [...courseObjectives];
-                              newObjectives.push(courseObjectives[0]); // Add current value to array
-                              newObjectives[0] = ""; // Clear input
+                              newObjectives.push(courseObjectives[0]);
+                              newObjectives[0] = "";
                               setCourseObjectives(newObjectives);
                             }
                           }}
@@ -1269,8 +1213,8 @@ function EditCourse() {
                           onClick={() => {
                             if (courseHabilities[0].trim() !== "") {
                               const newHabilities = [...courseHabilities];
-                              newHabilities.push(courseHabilities[0]); // Add current value to array
-                              newHabilities[0] = ""; // Clear input
+                              newHabilities.push(courseHabilities[0]);
+                              newHabilities[0] = "";
                               setCourseHabilities(newHabilities);
                             }
                           }}
@@ -1364,9 +1308,7 @@ function EditCourse() {
 
                         let contentTypes = [];
                         if (hasContent) {
-                          //Diferenciação entre tipos de vídeo
                           if (module.data.videoURL) {
-                            // Verificar se é YouTube ou outro tipo de URL
                             if (
                               module.data.videoURL.startsWith(
                                 "https://www.youtube.com/watch?v="
@@ -1378,7 +1320,6 @@ function EditCourse() {
                             }
                           }
 
-                          // Contar arquivos novos e existentes
                           const newFiles = module.data.contentFile
                             ? module.data.contentFile.length
                             : 0;
@@ -1404,7 +1345,6 @@ function EditCourse() {
                             >
                               <div className="d-flex flex-column">
                                 <span className="fw-medium">{moduleName}</span>
-                                {/* ✅ MELHORADO: Exibição mais clara dos tipos de conteúdo */}
                                 {hasContent && contentTypes.length > 0 && (
                                   <small className="text-muted">
                                     {contentTypes.join(" • ")}
@@ -1551,7 +1491,6 @@ function EditCourse() {
         </div>
       </div>
 
-      {/* Modal de Edição de Módulo */}
       {showModal && (
         <div
           style={modalStyles.modalOverlay}
@@ -1618,7 +1557,6 @@ function EditCourse() {
                   />
                 </div>
 
-                {/* ✅ MELHORADO: Upload de Vídeo com aviso */}
                 <div className="mb-3">
                   <label htmlFor="moduleVideo" className="form-label">
                     Upload de vídeo (opcional):
@@ -1630,10 +1568,8 @@ function EditCourse() {
                     accept="video/mp4, video/mkv, video/avi"
                     onChange={(e) => {
                       if (e.target.files.length > 0) {
-                        // Limpar URL do YouTube quando arquivo é selecionado
                         document.getElementById("moduleVideoURL").value = "";
 
-                        // Mostrar aviso se há conteúdo existente
                         if (
                           currentModuleData?.videoFile ||
                           currentModuleData?.videoURL
@@ -1672,7 +1608,6 @@ function EditCourse() {
                   <span className="badge bg-secondary fs-6">OU</span>
                 </div>
 
-                {/* ✅ MELHORADO: URL do YouTube com aviso */}
                 <div className="mb-3">
                   <label htmlFor="moduleVideoURL" className="form-label">
                     Link do YouTube (opcional):
@@ -1692,10 +1627,8 @@ function EditCourse() {
                     onChange={(e) => {
                       const url = e.target.value;
                       if (url) {
-                        // Limpar upload quando URL é inserida
                         document.getElementById("moduleVideo").value = "";
 
-                        // Mostrar aviso se há conteúdo existente
                         if (
                           currentModuleData?.videoFile ||
                           currentModuleData?.videoURL
@@ -1710,7 +1643,6 @@ function EditCourse() {
                         }
                       }
 
-                      // Validar URL do YouTube
                       if (
                         url &&
                         !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(url)
@@ -1750,7 +1682,6 @@ function EditCourse() {
                   <span className="badge bg-secondary fs-6">E/OU</span>
                 </div>
 
-                {/* ✅ MELHORADO: Conteúdo do módulo com aviso */}
                 <div className="mb-3">
                   <label htmlFor="moduleContent" className="form-label">
                     Arquivos de conteúdo (opcional):
@@ -1770,7 +1701,6 @@ function EditCourse() {
                         return;
                       }
 
-                      // Mostrar aviso se há arquivos existentes
                       if (
                         e.target.files.length > 0 &&
                         currentModuleData?.existingContentUrls &&

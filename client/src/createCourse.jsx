@@ -10,12 +10,10 @@ import ErrorMessage from "./components/error_message";
 import { XCircle, Pen } from "lucide-react";
 import * as bootstrap from "bootstrap";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { Modal } from "bootstrap";
 
 function CreateCourse() {
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const navigate = useNavigate();
-  const modalRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -100,7 +98,7 @@ function CreateCourse() {
 
   const handleShow = () => {
     setShowModal(true);
-    document.body.style.overflow = "hidden"; // Prevent scrolling behind modal
+    document.body.style.overflow = "hidden";
   };
   const handleClose = () => {
     setShowModal(false);
@@ -135,10 +133,8 @@ function CreateCourse() {
     setIsValid(true);
   };
 
-  // Add this useEffect to load existing data when a module is selected
   useEffect(() => {
     if (selectedModule) {
-      // Find the module in the courseModules array
       const moduleIndex = courseModules.findIndex((module, i) => {
         if (i > 0) {
           const moduleName = typeof module === "string" ? module : module.name;
@@ -149,12 +145,9 @@ function CreateCourse() {
 
       if (moduleIndex !== -1) {
         const module = courseModules[moduleIndex];
-        // Check if this module has existing data
         if (typeof module !== "string" && module.data) {
-          // Store the module data for form population
           setCurrentModuleData(module.data);
         } else {
-          // Reset the current module data if this is a new module
           setCurrentModuleData(null);
         }
       }
@@ -163,19 +156,15 @@ function CreateCourse() {
     }
   }, [selectedModule, courseModules]);
 
-  // Add this function to your component
-  // Update this function in your code
+
   const handleModuleContentSubmit = (e) => {
     e.preventDefault();
 
-    // Get form values
     const moduleDescription = e.target.moduleDescription.value;
     const moduleVideoInput = e.target.moduleVideo;
     const moduleVideoURL = e.target.moduleVideoURL.value;
     const moduleContentInput = e.target.moduleContent;
     const moduleDuration = e.target.moduleDuration.value;
-
-    // Verificar que opções estão preenchidas
     const hasVideoFile = moduleVideoInput.files.length > 0;
     const hasVideoURL = moduleVideoURL.trim() !== "";
     const hasContentFiles = moduleContentInput.files.length > 0;
@@ -185,7 +174,6 @@ function CreateCourse() {
       currentModuleData?.contentFile &&
       currentModuleData.contentFile.length > 0;
 
-    // Validar que pelo menos UMA das três opções está presente
     const totalOptions = [
       hasVideoFile || hasExistingVideo,
       hasVideoURL,
@@ -200,7 +188,6 @@ function CreateCourse() {
       return;
     }
 
-    // Validar que apenas uma opção foi escolhida (se ambas foram preenchidas)
     if (hasVideoFile && hasVideoURL) {
       setError(true);
       setMessage(
@@ -209,7 +196,6 @@ function CreateCourse() {
       return;
     }
 
-    // Validar URL do YouTube se fornecida
     if (
       hasVideoURL &&
       !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(moduleVideoURL)
@@ -219,21 +205,18 @@ function CreateCourse() {
       return;
     }
 
-    // Validar descrição
     if (!moduleDescription.trim()) {
       setError(true);
       setMessage("A descrição do módulo é obrigatória.");
       return;
     }
 
-    // Validar duração
     if (!moduleDuration || moduleDuration < 1 || moduleDuration > 300) {
       setError(true);
       setMessage("A duração deve estar entre 1 e 300 minutos.");
       return;
     }
 
-    // Determinar qual fonte de vídeo usar
     let videoSource = null;
     if (hasVideoFile) {
       videoSource = { type: "file", data: moduleVideoInput.files[0] };
@@ -245,7 +228,6 @@ function CreateCourse() {
       videoSource = { type: "url", data: currentModuleData.videoURL };
     }
 
-    // Handle content files
     let contentFile = [];
     if (hasContentFiles) {
       contentFile = Array.from(moduleContentInput.files);
@@ -253,10 +235,8 @@ function CreateCourse() {
       contentFile = currentModuleData.contentFile;
     }
 
-    // Store current module name before resetting state
     const currentModule = selectedModule;
 
-    // Find the index of the selected module
     const moduleIndex = courseModules.findIndex((module, i) => {
       if (i > 0) {
         const moduleName = typeof module === "string" ? module : module.name;
@@ -266,7 +246,6 @@ function CreateCourse() {
     });
 
     if (moduleIndex !== -1) {
-      // Create a moduleContent object
       const moduleData = {
         name: currentModule,
         description: moduleDescription,
@@ -276,22 +255,17 @@ function CreateCourse() {
         duration: moduleDuration,
       };
 
-      // Create new array with updated module
       const updatedModules = [...courseModules];
       updatedModules[moduleIndex] = {
         name: currentModule,
         data: moduleData,
       };
 
-      // Close modal first, then update state
       handleClose();
 
-      // Use setTimeout to ensure modal close logic completes before state update
       setTimeout(() => {
         setCourseModules(updatedModules);
         setCurrentModuleData(null);
-
-        // Mostrar mensagem de sucesso
         setError(false);
         setMessage("");
       }, 50);
@@ -309,7 +283,7 @@ function CreateCourse() {
         );
         setTopics(response.data);
       } catch (error) {
-        console.error("Error fetching topics:", error);
+        console.error("Erro nos tópicos:", error);
       }
     };
 
@@ -326,15 +300,12 @@ function CreateCourse() {
           `${URL}/api/categorias/com-areas`
         );
         if (response.status === 200) {
-          //console.log("Areas fetched successfully:", response.data);
           setCategory(response.data);
         } else {
-          //console.error("Error fetching category:", response.statusText);
           setError(true);
-          setMessage("Erro ao buscar áreas. Tente novamente mais tarde.");
+          setMessage("Erro ao encontrar as áreas. Tente novamente mais tarde.");
         }
       } catch (error) {
-        //console.error("Error fetching category:", error);
         setError(true);
         setMessage(
           "Erro ao buscar áreas. ERRO: " + error.response.data.message
@@ -350,15 +321,12 @@ function CreateCourse() {
           `${URL}/api/user/teachers`
         );
         if (response.status === 200) {
-          //console.log("Formadores fetched successfully:", response.data);
           setFormador(response.data);
         } else {
-          //console.error("Error fetching formadores:", response.statusText);
           setError(true);
-          setMessage("Erro ao buscar formadores. Tente novamente mais tarde.");
+          setMessage("Erro ao encontrar os formadores. Tente novamente mais tarde.");
         }
       } catch (error) {
-        //console.error("Error fetching formadores:", error);
         setError(true);
         setMessage(
           "Erro ao buscar formadores. ERRO: " + error.response.data.message
@@ -374,7 +342,7 @@ function CreateCourse() {
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
-    setSelectedArea(""); // Limpa a área quando a categoria é alterada
+    setSelectedArea("");
   };
 
   const validateFiles = (files, maxTotalSizeMB = 50) => {
@@ -476,13 +444,12 @@ function CreateCourse() {
         e.target.enrollmentDeadline.value
       );
     }
-    // Add objectives (filtering out the first empty input and empty strings)
+
     const filteredObjectives = courseObjectives
       .slice(1)
       .filter((obj) => obj.trim() !== "");
     formData.append("OBJETIVOS", filteredObjectives);
 
-    // Add abilities (filtering out the first empty input and empty strings)
     const filteredHabilities = courseHabilities
       .slice(1)
       .filter((ability) => ability.trim() !== "");
@@ -498,7 +465,6 @@ function CreateCourse() {
             : module.name.trim() !== "")
       )
       .map((module) => {
-        // Handle both string-only modules and modules with data
         if (typeof module === "string") {
           return { NOME: module };
         } else {
@@ -560,7 +526,7 @@ function CreateCourse() {
         setEnrollmentDeadline("");
       }
     } catch (error) {
-      console.error("Error creating course:", error);
+      console.error("Erro a criar curso:", error);
       setError(true);
       setMessage("Erro ao criar curso. ERRO: " + error.response.data.message);
     } finally {
@@ -570,8 +536,6 @@ function CreateCourse() {
 
   const handleNovoModulo = () => {
     const novoModulo = courseModules[0].trim();
-
-    // Verifica se o módulo já existe (seja string ou objeto)
     const jaExiste = courseModules.some(
       (m, i) =>
         i > 0 &&
@@ -591,7 +555,6 @@ function CreateCourse() {
       <NavbarDashboard />
       <Sidebar onToggle={handleSidebarToggle} />
 
-      {/* Custom CSS Modal */}
       {showModal && (
         <div
           style={modalStyles.modalOverlay}
@@ -607,7 +570,7 @@ function CreateCourse() {
           >
             <div style={modalStyles.modalHeader}>
               <h3 style={modalStyles.modalTitle}>
-                Editar Módulo: {selectedModule}
+                Editar módulo: {selectedModule}
               </h3>
               <button
                 style={modalStyles.closeButton}
@@ -639,7 +602,6 @@ function CreateCourse() {
                   />
                 </div>
 
-                {/* Aviso sobre as opções */}
                 <div className="alert alert-info mb-3">
                   <strong>Conteúdo do módulo:</strong>
                   <br />
@@ -651,7 +613,6 @@ function CreateCourse() {
                   </ul>
                 </div>
 
-                {/* Seção de Vídeo - Upload */}
                 <div className="mb-3">
                   <label htmlFor="moduleVideo" className="form-label">
                     Upload de vídeo (opcional):
@@ -662,7 +623,6 @@ function CreateCourse() {
                     id="moduleVideo"
                     accept="video/mp4, video/mkv, video/avi"
                     onChange={(e) => {
-                      // Limpar YouTube URL quando um arquivo é selecionado
                       if (e.target.files.length > 0) {
                         document.getElementById("moduleVideoURL").value = "";
                       }
@@ -691,7 +651,6 @@ function CreateCourse() {
                   <span className="badge bg-secondary">OU</span>
                 </div>
 
-                {/* URL do YouTube */}
                 <div className="mb-3">
                   <label htmlFor="moduleVideoURL" className="form-label">
                     Link do YouTube (opcional):
@@ -704,13 +663,9 @@ function CreateCourse() {
                     defaultValue={currentModuleData?.videoURL || ""}
                     onChange={(e) => {
                       const url = e.target.value;
-
-                      // Limpar upload quando URL é inserida
                       if (url) {
                         document.getElementById("moduleVideo").value = "";
                       }
-
-                      // Validar URL do YouTube
                       if (
                         url &&
                         !/^https?:\/\/(www\.)?youtube\.com\/watch\?v=/.test(url)
@@ -733,8 +688,6 @@ function CreateCourse() {
                 <div className="text-center my-2">
                   <span className="badge bg-secondary">E/OU</span>
                 </div>
-
-                {/* Conteúdo do módulo */}
                 <div className="mb-3">
                   <label htmlFor="moduleContent" className="form-label">
                     Conteúdo do módulo (opcional):
@@ -898,7 +851,7 @@ function CreateCourse() {
 
                     <div>
                       <label htmlFor="courseImage" className="form-label">
-                        Imagem do Curso:
+                        Imagem do curso:
                       </label>
                       <input
                         type="file"
@@ -1199,8 +1152,8 @@ function CreateCourse() {
                           onClick={() => {
                             if (courseObjectives[0].trim() !== "") {
                               const newObjectives = [...courseObjectives];
-                              newObjectives.push(courseObjectives[0]); // Add current value to array
-                              newObjectives[0] = ""; // Clear input
+                              newObjectives.push(courseObjectives[0]);
+                              newObjectives[0] = "";
                               setCourseObjectives(newObjectives);
                             }
                           }}
@@ -1278,8 +1231,8 @@ function CreateCourse() {
                           onClick={() => {
                             if (courseHabilities[0].trim() !== "") {
                               const newHabilities = [...courseHabilities];
-                              newHabilities.push(courseHabilities[0]); // Add current value to array
-                              newHabilities[0] = ""; // Clear input
+                              newHabilities.push(courseHabilities[0]);
+                              newHabilities[0] = "";
                               setCourseHabilities(newHabilities);
                             }
                           }}
@@ -1367,12 +1320,9 @@ function CreateCourse() {
 
                     <div className="Modules-list mt-3">
                       {courseModules.slice(1).map((module, index) => {
-                        // Handle both string and object modules
                         const isString = typeof module === "string";
                         const moduleName = isString ? module : module.name;
                         const hasContent = !isString && module.data;
-
-                        // Verificar que tipo de conteúdo tem
                         let contentTypes = [];
                         if (hasContent) {
                           if (module.data.videoFile) contentTypes.push("Vídeo");

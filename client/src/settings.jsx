@@ -48,7 +48,6 @@ function SettingsPage() {
       const userData = response.data;
       setUserData(userData);
 
-      // Preencher formulário com dados da base de dados
       setFormData((prev) => ({
         ...prev,
         nome: userData.NOME || "",
@@ -121,10 +120,8 @@ function SettingsPage() {
         }
       );
 
-      // Recarregar dados da base de dados após salvar
       await fetchUserData();
 
-      // Redefinir campos de password
       setFormData((prev) => ({
         ...prev,
         currentPassword: "",
@@ -132,11 +129,10 @@ function SettingsPage() {
         confirmPassword: "",
       }));
 
-      // Exibir mensagem de sucesso
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || "Erro ao salvar alterações");
+      setError(err.response?.data?.message || "Erro ao guardar alterações");
     } finally {
       setLoading(false);
     }
@@ -172,14 +168,11 @@ function SettingsPage() {
         <div className={`container mt-4 p-4 `}>
           <div className="settings-container">
             <h2 className="mb-4">Definições</h2>
-
             <div className="row g-3">
-              {/* Perfil do utilizador */}
               <div className="col-lg-4">
                 <div className="card h-100">
                   <div className="card-body text-center">
                     <div className="user-avatar mx-auto mb-3">
-                      {/* Placeholder para imagem do utilizador */}
                       <div className="avatar-placeholder-settings">
                         <User size={50} color="#39639C" />
                       </div>
@@ -247,7 +240,6 @@ function SettingsPage() {
                 </div>
               </div>
 
-              {/* Formulário de configurações */}
               <div className="col-lg-8">
                 <div className="card">
                   <div className="card-body">

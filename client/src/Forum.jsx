@@ -4,14 +4,10 @@ import axios from "axios";
 import Navbar from "./components/navbar.jsx";
 import {
   MessageSquare,
-  Users,
   TrendingUp,
-  Search,
   Filter,
   Plus,
   ChevronRight,
-  Book,
-  Target,
   Folder,
 } from "lucide-react";
 import Footer from "./components/footer.jsx";
@@ -21,7 +17,6 @@ const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 const Forum = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-
   const [categorias, setCategorias] = useState([]);
   const [areas, setAreas] = useState([]);
   const [topicos, setTopicos] = useState([]);
@@ -30,7 +25,6 @@ const Forum = () => {
   const [error, setError] = useState(null);
   const [numTopicos, setNumTopicos] = useState(0);
   const [numPosts, setNumPosts] = useState(0);
-
   const [filtros, setFiltros] = useState({
     categoria: searchParams.get("categoria") || "",
     area: searchParams.get("area") || "",
@@ -73,7 +67,7 @@ const Forum = () => {
         setCategorias(response.data);
       }
     } catch (error) {
-      console.error("Erro ao buscar categorias:", error);
+      console.error("Erro ao procurar categorias:", error);
     }
   };
 
@@ -90,14 +84,12 @@ const Forum = () => {
 
         if (categoriaEncontrada && categoriaEncontrada.AREAs) {
           setAreas(categoriaEncontrada.AREAs);
-          //console.log("Áreas da categoria:", categoriaEncontrada.AREAs);
         } else {
           setAreas([]);
-          //console.log("Nenhuma área encontrada para esta categoria");
         }
       }
     } catch (error) {
-      console.error("Erro ao buscar áreas:", error);
+      console.error("Erro ao procurar áreas:", error);
     }
   };
 
@@ -110,7 +102,7 @@ const Forum = () => {
         setTopicos(response.data);
       }
     } catch (error) {
-      console.error("Erro ao buscar tópicos:", error);
+      console.error("Erro ao procurar tópicos:", error);
     }
   };
 
@@ -131,7 +123,7 @@ const Forum = () => {
         setTopicosForum(response.data.topicos);
       }
     } catch (error) {
-      console.error("Erro ao buscar tópicos do fórum:", error);
+      console.error("Erro ao procurar tópicos do fórum:", error);
       setError("Erro ao carregar tópicos do fórum");
     } finally {
       setLoading(false);
@@ -153,14 +145,13 @@ const Forum = () => {
         setNumPosts(response_posts.data.posts);
       }
     } catch (error) {
-      console.error("Erro ao buscar estatísticas:", error);
+      console.error("Erro ao procurar estatísticas:", error);
     }
   };
 
   const handleFiltroChange = (key, value) => {
     const newFiltros = { ...filtros, [key]: value };
 
-    // Resetar filtros dependentes
     if (key === "categoria") {
       newFiltros.area = "";
       newFiltros.topico = "";
@@ -170,7 +161,6 @@ const Forum = () => {
 
     setFiltros(newFiltros);
 
-    // Atualizar URL
     const newSearchParams = new URLSearchParams();
     Object.entries(newFiltros).forEach(([k, v]) => {
       if (v) newSearchParams.set(k, v);
@@ -192,7 +182,6 @@ const Forum = () => {
     <>
       <Navbar />
       <div className="container p-4 mt-4">
-        {/* Header */}
         <div className="row mb-4">
           <div className="col-12">
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
@@ -210,7 +199,6 @@ const Forum = () => {
           </div>
         </div>
 
-        {/* Estatísticas */}
         <div className="row mb-4">
           <div className="col-md-6 mb-3 mb-md-0">
             <div className="card h-100">
@@ -249,7 +237,6 @@ const Forum = () => {
           </div>
         </div>
 
-        {/* Filtros */}
         <div className="card mb-4">
           <div className="card-body">
             <h6 className="card-title mb-3">
@@ -325,7 +312,6 @@ const Forum = () => {
           </div>
         </div>
 
-        {/* Lista de Tópicos do Fórum */}
         <div className="row">
           <div className="col-12">
             {loading ? (
@@ -365,8 +351,6 @@ const Forum = () => {
                         <div className="flex-grow-1">
                           <h6 className="mb-1">{topico.TITULO}</h6>
                           <p className="mb-2 text-muted">{topico.DESCRICAO}</p>
-
-                          {/* Breadcrumb */}
                           <div className="d-flex align-items-center text-sm text-muted mb-2 flex-wrap">
                             <Folder size={14} className="me-1" />
                             <span className="text-truncate">{topico.Categoria?.NOME__}</span>

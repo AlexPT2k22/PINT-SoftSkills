@@ -15,16 +15,12 @@ import {
 function QuizPage() {
   const { courseId } = useParams();
   const navigate = useNavigate();
-
-  // Estados principais
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hasQuiz, setHasQuiz] = useState(false);
   const [hasResponse, setHasResponse] = useState(false);
   const [userResult, setUserResult] = useState(null);
-
-  // Estados do quiz
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
@@ -35,13 +31,11 @@ function QuizPage() {
 
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
-  // Buscar dados do quiz
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
         setLoading(true);
 
-        // Buscar quiz do curso
         const quizResponse = await axios.get(
           `${URL}/api/quiz/curso/${courseId}`,
           { withCredentials: true }
@@ -50,9 +44,8 @@ function QuizPage() {
         if (quizResponse.data.hasQuiz) {
           setQuiz(quizResponse.data.quiz);
           setHasQuiz(true);
-          setTimeLeft(quizResponse.data.quiz.TEMPO_LIMITE_MIN * 60); // Converter para segundos
+          setTimeLeft(quizResponse.data.quiz.TEMPO_LIMITE_MIN * 60);
 
-          // Verificar se o usuário já respondeu
           try {
             const resultResponse = await axios.get(
               `${URL}/api/quiz/${quizResponse.data.quiz.ID_QUIZ}/resultado`,
@@ -64,14 +57,13 @@ function QuizPage() {
               setUserResult(resultResponse.data);
             }
           } catch (resultError) {
-            // Usuário ainda não respondeu - normal
             if (resultError.response?.status !== 404) {
-              console.error("Erro ao buscar resultado:", resultError);
+              console.error("Erro ao procurar resultado:", resultError);
             }
           }
         }
       } catch (error) {
-        console.error("Erro ao buscar quiz:", error);
+        console.error("Erro ao procurar quiz:", error);
         if (error.response?.status === 404) {
           setError("Este curso não possui um quiz disponível.");
         } else {
@@ -87,7 +79,6 @@ function QuizPage() {
     }
   }, [courseId, URL]);
 
-  // Timer do quiz
   useEffect(() => {
     let interval = null;
 
@@ -95,7 +86,6 @@ function QuizPage() {
       interval = setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
-            // Tempo esgotado - submeter automaticamente
             handleSubmitQuiz();
             return 0;
           }
@@ -109,7 +99,6 @@ function QuizPage() {
     };
   }, [quizStarted, quizSubmitted, timeLeft]);
 
-  // Formatar tempo
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -118,13 +107,11 @@ function QuizPage() {
       .padStart(2, "0")}`;
   };
 
-  // Iniciar quiz
   const handleStartQuiz = () => {
     setQuizStarted(true);
     setStartTime(new Date());
   };
 
-  // Selecionar resposta
   const handleAnswerSelect = (questionIndex, answerIndex) => {
     setAnswers((prev) => ({
       ...prev,
@@ -132,27 +119,23 @@ function QuizPage() {
     }));
   };
 
-  // Navegar entre perguntas
   const goToQuestion = (questionIndex) => {
     if (questionIndex >= 0 && questionIndex < quiz.PERGUNTAS.length) {
       setCurrentQuestion(questionIndex);
     }
   };
 
-  // Submeter quiz
   const handleSubmitQuiz = useCallback(async () => {
     if (submitting || quizSubmitted) return;
 
     try {
       setSubmitting(true);
 
-      // Calcular tempo gasto
       const endTime = new Date();
       const timeSpent = startTime
         ? Math.floor((endTime - startTime) / 1000 / 60)
         : quiz.TEMPO_LIMITE_MIN;
 
-      // Preparar respostas (array ordenado)
       const respostasArray = quiz.PERGUNTAS.map(
         (_, index) => answers[index] ?? -1
       );
@@ -176,7 +159,6 @@ function QuizPage() {
     }
   }, [submitting, quizSubmitted, startTime, quiz, answers, URL]);
 
-  // Verificar se todas as perguntas foram respondidas
   const allQuestionsAnswered = quiz
     ? quiz.PERGUNTAS.every((_, index) => answers[index] !== undefined)
     : false;
@@ -239,7 +221,6 @@ function QuizPage() {
     );
   }
 
-  // Se já respondeu, mostrar resultado
   if (hasResponse || quizSubmitted) {
     const result = userResult || {};
 
@@ -313,7 +294,6 @@ function QuizPage() {
     );
   }
 
-  // Tela inicial do quiz
   if (!quizStarted) {
     return (
       <>
@@ -390,7 +370,6 @@ function QuizPage() {
     );
   }
 
-  // Interface do quiz em andamento
   const currentQ = quiz.PERGUNTAS[currentQuestion];
 
   return (
@@ -400,7 +379,6 @@ function QuizPage() {
       <div className="container mt-4 p-4">
         <div className="row">
           <div className="col-md-9">
-            {/* Header com progresso e timer */}
             <div className="card mb-3">
               <div className="card-body">
                 <div className="row align-items-center">
@@ -440,7 +418,6 @@ function QuizPage() {
               </div>
             </div>
 
-            {/* Pergunta atual */}
             <div className="card">
               <div className="card-body">
                 <h4 className="mb-4">{currentQ.pergunta}</h4>
@@ -467,7 +444,6 @@ function QuizPage() {
               </div>
             </div>
 
-            {/* Navegação */}
             <div className="card mt-3">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center">
@@ -517,7 +493,6 @@ function QuizPage() {
             </div>
           </div>
 
-          {/* Sidebar com navegação rápida */}
           <div className="col-md-3">
             <div className="card sticky-top" style={{ top: "100px" }}>
               <div className="card-header">

@@ -8,22 +8,15 @@ import {
   CheckCircle,
   Clock,
   Download,
-  Eye,
-  FileText,
   Layers,
-  Star,
-  Target,
-  User,
   BarChart,
   RefreshCw,
   ChevronDown,
   ChevronUp,
   Bookmark,
-  CheckSquare,
   AlertTriangle,
   XCircle,
   Search,
-  Filter,
   Trophy,
 } from "lucide-react";
 import NavbarDashboard from "./components/navbarDashboard";
@@ -36,8 +29,6 @@ const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const MeuPercurso = () => {
   const navigate = useNavigate();
-
-  // Estados
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [percurso, setPercurso] = useState(null);
@@ -50,7 +41,6 @@ const MeuPercurso = () => {
   const [sortOrder, setSortOrder] = useState("desc");
   const [detalhesExpandidos, setDetalhesExpandidos] = useState(new Set());
 
-  // Procurar dados do percurso formativo
   useEffect(() => {
     fetchPercursoFormativo();
   }, []);
@@ -105,7 +95,6 @@ const MeuPercurso = () => {
     setDetalhesExpandidos(newDetalhes);
   };
 
-  // Baixar certificado
   const downloadCertificado = async (cursoId) => {
     try {
       const response = await axios.get(
@@ -134,12 +123,10 @@ const MeuPercurso = () => {
     }
   };
 
-  // Acessar curso
   const acessarCurso = (cursoId) => {
     navigate(`/course/${cursoId}`);
   };
 
-  // Toggle para expandir/colapsar detalhes do curso
   const toggleCourse = (cursoId) => {
     const newExpanded = new Set(expandedCourses);
     const newDetalhes = new Set(detalhesExpandidos);
@@ -155,11 +142,9 @@ const MeuPercurso = () => {
     setDetalhesExpandidos(newDetalhes);
   };
 
-  // Filtrar cursos
   const getCursosFiltrados = () => {
     if (!percurso) return { sincronos: [], assincronos: [] };
 
-    // Combinar todos os cursos
     let todosCursos = [
       ...percurso.cursos.sincronos.map((c) => ({
         ...c,
@@ -171,7 +156,6 @@ const MeuPercurso = () => {
       })),
     ];
 
-    // Aplicar filtro por status
     if (filterStatus !== "todos") {
       todosCursos = todosCursos.filter((curso) => {
         switch (filterStatus) {
@@ -191,14 +175,12 @@ const MeuPercurso = () => {
       });
     }
 
-    // Aplicar filtro por tipo
     if (filterType !== "todos") {
       todosCursos = todosCursos.filter(
         (curso) => curso.tipo.toLowerCase() === filterType
       );
     }
 
-    // Aplicar busca por nome
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       todosCursos = todosCursos.filter(
@@ -209,7 +191,6 @@ const MeuPercurso = () => {
       );
     }
 
-    // Ordenação
     todosCursos.sort((a, b) => {
       let valA, valB;
 
@@ -244,7 +225,6 @@ const MeuPercurso = () => {
         : -1;
     });
 
-    // Separar novamente em síncronos e assíncronos
     return {
       sincronos: todosCursos.filter((c) => c.originalArray === "sincronos"),
       assincronos: todosCursos.filter((c) => c.originalArray === "assincronos"),
@@ -288,7 +268,6 @@ const MeuPercurso = () => {
             <h6 className="mb-0">Detalhes Completos do Curso</h6>
           </div>
           <div className="card-body">
-            {/* Objetivos e Habilidades */}
             <div className="row mb-3">
               <div className="col-md-6">
                 <h6>Objetivos</h6>
@@ -317,7 +296,6 @@ const MeuPercurso = () => {
               </div>
             </div>
 
-            {/* Progresso dos Módulos */}
             <div className="mb-3">
               <h6>Progresso dos Módulos</h6>
               <div className="avaliacao-item mb-2 p-2 border rounded">
@@ -351,7 +329,6 @@ const MeuPercurso = () => {
               </div>
             </div>
 
-            {/* Detalhes específicos por tipo */}
             {detalhes.tipo === "Síncrono" && detalhes.avaliacoes && (
               <div className="mb-3">
                 <h6>Avaliações</h6>
@@ -437,7 +414,6 @@ const MeuPercurso = () => {
               </div>
             )}
 
-            {/* Certificado */}
             {detalhes.certificado ? (
               <div className="certificado-info p-3 bg-light rounded">
                 <h6 className="text-success">
@@ -460,7 +436,6 @@ const MeuPercurso = () => {
                 </button>
               </div>
             ) : (
-              // Mostrar status de elegibilidade quando não tem certificado
               <div className="certificado-status p-3 rounded bg-light">
                 <h6
                   className={
@@ -538,7 +513,6 @@ const MeuPercurso = () => {
     );
   };
 
-  // Formatar data
   const formatarData = (dateString) => {
     if (!dateString) return "N/A";
     const data = new Date(dateString);
@@ -547,12 +521,10 @@ const MeuPercurso = () => {
 
   const formatarNota = (nota) => {
     if (!nota || nota === 0) return "N/A";
-    // Converte de 0-100 para 0-20
     const notaConvertida = (nota * 20) / 100;
     return notaConvertida.toFixed(1);
   };
 
-  // Formato de horas
   const formatarHoras = (minutos) => {
     if (!minutos) return "0h";
     const horas = Math.floor(minutos / 60);
@@ -560,7 +532,6 @@ const MeuPercurso = () => {
     return `${horas}h${min > 0 ? ` ${min}min` : ""}`;
   };
 
-  // Estilo para progresso
   const getProgressStyle = (percentual) => {
     if (percentual >= 100) return "success";
     if (percentual >= 70) return "info";
@@ -568,7 +539,6 @@ const MeuPercurso = () => {
     return "danger";
   };
 
-  // Componente de Loading
   const LoadingState = () => (
     <div className="loading-container">
       <div className="spinner-border text-primary mb-3" role="status">
@@ -579,7 +549,6 @@ const MeuPercurso = () => {
     </div>
   );
 
-  // Componente de card de visão geral
   const VisaoGeral = () => {
     if (!percurso) return null;
 
@@ -663,7 +632,6 @@ const MeuPercurso = () => {
           </div>
         </div>
 
-        {/* Gráfico de status dos cursos */}
         <div className="row mb-4">
           <div className="col-12">
             <div className="card">
@@ -750,7 +718,6 @@ const MeuPercurso = () => {
           </div>
         </div>
 
-        {/* Últimos 3 cursos */}
         <div className="row">
           <div className="col-12">
             <div className="card">
@@ -859,7 +826,6 @@ const MeuPercurso = () => {
     );
   };
 
-  // Componente de lista de cursos
   const CursosList = () => {
     const cursosFiltrados = getCursosFiltrados();
     const todosCursos = [
@@ -869,7 +835,6 @@ const MeuPercurso = () => {
 
     return (
       <div className="cursos-list-container">
-        {/* Filtros */}
         <div className="filter-section">
           <div className="card mb-4">
             <div className="card-header bg-light">
@@ -976,7 +941,6 @@ const MeuPercurso = () => {
           </div>
         </div>
 
-        {/* Lista de cursos */}
         {todosCursos.length === 0 ? (
           <div className="card">
             <div className="card-body text-center py-5">
@@ -1114,7 +1078,6 @@ const MeuPercurso = () => {
                         <div className="curso-details mt-3">
                           <hr />
                           <div className="row">
-                            {/* Primeira coluna - Detalhes do curso */}
                             <div className="col-md-4">
                               <div className="detail-group">
                                 <h6 className="detail-title">
@@ -1166,7 +1129,6 @@ const MeuPercurso = () => {
                               </div>
                             </div>
 
-                            {/* Segunda coluna - Progresso */}
                             <div className="col-md-4">
                               <div className="detail-group">
                                 <h6 className="detail-title">Progresso</h6>
@@ -1210,7 +1172,6 @@ const MeuPercurso = () => {
                               </div>
                             </div>
 
-                            {/* Terceira coluna - Avaliação */}
                             <div className="col-md-4">
                               <div className="detail-group">
                                 <h6 className="detail-title">Avaliação</h6>
@@ -1232,7 +1193,6 @@ const MeuPercurso = () => {
                                   </div>
                                 )}
 
-                                {/* Mostrar nota final para cursos síncronos */}
                                 {curso.tipo === "Síncrono" && (
                                   <div className="detail-item">
                                     <span className="detail-label">
@@ -1267,11 +1227,8 @@ const MeuPercurso = () => {
                                       <span className="text-secondary d-flex align-items-center">
                                         {curso.percentualConcluido === 100 ? (
                                           (() => {
-                                            // Verificar se há pendências por tipo de curso
                                             let temPendencias = false;
                                             let motivoPendencia = "";
-
-                                            // Verificar nota média (deve ser >= 9.5 valores)
                                             const notaMinima = 9.5;
                                             const notaAtual =
                                               curso.tipo === "Síncrono"
@@ -1293,7 +1250,6 @@ const MeuPercurso = () => {
                                             }
 
                                             if (curso.tipo === "Síncrono") {
-                                              // Para cursos síncronos: verificar se há avaliações por fazer
                                               if (
                                                 curso.avaliacoesCompletas <
                                                 curso.totalAvaliacoes
@@ -1313,7 +1269,6 @@ const MeuPercurso = () => {
                                             } else if (
                                               curso.tipo === "Assíncrono"
                                             ) {
-                                              // Para cursos assíncronos: verificar se há quizzes por fazer
                                               if (
                                                 curso.quizzesRespondidos <
                                                 curso.totalQuizzes

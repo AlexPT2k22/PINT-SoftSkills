@@ -43,7 +43,7 @@ function CoursesUser() {
               }
             } catch (err) {
               console.error(
-                `Failed to fetch progress for course ${course.ID_CURSO}:`,
+                `Percurso deu erro em: ${course.ID_CURSO}:`,
                 err
               );
             }
@@ -51,7 +51,7 @@ function CoursesUser() {
         );
         setCourseProgress(progressMap);
       } catch (error) {
-        console.error("Error fetching courses:", error);
+        console.error("Erro a procurar percurso:", error);
       } finally {
         setIsLoading(false);
       }

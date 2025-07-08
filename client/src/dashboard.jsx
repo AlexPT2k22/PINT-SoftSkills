@@ -20,7 +20,6 @@ function Dashboard() {
     progressoGeral: 0,
     notaMedia: 0,
   });
-
   const [notaMedia, setNotaMedia] = useState({
     notaMediaGeral: 0,
     totalAvaliacoes: 0,
@@ -42,7 +41,6 @@ function Dashboard() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        // Carregar cursos do usuário
         const cursosResponse = await axios.get(
           `${URL}/api/user/student-courses`,
           { withCredentials: true }
@@ -51,7 +49,6 @@ function Dashboard() {
         const cursosData = cursosResponse.data;
         setCourses(cursosData);
 
-        // aulas dos cursos síncronos
         const [
           aulasResponse,
           trabalhosResponse,
@@ -79,7 +76,6 @@ function Dashboard() {
         setNotaMedia(notaMediaResponse.data);
         setNotaMediaAvaliacoesFinais(notaMediaAvaliacoesFinaisResponse.data);
 
-        // Calcular progresso geral
         const progressMap = {};
         let totalProgresso = 0;
 
@@ -103,7 +99,7 @@ function Dashboard() {
               }
             } catch (err) {
               console.error(
-                `Erro ao buscar progresso do curso ${course.ID_CURSO}:`,
+                `Erro ao procurar progresso do curso ${course.ID_CURSO}:`,
                 err
               );
             }
@@ -112,9 +108,7 @@ function Dashboard() {
 
         setCourseProgress(progressMap);
 
-        // Processar e formatar os dados da API para o formato que o componente espera
         if (aulasResponse.data && Array.isArray(aulasResponse.data)) {
-          // Se a API retornar um array de aulas
           const aulasFormatadas = aulasResponse.data
             .map((aula) => {
               const dataAula = new Date(aula.DATA_AULA);
@@ -173,9 +167,7 @@ function Dashboard() {
 
           setProximasAulas(aulasFormatadas);
 
-          // Também podemos atualizar a métrica de próxima aula
           if (aulasFormatadas.length > 0) {
-            // Filtrar aulas que não estão canceladas ou concluídas
             const aulasValidas = aulasFormatadas.filter(
               (aula) =>
                 aula.estado !== "Cancelada" && aula.estado !== "Concluída"
@@ -184,18 +176,17 @@ function Dashboard() {
             if (aulasValidas.length > 0) {
               setMetricas((prev) => ({
                 ...prev,
-                proximaAula: aulasValidas[0].hora, // Define a hora da próxima aula válida
+                proximaAula: aulasValidas[0].hora,
               }));
             } else {
               setMetricas((prev) => ({
                 ...prev,
-                proximaAula: "N/A", // Caso não haja aulas válidas
+                proximaAula: "N/A",
               }));
             }
           }
-          //console.log(aulasFormatadas);
+
         } else {
-          // Fallback para dados vazios se a API não retornar o esperado
           console.error(
             "Formato de dados de aulas inesperado:",
             aulasResponse.data
@@ -218,7 +209,7 @@ function Dashboard() {
 
               return {
                 id: trabalho.ID_AVALIACAO_SINCRONA,
-                tipo: "trabalho", // ✅ Adicionar tipo
+                tipo: "trabalho",
                 titulo: trabalho.TITULO,
                 descricao: trabalho.DESCRICAO,
                 dataLimite: new Date(trabalho.DATA_LIMITE_REALIZACAO),
@@ -244,30 +235,27 @@ function Dashboard() {
             .filter((trabalho) => trabalho.status === "Aberto");
         }
 
-        // ✅ Processar quizzes pendentes
         let quizzesFormatados = [];
         if (quizzesResponse.data && Array.isArray(quizzesResponse.data)) {
           quizzesFormatados = quizzesResponse.data.map((quiz) => ({
             id: quiz.ID_QUIZ,
-            tipo: "quiz", // ✅ Adicionar tipo
+            tipo: "quiz",
             titulo: quiz.TITULO,
             descricao: quiz.DESCRICAO || "Quiz do curso",
-            dataLimite: null, // Quizzes geralmente não têm data limite
-            dataFormatada: "Disponível", // Texto indicativo
+            dataLimite: null,
+            dataFormatada: "Disponível",
             cursoId: quiz.ID_CURSO,
             cursoNome: quiz.CURSO?.NOME || "Curso não especificado",
             status: "Aberto",
-            jaSubmetido: false, // Já filtrados os não submetidos
+            jaSubmetido: false,
             nota: null,
             tempoLimite: quiz.TEMPO_LIMITE_MIN,
             notaMinima: quiz.NOTA_MINIMA,
           }));
         }
 
-        // ✅ Combinar trabalhos e quizzes
         const todosItens = [...trabalhosFormatados, ...quizzesFormatados].sort(
           (a, b) => {
-            // Priorizar por data limite (trabalhos primeiro, depois quizzes)
             if (a.dataLimite && b.dataLimite) {
               return a.dataLimite - b.dataLimite;
             }
@@ -278,8 +266,6 @@ function Dashboard() {
         );
 
         setProximosTrabalhos(todosItens);
-
-        // Atualizar métricas
         setMetricas((prev) => ({
           ...prev,
           cursosAtivos: cursosData.length,
@@ -290,7 +276,7 @@ function Dashboard() {
           notaMedia: notaMediaResponse.data.notaMediaGeral || 0,
         }));
       } catch (error) {
-        console.error("Erro ao buscar dados:", error);
+        console.error("Erro ao procurar os dados:", error);
       } finally {
         setIsLoading(false);
       }
@@ -319,7 +305,6 @@ function Dashboard() {
   };
 
   const handleEntrarAula = (aulaId, aulaLink) => {
-    //console.log("A entrar na aula:", aulaId);
     window.open(aulaLink, "_blank");
   };
 
@@ -334,12 +319,11 @@ function Dashboard() {
         {isLoading ? (
           <div className="d-flex justify-content-center">
             <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
+              <span className="visually-hidden">A carregar...</span>
             </div>
           </div>
         ) : (
           <>
-            {/* Cards de Métricas */}
             <div className="row mb-4">
               <div className="col-md-3">
                 <div className="card h-100">
@@ -437,9 +421,7 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Próximas Aulas e trabalhos lado a lado */}
             <div className="row mb-4">
-              {/* Próximas Aulas */}
               <div className="col-md-6">
                 <div className="card h-100">
                   <div className="card-header bg-white">
@@ -527,7 +509,6 @@ function Dashboard() {
                 </div>
               </div>
 
-              {/* Próximos trabalhos e quizzes */}
               <div className="col-md-6">
                 <div className="card h-100">
                   <div className="card-header bg-white">
@@ -552,7 +533,6 @@ function Dashboard() {
                             <div className="me-4">
                               <div className="d-flex align-items-center">
                                 <h5 className="mb-0 me-2">{item.titulo}</h5>
-                                {/* Badge para identificar tipo */}
                                 <span
                                   className={`badge ${
                                     item.tipo === "quiz"
@@ -567,7 +547,6 @@ function Dashboard() {
                               <small className="text-muted">
                                 {item.cursoNome}
                               </small>
-                              {/* Informações específicas do quiz */}
                               {item.tipo === "quiz" && (
                                 <div>
                                   <small className="text-muted d-block">
@@ -609,12 +588,10 @@ function Dashboard() {
                                 }`}
                                 onClick={() => {
                                   if (item.tipo === "quiz") {
-                                    // Navegar para página do quiz
                                     navigate(
                                       `/dashboard/courses/${item.cursoId}/quiz`
                                     );
                                   } else {
-                                    // Navegar para página de trabalhos
                                     navigate(
                                       `/dashboard/synchronous-course/${item.cursoId}?tab=avaliacoes`
                                     );

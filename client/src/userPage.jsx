@@ -29,8 +29,6 @@ function UserPage() {
     const fetchUserData = async () => {
       try {
         setIsLoading(true);
-
-        // Fetch user profile data and statistics
         const [userResponse, statisticsResponse] = await Promise.all([
           axios.get(`${URL}/api/user/${userId}`),
           axios.get(`${URL}/api/user/${userId}/statistics`),
@@ -103,7 +101,6 @@ function UserPage() {
       <Navbar />
       <div className="user-page-container">
         <div className="container py-5">
-          {/* User Header */}
           <div className="user-header-card card border-1 mb-4">
             <div className="card-body p-4">
               <div className="row align-items-center">
@@ -121,7 +118,6 @@ function UserPage() {
                     </h1>
                     <p className="text-muted mb-0">@{user.USERNAME}</p>
 
-                    {/* XP e Level Badge */}
                     <div className="mt-2">
                       <span className={`badge bg-outline-${xpLevel.color}`}>
                         Nível: {xpLevel.level}
@@ -148,16 +144,13 @@ function UserPage() {
             </div>
           </div>
 
-          {/* Statistics and Info */}
           <div className="row g-4">
-            {/* Statistics Cards */}
             <div className="col-md-8">
               <div className="card border-1">
                 <div className="card-body p-4">
-                  <h5 className="fw-bold mb-4">Estatísticas de Aprendizagem</h5>
+                  <h5 className="fw-bold mb-4">Estatísticas de aprendizagem</h5>
 
                   <div className="row g-3">
-                    {/* XP Card */}
                     <div className="col-md-6">
                       <div className="stat-card border p-3 rounded">
                         <div className="d-flex align-items-center">
@@ -179,7 +172,6 @@ function UserPage() {
                       </div>
                     </div>
 
-                    {/* Nota Média Card */}
                     <div className="col-md-6">
                       <div className="stat-card border p-3 rounded">
                         <div className="d-flex align-items-center">
@@ -187,7 +179,7 @@ function UserPage() {
                             <Star size={24} className="text-success" />
                           </div>
                           <div>
-                            <h6 className="mb-0 text-success">Nota Média</h6>
+                            <h6 className="mb-0 text-success">Nota média</h6>
                             <h4 className="mb-0 fw-bold">
                               {statistics?.notaMedia
                                 ? `${statistics.notaMedia.toFixed(1)}/20`
@@ -202,7 +194,6 @@ function UserPage() {
                       </div>
                     </div>
 
-                    {/* Total Cursos Card */}
                     <div className="col-md-6">
                       <div className="stat-card border p-3 rounded">
                         <div className="d-flex align-items-center">
@@ -210,7 +201,7 @@ function UserPage() {
                             <BookOpen size={24} className="text-info" />
                           </div>
                           <div>
-                            <h6 className="mb-0 text-info">Cursos Inscritos</h6>
+                            <h6 className="mb-0 text-info">Cursos inscritos</h6>
                             <h4 className="mb-0 fw-bold">
                               {statistics?.totalCursos || 0}
                             </h4>
@@ -222,7 +213,6 @@ function UserPage() {
                       </div>
                     </div>
 
-                    {/* Cursos Completados Card */}
                     <div className="col-md-6">
                       <div className="stat-card border p-3 rounded">
                         <div className="d-flex align-items-center">
@@ -231,7 +221,7 @@ function UserPage() {
                           </div>
                           <div>
                             <h6 className="mb-0 text-warning">
-                              Cursos Completados
+                              Cursos completados
                             </h6>
                             <h4 className="mb-0 fw-bold">
                               {statistics?.cursosCompletados || 0}
@@ -252,12 +242,11 @@ function UserPage() {
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
                   {statistics?.totalCursos > 0 && (
                     <div className="mt-4">
                       <div className="d-flex justify-content-between align-items-center mb-2">
                         <span className="text-muted small">
-                          Progresso Geral
+                          Progresso geral
                         </span>
                         <span className="text-muted small">
                           {Math.round(
@@ -287,11 +276,10 @@ function UserPage() {
               </div>
             </div>
 
-            {/* User Info */}
             <div className="col-md-4">
               <div className="card border-1">
                 <div className="card-body p-4">
-                  <h5 className="fw-bold mb-3">Informações do Utilizador</h5>
+                  <h5 className="fw-bold mb-3">Informações do utilizador</h5>
                   <div className="info-list">
                     <div className="info-item d-flex align-items-center mb-3">
                       <Users size={16} className="me-2 text-muted" />
@@ -325,7 +313,6 @@ function UserPage() {
                       </div>
                     )}
 
-                    {/* Perfil do utilizador */}
                     {user.PERFILs && user.PERFILs.length > 0 && (
                       <div className="info-item">
                         <small className="text-muted d-block mb-2">

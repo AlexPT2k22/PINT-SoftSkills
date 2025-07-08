@@ -79,7 +79,6 @@ function CourseVideoPage() {
     };
   }, [videoID]);
 
-  // Handle pause/play for notes
   const handlePauseVideo = () => {
     if (cloudinaryPlayerRef.current) {
       cloudinaryPlayerRef.current.sendMessage({
@@ -108,24 +107,19 @@ function CourseVideoPage() {
       );
 
       if (response.data.success) {
-        // Imediatamente marcar como completado na UI
         setModuleCompleted(true);
 
-        // Atualizar o mapa de progresso com o módulo completado
         setModuleProgress((prev) => ({
           ...prev,
           [moduleId]: true,
         }));
 
-        // Atualizar progresso do curso
         fetchCourseProgress();
 
-        console.log(
-          `Module ${moduleId} completed! XP gained: ${response.data.xpGanho}`
-        );
+        //console.log(`Module ${moduleId} completed! XP gained: ${response.data.xpGanho}`);
       }
     } catch (error) {
-      console.error("Failed to mark module as completed:", error);
+      console.error("Nao foi possivel marcar o modulo como completo:", error);
     }
   };
 
@@ -152,7 +146,7 @@ function CourseVideoPage() {
         });
       }
     } catch (error) {
-      console.error("Failed to fetch course progress:", error);
+      console.error("Nao foi possviel encontrar progresso:", error);
     }
   };
 
@@ -165,7 +159,7 @@ function CourseVideoPage() {
         });
 
         if (response.status !== 200) {
-          throw new Error("Failed to fetch course data");
+          throw new Error("Erro");
         }
 
         const data = response.data;
@@ -174,9 +168,7 @@ function CourseVideoPage() {
         );
 
         if (currentModule && currentModule.VIDEO_URL) {
-          // Verificar se é URL do YouTube ou Cloudinary
           if (currentModule.VIDEO_URL.includes("youtube.com")) {
-            // É URL do YouTube - extrair video ID
             const youtubeVideoId = extractYouTubeVideoId(
               currentModule.VIDEO_URL
             );
@@ -185,7 +177,6 @@ function CourseVideoPage() {
               setVideoType("youtube");
             }
           } else {
-            // É URL do Cloudinary - extrair resource ID
             const resourceId = extractCloudinaryResourceId(
               currentModule.VIDEO_URL
             );
@@ -212,8 +203,6 @@ function CourseVideoPage() {
         );
 
         if (response.data.success) {
-          //console.log("Module progress data:", response.data);
-          // Convert the array response to a module ID mapped object
           const progressMap = {};
           response.data.modulos.forEach((modulo) => {
             progressMap[modulo.id] = modulo.completo;
@@ -221,7 +210,6 @@ function CourseVideoPage() {
 
           setModuleProgress(progressMap);
 
-          // Check if current module is completed
           const currentModuleProgress = response.data.modulos.find(
             (m) => m.id.toString() === moduleId
           );
@@ -231,39 +219,35 @@ function CourseVideoPage() {
           }
         }
       } catch (error) {
-        console.error("Failed to fetch progress data:", error);
+        console.error("Falhou a ir buscar o progresso:", error);
       }
     };
 
     const getQuizScore = async () => {
       try {
-        // Primeiro, verificar se existe quiz para o curso
         const response = await axios.get(`${URL}/api/quiz/curso/${courseId}`, {
           withCredentials: true,
         });
 
-        // Se não há quiz para o curso
         if (!response.data.quiz) {
           console.log("Nenhum quiz encontrado para este curso");
           setQuiz(false);
           return;
         }
 
-        // Se existe quiz, verificar se o utilizador já respondeu
         try {
           const getQuizResult = await axios.get(
             `${URL}/api/quiz/${response.data.quiz.ID_QUIZ}/resultado`,
             { withCredentials: true }
           );
 
-          // Verificar se o utilizador já respondeu ao quiz
           if (getQuizResult.data && getQuizResult.data.hasResponse === true) {
             setQuiz(true); // Quiz completo
           } else {
             setQuiz(false); // Quiz pendente
           }
         } catch (resultError) {
-          console.log("Utilizador ainda não respondeu ao quiz");
+          //console.log("Utilizador ainda não respondeu ao quiz");
           setQuiz(false);
         }
       } catch (error) {
@@ -313,9 +297,6 @@ function CourseVideoPage() {
     return null;
   };
 
-  const inscritos = courseData?.INSCRITOS || 0;
-  const totalReviews = courseData?.REVIEWS || 0;
-
   const formattedDuration = totalDuration
     ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`
     : "N/A";
@@ -328,7 +309,6 @@ function CourseVideoPage() {
 
         <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-2 p-md-4">
           <div className="container-fluid d-flex flex-column flex-lg-row justify-content-between p-0">
-            {/* Container principal do vídeo e conteúdo */}
             <div className="container d-flex p-0 flex-column order-1 order-lg-1 mb-3 mb-lg-0">
               {videoID && (
                 <div
@@ -365,10 +345,8 @@ function CourseVideoPage() {
                 </div>
               )}
 
-              {/* Descrição do vídeo e tabs */}
               <div className="video-description mt-3 mt-md-4">
                 <div className="container d-flex flex-column p-0">
-                  {/* Navegação em tabs - responsiva */}
                   <div className="container justify-content-start d-flex align-items-center p-0">
                     <ul className="list-group list-group-horizontal nav-tabs-responsive">
                       <a
@@ -419,9 +397,7 @@ function CourseVideoPage() {
                   </div>
                 </div>
 
-                {/* Conteúdo das tabs */}
                 <div className="d-flex flex-column mt-2">
-                  {/* Tab Info */}
                   {index === 0 && (
                     <div className="d-flex flex-column">
                       <div className="container d-flex flex-column p-0 mt-2">
@@ -466,7 +442,6 @@ function CourseVideoPage() {
                     </div>
                   )}
 
-                  {/* Tab Material */}
                   {index === 1 && (
                     <div className="d-flex flex-column">
                       <div className="container d-flex flex-column p-0 mt-2">
@@ -531,7 +506,6 @@ function CourseVideoPage() {
                     </div>
                   )}
 
-                  {/* Tab Notas */}
                   {index === 2 && (
                     <div className="d-flex flex-column">
                       <div className="container d-flex flex-column p-0 mt-2">
@@ -549,7 +523,6 @@ function CourseVideoPage() {
                     </div>
                   )}
 
-                  {/* Tab Anúncios */}
                   {index === 3 && courseData?.CURSO_SINCRONO && (
                     <AnunciosPanel
                       courseId={courseId}
@@ -560,7 +533,6 @@ function CourseVideoPage() {
               </div>
             </div>
 
-            {/* Sidebar dos módulos - responsiva */}
             <div
               className="container course-sidebar border p-0 order-2 order-lg-2"
               style={{

@@ -31,7 +31,6 @@ function FindCoursesPage() {
   const [areas, setAreas] = useState([]);
   const [topics, setTopics] = useState([]);
 
-  // Carregar categorias, áreas e tópicos
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
@@ -44,7 +43,6 @@ function FindCoursesPage() {
         setCategories(categoriesRes.data);
         setTopics(topicsRes.data);
         setAreas(areasRes.data);
-        //console.log(areasRes.data);
       } catch (error) {
         console.error("Erro ao carregar opções de filtro:", error);
       }
@@ -53,7 +51,6 @@ function FindCoursesPage() {
     fetchFilterOptions();
   }, []);
 
-  // mudanças nos parâmetros da URL
   useEffect(() => {
     const searchFromUrl = searchParams.get("search") || "";
     const categoryFromUrl = searchParams.get("category") || "";
@@ -64,7 +61,6 @@ function FindCoursesPage() {
     const sortFromUrl = searchParams.get("sortBy") || "newest";
     const ratingFromUrl = searchParams.get("rating") || "";
 
-    // Atualizar estados se os valores da URL forem diferentes
     if (searchTerm !== searchFromUrl) setSearchTerm(searchFromUrl);
     if (selectedCategory !== categoryFromUrl)
       setSelectedCategory(categoryFromUrl);
@@ -77,7 +73,6 @@ function FindCoursesPage() {
     if (sortBy !== sortFromUrl) setSortBy(sortFromUrl);
   }, [searchParams]);
 
-  // Buscar cursos
   const fetchCourses = useCallback(
     async (resetPage = false) => {
       if (loading) return;
@@ -117,7 +112,7 @@ function FindCoursesPage() {
         setTotalCourses(totalCount);
         setHasMore(morePages);
       } catch (error) {
-        console.error("Erro ao buscar cursos:", error);
+        console.error("Erro ao procurar os cursos:", error);
       } finally {
         setLoading(false);
       }
@@ -135,10 +130,6 @@ function FindCoursesPage() {
   );
 
   useEffect(() => {
-    // Só buscar se tiver pelo menos as categorias carregadas
-    // Só buscar se:
-    // 1. As categorias foram carregadas E há filtros de categoria/área/tópico OU
-    // 2. Há outros tipos de filtros que não dependem das categorias
     const shouldFetch =
       (categories.length > 0 &&
         (selectedCategory || selectedArea || selectedTopic)) ||
@@ -166,7 +157,6 @@ function FindCoursesPage() {
     fetchCourses,
   ]);
 
-  // Atualizar URL com parâmetros de pesquisa
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchTerm) params.set("search", searchTerm);
@@ -198,7 +188,6 @@ function FindCoursesPage() {
   const renderFilterContent = () => {
     return (
       <>
-        {/* Avaliação */}
         <div className="find-courses-filter-section">
           <label className="find-courses-filter-label">Avaliação</label>
           <div className="find-courses-rating-filters">
@@ -230,7 +219,6 @@ function FindCoursesPage() {
           </div>
         </div>
 
-        {/* Categoria */}
         <div className="find-courses-filter-section">
           <label className="find-courses-filter-label">Categoria</label>
           <select
@@ -254,7 +242,6 @@ function FindCoursesPage() {
           </select>
         </div>
 
-        {/* Área */}
         <div className="find-courses-filter-section">
           <label className="find-courses-filter-label">Área</label>
           <select
@@ -275,7 +262,6 @@ function FindCoursesPage() {
           </select>
         </div>
 
-        {/* Tópico */}
         <div className="find-courses-filter-section">
           <label className="find-courses-filter-label">Tópico</label>
           <select
@@ -293,7 +279,6 @@ function FindCoursesPage() {
           </select>
         </div>
 
-        {/* Dificuldade */}
         <div className="find-courses-filter-section">
           <label className="find-courses-filter-label">Dificuldade</label>
           <div className="find-courses-difficulty-filters">
@@ -318,7 +303,6 @@ function FindCoursesPage() {
           </div>
         </div>
 
-        {/* Tipo de curso */}
         <div className="find-courses-filter-section">
           <label className="find-courses-filter-label">Tipo de curso</label>
           <div className="find-courses-type-filters">
@@ -410,7 +394,6 @@ function FindCoursesPage() {
             </button>
           </div>
           <div className="row">
-            {/* Sidebar de filtros */}
             <div className="col-12 d-lg-none">
               <div className={`collapse ${showMobileFilters ? 'show' : ''}`} id="mobileFilters">
                 <div className="card card-body mb-3 find-courses-sidebar find-courses-sidebar-mobile">
@@ -431,7 +414,6 @@ function FindCoursesPage() {
                     </div>
                   </div>
 
-                  {/* Conteúdo dos filtros (igual para desktop e mobile) */}
                   {renderFilterContent()}
                   <div className="mt-3 pt-3 border-top">
                     <button
@@ -445,7 +427,6 @@ function FindCoursesPage() {
               </div>
             </div>
 
-            {/* Sidebar de filtros - Desktop (sempre visível) */}
             <div className="col-lg-3 d-none d-lg-block">
               <div className="find-courses-sidebar">
                 <div className="find-courses-sidebar-header">
@@ -463,15 +444,12 @@ function FindCoursesPage() {
                   )}
                 </div>
 
-                {/* Conteúdo dos filtros (igual para desktop e mobile) */}
                 {renderFilterContent()}
               </div>
             </div>
 
-            {/* Conteúdo principal */}
             <div className="col-lg-9 col-md-12">
               <div className="find-courses-content">
-                {/* Header com resultados e ordenação */}
                 <div className="find-courses-header">
                   <div className="find-courses-header-left">
                     <h2 className="find-courses-title">
@@ -507,7 +485,6 @@ function FindCoursesPage() {
                   </div>
                 </div>
 
-                {/* Tags de filtros ativos */}
                 {hasActiveFilters && (
                   <div className="find-courses-active-filters">
                     <div className="find-courses-filter-tags">
@@ -616,7 +593,6 @@ function FindCoursesPage() {
                   </div>
                 )}
 
-                {/* Loading indicator para lazy loading */}
                 {loading && courses.length > 0 && (
                   <div className="find-courses-loading">
                     <div className="spinner-border text-primary" role="status">
@@ -625,7 +601,6 @@ function FindCoursesPage() {
                   </div>
                 )}
 
-                {/* Grid de cursos */}
                 <div className="find-courses-grid">
                   {courses.length === 0 && !loading ? (
                     <div className="find-courses-no-results">
@@ -658,7 +633,6 @@ function FindCoursesPage() {
                     )
                   )}
 
-                  {/* Botão carregar mais */}
                   {hasMore && courses.length > 0 && (
                     <div className="find-courses-load-more">
                       <button

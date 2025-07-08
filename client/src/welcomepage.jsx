@@ -3,7 +3,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Navbar from "./components/navbar.jsx";
 import Loader from "./components/loader.jsx";
-import useAuthStore from "./store/authStore.js";
 import "./styles/welcomepage.css";
 import CourseCard from "./components/course_card.jsx";
 import { FileBadge } from "lucide-react";
@@ -50,7 +49,6 @@ function WelcomePage() {
               status = "Em curso";
             }
           } else if (course.CURSO_ASSINCRONO) {
-            // Para cursos assíncronos, verifique as datas
             const now = new Date();
             const startDate = new Date(course.CURSO_ASSINCRONO.DATA_INICIO);
             const endDate = new Date(course.CURSO_ASSINCRONO.DATA_FIM);
@@ -87,7 +85,6 @@ function WelcomePage() {
   return (
     <>
       <Navbar />
-      {/* Banner Hero - Responsivo */}
       <div className="container-fluid banner-container">
         <div className="container d-flex justify-content-center justify-content-md-start banner">
           <div className="p-3 p-md-4 d-flex flex-column justify-content-center ms-0 ms-md-5">
@@ -106,7 +103,6 @@ function WelcomePage() {
         </div>
       </div>
 
-      {/* Seção Cursos Populares - Responsivo */}
       <div className="container d-flex flex-column mt-4 mt-md-5 p-3 p-md-0">
         <div className="d-flex flex-column justify-content-start mb-3 text-center text-md-start">
           <h1 className="h2 h-md-1">Os mais populares</h1>
@@ -145,10 +141,8 @@ function WelcomePage() {
           </button>
         </div>
 
-        {/* Seção Features - Responsivo */}
         <div className="container mt-4 mt-md-5 p-0">
           <div className="row align-items-center">
-            {/* Cards de Features */}
             <div className="col-12 col-lg-6 mb-4 mb-lg-0 order-2 order-lg-1">
               <h1 className="mb-3 h2 h-md-1 text-center text-lg-start">
                 Aprenda de forma intuitiva
@@ -249,7 +243,6 @@ function WelcomePage() {
               </div>
             </div>
 
-            {/* Imagem das Features */}
             <div className="col-12 col-lg-6 d-flex align-items-center justify-content-center p-3 order-1 order-lg-2">
               <div className="feature-image-container">
                 <img
@@ -269,13 +262,11 @@ function WelcomePage() {
         </div>
       </div>
 
-      {/* Seção Testemunhos - Responsivo */}
       <div className="container p-3 p-md-0 mt-4 mt-md-5">
         <h1 className="mb-3 h2 h-md-1 text-center text-md-start">
           O que os formandos dizem
         </h1>
         <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3">
-          {/* Testemunho 1 */}
           <div className="col">
             <div className="card h-100 testimonial-card">
               <div className="card-body p-3">
@@ -305,7 +296,6 @@ function WelcomePage() {
             </div>
           </div>
 
-          {/* Testemunho 2 */}
           <div className="col">
             <div className="card h-100 testimonial-card">
               <div className="card-body p-3">
@@ -335,7 +325,6 @@ function WelcomePage() {
             </div>
           </div>
 
-          {/* Testemunho 3 */}
           <div className="col">
             <div className="card h-100 testimonial-card">
               <div className="card-body p-3">
@@ -365,7 +354,6 @@ function WelcomePage() {
             </div>
           </div>
 
-          {/* Testemunho 4 */}
           <div className="col">
             <div className="card h-100 testimonial-card">
               <div className="card-body p-3">

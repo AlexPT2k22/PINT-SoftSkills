@@ -9,8 +9,6 @@ import {
   Award,
   Calendar,
   Filter,
-  Download,
-  RefreshCw,
   BarChart2,
   PieChart,
   Activity,
@@ -21,12 +19,8 @@ import {
   Search,
   Eye,
   AlertCircle,
-  ChevronDown,
-  ChevronUp,
   FileText,
   CheckCircle,
-  XCircle,
-  Loader,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -47,7 +41,6 @@ import SuccessMessage from "./components/sucess_message.jsx";
 import ErrorMessage from "./components/error_message.jsx";
 import "./styles/adminStats.css";
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -64,26 +57,20 @@ const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const AdminStats = () => {
   const navigate = useNavigate();
-
-  // Main states
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
-  // Data states
   const [generalStats, setGeneralStats] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [cursosStats, setCursosStats] = useState(null);
   const [percursoData, setPercursoData] = useState(null);
   const [loadingPercurso, setLoadingPercurso] = useState(false);
-
-  // UI states
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedUsers, setExpandedUsers] = useState(new Set());
   const [viewMode, setViewMode] = useState("cards");
 
-  // Filters
+
   const [filters, setFilters] = useState({
     nome: "",
     dataInicio: "",
@@ -92,12 +79,10 @@ const AdminStats = () => {
     page: 1,
   });
 
-  // Fetch initial data on component mount
   useEffect(() => {
     fetchInitialData();
   }, []);
 
-  // Fetch percurso data when tab is active or filters change
   useEffect(() => {
     if (activeTab === "percurso") {
       fetchPercursoFormativo();
@@ -108,7 +93,6 @@ const AdminStats = () => {
     try {
       setLoading(true);
 
-      // Fetch general statistics, chart data, and course stats in parallel
       const [generalResponse, chartResponse, cursosResponse] =
         await Promise.all([
           axios.get(`${URL}/api/admin/stats/general`, {
@@ -130,7 +114,7 @@ const AdminStats = () => {
         setCursosStats(cursosResponse.data);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Erro a ir buscar os dados:", error);
       setError("Erro ao carregar estatísticas. Por favor, tente novamente.");
     } finally {
       setLoading(false);
@@ -140,8 +124,6 @@ const AdminStats = () => {
   const fetchPercursoFormativo = async () => {
     try {
       setLoadingPercurso(true);
-
-      // Build query params
       const params = new URLSearchParams();
       if (filters.nome) params.append("nome", filters.nome);
       if (filters.dataInicio) params.append("dataInicio", filters.dataInicio);
@@ -159,28 +141,18 @@ const AdminStats = () => {
         setPercursoData(response.data);
       }
     } catch (error) {
-      console.error("Error fetching formative path:", error);
+      console.error("Erro a procurar o percurso formativo:", error);
       setError("Erro ao carregar percurso formativo.");
     } finally {
       setLoadingPercurso(false);
     }
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchInitialData();
-    if (activeTab === "percurso") {
-      await fetchPercursoFormativo();
-    }
-    setRefreshing(false);
-    setSuccessMessage("Dados atualizados com sucesso!");
-  };
-
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,
-      page: key !== "page" ? 1 : value, // Reset pagination when changing filters
+      page: key !== "page" ? 1 : value,
     }));
   };
 
@@ -206,7 +178,6 @@ const AdminStats = () => {
     return "danger";
   };
 
-  // Loading state
   if (loading) {
     return (
       <>
@@ -219,7 +190,7 @@ const AdminStats = () => {
             </div>
             <h4>A carregar estatísticas...</h4>
             <p className="text-muted">
-              Por favor aguarde enquanto compilamos os dados da plataforma
+              Por favor aguarde enquanto carregamos os dados da plataforma
             </p>
           </div>
         </div>
@@ -233,7 +204,6 @@ const AdminStats = () => {
       <Sidebar />
 
       <div className="container mt-4 p-4">
-        {/* Notifications */}
         {successMessage && (
           <SuccessMessage
             message={successMessage}
@@ -243,7 +213,6 @@ const AdminStats = () => {
 
         {error && <ErrorMessage message={error} onClose={() => setError("")} />}
 
-        {/* Header */}
         <div className="stats-header mb-4">
           <div className="row align-items-center">
             <div className="col-md-8">
@@ -252,7 +221,6 @@ const AdminStats = () => {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
         <div className="nav-tabs-container-admin mb-4">
           <ul className="nav nav-tabs-admin nav-fill">
             <li className="nav-item me-3">
@@ -262,7 +230,7 @@ const AdminStats = () => {
                 }`}
                 onClick={() => setActiveTab("overview")}
               >
-                <TrendingUp className="me-2" /> Visão Geral
+                <TrendingUp className="me-2" /> Visão geral
               </button>
             </li>
             <li className="nav-item me-3">
@@ -280,7 +248,7 @@ const AdminStats = () => {
                 }`}
                 onClick={() => setActiveTab("percurso")}
               >
-                <GraduationCap className="me-2" /> Percurso Formativo
+                <GraduationCap className="me-2" /> Percurso formativo
               </button>
             </li>
             <li className="nav-item">
@@ -294,12 +262,9 @@ const AdminStats = () => {
           </ul>
         </div>
 
-        {/* Content Tabs */}
         <div className="stats-content">
-          {/* Overview Tab */}
           {activeTab === "overview" && generalStats && (
             <div className="overview-tab">
-              {/* Summary Cards */}
               <div className="summary-section mb-3">
                 <h3 className="section-title mb-3">Resumo</h3>
                 <div className="row g-3">
@@ -367,7 +332,6 @@ const AdminStats = () => {
                 </div>
               </div>
 
-              {/* Alert if there are pending forum solicitations */}
               {generalStats.forum.solicitacoesPendentes > 0 && (
                 <div className="alert alert-warning d-flex align-items-center mb-4">
                   <AlertCircle size={20} className="me-2" />
@@ -379,15 +343,13 @@ const AdminStats = () => {
                       className="btn btn-sm btn-outline-warning ms-2"
                       onClick={() => navigate("/forum/admin")}
                     >
-                      Ver Solicitações
+                      Ver solicitações
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Statistics Cards */}
               <div className="stats-sections">
-                {/* Users Section */}
                 <div className="stats-section mb-3">
                   <h4 className="section-title mb-3">Utilizadores</h4>
                   <div className="row g-3">
@@ -397,7 +359,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <Users />
                           </div>
-                          <div className="stat-label">Total Utilizadores</div>
+                          <div className="stat-label">Total utilizadores</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.utilizadores.total}
@@ -492,7 +454,6 @@ const AdminStats = () => {
                   </div>
                 </div>
 
-                {/* Courses Section */}
                 <div className="stats-section mb-3">
                   <h4 className="section-title mb-3">Cursos</h4>
                   <div className="row g-3">
@@ -502,7 +463,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <BookOpen />
                           </div>
-                          <div className="stat-label">Total Cursos</div>
+                          <div className="stat-label">Total cursos</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.cursos.total}
@@ -521,7 +482,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <UserCheck />
                           </div>
-                          <div className="stat-label">Cursos Síncronos</div>
+                          <div className="stat-label">Cursos síncronos</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.cursos.sincronos}
@@ -545,7 +506,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <Clock />
                           </div>
-                          <div className="stat-label">Cursos Assíncronos</div>
+                          <div className="stat-label">Cursos assíncronos</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.cursos.assincronos}
@@ -570,7 +531,7 @@ const AdminStats = () => {
                             <Calendar />
                           </div>
                           <div className="stat-label">
-                            Aulas Próximos 7 Dias
+                            Aulas próximos 7 dias
                           </div>
                         </div>
                         <div className="stat-value">
@@ -586,7 +547,6 @@ const AdminStats = () => {
                   </div>
                 </div>
 
-                {/* Enrollments Section */}
                 <div className="stats-section mb-3">
                   <h4 className="section-title mb-3">Inscrições</h4>
                   <div className="row g-3">
@@ -596,7 +556,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <Target />
                           </div>
-                          <div className="stat-label">Total Inscrições</div>
+                          <div className="stat-label">Total inscrições</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.inscricoes.total}
@@ -616,7 +576,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <UserCheck />
                           </div>
-                          <div className="stat-label">Tipo de Inscrição</div>
+                          <div className="stat-label">Tipo de inscrição</div>
                         </div>
                         <div className="stat-value">
                           <span className="badge bg-primary me-2">
@@ -661,7 +621,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <BarChart2 />
                           </div>
-                          <div className="stat-label">Média por Curso</div>
+                          <div className="stat-label">Média por curso</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.inscricoes.mediaPorCurso}
@@ -676,7 +636,6 @@ const AdminStats = () => {
                   </div>
                 </div>
 
-                {/* Forum Section */}
                 <div className="stats-section mb-3">
                   <h4 className="section-title mb-3">Fórum</h4>
                   <div className="row g-3">
@@ -686,7 +645,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <MessageSquare />
                           </div>
-                          <div className="stat-label">Tópicos Ativos</div>
+                          <div className="stat-label">Tópicos ativos</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.forum.topicosAtivos}
@@ -700,7 +659,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <FileText />
                           </div>
-                          <div className="stat-label">Total Posts</div>
+                          <div className="stat-label">Total posts</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.forum.totalPosts}
@@ -729,7 +688,7 @@ const AdminStats = () => {
                             <AlertCircle />
                           </div>
                           <div className="stat-label">
-                            Solicitações Pendentes
+                            Solicitações pendentes
                           </div>
                         </div>
                         <div className="stat-value">
@@ -743,7 +702,6 @@ const AdminStats = () => {
                   </div>
                 </div>
 
-                {/* Assessment Section */}
                 <div className="stats-section mb-3">
                   <h4 className="section-title mb-3">Avaliações</h4>
                   <div className="row g-3">
@@ -753,7 +711,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <Award />
                           </div>
-                          <div className="stat-label">Quizzes Ativos</div>
+                          <div className="stat-label">Quizzes ativos</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.avaliacoes.quizzesAtivos}
@@ -767,7 +725,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <CheckCircle />
                           </div>
-                          <div className="stat-label">Respostas Quizzes</div>
+                          <div className="stat-label">Respostas quizzes</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.avaliacoes.respostasQuizzes}
@@ -781,7 +739,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <FileText />
                           </div>
-                          <div className="stat-label">Avaliações Síncronas</div>
+                          <div className="stat-label">Avaliações síncronas</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.avaliacoes.avaliacoesSincronas}
@@ -800,7 +758,7 @@ const AdminStats = () => {
                           <div className="stat-icon">
                             <Target />
                           </div>
-                          <div className="stat-label">Módulos Completos</div>
+                          <div className="stat-label">Módulos completos</div>
                         </div>
                         <div className="stat-value">
                           {generalStats.avaliacoes.modulosCompletos}
@@ -813,20 +771,18 @@ const AdminStats = () => {
             </div>
           )}
 
-          {/* Cursos Tab */}
           {activeTab === "cursos" && cursosStats && (
             <div className="cursos-tab">
-              {/* Estatísticas por Categoria */}
               <div className="section mb-5">
                 <h3 className="section-title mb-4">
-                  Distribuição por Categoria
+                  Distribuição por categoria
                 </h3>
                 <div className="table-responsive" style={{ overflowX: 'auto', maxWidth: '100%' }}>
                   <table className="table table-hover" style={{ minWidth: '600px' }}>
                     <thead className="table-light">
                       <tr>
                         <th>Categoria</th>
-                        <th>Total Cursos</th>
+                        <th>Total cursos</th>
                         <th>Síncronos</th>
                         <th>Assíncronos</th>
                         <th>Distribuição</th>
@@ -884,10 +840,9 @@ const AdminStats = () => {
                 </div>
               </div>
 
-              {/* Top Cursos */}
               <div className="section mb-4">
                 <h3 className="section-title mb-4">
-                  Top 10 Cursos Mais Populares
+                  Top 10 cursos mais populares
                 </h3>
                 <div className="table-responsive" style={{ overflowX: 'auto', maxWidth: '100%' }}>
                   <table className="table table-hover" style={{ minWidth: '700px' }}>
@@ -926,7 +881,7 @@ const AdminStats = () => {
                                 navigate(`/course/${curso.ID_CURSO}`)
                               }
                             >
-                              <Eye size={14} className="me-1" /> Ver Curso
+                              <Eye size={14} className="me-1" /> Ver curso
                             </button>
                           </td>
                         </tr>
@@ -938,10 +893,8 @@ const AdminStats = () => {
             </div>
           )}
 
-          {/* Percurso Formativo Tab */}
           {activeTab === "percurso" && (
             <div className="percurso-tab">
-              {/* Filters */}
               <div className="filters-section mb-4">
                 <div className="card">
                   <div className="card-header">
@@ -972,7 +925,7 @@ const AdminStats = () => {
                       </div>
 
                       <div className="col-md-2">
-                        <label className="form-label">Data Início</label>
+                        <label className="form-label">Data início</label>
                         <input
                           type="date"
                           className="form-control"
@@ -984,7 +937,7 @@ const AdminStats = () => {
                       </div>
 
                       <div className="col-md-2">
-                        <label className="form-label">Data Fim</label>
+                        <label className="form-label">Data fim</label>
                         <input
                           type="date"
                           className="form-control"
@@ -1016,7 +969,7 @@ const AdminStats = () => {
                           className="btn btn-secondary w-100"
                           onClick={clearFilters}
                         >
-                          Limpar Filtros
+                          Limpar filtros
                         </button>
                       </div>
                     </div>
@@ -1024,7 +977,6 @@ const AdminStats = () => {
                 </div>
               </div>
 
-              {/* View Type Toggle */}
               <div className="view-toggle mb-3 text-end">
                 <div className="btn-group">
                   <button
@@ -1046,11 +998,10 @@ const AdminStats = () => {
                 </div>
               </div>
 
-              {/* Users List */}
               {loadingPercurso ? (
                 <div className="text-center my-5">
                   <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
+                    <span className="visually-hidden">A carregar...</span>
                   </div>
                   <p className="mt-2">
                     A carregar dados do percurso formativo...
@@ -1058,13 +1009,9 @@ const AdminStats = () => {
                 </div>
               ) : percursoData?.percursos ? (
                 <div className="users-percurso-section">
-                  {/* Card View */}
                   {viewMode === "cards" && (
                     <div className="row g-4">
                       {percursoData.percursos.map((percurso) => {
-                        const isExpanded = expandedUsers.has(
-                          percurso.utilizador.ID_UTILIZADOR
-                        );
                         const user = percurso.utilizador;
                         const stats = percurso.estatisticas;
                         const perfil = user.PERFILs?.[0]?.PERFIL || "N/A";
@@ -1100,7 +1047,7 @@ const AdminStats = () => {
                                   <div className="col-6">
                                     <div className="percurso-stat">
                                       <div className="stat-label">
-                                        Total Cursos
+                                        Total cursos
                                       </div>
                                       <div className="stat-value">
                                         {stats.totalCursos}
@@ -1110,7 +1057,7 @@ const AdminStats = () => {
                                   <div className="col-6">
                                     <div className="percurso-stat">
                                       <div className="stat-label">
-                                        Módulos Completos
+                                        Módulos completos
                                       </div>
                                       <div className="stat-value">
                                         {stats.modulosCompletos}
@@ -1120,7 +1067,7 @@ const AdminStats = () => {
                                   <div className="col-6">
                                     <div className="percurso-stat">
                                       <div className="stat-label">
-                                        Nota Média
+                                        Nota média
                                       </div>
                                       <div className="stat-value">
                                         {stats.notaMediaGeral !== null &&
@@ -1132,7 +1079,7 @@ const AdminStats = () => {
                                   </div>
                                   <div className="col-6">
                                     <div className="percurso-stat">
-                                      <div className="stat-label">XP Total</div>
+                                      <div className="stat-label">XP total</div>
                                       <div className="stat-value">
                                         {stats.xp}
                                       </div>
@@ -1143,7 +1090,7 @@ const AdminStats = () => {
                                 <div className="user-details-stats">
                                   <div className="detail-item">
                                     <span className="detail-label">
-                                      Cursos Síncronos:
+                                      Cursos síncronos:
                                     </span>
                                     <span className="detail-value">
                                       {stats.cursosSincronos}
@@ -1159,7 +1106,7 @@ const AdminStats = () => {
                                   </div>
                                   <div className="detail-item">
                                     <span className="detail-label">
-                                      Quizzes Respondidos:
+                                      Quizzes respondidos:
                                     </span>
                                     <span className="detail-value">
                                       {stats.quizzesRespondidos}
@@ -1167,7 +1114,7 @@ const AdminStats = () => {
                                   </div>
                                   <div className="detail-item">
                                     <span className="detail-label">
-                                      Progresso Geral:
+                                      Progresso geral:
                                     </span>
                                     <span className="detail-value">
                                       {stats.progressoGeral}%
@@ -1183,7 +1130,7 @@ const AdminStats = () => {
                                   </div>
                                   <div className="detail-item">
                                     <span className="detail-label">
-                                      Último Login:
+                                      Último login:
                                     </span>
                                     <span className="detail-value">
                                       {user.ULTIMO_LOGIN
@@ -1209,9 +1156,9 @@ const AdminStats = () => {
                             <th>Email / Username</th>
                             <th>Perfil</th>
                             <th>Cursos</th>
-                            <th>Nota Média</th>
+                            <th>Nota média</th>
                             <th>Progresso</th>
-                            <th>Último Login</th>
+                            <th>Último login</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1293,7 +1240,6 @@ const AdminStats = () => {
                     </div>
                   )}
 
-                  {/* Pagination */}
                   {percursoData.pagination && (
                     <nav className="mt-4">
                       <ul className="pagination justify-content-center">
@@ -1372,11 +1318,9 @@ const AdminStats = () => {
             </div>
           )}
 
-          {/* Charts Tab */}
           {activeTab === "charts" && chartData && (
             <div className="charts-tab">
               <div className="row g-4">
-                {/* Enrollments by Month */}
                 <div className="col-md-12 mb-4">
                   <div className="card">
                     <div className="card-header">
@@ -1434,7 +1378,6 @@ const AdminStats = () => {
                   </div>
                 </div>
 
-                {/* Users by Profile */}
                 <div className="col-md-6 mb-4">
                   <div className="card">
                     <div className="card-header">
@@ -1477,7 +1420,6 @@ const AdminStats = () => {
                   </div>
                 </div>
 
-                {/* Forum Activity by Month */}
                 <div className="col-md-6 mb-4">
                   <div className="card">
                     <div className="card-header">

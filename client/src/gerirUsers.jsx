@@ -4,16 +4,8 @@ import Sidebar from "./components/sidebar";
 import axios from "axios";
 import {
   Edit,
-  Eye,
   UserX,
-  CheckCircle,
-  XCircle,
-  Linkedin,
-  Mail,
-  User,
-  AlertTriangle,
-  UserPlus,
-  Info,
+  UserPlus
 } from "lucide-react";
 import "./styles/gerirUsers.css";
 import SuccessMessage from "./components/sucess_message";
@@ -37,27 +29,23 @@ function GerirUsers() {
   });
   const [addingTeacher, setAddingTeacher] = useState(false);
 
-  // Estados para mensagens
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Função para mostrar mensagem de sucesso
   const showSuccess = (message) => {
     setSuccessMessage(message);
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 5000);
   };
 
-  // Função para mostrar mensagem de erro
   const showError = (message) => {
     setErrorMessage(message);
     setShowErrorMessage(true);
     setTimeout(() => setShowErrorMessage(false), 5000);
   };
 
-  // Buscar utilizadores
   const getUsers = async () => {
     try {
       setLoading(true);
@@ -74,7 +62,6 @@ function GerirUsers() {
     }
   };
 
-  // Função para adicionar formador
   const handleAddTeacher = async (e) => {
     e.preventDefault();
 
@@ -96,7 +83,7 @@ function GerirUsers() {
         showSuccess("Formador adicionado com sucesso! Email enviado.");
         setTeacherForm({ NOME: "", EMAIL: "" });
         setShowAddTeacher(false);
-        await getUsers(); // Refresh lista
+        await getUsers();
       }
     } catch (error) {
       console.error("Erro ao adicionar formador:", error);
@@ -106,7 +93,6 @@ function GerirUsers() {
     }
   };
 
-  // Buscar perfis disponíveis
   const getProfiles = async () => {
     try {
       const response = await axios.get(`${URL}/api/user/profiles`, {
@@ -124,7 +110,6 @@ function GerirUsers() {
     getProfiles();
   }, []);
 
-  // Filtrar utilizadores
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.NOME?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -147,7 +132,6 @@ function GerirUsers() {
     });
   };
 
-  // Função para salvar alterações
   const handleSaveUser = async () => {
     try {
       setLoadingButton(true);
@@ -179,7 +163,6 @@ function GerirUsers() {
     }
   };
 
-  // Função para cancelar edição
   const handleCancelEdit = () => {
     setEditingUser(null);
   };
@@ -190,7 +173,6 @@ function GerirUsers() {
       <Sidebar />
       <div className="container mt-4 p-4">
         <div className="container">
-          {/* Componentes de Mensagem */}
           {showSuccessMessage && (
             <SuccessMessage
               message={successMessage}
@@ -208,7 +190,6 @@ function GerirUsers() {
             <h2 className="users-title">Gerir Utilizadores</h2>
           </div>
 
-          {/* Filtros e Pesquisa */}
           <div className="users-filters-section">
             <div className="row g-3">
               <div className="col-md-5">
@@ -470,7 +451,6 @@ function GerirUsers() {
         </div>
       )}
 
-      {/* Modal de Edição */}
       {editingUser && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
@@ -582,7 +562,6 @@ function GerirUsers() {
         </div>
       )}
 
-      {/* Backdrop para os modais */}
       {editingUser && <div className="modal-backdrop show"></div>}
     </>
   );

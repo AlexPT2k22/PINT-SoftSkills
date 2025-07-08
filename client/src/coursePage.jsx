@@ -62,7 +62,6 @@ function CoursePage() {
     return `${hours}h ${remainingMinutes}min`;
   };
 
-  // ✅ useEffect único para carregar todos os dados
   useEffect(() => {
     let isMounted = true; // Flag para evitar state updates em componentes desmontados
 
@@ -76,7 +75,6 @@ function CoursePage() {
         const courseData = courseResponse.data;
         setCourse(courseData);
 
-        // Calcular tempo total com verificação de segurança
         if (courseData.MODULOS && Array.isArray(courseData.MODULOS)) {
           const total = courseData.MODULOS.reduce((sum, modulo) => {
             return sum + (modulo.TEMPO_ESTIMADO_MIN || 0);
@@ -102,7 +100,6 @@ function CoursePage() {
           } catch (enrollmentError) {
             if (!isMounted) return;
 
-            // Se for erro de rede ou timeout, não mostrar erro
             if (
               enrollmentError.code === "ECONNABORTED" ||
               enrollmentError.name === "AbortError"
@@ -220,9 +217,7 @@ function CoursePage() {
   const isButtonDisabled = () => {
     if (isEnrolling) return true;
 
-    // Se está inscrito
     if (inscrito) {
-      // Para cursos síncronos inscritos, só desabilitar se ainda não começou
       if (course.CURSO_SINCRONO) {
         const status = checkDates(
           course.CURSO_SINCRONO.DATA_INICIO,
@@ -231,28 +226,23 @@ function CoursePage() {
         return status === "O curso ainda não começou";
       }
 
-      // Para cursos assíncronos inscritos
       if (course.CURSO_ASSINCRONO) {
         const status = checkDates(
           course.CURSO_ASSINCRONO.DATA_INICIO,
           course.CURSO_ASSINCRONO.DATA_FIM
         );
-        // Desabilitar se o curso assíncrono já terminou
         return status === "O curso já terminou";
       }
 
       return false;
     }
 
-    // Se NÃO está inscrito
-    // Para cursos síncronos
     if (course.CURSO_SINCRONO) {
-      // Verificar se há vagas
       if (course.CURSO_SINCRONO.VAGAS <= 0) {
         return true;
       }
 
-      // Verificar prazo de inscrição
+
       if (course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S) {
         if (
           !checkEnrollmentDeadline(
@@ -263,36 +253,29 @@ function CoursePage() {
         }
       }
 
-      // Verificar status do curso síncrono
       const status = checkDates(
         course.CURSO_SINCRONO.DATA_INICIO,
         course.CURSO_SINCRONO.DATA_FIM
       );
 
-      // Para cursos síncronos: não pode inscrever se já terminou ou está em andamento
       return (
         status === "O curso já terminou" ||
         status === "O curso está em andamento"
       );
     }
 
-    // Para cursos assíncronos
     if (course.CURSO_ASSINCRONO) {
-      // Verificar se o curso assíncrono já terminou
       const status = checkDates(
         course.CURSO_ASSINCRONO.DATA_INICIO,
         course.CURSO_ASSINCRONO.DATA_FIM
       );
 
-      // Para cursos assíncronos: só não pode inscrever se já terminou
-      // PODE inscrever mesmo estando "em andamento"
       return status === "O curso já terminou";
     }
 
     return false;
   };
 
-  //Função para determinar o texto do botão
   const getButtonText = () => {
     if (isEnrolling) {
       return (
@@ -327,7 +310,6 @@ function CoursePage() {
         }
       }
 
-      // Para cursos assíncronos inscritos
       if (course.CURSO_ASSINCRONO) {
         const status = checkDates(
           course.CURSO_ASSINCRONO.DATA_INICIO,
@@ -344,14 +326,11 @@ function CoursePage() {
       return "Ir para o curso";
     }
 
-    // Para não inscritos
     if (course.CURSO_SINCRONO) {
-      // Verificar vagas primeiro
       if (course.CURSO_SINCRONO.VAGAS <= 0) {
         return "Sem vagas";
       }
 
-      // Verificar prazo de inscrição
       if (course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S) {
         if (
           !checkEnrollmentDeadline(
@@ -362,7 +341,6 @@ function CoursePage() {
         }
       }
 
-      // Status do curso síncrono
       return checkDates(
         course.CURSO_SINCRONO.DATA_INICIO,
         course.CURSO_SINCRONO.DATA_FIM,
@@ -370,7 +348,6 @@ function CoursePage() {
       );
     }
 
-    // Para cursos assíncronos não inscritos
     if (course.CURSO_ASSINCRONO) {
       const status = checkDates(
         course.CURSO_ASSINCRONO.DATA_INICIO,
@@ -381,7 +358,6 @@ function CoursePage() {
         return "Curso terminado";
       }
 
-      // Para assíncronos, sempre mostrar "Inscrever" se não terminou
       return "Inscrever";
     }
 
@@ -393,7 +369,6 @@ function CoursePage() {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    // Verificar prazo de inscrição primeiro (apenas para síncronos)
     if (enrollmentDeadline && !checkEnrollmentDeadline(enrollmentDeadline)) {
       return "Prazo de inscrição expirado";
     }
@@ -431,10 +406,8 @@ function CoursePage() {
             </div>
           )}
 
-          {/* Banner do Curso - Responsivo */}
           <div className="container-fluid banner-curso pb-4 pb-md-5 pt-3">
             <div className="container">
-              {/* Breadcrumb */}
               <div className="row mb-3">
                 <div className="col-12">
                   <nav aria-label="breadcrumb">
@@ -486,9 +459,7 @@ function CoursePage() {
                 </div>
               </div>
 
-              {/* Conteúdo Principal */}
               <div className="row">
-                {/* Informações do Curso */}
                 <div className="col-lg-7 col-md-12 order-md-1 order-1 mb-4 mb-lg-0">
                   <h1 className="mb-3">{course.NOME}</h1>
                   <p className="mb-4" style={{ maxWidth: "700px" }}>
@@ -496,7 +467,6 @@ function CoursePage() {
                   </p>
 
                   <div className="container-info">
-                    {/* Informações do formador e vagas */}
                     <div className="row mb-2">
                       <div className="col-lg-8 col-md-6 col-12 mb-2 mb-md-0">
                         <h6 className="course-text-h1">
@@ -539,7 +509,6 @@ function CoursePage() {
                       </div>
                     </div>
 
-                    {/* Datas do curso */}
                     <div className="row mb-3">
                       <div className="col-lg-8 col-md-6 col-12 mb-2 mb-md-0">
                         <h6 className="course-text-h1 mb-0">
@@ -587,7 +556,6 @@ function CoursePage() {
                     </div>
                   </div>
 
-                  {/* Botão de Inscrição */}
                   <div className="d-flex justify-content-start mt-3">
                     <button
                       className="btn btn-primary px-4 py-2 fs-5"
@@ -599,7 +567,6 @@ function CoursePage() {
                   </div>
                 </div>
 
-                {/* Imagem do Curso */}
                 <div className="col-lg-5 col-md-12 order-md-2 order-2">
                   <div className="text-center">
                     <img
@@ -621,7 +588,6 @@ function CoursePage() {
             </div>
           </div>
 
-          {/* Cards de Informação - Responsivo */}
           <div className="container">
             <div className="row shadow border course-info-banner mx-0 p-3">
               <div className="col-lg col-md-6 col-12 py-3 d-flex flex-column justify-content-center align-items-center border-end-lg">
@@ -661,7 +627,6 @@ function CoursePage() {
             </div>
           </div>
 
-          {/* Quiz Card - Responsivo */}
           <div className="container mt-4">
             {course.HAS_QUIZ && (
               <div className="card">
@@ -683,7 +648,6 @@ function CoursePage() {
             )}
           </div>
 
-          {/* Navegação em Tabs - Responsivo */}
           <div className="container mt-4">
             <nav className="nav nav-tabs">
               <a
@@ -708,12 +672,9 @@ function CoursePage() {
             <hr className="mt-0" />
           </div>
 
-          {/* Conteúdo das Tabs - Responsivo */}
           <div className="container my-4">
-            {/* Tab Info */}
             {index === 0 && (
               <div className="row">
-                {/* O que vai aprender */}
                 <div className="col-lg-6 col-md-12 mb-4 mb-lg-0">
                   <h4 className="mb-3">O que vai aprender</h4>
                   <div className="d-flex flex-wrap">
@@ -733,7 +694,6 @@ function CoursePage() {
                   </div>
                 </div>
 
-                {/* Habilidades */}
                 <div className="col-lg-6 col-md-12">
                   <h4 className="mb-3">Habilidades que desenvolverá</h4>
                   <div className="d-flex flex-wrap gap-2">
@@ -756,7 +716,6 @@ function CoursePage() {
               </div>
             )}
 
-            {/* Tab Módulos */}
             {index === 1 && (
               <>
                 <h4 className="mb-4">Módulos ao longo do curso</h4>
@@ -787,7 +746,6 @@ function CoursePage() {
               </>
             )}
 
-            {/* Tab Avaliações */}
             {index === 2 && (
               <CourseReviews courseId={courseId} isEnrolled={inscrito} />
             )}

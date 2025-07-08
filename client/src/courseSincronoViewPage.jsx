@@ -15,10 +15,7 @@ const SynchronousCourseView = () => {
   const [isTeacher, setIsTeacher] = useState(false);
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuthStore.getState();
   const tab = searchParams.get("tab");
-
-
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   useEffect(() => {
@@ -37,14 +34,14 @@ const SynchronousCourseView = () => {
           }
         );
 
-        console.log("Resposta do servidor:", teacherResponse.data);
+        //console.log("Resposta do servidor:", teacherResponse.data);
 
         if (teacherResponse.data.success && teacherResponse.data.isTeacher) {
           setIsTeacher(true);
-          console.log("Utilizador é formador do curso");
+          //console.log("Utilizador é formador do curso");
         } else {
           setIsTeacher(false);
-          console.log("Utilizador NÃO é formador do curso");
+          //console.log("Utilizador NÃO é formador do curso");
         }
 
         setLoading(false);

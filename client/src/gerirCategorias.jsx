@@ -78,7 +78,6 @@ function GerirCategorias() {
     }
   };
 
-  // Funções para Categorias
   const handleSubmitCategoria = async (e) => {
     e.preventDefault();
     try {
@@ -105,8 +104,8 @@ function GerirCategorias() {
       resetCategoriaForm();
       fetchData();
     } catch (error) {
-      console.error("Erro ao salvar categoria:", error);
-      setMessage("Erro ao salvar categoria");
+      console.error("Erro ao guardar categoria:", error);
+      setMessage("Erro ao guardar categoria");
       setShowErrorMessage(true);
     }
   };
@@ -120,7 +119,6 @@ function GerirCategorias() {
     try {
       setDeleteLoading(true);
 
-      // Verificar se existem cursos associados à categoria
       const cursosResponse = await axios.get(
         `${URL}/api/cursos/check-categoria/${itemToDelete.ID_CATEGORIA}`,
         { withCredentials: true }
@@ -156,7 +154,6 @@ function GerirCategorias() {
     }
   };
 
-  // Funções para Áreas
   const handleSubmitArea = async (e) => {
     e.preventDefault();
     try {
@@ -179,8 +176,8 @@ function GerirCategorias() {
       resetAreaForm();
       fetchData();
     } catch (error) {
-      console.error("Erro ao salvar área:", error);
-      setMessage("Erro ao salvar área");
+      console.error("Erro ao guardar área:", error);
+      setMessage("Erro ao guardar área");
       setShowErrorMessage(true);
     }
   };
@@ -194,7 +191,6 @@ function GerirCategorias() {
     try {
       setDeleteLoading(true);
 
-      // Verificar se existem cursos associados à área
       const cursosResponse = await axios.get(
         `${URL}/api/cursos/check-area/${itemToDelete.ID_AREA}`,
         { withCredentials: true }
@@ -230,7 +226,6 @@ function GerirCategorias() {
     }
   };
 
-  // Funções para Tópicos
   const handleSubmitTopico = async (e) => {
     e.preventDefault();
     try {
@@ -253,8 +248,8 @@ function GerirCategorias() {
       resetTopicoForm();
       fetchData();
     } catch (error) {
-      console.error("Erro ao salvar tópico:", error);
-      setMessage("Erro ao salvar tópico");
+      console.error("Erro ao guardar tópico:", error);
+      setMessage("Erro ao guardar tópico");
       setShowErrorMessage(true);
     }
   };
@@ -268,7 +263,6 @@ function GerirCategorias() {
     try {
       setDeleteLoading(true);
 
-      // Verificar se existem cursos associados ao tópico
       const cursosResponse = await axios.get(
         `${URL}/api/cursos/check-topico/${itemToDelete.ID_TOPICO}`,
         { withCredentials: true }
@@ -305,7 +299,6 @@ function GerirCategorias() {
     }
   };
 
-  // Funções auxiliares
   const resetCategoriaForm = () => {
     setNovaCategoria({ NOME__: "", DESCRICAO__: "" });
     setEditandoCategoria(null);
@@ -600,7 +593,6 @@ function GerirCategorias() {
           </div>
         )}
 
-        {/* Modal Categoria */}
         <div
           className={`modal fade ${showCategoriaModal ? "show" : ""}`}
           style={{ display: showCategoriaModal ? "block" : "none" }}
@@ -673,7 +665,6 @@ function GerirCategorias() {
           </div>
         </div>
 
-        {/* Modal Área */}
         <div
           className={`modal fade ${showAreaModal ? "show" : ""}`}
           style={{ display: showAreaModal ? "block" : "none" }}
@@ -764,7 +755,6 @@ function GerirCategorias() {
           </div>
         </div>
 
-        {/* Modal Tópico */}
         <div
           className={`modal fade ${showTopicoModal ? "show" : ""}`}
           style={{ display: showTopicoModal ? "block" : "none" }}
@@ -863,7 +853,6 @@ function GerirCategorias() {
           </div>
         </div>
 
-        {/* Modal de confirmação de exclusão de categoria */}
         <ConfirmDeleteCategoriaModal
           categoria={itemToDelete}
           areas={areas}
@@ -900,7 +889,6 @@ function GerirCategorias() {
           loading={deleteLoading}
         />
 
-        {/* Backdrop para modais */}
         {(showCategoriaModal || showAreaModal || showTopicoModal) && (
           <div className="modal-backdrop fade show"></div>
         )}
