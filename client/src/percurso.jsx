@@ -439,13 +439,15 @@ const MeuPercurso = () => {
               <div className="certificado-status p-3 rounded bg-light">
                 <h6
                   className={
-                    curso.elegiveParaCertificado ? "text-info" : "text-warning"
+                    detalhes.elegiveParaCertificado
+                      ? "text-info"
+                      : "text-warning"
                   }
                 >
                   <Award size={20} className="me-2" />
                   Status do Certificado
                 </h6>
-                {curso.elegiveParaCertificado ? (
+                {detalhes.elegiveParaCertificado ? (
                   <>
                     <p className="mb-2">
                       Parabéns! Você é elegível para receber o certificado. Faça
@@ -468,41 +470,67 @@ const MeuPercurso = () => {
                       <strong>Pendências:</strong>
                     </p>
                     <ul className="mb-0">
-                      {curso.percentualConcluido < 100 && (
+                      {detalhes.progresso.percentualConcluido < 100 && (
                         <li>
                           Completar todos os módulos (
-                          {curso.percentualConcluido}% concluído)
+                          {detalhes.progresso.percentualConcluido}% concluído)
                         </li>
                       )}
-                      {(() => {
-                        const notaMinima = 9.5;
-                        const notaAtual =
-                          curso.tipo === "Síncrono"
-                            ? curso.notaFinal
-                            : (curso.notaMedia * 20) / 100;
-                        return (
-                          (isNaN(notaAtual) || notaAtual < notaMinima) && (
+
+                      {detalhes.tipo === "Síncrono" && (
+                        <>
+                          {detalhes.avaliacoesCompletas <
+                            detalhes.totalAvaliacoes && (
                             <li>
-                              Obter nota média mínima de {notaMinima} valores
-                              (atual: {notaAtual ? notaAtual.toFixed(1) : 0}/20
-                              valores)
+                              Completar todas as avaliações (
+                              {detalhes.avaliacoesCompletas}/
+                              {detalhes.totalAvaliacoes})
                             </li>
-                          )
-                        );
-                      })()}
-                      {curso.tipo === "Síncrono" &&
-                        curso.avaliacoesCompletas < curso.totalAvaliacoes && (
-                          <li>
-                            Completar todas as avaliações (
-                            {curso.avaliacoesCompletas}/{curso.totalAvaliacoes})
-                          </li>
-                        )}
-                      {curso.tipo === "Assíncrono" &&
-                        curso.quizzesRespondidos < curso.totalQuizzes && (
-                          <li>
-                            Responder a todos os quizzes (
-                            {curso.quizzesRespondidos}/{curso.totalQuizzes})
-                          </li>
+                          )}
+                          {(() => {
+                            const notaMinima = 9.5;
+                            const notaAtual = detalhes.notaFinal;
+                            return (
+                              (isNaN(notaAtual) || notaAtual < notaMinima) && (
+                                <li>
+                                  Obter nota média mínima de {notaMinima}{" "}
+                                  valores (atual:{" "}
+                                  {notaAtual ? notaAtual.toFixed(1) : 0}/20
+                                  valores)
+                                </li>
+                              )
+                            );
+                          })()}
+                        </>
+                      )}
+
+                      {detalhes.tipo === "Assíncrono" &&
+                        detalhes.totalQuizzes > 0 && (
+                          <>
+                            {detalhes.quizzesRespondidos <
+                              detalhes.totalQuizzes && (
+                              <li>
+                                Responder a todos os quizzes (
+                                {detalhes.quizzesRespondidos}/
+                                {detalhes.totalQuizzes})
+                              </li>
+                            )}
+                            {(() => {
+                              const notaMinima = 9.5;
+                              const notaAtual = (detalhes.notaMedia * 20) / 100;
+                              return (
+                                (isNaN(notaAtual) ||
+                                  notaAtual < notaMinima) && (
+                                  <li>
+                                    Obter nota média mínima de {notaMinima}{" "}
+                                    valores (atual:{" "}
+                                    {notaAtual ? notaAtual.toFixed(1) : 0}/20
+                                    valores)
+                                  </li>
+                                )
+                              );
+                            })()}
+                          </>
                         )}
                     </ul>
                   </div>
@@ -1234,65 +1262,74 @@ const MeuPercurso = () => {
                                             let temPendencias = false;
                                             let motivoPendencia = "";
 
-                                            let notaAtual, notaMinima;
-
                                             if (curso.tipo === "Síncrono") {
-                                              notaAtual = curso.notaFinal;
-                                              notaMinima = 9.5;
-                                            } else {
-                                              notaAtual =
-                                                (curso.notaMedia * 20) / 100;
-                                              notaMinima = 9.5;
-                                            }
-
-                                            if (
-                                              isNaN(notaAtual) ||
-                                              notaAtual < notaMinima
-                                            ) {
-                                              temPendencias = true;
-                                              motivoPendencia = `Nota média insuficiente (${
-                                                notaAtual
-                                                  ? notaAtual.toFixed(1)
-                                                  : 0
-                                              }/20 valores - mínimo: ${notaMinima})`;
-                                            }
-
-                                            if (curso.tipo === "Síncrono") {
+                                              // Verificar se todas as avaliações foram feitas
                                               if (
                                                 curso.avaliacoesCompletas <
                                                 curso.totalAvaliacoes
                                               ) {
                                                 temPendencias = true;
+                                                motivoPendencia = `${
+                                                  curso.totalAvaliacoes -
+                                                  curso.avaliacoesCompletas
+                                                } avaliação(ões) pendente(s)`;
+                                              }
+
+                                              // Verificar nota final
+                                              const notaMinima = 9.5;
+                                              const notaAtual = curso.notaFinal;
+                                              if (
+                                                isNaN(notaAtual) ||
+                                                notaAtual < notaMinima
+                                              ) {
+                                                temPendencias = true;
+                                                const notaMotivo = `Nota média insuficiente (${
+                                                  notaAtual
+                                                    ? notaAtual.toFixed(1)
+                                                    : 0
+                                                }/20 valores - mínimo: ${notaMinima})`;
                                                 motivoPendencia =
                                                   motivoPendencia
-                                                    ? `${motivoPendencia} e ${
-                                                        curso.totalAvaliacoes -
-                                                        curso.avaliacoesCompletas
-                                                      } avaliação(ões) pendente(s)`
-                                                    : `${
-                                                        curso.totalAvaliacoes -
-                                                        curso.avaliacoesCompletas
-                                                      } avaliação(ões) pendente(s)`;
+                                                    ? `${motivoPendencia} e ${notaMotivo}`
+                                                    : notaMotivo;
                                               }
                                             } else if (
                                               curso.tipo === "Assíncrono"
                                             ) {
-                                              if (
-                                                curso.quizzesRespondidos <
-                                                curso.totalQuizzes
-                                              ) {
-                                                temPendencias = true;
-                                                motivoPendencia =
-                                                  motivoPendencia
-                                                    ? `${motivoPendencia} e ${
-                                                        curso.totalQuizzes -
-                                                        curso.quizzesRespondidos
-                                                      } quiz(zes) pendente(s)`
-                                                    : `${
-                                                        curso.totalQuizzes -
-                                                        curso.quizzesRespondidos
-                                                      } quiz(zes) pendente(s)`;
+                                              // Se tem quizzes, verificar se foram respondidos e nota
+                                              if (curso.totalQuizzes > 0) {
+                                                if (
+                                                  curso.quizzesRespondidos <
+                                                  curso.totalQuizzes
+                                                ) {
+                                                  temPendencias = true;
+                                                  motivoPendencia = `${
+                                                    curso.totalQuizzes -
+                                                    curso.quizzesRespondidos
+                                                  } quiz(zes) pendente(s)`;
+                                                }
+
+                                                // Verificar nota média
+                                                const notaMinima = 9.5;
+                                                const notaAtual =
+                                                  (curso.notaMedia * 20) / 100;
+                                                if (
+                                                  isNaN(notaAtual) ||
+                                                  notaAtual < notaMinima
+                                                ) {
+                                                  temPendencias = true;
+                                                  const notaMotivo = `Nota média insuficiente (${
+                                                    notaAtual
+                                                      ? notaAtual.toFixed(1)
+                                                      : 0
+                                                  }/20 valores - mínimo: ${notaMinima})`;
+                                                  motivoPendencia =
+                                                    motivoPendencia
+                                                      ? `${motivoPendencia} e ${notaMotivo}`
+                                                      : notaMotivo;
+                                                }
                                               }
+                                              // Se não tem quizzes, certificado fica pronto quando 100% completo
                                             }
 
                                             if (temPendencias) {
@@ -1315,7 +1352,7 @@ const MeuPercurso = () => {
                                                     size={16}
                                                     className="me-1"
                                                   />
-                                                  Elegível
+                                                  Disponível
                                                 </span>
                                               );
                                             }

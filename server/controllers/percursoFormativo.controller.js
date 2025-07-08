@@ -383,10 +383,10 @@ const getMeuPercursoFormativo = async (req, res) => {
 
         const podeReceberCertificado = () => {
           if (percentualConcluido < 100) return false;
-
-          if (quizzesRespondidos < quizzes.length) return false;
-
-          if (notaMedia < 47.5) return false;
+          if (quizzes.length > 0) {
+            if (quizzesRespondidos < quizzes.length) return false;
+            if (notaMedia < 47.5) return false;
+          }
 
           return true;
         };
@@ -667,10 +667,34 @@ const getDetalhesCursoPercurso = async (req, res) => {
 
       const notaFinal = avaliacaoFinal ? avaliacaoFinal.NOTA_FINAL : 0;
 
+      // Calculate eligibility for synchronous course
+      const percentualConcluido =
+        curso.MODULOS?.length > 0
+          ? Math.round(
+              (progressos.filter((p) => p.COMPLETO).length /
+                curso.MODULOS.length) *
+                100
+            )
+          : 0;
+
+      const avaliacoesCompletas = avaliacoes.filter(
+        (avaliacao) => avaliacao.SUBMISSAO_AVALIACAOs?.[0]?.NOTA !== null
+      ).length;
+
+      const podeReceberCertificado = () => {
+        if (percentualConcluido < 100) return false;
+        if (avaliacoesCompletas < avaliacoes.length) return false;
+        if (notaFinal < 9.5) return false;
+        return true;
+      };
+
       detalhesEspecificos = {
         tipo: "Síncrono",
         notaMedia: parseFloat(notaMedia.toFixed(1)),
         notaFinal: parseFloat(notaFinal.toFixed(1)),
+        elegiveParaCertificado: podeReceberCertificado(),
+        totalAvaliacoes: avaliacoes.length,
+        avaliacoesCompletas: avaliacoesCompletas,
         aulas: aulas.map((aula) => ({
           id: aula.ID_AULA,
           data: aula.DATA_AULA,
@@ -720,9 +744,31 @@ const getDetalhesCursoPercurso = async (req, res) => {
         notaMedia = notaMedia / quizzesRespondidos;
       }
 
+      // Calculate eligibility for asynchronous course
+      const percentualConcluido =
+        curso.MODULOS?.length > 0
+          ? Math.round(
+              (progressos.filter((p) => p.COMPLETO).length /
+                curso.MODULOS.length) *
+                100
+            )
+          : 0;
+
+      const podeReceberCertificado = () => {
+        if (percentualConcluido < 100) return false;
+        if (quizzes.length > 0) {
+          if (quizzesRespondidos < quizzes.length) return false;
+          if (notaMedia < 47.5) return false;
+        }
+        return true;
+      };
+
       detalhesEspecificos = {
         tipo: "Assíncrono",
         notaMedia: parseFloat(notaMedia.toFixed(1)),
+        elegiveParaCertificado: podeReceberCertificado(),
+        totalQuizzes: quizzes.length,
+        quizzesRespondidos: quizzesRespondidos,
         quizzes: quizzes.map((quiz) => ({
           id: quiz.ID_QUIZ,
           titulo: quiz.TITULO,
