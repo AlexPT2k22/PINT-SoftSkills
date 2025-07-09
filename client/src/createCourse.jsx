@@ -183,7 +183,7 @@ function CreateCourse() {
     if (totalOptions === 0) {
       setError(true);
       setMessage(
-        "Por favor, adicione pelo menos uma das seguintes opções:\n- Upload de vídeo\n- Link do YouTube\n- Arquivo de conteúdo (PDF/DOCX/PPTX)"
+        "Por favor, adicione pelo menos uma das seguintes opções:\n- Link do YouTube\n- Arquivo de conteúdo (PDF/DOCX/PPTX)"
       );
       return;
     }
@@ -607,53 +607,14 @@ function CreateCourse() {
                   <br />
                   Adicione pelo menos <strong>uma</strong> das opções abaixo:
                   <ul className="mb-0 mt-2">
-                    <li>Upload de vídeo</li>
                     <li>Link do YouTube</li>
                     <li>Arquivos de conteúdo (PDF/DOCX/PPTX)</li>
                   </ul>
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="moduleVideo" className="form-label">
-                    Upload de vídeo (opcional):
-                  </label>
-                  <input
-                    type="file"
-                    className="form-control mb-2"
-                    id="moduleVideo"
-                    accept="video/mp4, video/mkv, video/avi"
-                    onChange={(e) => {
-                      if (e.target.files.length > 0) {
-                        document.getElementById("moduleVideoURL").value = "";
-                      }
-                    }}
-                  />
-                  {currentModuleData?.videoFile && (
-                    <div className="current-file">
-                      <span
-                        className="badge bg-info text-dark"
-                        style={{ fontSize: "14px" }}
-                      >
-                        Arquivo atual:{" "}
-                        {currentModuleData.videoFile.name || "video.mp4"}
-                      </span>
-                      <small className="d-block text-muted mt-1">
-                        Selecione um novo arquivo para substituir o atual
-                      </small>
-                    </div>
-                  )}
-                  <small className="form-text text-muted">
-                    Formatos suportados: MP4, MKV, AVI. Tamanho máximo: 500MB.
-                  </small>
-                </div>
-
-                <div className="text-center my-2">
-                  <span className="badge bg-secondary">OU</span>
-                </div>
-
-                <div className="mb-3">
                   <label htmlFor="moduleVideoURL" className="form-label">
-                    Link do YouTube (opcional):
+                    Link do YouTube:
                   </label>
                   <input
                     type="url"

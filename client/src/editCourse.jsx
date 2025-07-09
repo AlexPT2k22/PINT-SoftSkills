@@ -387,7 +387,7 @@ function EditCourse() {
 
     if (totalOptions === 0) {
       setError(
-        "Por favor, adicione pelo menos uma das seguintes opções: vídeo, link do YouTube ou arquivo de conteúdo."
+        "Por favor, adicione pelo menos uma das seguintes opções: link do YouTube ou arquivo de conteúdo."
       );
       return;
     }
@@ -1531,8 +1531,7 @@ function EditCourse() {
                       Adicione pelo menos <strong>uma</strong> das opções abaixo
                     </li>
                     <li>
-                      <strong>Vídeo:</strong> Escolha apenas UMA opção (Upload
-                      OU YouTube)
+                      <strong>Vídeo:</strong> YouTube
                     </li>
                     <li>
                       <strong>Arquivos:</strong> Opcional, mas recomendado
@@ -1558,59 +1557,8 @@ function EditCourse() {
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="moduleVideo" className="form-label">
-                    Upload de vídeo (opcional):
-                  </label>
-                  <input
-                    type="file"
-                    className="form-control mb-2"
-                    id="moduleVideo"
-                    accept="video/mp4, video/mkv, video/avi"
-                    onChange={(e) => {
-                      if (e.target.files.length > 0) {
-                        document.getElementById("moduleVideoURL").value = "";
-
-                        if (
-                          currentModuleData?.videoFile ||
-                          currentModuleData?.videoURL
-                        ) {
-                          const confirmReplace = window.confirm(
-                            "Isto irá substituir o vídeo atual. Deseja continuar?"
-                          );
-                          if (!confirmReplace) {
-                            e.target.value = "";
-                          }
-                        }
-                      }
-                    }}
-                  />
-
-                  {currentModuleData?.videoFile && (
-                    <div className="current-file mb-2">
-                      <div className="d-flex align-items-center">
-                        <span className="badge bg-primary me-2">Atual</span>
-                        <small className="text-muted">
-                          {currentModuleData.videoFile.name || "video.mp4"}
-                        </small>
-                      </div>
-                      <small className="d-block text-warning mt-1">
-                        Selecionar novo arquivo irá substituir este
-                      </small>
-                    </div>
-                  )}
-
-                  <small className="form-text text-muted">
-                    Formatos: MP4, MKV, AVI • Máximo: 500MB
-                  </small>
-                </div>
-
-                <div className="text-center my-3">
-                  <span className="badge bg-secondary fs-6">OU</span>
-                </div>
-
-                <div className="mb-3">
                   <label htmlFor="moduleVideoURL" className="form-label">
-                    Link do YouTube (opcional):
+                    Link do YouTube:
                   </label>
                   <input
                     type="url"
