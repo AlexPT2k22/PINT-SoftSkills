@@ -242,7 +242,6 @@ function CoursePage() {
         return true;
       }
 
-
       if (course.CURSO_SINCRONO.DATA_LIMITE_INSCRICAO_S) {
         if (
           !checkEnrollmentDeadline(
@@ -652,19 +651,25 @@ function CoursePage() {
             <nav className="nav nav-tabs">
               <a
                 onClick={() => handleIndexChange(0)}
-                className={`nav-link course-tab pb-0 ${index === 0 ? "active" : ""}`}
+                className={`nav-link course-tab pb-0 ${
+                  index === 0 ? "active" : ""
+                }`}
               >
                 Info
               </a>
               <a
                 onClick={() => handleIndexChange(1)}
-                className={`nav-link course-tab pb-0 ${index === 1 ? "active" : ""}`}
+                className={`nav-link course-tab pb-0 ${
+                  index === 1 ? "active" : ""
+                }`}
               >
                 Módulos
               </a>
               <a
                 onClick={() => handleIndexChange(2)}
-                className={`nav-link course-tab pb-0 ${index === 2 ? "active" : ""}`}
+                className={`nav-link course-tab pb-0 ${
+                  index === 2 ? "active" : ""
+                }`}
               >
                 Avaliações
               </a>

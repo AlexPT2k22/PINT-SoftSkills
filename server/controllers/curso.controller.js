@@ -1269,6 +1269,11 @@ const updateCursoCompleto = async (req, res) => {
             dadosAtualizacao.FILE_URL = contentUrlsString;
           }
 
+          // Adicionar suporte para links úteis
+          if (moduloNovo.LINKS && Array.isArray(moduloNovo.LINKS)) {
+            dadosAtualizacao.LINKS_UTEIS = JSON.stringify(moduloNovo.LINKS);
+          }
+
           modulosAtualizados.push({
             id: moduloExistente.ID_MODULO,
             dados: dadosAtualizacao,
@@ -1284,6 +1289,9 @@ const updateCursoCompleto = async (req, res) => {
             DESCRICAO: moduloNovo.DESCRICAO,
             VIDEO_URL: videoUrl,
             FILE_URL: JSON.stringify(contentUrls),
+            LINKS_UTEIS: moduloNovo.LINKS && Array.isArray(moduloNovo.LINKS) 
+              ? JSON.stringify(moduloNovo.LINKS) 
+              : null,
             TEMPO_ESTIMADO_MIN: moduloNovo.DURACAO,
           });
 
@@ -1565,6 +1573,9 @@ const createAssincrono = async (req, res) => {
           DESCRICAO: modulo.DESCRICAO,
           VIDEO_URL: null,
           FILE_URL: JSON.stringify([]),
+          LINKS_UTEIS: modulo.LINKS && Array.isArray(modulo.LINKS) 
+            ? JSON.stringify(modulo.LINKS) 
+            : null,
           TEMPO_ESTIMADO_MIN: modulo.DURACAO,
         });
 
@@ -1633,6 +1644,9 @@ const createAssincrono = async (req, res) => {
         DESCRICAO: modulo.DESCRICAO,
         VIDEO_URL: videoUrl,
         FILE_URL: JSON.stringify(contentUrls),
+        LINKS_UTEIS: modulo.LINKS && Array.isArray(modulo.LINKS) 
+          ? JSON.stringify(modulo.LINKS) 
+          : null,
         TEMPO_ESTIMADO_MIN: modulo.DURACAO,
       });
 
@@ -1799,6 +1813,9 @@ const createSincrono = async (req, res) => {
             DESCRICAO: modulo.DESCRICAO,
             VIDEO_URL: null,
             FILE_URL: JSON.stringify([]),
+            LINKS_UTEIS: modulo.LINKS && Array.isArray(modulo.LINKS) 
+              ? JSON.stringify(modulo.LINKS) 
+              : null,
             TEMPO_ESTIMADO_MIN: modulo.DURACAO,
           },
           { transaction }
@@ -1872,6 +1889,9 @@ const createSincrono = async (req, res) => {
           DESCRICAO: modulo.DESCRICAO,
           VIDEO_URL: videoUrl,
           FILE_URL: JSON.stringify(contentUrls),
+          LINKS_UTEIS: modulo.LINKS && Array.isArray(modulo.LINKS) 
+            ? JSON.stringify(modulo.LINKS) 
+            : null,
           TEMPO_ESTIMADO_MIN: modulo.DURACAO,
         },
         { transaction }
@@ -2112,6 +2132,9 @@ const convertCursoType = async (req, res) => {
             DESCRICAO: modulo.DESCRICAO,
             VIDEO_URL: videoUrl,
             FILE_URL: JSON.stringify(contentUrls),
+            LINKS_UTEIS: modulo.LINKS && Array.isArray(modulo.LINKS) 
+              ? JSON.stringify(modulo.LINKS) 
+              : null,
             TEMPO_ESTIMADO_MIN: modulo.DURACAO,
           },
           { transaction }

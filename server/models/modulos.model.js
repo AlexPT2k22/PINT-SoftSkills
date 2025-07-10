@@ -53,6 +53,28 @@ const Modulos = sequelize.define(
         }
       },
     },
+    LINKS_UTEIS: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      get() {
+        const value = this.getDataValue("LINKS_UTEIS");
+        if (value) {
+          try {
+            return JSON.parse(value);
+          } catch (e) {
+            return value;
+          }
+        }
+        return null;
+      },
+      set(value) {
+        if (Array.isArray(value)) {
+          this.setDataValue("LINKS_UTEIS", JSON.stringify(value));
+        } else {
+          this.setDataValue("LINKS_UTEIS", value);
+        }
+      },
+    },
     TEMPO_ESTIMADO_MIN: {
       type: DataTypes.INTEGER,
       allowNull: false,

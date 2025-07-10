@@ -39,6 +39,8 @@ function CreateCourse() {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [topics, setTopics] = useState([]);
   const [enrollmentDeadline, setEnrollmentDeadline] = useState("");
+  const [moduleLinks, setModuleLinks] = useState({});
+  const [currentLinkInput, setCurrentLinkInput] = useState("");
 
   const modalStyles = {
     modalOverlay: {
@@ -156,16 +158,72 @@ function CreateCourse() {
     }
   }, [selectedModule, courseModules]);
 
+  const addLinkToModule = (moduleIndex, linkData) => {
+    setModuleLinks((prev) => ({
+      ...prev,
+      [moduleIndex]: [
+        ...(prev[moduleIndex] || []),
+        {
+          id: Date.now() + Math.random(),
+          titulo: linkData.titulo,
+          url: linkData.url,
+          descricao: linkData.descricao || "",
+        },
+      ],
+    }));
+  };
+
+  const addLinkToCurrentModule = () => {
+    if (!currentLinkInput.trim()) return;
+
+    const moduleIndex = courseModules.findIndex((module, i) => {
+      if (i > 0) {
+        const moduleName = typeof module === "string" ? module : module.name;
+        return moduleName === selectedModule;
+      }
+      return false;
+    });
+
+    if (moduleIndex !== -1) {
+      setModuleLinks((prev) => ({
+        ...prev,
+        [moduleIndex]: [
+          ...(prev[moduleIndex] || []),
+          {
+            id: Date.now() + Math.random(),
+            url: currentLinkInput.trim(),
+          },
+        ],
+      }));
+      setCurrentLinkInput("");
+    }
+  };
+
+  const removeLinkFromModule = (moduleIndex, linkId) => {
+    setModuleLinks((prev) => ({
+      ...prev,
+      [moduleIndex]: (prev[moduleIndex] || []).filter(
+        (link) => link.id !== linkId
+      ),
+    }));
+  };
+
+  const updateModuleLink = (moduleIndex, linkId, updatedData) => {
+    setModuleLinks((prev) => ({
+      ...prev,
+      [moduleIndex]: (prev[moduleIndex] || []).map((link) =>
+        link.id === linkId ? { ...link, ...updatedData } : link
+      ),
+    }));
+  };
 
   const handleModuleContentSubmit = (e) => {
     e.preventDefault();
 
     const moduleDescription = e.target.moduleDescription.value;
-    const moduleVideoInput = e.target.moduleVideo;
     const moduleVideoURL = e.target.moduleVideoURL.value;
     const moduleContentInput = e.target.moduleContent;
     const moduleDuration = e.target.moduleDuration.value;
-    const hasVideoFile = moduleVideoInput.files.length > 0;
     const hasVideoURL = moduleVideoURL.trim() !== "";
     const hasContentFiles = moduleContentInput.files.length > 0;
     const hasExistingVideo =
@@ -174,24 +232,29 @@ function CreateCourse() {
       currentModuleData?.contentFile &&
       currentModuleData.contentFile.length > 0;
 
+    // Verificar se há links úteis
+    const currentModuleIndex = courseModules.findIndex((module, i) => {
+      if (i > 0) {
+        const moduleName = typeof module === "string" ? module : module.name;
+        return moduleName === selectedModule;
+      }
+      return false;
+    });
+    const hasLinks =
+      moduleLinks[currentModuleIndex] &&
+      moduleLinks[currentModuleIndex].length > 0;
+
     const totalOptions = [
-      hasVideoFile || hasExistingVideo,
+      hasExistingVideo,
       hasVideoURL,
       hasContentFiles || hasExistingContent,
+      hasLinks,
     ].filter(Boolean).length;
 
     if (totalOptions === 0) {
       setError(true);
       setMessage(
-        "Por favor, adicione pelo menos uma das seguintes opções:\n- Link do YouTube\n- Arquivo de conteúdo (PDF/DOCX/PPTX)"
-      );
-      return;
-    }
-
-    if (hasVideoFile && hasVideoURL) {
-      setError(true);
-      setMessage(
-        "Escolha apenas uma opção: upload de vídeo OU link do YouTube."
+        "Por favor, adicione pelo menos uma das seguintes opções:\n- Link do YouTube\n- Arquivo de conteúdo (PDF/DOCX/PPTX)\n- Link útil"
       );
       return;
     }
@@ -218,9 +281,7 @@ function CreateCourse() {
     }
 
     let videoSource = null;
-    if (hasVideoFile) {
-      videoSource = { type: "file", data: moduleVideoInput.files[0] };
-    } else if (hasVideoURL) {
+    if (hasVideoURL) {
       videoSource = { type: "url", data: moduleVideoURL };
     } else if (currentModuleData?.videoFile) {
       videoSource = { type: "file", data: currentModuleData.videoFile };
@@ -253,6 +314,7 @@ function CreateCourse() {
         videoURL: videoSource?.type === "url" ? videoSource.data : null,
         contentFile: contentFile,
         duration: moduleDuration,
+        links: moduleLinks[moduleIndex] || [],
       };
 
       const updatedModules = [...courseModules];
@@ -296,9 +358,7 @@ function CreateCourse() {
     const getAreas = async () => {
       try {
         setIsLoadingAttributes(true);
-        const response = await axios.get(
-          `${URL}/api/categorias/com-areas`
-        );
+        const response = await axios.get(`${URL}/api/categorias/com-areas`);
         if (response.status === 200) {
           setCategory(response.data);
         } else {
@@ -317,14 +377,14 @@ function CreateCourse() {
     const getFormadores = async () => {
       try {
         setIsLoadingAttributes(true);
-        const response = await axios.get(
-          `${URL}/api/user/teachers`
-        );
+        const response = await axios.get(`${URL}/api/user/teachers`);
         if (response.status === 200) {
           setFormador(response.data);
         } else {
           setError(true);
-          setMessage("Erro ao encontrar os formadores. Tente novamente mais tarde.");
+          setMessage(
+            "Erro ao encontrar os formadores. Tente novamente mais tarde."
+          );
         }
       } catch (error) {
         setError(true);
@@ -464,7 +524,7 @@ function CreateCourse() {
             ? module.trim() !== ""
             : module.name.trim() !== "")
       )
-      .map((module) => {
+      .map((module, index) => {
         if (typeof module === "string") {
           return { NOME: module };
         } else {
@@ -477,6 +537,7 @@ function CreateCourse() {
             CONTEUDO: module.data.contentFile
               ? module.data.contentFile.length
               : 0,
+            LINKS: module.data.links || [],
           };
         }
       });
@@ -520,6 +581,7 @@ function CreateCourse() {
         setCourseObjectives([""]);
         setCourseHabilities([""]);
         setCourseModules([""]);
+        setModuleLinks({});
         setSelectedCategory(null);
         setSelectedArea(null);
         setSelectedType(null);
@@ -609,6 +671,7 @@ function CreateCourse() {
                   <ul className="mb-0 mt-2">
                     <li>Link do YouTube</li>
                     <li>Arquivos de conteúdo (PDF/DOCX/PPTX)</li>
+                    <li>Links utéis</li>
                   </ul>
                 </div>
 
@@ -625,7 +688,7 @@ function CreateCourse() {
                     onChange={(e) => {
                       const url = e.target.value;
                       if (url) {
-                        document.getElementById("moduleVideo").value = "";
+                        // Campo moduleVideo removido - não é necessário aqui
                       }
                       if (
                         url &&
@@ -649,6 +712,7 @@ function CreateCourse() {
                 <div className="text-center my-2">
                   <span className="badge bg-secondary">E/OU</span>
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="moduleContent" className="form-label">
                     Conteúdo do módulo (opcional):
@@ -690,6 +754,101 @@ function CreateCourse() {
                     Formatos suportados: PDF, DOCX, PPTX. Tamanho máximo: 50MB.
                     Máximo 5 arquivos
                   </small>
+                </div>
+
+                <div className="text-center my-2">
+                  <span className="badge bg-secondary">E/OU</span>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Links úteis:</label>
+                  <div className="d-flex gap-2">
+                    <input
+                      type="url"
+                      className="form-control"
+                      placeholder="https://exemplo.com"
+                      value={currentLinkInput}
+                      onChange={(e) => setCurrentLinkInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addLinkToCurrentModule();
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={addLinkToCurrentModule}
+                    >
+                      Adicionar
+                    </button>
+                  </div>
+                  <small className="form-text text-muted">
+                    Adicione links úteis relacionados com este módulo
+                  </small>
+
+                  {/* Lista de links do módulo atual */}
+                  {moduleLinks[
+                    courseModules.findIndex((module, i) => {
+                      if (i > 0) {
+                        const moduleName =
+                          typeof module === "string" ? module : module.name;
+                        return moduleName === selectedModule;
+                      }
+                      return false;
+                    })
+                  ]?.length > 0 && (
+                    <div className="mt-3">
+                      <h6 className="mb-2">Links adicionados:</h6>
+                      {moduleLinks[
+                        courseModules.findIndex((module, i) => {
+                          if (i > 0) {
+                            const moduleName =
+                              typeof module === "string" ? module : module.name;
+                            return moduleName === selectedModule;
+                          }
+                          return false;
+                        })
+                      ]?.map((link) => (
+                        <div
+                          key={link.id}
+                          className="d-flex justify-content-between align-items-center border rounded p-2 mb-2 bg-light"
+                        >
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-none"
+                          >
+                            <i className="fas fa-external-link-alt me-1"></i>
+                            {link.url}
+                          </a>
+                          <button
+                            type="button"
+                            className="btn btn-sm text-danger ms-2 p-0 border-0"
+                            onClick={() => {
+                              const moduleIndex = courseModules.findIndex(
+                                (module, i) => {
+                                  if (i > 0) {
+                                    const moduleName =
+                                      typeof module === "string"
+                                        ? module
+                                        : module.name;
+                                    return moduleName === selectedModule;
+                                  }
+                                  return false;
+                                }
+                              );
+                              removeLinkFromModule(moduleIndex, link.id);
+                            }}
+                          >
+                            <XCircle size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-3">
