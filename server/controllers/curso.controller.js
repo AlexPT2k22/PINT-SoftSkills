@@ -271,6 +271,7 @@ const getCursoById = async (req, res) => {
             "TEMPO_ESTIMADO_MIN",
             "VIDEO_URL",
             "FILE_URL",
+            "LINKS_UTEIS",
           ],
           as: "MODULOS",
           order: [["ID_MODULO", "ASC"]],

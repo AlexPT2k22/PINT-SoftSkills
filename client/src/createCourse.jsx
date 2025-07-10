@@ -528,7 +528,9 @@ function CreateCourse() {
         if (typeof module === "string") {
           return {
             NOME: module,
-            LINKS: moduleLinks[index + 1] || [],
+            DESCRICAO: "",
+            DURACAO: 0,
+            LINKS: links.map((link) => ({ url: link.url })),
           };
         } else {
           return {
@@ -540,7 +542,9 @@ function CreateCourse() {
             CONTEUDO: module.data.contentFile
               ? module.data.contentFile.length
               : 0,
-            LINKS: module.data.links || moduleLinks[index + 1] || [],
+            LINKS: (module.data?.links || links).map((link) => ({
+              url: link.url,
+            })),
           };
         }
       });
