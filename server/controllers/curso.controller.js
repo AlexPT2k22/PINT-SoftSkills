@@ -330,11 +330,31 @@ const getCursoById = async (req, res) => {
           }
         }
 
+        // Processar links úteis
+        let linksUteis = [];
+        if (modulo.LINKS_UTEIS) {
+          try {
+            if (typeof modulo.LINKS_UTEIS === "string") {
+              linksUteis = JSON.parse(modulo.LINKS_UTEIS);
+            } else if (Array.isArray(modulo.LINKS_UTEIS)) {
+              linksUteis = modulo.LINKS_UTEIS;
+            }
+          } catch (e) {
+            console.warn(
+              `Erro ao processar LINKS_UTEIS do módulo ${modulo.NOME}:`,
+              e
+            );
+            linksUteis = [];
+          }
+        }
+
         return {
           ...modulo,
           FILE_URL_ARRAY: fileUrls,
+          LINKS_UTEIS_ARRAY: linksUteis,
           HAS_VIDEO: !!modulo.VIDEO_URL,
           HAS_CONTENT: fileUrls.length > 0,
+          HAS_LINKS: linksUteis.length > 0,
           VIDEO_TYPE: modulo.VIDEO_URL
             ? modulo.VIDEO_URL.includes("youtube.com")
               ? "youtube"
@@ -1277,7 +1297,6 @@ const updateCursoCompleto = async (req, res) => {
             id: moduloExistente.ID_MODULO,
             dados: dadosAtualizacao,
           });
-
         } else {
           modulosParaCriar.push({
             ID_CURSO: curso.ID_CURSO,
@@ -1311,8 +1330,6 @@ const updateCursoCompleto = async (req, res) => {
       );
 
       if (modulosParaDeletar.length > 0) {
-
-
         for (const modulo of modulosParaDeletar) {
           await ProgressoModulo.destroy({
             where: { ID_MODULO: modulo.ID_MODULO },
@@ -1584,7 +1601,6 @@ const createAssincrono = async (req, res) => {
           type: "video_upload",
           module: modulo.NOME,
         });
-
       } else if (modulo.VIDEO_URL) {
         videoUrl = modulo.VIDEO_URL;
 
@@ -1939,7 +1955,6 @@ const convertCursoType = async (req, res) => {
       await transaction.rollback();
       return res.status(404).json({ error: "Curso não encontrado" });
     }
-
 
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
@@ -2566,7 +2581,6 @@ const searchCursos = async (req, res) => {
       distinct: true,
       col: "ID_CURSO",
     });
-
 
     const coursesWithReviews = await Promise.all(
       allCourses.map(async (curso) => {

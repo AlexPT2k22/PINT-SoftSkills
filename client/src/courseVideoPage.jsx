@@ -115,8 +115,6 @@ function CourseVideoPage() {
         }));
 
         fetchCourseProgress();
-
-        //console.log(`Module ${moduleId} completed! XP gained: ${response.data.xpGanho}`);
       }
     } catch (error) {
       console.error("Nao foi possivel marcar o modulo como completo:", error);
@@ -467,48 +465,94 @@ function CourseVideoPage() {
                                 (m) => m.ID_MODULO.toString() === moduleId
                               );
 
-                              if (
-                                !currentModule?.FILE_URL ||
-                                currentModule.FILE_URL.length === 0 ||
-                                currentModule.FILE_URL_ARRAY.length === 0
-                              ) {
+                              const hasFiles =
+                                currentModule?.FILE_URL &&
+                                currentModule.FILE_URL.length > 0 &&
+                                currentModule.FILE_URL_ARRAY?.length > 0;
+
+                              const hasLinks =
+                                currentModule?.LINKS_UTEIS &&
+                                currentModule.LINKS_UTEIS.length > 0;
+
+                              if (!hasFiles && !hasLinks) {
                                 return (
                                   <div className="alert alert-info mt-3">
                                     <Info size={16} className="me-1" />
-                                    Não há material disponível para este módulo.
+                                    Não há material ou links úteis disponíveis
+                                    para este módulo.
                                   </div>
                                 );
                               }
 
-                              const fileUrls = Array.isArray(
-                                currentModule.FILE_URL
-                              )
-                                ? currentModule.FILE_URL
-                                : [currentModule.FILE_URL];
-
                               return (
-                                <ul className="list-group">
-                                  {fileUrls.map((material, idx) => (
-                                    <li
-                                      key={idx}
-                                      className="list-group-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center border-1 p-3"
-                                    >
-                                      <div className="material-info flex-grow-1 mb-2 mb-sm-0 w-100">
-                                        <h6 className="mb-0 material-filename-responsive">
-                                          {getFileName(material)}
-                                        </h6>
-                                      </div>
-                                      <a
-                                        href={material}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="btn btn-outline-primary btn-sm w-sm-auto"
-                                      >
-                                        Download
-                                      </a>
-                                    </li>
-                                  ))}
-                                </ul>
+                                <>
+                                  {hasFiles && (
+                                    <div className="mb-4">
+                                      <h6 className="mb-3 text-muted">
+                                        Ficheiros do módulo
+                                      </h6>
+                                      <ul className="list-group">
+                                        {currentModule.FILE_URL_ARRAY.map(
+                                          (material, idx) => (
+                                            <li
+                                              key={idx}
+                                              className="list-group-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center border-1 p-3"
+                                            >
+                                              <div className="material-info flex-grow-1 mb-2 mb-sm-0 w-100">
+                                                <h6 className="mb-0 material-filename-responsive">
+                                                  {getFileName(material)}
+                                                </h6>
+                                              </div>
+                                              <a
+                                                href={material}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="btn btn-outline-primary btn-sm w-100 w-sm-auto"
+                                                style={{ maxWidth: "100px" }}
+                                              >
+                                                Download
+                                              </a>
+                                            </li>
+                                          )
+                                        )}
+                                      </ul>
+                                    </div>
+                                  )}
+
+                                  {hasLinks && (
+                                    <div className="mb-4">
+                                      <h6 className="mb-3 text-muted">
+                                        Links úteis
+                                      </h6>
+                                      <ul className="list-group">
+                                        {currentModule.LINKS_UTEIS.map(
+                                          (link, idx) => (
+                                            <li
+                                              key={idx}
+                                              className="list-group-item d-flex flex-column flex-sm-row align-items-start align-items-sm-center border-1 p-3"
+                                            >
+                                              <div className="material-info flex-grow-1 mb-2 mb-sm-0 w-100">
+                                                <h6 className="mb-0 material-filename-responsive">
+                                                  <i className="fas fa-external-link-alt me-2"></i>
+                                                  {link.url || link}
+                                                </h6>
+                                              </div>
+                                              <a
+                                                href={link.url || link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="btn btn-outline-primary btn-sm w-100 w-sm-auto"
+                                                style={{ maxWidth: "100px" }}
+                                              >
+                                                Abrir link
+                                              </a>
+                                            </li>
+                                          )
+                                        )}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </>
                               );
                             })()}
                         </div>
