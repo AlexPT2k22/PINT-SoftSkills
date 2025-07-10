@@ -526,7 +526,10 @@ function CreateCourse() {
       )
       .map((module, index) => {
         if (typeof module === "string") {
-          return { NOME: module };
+          return {
+            NOME: module,
+            LINKS: moduleLinks[index + 1] || [],
+          };
         } else {
           return {
             NOME: module.name,
@@ -537,12 +540,13 @@ function CreateCourse() {
             CONTEUDO: module.data.contentFile
               ? module.data.contentFile.length
               : 0,
-            LINKS: module.data.links || [],
+            LINKS: module.data.links || moduleLinks[index + 1] || [],
           };
         }
       });
 
     formData.append("MODULOS", JSON.stringify(modulesToSend));
+    console.log("📤 Módulos sendo enviados:", modulesToSend);
     courseModules.slice(1).forEach((module, index) => {
       if (module && typeof module !== "string" && module.data) {
         if (module.data.videoFile) {

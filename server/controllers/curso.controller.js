@@ -1192,6 +1192,10 @@ const updateCursoCompleto = async (req, res) => {
     if (req.body.MODULOS) {
       const modulosNovos = JSON.parse(req.body.MODULOS);
       console.log(`📝 Processando ${modulosNovos.length} módulos novos`);
+      console.log(
+        "📋 Dados dos módulos recebidos:",
+        JSON.stringify(modulosNovos, null, 2)
+      );
 
       const mapaModulosExistentes = new Map();
       modulosExistentes.forEach((modulo) => {
@@ -1271,7 +1275,15 @@ const updateCursoCompleto = async (req, res) => {
 
           // Adicionar suporte para links úteis
           if (moduloNovo.LINKS && Array.isArray(moduloNovo.LINKS)) {
+            console.log(
+              `🔗 Links encontrados para módulo "${moduloNovo.NOME}":`,
+              moduloNovo.LINKS
+            );
             dadosAtualizacao.LINKS_UTEIS = JSON.stringify(moduloNovo.LINKS);
+          } else {
+            console.log(
+              `⚠️ Nenhum link encontrado para módulo "${moduloNovo.NOME}"`
+            );
           }
 
           modulosAtualizados.push({
@@ -1296,6 +1308,10 @@ const updateCursoCompleto = async (req, res) => {
             TEMPO_ESTIMADO_MIN: moduloNovo.DURACAO,
           });
 
+          console.log(
+            `🔗 Links para novo módulo "${moduloNovo.NOME}":`,
+            moduloNovo.LINKS
+          );
           novosModulosAdicionados = true;
           console.log(`➕ Módulo "${moduloNovo.NOME}" será criado`);
         }
