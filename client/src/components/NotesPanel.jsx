@@ -116,10 +116,6 @@ function NotesPanel({ moduleId, currentTime }) {
         {notes.map((note) => (
           <div key={note.ID_NOTA} className="note-item card mb-2">
             <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <span className="">@ {formatTime(note.TEMPO_VIDEO)}</span>
-              </div>
-
               {editingNoteId === note.ID_NOTA ? (
                 <div className="edit-note">
                   <textarea

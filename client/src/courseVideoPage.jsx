@@ -315,18 +315,28 @@ function CourseVideoPage() {
                   className="video-player"
                   style={{
                     width: "100%",
+                    height:
+                      window.innerWidth <= 768
+                        ? "250px"
+                        : window.innerWidth <= 1024
+                        ? "400px"
+                        : window.innerHeight <= 900
+                        ? "550px"
+                        : "610px",
                   }}
                 >
                   {videoType === "youtube" ? (
                     <iframe
                       width="100%"
-                      height={window.innerWidth <= 768
-                        ? "350px"
-                        : window.innerWidth <= 1024
-                        ? "400px"
-                        : window.innerHeight <= 900
-                        ? "550px"
-                        : "100%"}
+                      height={
+                        window.innerWidth <= 768
+                          ? "350px"
+                          : window.innerWidth <= 1024
+                          ? "400px"
+                          : window.innerHeight <= 900
+                          ? "550px"
+                          : "100%"
+                      }
                       src={`https://www.youtube.com/embed/${videoID}`}
                       title="YouTube video player"
                       frameBorder="0"
