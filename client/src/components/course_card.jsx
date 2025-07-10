@@ -121,10 +121,10 @@ function CourseCard({ course }) {
         alt={`Imagem do curso ${NOME}`}
       />
       <div className="card-body">
-        <div className="card-title d-flex justify-content-between align-items-center mb-1">
+        <div className="card-title d-flex flex-column align-items-start mb-0">
           <h5 className="mb-0">{NOME}</h5>
           {course.averageRating > 0 && (
-            <div className="d-flex align-items-center mb-2">
+            <div className="d-flex align-items-center mb-0 mt-1">
               <div className="d-flex me-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
