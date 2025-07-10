@@ -345,10 +345,6 @@ const getCursoById = async (req, res) => {
     }
     cursoProcesado.HAS_QUIZ = !!cursoProcesado.QUIZ_ASSINCRONO;
 
-    console.log(
-      `Curso ${id} encontrado com ${cursoProcesado.MODULOS?.length || 0} módulos`
-    );
-
     res.status(200).json(cursoProcesado);
   } catch (error) {
     console.error(`Erro ao procurar curso com id ${id}:`, error);
@@ -1192,11 +1188,6 @@ const updateCursoCompleto = async (req, res) => {
 
     if (req.body.MODULOS) {
       const modulosNovos = JSON.parse(req.body.MODULOS);
-      console.log(`📝 Processando ${modulosNovos.length} módulos novos`);
-      console.log(
-        "📋 Dados dos módulos recebidos:",
-        JSON.stringify(modulosNovos, null, 2)
-      );
 
       const mapaModulosExistentes = new Map();
       modulosExistentes.forEach((modulo) => {
@@ -1274,16 +1265,11 @@ const updateCursoCompleto = async (req, res) => {
             dadosAtualizacao.FILE_URL = contentUrlsString;
           }
 
-          // Adicionar suporte para links úteis
           if (moduloNovo.LINKS && Array.isArray(moduloNovo.LINKS)) {
-            console.log(
-              `🔗 Links encontrados para módulo "${moduloNovo.NOME}":`,
-              moduloNovo.LINKS
-            );
             dadosAtualizacao.LINKS_UTEIS = JSON.stringify(moduloNovo.LINKS);
           } else {
             console.log(
-              `⚠️ Nenhum link encontrado para módulo "${moduloNovo.NOME}"`
+              `Nenhum link encontrado para módulo "${moduloNovo.NOME}"`
             );
           }
 
@@ -1292,9 +1278,6 @@ const updateCursoCompleto = async (req, res) => {
             dados: dadosAtualizacao,
           });
 
-          console.log(
-            `🔄 Módulo "${moduloNovo.NOME}" será atualizado (ID: ${moduloExistente.ID_MODULO})`
-          );
         } else {
           modulosParaCriar.push({
             ID_CURSO: curso.ID_CURSO,
@@ -1308,13 +1291,7 @@ const updateCursoCompleto = async (req, res) => {
                 : null,
             TEMPO_ESTIMADO_MIN: moduloNovo.DURACAO,
           });
-
-          console.log(
-            `🔗 Links para novo módulo "${moduloNovo.NOME}":`,
-            moduloNovo.LINKS
-          );
           novosModulosAdicionados = true;
-          console.log(`➕ Módulo "${moduloNovo.NOME}" será criado`);
         }
       }
 
@@ -1323,12 +1300,10 @@ const updateCursoCompleto = async (req, res) => {
           where: { ID_MODULO: modulo.id },
           transaction,
         });
-        console.log(`✅ Módulo ${modulo.id} atualizado`);
       }
 
       if (modulosParaCriar.length > 0) {
         await Modulos.bulkCreate(modulosParaCriar, { transaction });
-        console.log(`✅ ${modulosParaCriar.length} novos módulos criados`);
       }
 
       const modulosParaDeletar = modulosExistentes.filter(
@@ -1336,19 +1311,13 @@ const updateCursoCompleto = async (req, res) => {
       );
 
       if (modulosParaDeletar.length > 0) {
-        console.log(
-          `⚠️ ATENÇÃO: ${modulosParaDeletar.length} módulos serão removidos:`,
-          modulosParaDeletar.map((m) => `"${m.NOME}" (ID: ${m.ID_MODULO})`)
-        );
+
 
         for (const modulo of modulosParaDeletar) {
           await ProgressoModulo.destroy({
             where: { ID_MODULO: modulo.ID_MODULO },
             transaction,
           });
-          console.log(
-            `🗑️ Progresso removido do módulo "${modulo.NOME}" (ID: ${modulo.ID_MODULO})`
-          );
         }
 
         await Modulos.destroy({
@@ -1357,7 +1326,6 @@ const updateCursoCompleto = async (req, res) => {
           },
           transaction,
         });
-        console.log(`🗑️ ${modulosParaDeletar.length} módulos removidos`);
       }
 
       if (novosModulosAdicionados) {
@@ -1617,9 +1585,6 @@ const createAssincrono = async (req, res) => {
           module: modulo.NOME,
         });
 
-        console.log(
-          `Vídeo uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
-        );
       } else if (modulo.VIDEO_URL) {
         videoUrl = modulo.VIDEO_URL;
 
@@ -1628,10 +1593,6 @@ const createAssincrono = async (req, res) => {
           type: "video_youtube",
           module: modulo.NOME,
         });
-
-        console.log(
-          `URL do YouTube para módulo ${modulo.NOME}: ${modulo.VIDEO_URL}`
-        );
       }
 
       if (contentFiles && contentFiles.length > 0) {
@@ -1669,12 +1630,6 @@ const createAssincrono = async (req, res) => {
             : null,
         TEMPO_ESTIMADO_MIN: modulo.DURACAO,
       });
-
-      console.log(
-        `Módulo criado: ${modulo.NOME} com conteúdo: ${
-          videoUrl || contentUrls.length > 0 ? "SIM" : "Apenas descrição"
-        }`
-      );
     }
 
     const novoEstado = determineCoursesStatus(DATA_INICIO, DATA_FIM);
@@ -1860,10 +1815,6 @@ const createSincrono = async (req, res) => {
           type: "video_upload",
           module: modulo.NOME,
         });
-
-        console.log(
-          `Vídeo síncrono uploaded para módulo ${modulo.NOME}: ${result.secure_url}`
-        );
       } else if (modulo.VIDEO_URL) {
         videoUrl = modulo.VIDEO_URL;
 
@@ -1872,17 +1823,11 @@ const createSincrono = async (req, res) => {
           type: "video_youtube",
           module: modulo.NOME,
         });
-
-        console.log(
-          `URL do YouTube síncrono para módulo ${modulo.NOME}: ${modulo.VIDEO_URL}`
-        );
       }
 
       if (contentFiles && contentFiles.length > 0) {
         for (const contentFile of contentFiles) {
           try {
-            console.log("Uploading sync file:", contentFile.originalname);
-
             const result = await saveFileToSupabase(
               contentFile.buffer,
               contentFile.originalname,
@@ -1917,12 +1862,6 @@ const createSincrono = async (req, res) => {
           TEMPO_ESTIMADO_MIN: modulo.DURACAO,
         },
         { transaction }
-      );
-
-      console.log(
-        `Módulo síncrono criado: ${modulo.NOME} com conteúdo: ${
-          videoUrl || contentUrls.length > 0 ? "SIM" : "Apenas descrição"
-        }`
       );
     }
 
@@ -2001,7 +1940,6 @@ const convertCursoType = async (req, res) => {
       return res.status(404).json({ error: "Curso não encontrado" });
     }
 
-    console.log(`Convertendo curso ${id} de ${OLD_TYPE} para ${NEW_TYPE}`);
 
     let imagemUrl = curso.IMAGEM;
     let imagemPublicId = curso.IMAGEM_PUBLIC_ID;
@@ -2032,10 +1970,8 @@ const convertCursoType = async (req, res) => {
 
     if (OLD_TYPE === "Síncrono") {
       await CursoSincrono.destroy({ where: { ID_CURSO: id }, transaction });
-      console.log("Removido dados de curso síncrono");
     } else if (OLD_TYPE === "Assíncrono") {
       await CursoAssincrono.destroy({ where: { ID_CURSO: id }, transaction });
-      console.log("Removido dados de curso assíncrono");
     }
 
     if (NEW_TYPE === "Síncrono") {
@@ -2051,7 +1987,6 @@ const convertCursoType = async (req, res) => {
         },
         { transaction }
       );
-      console.log("✅ Criado como curso síncrono");
     } else if (NEW_TYPE === "Assíncrono") {
       const numeroAssincronos = await CursoAssincrono.count({ transaction });
       await CursoAssincrono.create(
@@ -2063,7 +1998,6 @@ const convertCursoType = async (req, res) => {
         },
         { transaction }
       );
-      console.log("✅ Criado como curso assíncrono");
     }
 
     if (HABILIDADES && OBJETIVOS) {
@@ -2482,17 +2416,6 @@ const searchCursos = async (req, res) => {
       rating = "",
     } = req.query;
 
-    console.log("Parâmetros de pesquisa recebidos:", {
-      search,
-      category,
-      area,
-      topic,
-      difficulty,
-      type,
-      sortBy,
-      rating,
-    });
-
     const offset = (page - 1) * limit;
 
     const whereConditions = {};
@@ -2644,7 +2567,6 @@ const searchCursos = async (req, res) => {
       col: "ID_CURSO",
     });
 
-    console.log(`Encontrados ${allCourses.length} cursos no total`);
 
     const coursesWithReviews = await Promise.all(
       allCourses.map(async (curso) => {
@@ -2697,20 +2619,12 @@ const searchCursos = async (req, res) => {
       return false;
     });
 
-    console.log(
-      `Após filtrar por estado: ${coursesAtivos.length} cursos ativos`
-    );
-
     let coursesFiltered = coursesAtivos;
     if (rating) {
       const minRating = parseFloat(rating);
       coursesFiltered = coursesAtivos.filter((curso) => {
         return curso.averageRating >= minRating;
       });
-
-      console.log(
-        `Após filtrar por rating (${minRating}+): ${coursesFiltered.length} cursos`
-      );
     }
 
     if (sortBy === "rating_desc") {

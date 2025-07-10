@@ -638,7 +638,7 @@ function EditCourse() {
           if (typeof module === "string") {
             return {
               NOME: module,
-              LINKS: moduleLinks[index + 1] || [],
+              LINKS: links.map((link) => ({ url: link.url })),
             };
           } else {
             return {
@@ -650,7 +650,9 @@ function EditCourse() {
               CONTEUDO: module.data.contentFile
                 ? module.data.contentFile.length
                 : 0,
-              LINKS: module.data.links || moduleLinks[index + 1] || [],
+              LINKS: (module.data?.links || links).map((link) => ({
+                url: link.url,
+              })),
             };
           }
         });
