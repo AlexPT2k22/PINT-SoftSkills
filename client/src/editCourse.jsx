@@ -265,7 +265,7 @@ function EditCourse() {
                 existingContentUrls: modulo.FILE_URL_ARRAY || [],
                 duration: modulo.TEMPO_ESTIMADO_MIN || 30,
                 hasExistingContent: modulo.HAS_CONTENT || false,
-                links: modulo.LINKS || [],
+                links: modulo.LINKS_UTEIS || [],
               },
             })),
           ];
@@ -315,7 +315,6 @@ function EditCourse() {
     getFormadores();
   }, [courseId]);
 
-  // Carregar links dos módulos quando os módulos são carregados
   useEffect(() => {
     if (courseModules.length > 1) {
       const linksData = {};
@@ -412,12 +411,11 @@ function EditCourse() {
       (currentModuleData?.existingContentUrls &&
         currentModuleData.existingContentUrls.length > 0);
 
-    // Verificar se há links úteis
     const currentModuleIndex = courseModules.slice(1).findIndex((module) => {
       const moduleName = typeof module === "string" ? module : module.name;
       return moduleName === selectedModule;
     });
-    const actualModuleIndex = currentModuleIndex + 1; // Ajustar porque slice(1) remove o primeiro elemento
+    const actualModuleIndex = currentModuleIndex + 1;
     const hasLinks =
       moduleLinks[actualModuleIndex] &&
       moduleLinks[actualModuleIndex].length > 0;
@@ -1804,12 +1802,6 @@ function EditCourse() {
                       placeholder="https://exemplo.com"
                       value={currentLinkInput}
                       onChange={(e) => setCurrentLinkInput(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addLinkToCurrentModule();
-                        }
-                      }}
                     />
                     <button
                       type="button"
