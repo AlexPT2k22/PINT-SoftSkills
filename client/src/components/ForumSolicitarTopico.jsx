@@ -341,11 +341,11 @@ const ForumSolicitarTopico = () => {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Justificação *</label>
+                    <label className="form-label">Conteúdo/Justificação *</label>
                     <textarea
                       className="form-control"
                       rows="4"
-                      placeholder="Explique por que este tópico seria útil para a comunidade..."
+                      placeholder="Escreva aqui o contúdo do tópico ou a importância deste tópico..."
                       value={formData.justificativa}
                       onChange={(e) =>
                         handleChange("justificativa", e.target.value)
@@ -353,10 +353,6 @@ const ForumSolicitarTopico = () => {
                       required
                       disabled={submitting}
                     />
-                    <div className="form-text">
-                      Explique a importância e relevância deste tópico para a
-                      comunidade.
-                    </div>
                   </div>
                 </div>
 
@@ -502,7 +498,7 @@ const ForumSolicitarTopico = () => {
                   <li className="mb-2">
                     Verifique se já não existe um tópico similar
                   </li>
-                  <li className="mb-0">Seja detalhado na justificação</li>
+                  <li className="mb-0">Seja detalhado na descrição</li>
                 </ul>
               </div>
             </div>

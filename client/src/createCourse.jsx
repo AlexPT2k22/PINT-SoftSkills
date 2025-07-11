@@ -158,20 +158,6 @@ function CreateCourse() {
     }
   }, [selectedModule, courseModules]);
 
-  const addLinkToModule = (moduleIndex, linkData) => {
-    setModuleLinks((prev) => ({
-      ...prev,
-      [moduleIndex]: [
-        ...(prev[moduleIndex] || []),
-        {
-          id: Date.now() + Math.random(),
-          titulo: linkData.titulo,
-          url: linkData.url,
-          descricao: linkData.descricao || "",
-        },
-      ],
-    }));
-  };
 
   const addLinkToCurrentModule = () => {
     if (!currentLinkInput.trim()) return;
