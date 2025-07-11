@@ -35,7 +35,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
       },
     ],
     tempo_limite_min: 30,
-    nota_minima: 10,
+    nota_minima: 9.5,
   });
 
   const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -170,7 +170,6 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
     if (!quizForm.titulo.trim()) {
       errors.titulo = "O título do quiz é obrigatório";
     }
-
 
     if (
       !quizForm.tempo_limite_min ||
@@ -676,6 +675,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
                           min="0"
                           max="20"
                           step="0.1"
+                          disabled={true}
                         />
                         {validationErrors.nota_minima && (
                           <div className="invalid-feedback">
