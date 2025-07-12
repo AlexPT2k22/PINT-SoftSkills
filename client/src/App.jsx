@@ -40,6 +40,7 @@ import ForumSolicitarTopico from "./components/ForumSolicitarTopico.jsx";
 import ForumAdmin from "./components/ForumAdmin.jsx";
 import AdminStats from "./AdminStats.jsx";
 import MeuPercurso from "./percurso.jsx";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -106,184 +107,187 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="*" element={<NotFound />} />
-        <Route path="/login" element={<Inicio />}></Route>
-        <Route path="/auth" element={<AuthPage />}></Route>
-        <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
-        <Route path="/course/:courseId" element={<CoursePage />}></Route>
-        <Route path="/find-courses" element={<FindCoursesPage />} />
-        <Route path="/forum" element={<Forum />} />
-        <Route
-          path="/forum/topico/:topicoId"
-          element={
-            <ProtectedRoute>
-              <ForumTopicoView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/percurso"
-          element={
-            <ProtectedRoute>
-              <MeuPercurso />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/forum/solicitar-topico"
-          element={
-            <ProtectedRoute>
-              <ForumSolicitarTopico />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/forum/admin"
-          element={
-            <ProtectedRoute>
-              <ForumAdmin />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/courses/:courseId/quiz"
-          element={
-            <ProtectedRoute>
-              <QuizPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/verify-certificate/:certificateId"
-          element={<VerifyCertificate />}
-        />
-        <Route path="/verify-certificate" element={<VerifyCertificate />} />
-        <Route
-          path="/dashboard/users"
-          element={
-            <ProtectedRoute>
-              <GerirUsers />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/user/:userId" element={<UserPage />} />
-        <Route
-          path="/dashboard/categories"
-          element={
-            <ProtectedRoute>
-              <GerirCategorias />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/settings"
-          element={
-            <ProtectedRoute>
-              <SettingsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/change-password"
-          element={
-            <ProtectedRoute>
-              <ChangePasswordPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/my-courses"
-          element={
-            <ProtectedRoute>
-              <CoursesUser />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard/synchronous-course/:courseId"
-          element={
-            <ProtectedRoute>
-              <SynchronousCourseView />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard/courses/:courseId/modules/:moduleId"
-          element={
-            <ProtectedRoute>
-              <CourseVideoPage />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard/linked-courses"
-          element={
-            <ProtectedRoute>
-              <LinkedCourses />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard/course-managemnent"
-          element={
-            <ProtectedRoute>
-              <ListCoursesDashboard />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard/course/edit/:courseId"
-          element={
-            <ProtectedRoute>
-              <EditCourse />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard/create-course"
-          element={
-            <ProtectedRoute>
-              <CreateCourse />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route path="/" element={<WelcomePage />}></Route>
-        <Route
-          path="/linkedin"
-          element={
-            <ProtectedRoute>
-              <LinkedIn_Page />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/role"
-          element={
-            <ProtectedRoute>
-              <SelectRolePage />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/dashboard/stats"
-          element={
-            <ProtectedRoute>
-              <AdminStats />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <Routes>
+          <Route path="*" element={<NotFound />} />
+          <Route path="/login" element={<Inicio />}></Route>
+          <Route path="/auth" element={<AuthPage />}></Route>
+          <Route path="/resetpassword/:token" element={<ResetPage />}></Route>
+          <Route path="/course/:courseId" element={<CoursePage />}></Route>
+          <Route path="/find-courses" element={<FindCoursesPage />} />
+          <Route path="/forum" element={<Forum />} />
+          <Route
+            path="/forum/topico/:topicoId"
+            element={
+              <ProtectedRoute>
+                <ForumTopicoView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/percurso"
+            element={
+              <ProtectedRoute>
+                <MeuPercurso />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/forum/solicitar-topico"
+            element={
+              <ProtectedRoute>
+                <ForumSolicitarTopico />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/forum/admin"
+            element={
+              <ProtectedRoute>
+                <ForumAdmin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/courses/:courseId/quiz"
+            element={
+              <ProtectedRoute>
+                <QuizPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/verify-certificate/:certificateId"
+            element={<VerifyCertificate />}
+          />
+          <Route path="/verify-certificate" element={<VerifyCertificate />} />
+          <Route
+            path="/dashboard/users"
+            element={
+              <ProtectedRoute>
+                <GerirUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/user/:userId" element={<UserPage />} />
+          <Route
+            path="/dashboard/categories"
+            element={
+              <ProtectedRoute>
+                <GerirCategorias />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute>
+                <ChangePasswordPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/my-courses"
+            element={
+              <ProtectedRoute>
+                <CoursesUser />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard/synchronous-course/:courseId"
+            element={
+              <ProtectedRoute>
+                <SynchronousCourseView />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard/courses/:courseId/modules/:moduleId"
+            element={
+              <ProtectedRoute>
+                <CourseVideoPage />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard/linked-courses"
+            element={
+              <ProtectedRoute>
+                <LinkedCourses />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard/course-managemnent"
+            element={
+              <ProtectedRoute>
+                <ListCoursesDashboard />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard/course/edit/:courseId"
+            element={
+              <ProtectedRoute>
+                <EditCourse />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard/create-course"
+            element={
+              <ProtectedRoute>
+                <CreateCourse />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route path="/" element={<WelcomePage />}></Route>
+          <Route
+            path="/linkedin"
+            element={
+              <ProtectedRoute>
+                <LinkedIn_Page />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/role"
+            element={
+              <ProtectedRoute>
+                <SelectRolePage />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/dashboard/stats"
+            element={
+              <ProtectedRoute>
+                <AdminStats />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+      <SpeedInsights />
+    </>
   );
 }
 
