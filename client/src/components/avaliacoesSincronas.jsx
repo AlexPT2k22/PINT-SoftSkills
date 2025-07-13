@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ErrorMessage from "./error_message";
-import { Upload, FileText } from "lucide-react";
+import { Upload, FileText, Pen, Trash2 } from "lucide-react";
 import AvaliacaoFinalFormador from "./avaliacaoFinalFormador";
 import MinhaAvaliacaoFinal from "./minhaAvaliacaoFinal";
 
@@ -20,6 +20,14 @@ const AvaliacoesSincronas = ({
   const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
   const [showSubmissaoModal, setShowSubmissaoModal] = useState(false);
   const [showAvaliarModal, setShowAvaliarModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditSubmissaoModal, setShowEditSubmissaoModal] = useState(false);
+  const [submissaoParaEditar, setSubmissaoParaEditar] = useState(null);
+  const [editandoSubmissao, setEditandoSubmissao] = useState({
+    DESCRICAO: "",
+    ARQUIVO: null,
+  });
+  const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loadingSub, setLoadingSub] = useState(false);
   const [activeTab, setActiveTab] = useState("avaliacoes");
@@ -136,33 +144,107 @@ const AvaliacoesSincronas = ({
     e.preventDefault();
     try {
       setUploading(true);
-      await axios.post(
-        `${URL}/api/avaliacoes`,
-        {
-          ...novaAvaliacao,
-          ID_CURSO: cursoId,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
+
+      if (isEditing) {
+        // Editar avaliação existente
+        await axios.put(
+          `${URL}/api/avaliacoes/${avaliacaoAtual.ID_AVALIACAO_SINCRONA}`,
+          novaAvaliacao,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } else {
+        // Criar nova avaliação
+        await axios.post(
+          `${URL}/api/avaliacoes`,
+          {
+            ...novaAvaliacao,
+            ID_CURSO: cursoId,
           },
-        }
-      );
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+
       fetchAvaliacoes();
-      setNovaAvaliacao({
-        TITULO: "",
-        DESCRICAO: "",
-        DATA_LIMITE_REALIZACAO: "",
-        CRITERIOS: "",
-      });
-      setShowAvaliacaoModal(false);
+      closeAvaliacaoModal();
     } catch (error) {
-      console.error("Erro ao criar avaliação:", error);
-      setError("Erro ao criar avaliação. Tente novamente.");
+      console.error("Erro ao salvar avaliação:", error);
+      setError("Erro ao salvar avaliação. Tente novamente.");
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleEditAvaliacao = (avaliacao) => {
+    setAvaliacaoAtual(avaliacao);
+    setNovaAvaliacao({
+      TITULO: avaliacao.TITULO,
+      DESCRICAO: avaliacao.DESCRICAO,
+      DATA_LIMITE_REALIZACAO: avaliacao.DATA_LIMITE_REALIZACAO
+        ? new Date(avaliacao.DATA_LIMITE_REALIZACAO).toISOString().slice(0, 16)
+        : "",
+      CRITERIOS: avaliacao.CRITERIOS || "",
+    });
+    setIsEditing(true);
+    setShowAvaliacaoModal(true);
+  };
+
+  const handleDeleteAvaliacao = async (avaliacaoId) => {
+    if (!window.confirm("Tem certeza que deseja apagar esta avaliação?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.delete(`${URL}/api/avaliacoes/${avaliacaoId}`, {
+        withCredentials: true,
+      });
+      fetchAvaliacoes();
+    } catch (error) {
+      console.error("Erro ao apagar avaliação:", error);
+      if (error.response?.status === 400) {
+        setError(
+          "Não é possível apagar uma avaliação que já possui submissões."
+        );
+      } else {
+        setError("Erro ao apagar avaliação. Tente novamente.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const closeAvaliacaoModal = () => {
+    setShowAvaliacaoModal(false);
+    setIsEditing(false);
+    setAvaliacaoAtual(null);
+    setNovaAvaliacao({
+      TITULO: "",
+      DESCRICAO: "",
+      DATA_LIMITE_REALIZACAO: "",
+      CRITERIOS: "",
+    });
+  };
+
+  const openCreateAvaliacaoModal = () => {
+    setNovaAvaliacao({
+      TITULO: "",
+      DESCRICAO: "",
+      DATA_LIMITE_REALIZACAO: "",
+      CRITERIOS: "",
+    });
+    setIsEditing(false);
+    setAvaliacaoAtual(null);
+    setShowAvaliacaoModal(true);
   };
 
   const handleSubmitSubmissao = async (e) => {
@@ -240,6 +322,96 @@ const AvaliacoesSincronas = ({
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleEditSubmissao = (submissao) => {
+    setSubmissaoParaEditar(submissao);
+    setEditandoSubmissao({
+      DESCRICAO: submissao.DESCRICAO || "",
+      ARQUIVO: null,
+    });
+    setShowEditSubmissaoModal(true);
+  };
+
+  const handleDeleteSubmissao = async (submissaoId) => {
+    if (!window.confirm("Tem certeza que deseja apagar esta submissão?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.delete(`${URL}/api/avaliacoes/submissao/${submissaoId}`, {
+        withCredentials: true,
+      });
+      fetchMinhasSubmissoes();
+    } catch (error) {
+      console.error("Erro ao apagar submissão:", error);
+      if (error.response?.status === 400) {
+        setError(error.response.data.message);
+      } else {
+        setError("Erro ao apagar submissão. Tente novamente.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitEditSubmissao = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("DESCRICAO", editandoSubmissao.DESCRICAO);
+
+    if (editandoSubmissao.ARQUIVO) {
+      formData.append("ARQUIVO", editandoSubmissao.ARQUIVO);
+    }
+
+    try {
+      setUploading(true);
+      await axios.put(
+        `${URL}/api/avaliacoes/submissao/${submissaoParaEditar.ID_SUBMISSAO}`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      fetchMinhasSubmissoes();
+      setShowEditSubmissaoModal(false);
+      setSubmissaoParaEditar(null);
+      setEditandoSubmissao({
+        DESCRICAO: "",
+        ARQUIVO: null,
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar submissão:", error);
+      if (error.response?.status === 400) {
+        setError(error.response.data.message);
+      } else {
+        setError("Erro ao atualizar submissão. Tente novamente.");
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const closeEditSubmissaoModal = () => {
+    setShowEditSubmissaoModal(false);
+    setSubmissaoParaEditar(null);
+    setEditandoSubmissao({
+      DESCRICAO: "",
+      ARQUIVO: null,
+    });
+  };
+
+  const handleEditSubmissaoFileChange = (e) => {
+    setEditandoSubmissao({
+      ...editandoSubmissao,
+      ARQUIVO: e.target.files[0],
+    });
   };
 
   const handleFileChange = (e) => {
@@ -346,7 +518,7 @@ const AvaliacoesSincronas = ({
                   <th style={{ minWidth: "200px" }}>Descrição</th>
                   <th style={{ minWidth: "180px" }}>Data Limite</th>
                   <th style={{ minWidth: "100px" }}>Status</th>
-                  <th style={{ minWidth: "200px" }}>Ações</th>
+                  <th style={{ minWidth: "300px" }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -395,14 +567,34 @@ const AvaliacoesSincronas = ({
                         </td>
                         <td>
                           {isTeacher ? (
-                            <button
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={() => openSubmissoesModal(avaliacao)}
+                            <div
+                              className="d-flex gap-2"
                               style={{ whiteSpace: "nowrap" }}
                             >
-                              <FileText size={16} className="me-1" />
-                              Ver Submissões
-                            </button>
+                              <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => openSubmissoesModal(avaliacao)}
+                              >
+                                <FileText size={16} className="me-1" />
+                                Ver Submissões
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline-warning"
+                                onClick={() => handleEditAvaliacao(avaliacao)}
+                              >
+                                Editar
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() =>
+                                  handleDeleteAvaliacao(
+                                    avaliacao.ID_AVALIACAO_SINCRONA
+                                  )
+                                }
+                              >
+                                Apagar
+                              </button>
+                            </div>
                           ) : (
                             <>
                               {jaSubmeti ? (
@@ -420,6 +612,28 @@ const AvaliacoesSincronas = ({
                                     >
                                       Nota: {jaSubmeti.NOTA}/20
                                     </span>
+                                  )}
+                                  {!jaSubmeti.NOTA && status === "Aberto" && (
+                                    <div className="mt-2">
+                                      <button
+                                        className="btn btn-sm btn-outline-warning me-1"
+                                        onClick={() =>
+                                          handleEditSubmissao(jaSubmeti)
+                                        }
+                                      >
+                                        Editar
+                                      </button>
+                                      <button
+                                        className="btn btn-sm btn-outline-danger"
+                                        onClick={() =>
+                                          handleDeleteSubmissao(
+                                            jaSubmeti.ID_SUBMISSAO
+                                          )
+                                        }
+                                      >
+                                        Apagar
+                                      </button>
+                                    </div>
                                   )}
                                 </div>
                               ) : (
@@ -461,7 +675,7 @@ const AvaliacoesSincronas = ({
           <div className="mb-4">
             <button
               className="btn btn-primary"
-              onClick={() => setShowAvaliacaoModal(true)}
+              onClick={openCreateAvaliacaoModal}
             >
               Criar nova avaliação
             </button>
@@ -482,11 +696,13 @@ const AvaliacoesSincronas = ({
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Criar nova avaliação</h5>
+                <h5 className="modal-title">
+                  {isEditing ? "Editar avaliação" : "Criar nova avaliação"}
+                </h5>
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={() => setShowAvaliacaoModal(false)}
+                  onClick={closeAvaliacaoModal}
                   aria-label="Close"
                 ></button>
               </div>
@@ -537,7 +753,9 @@ const AvaliacoesSincronas = ({
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Data limite para entrega</label>
+                    <label className="form-label">
+                      Data limite para entrega
+                    </label>
                     <input
                       type="datetime-local"
                       className="form-control"
@@ -571,8 +789,10 @@ const AvaliacoesSincronas = ({
                             role="status"
                             aria-hidden="true"
                           ></span>
-                          A criar...
+                          {isEditing ? "A guardar..." : "A criar..."}
                         </>
+                      ) : isEditing ? (
+                        "Guardar Alterações"
                       ) : (
                         "Criar Avaliação"
                       )}
@@ -908,6 +1128,118 @@ const AvaliacoesSincronas = ({
           </div>
         </div>
 
+        <div
+          className={`modal fade ${showEditSubmissaoModal ? "show" : ""}`}
+          style={{ display: showEditSubmissaoModal ? "block" : "none" }}
+          tabIndex="-1"
+          role="dialog"
+          aria-hidden={!showEditSubmissaoModal}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Editar submissão</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeEditSubmissaoModal}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                {submissaoParaEditar && (
+                  <>
+                    <div className="mb-3">
+                      <h6>Submissão atual:</h6>
+                      <p>
+                        <strong>Descrição:</strong>{" "}
+                        {submissaoParaEditar.DESCRICAO || "Sem descrição"}
+                      </p>
+                      {submissaoParaEditar.URL_ARQUIVO && (
+                        <p>
+                          <strong>Arquivo atual:</strong>{" "}
+                          <a
+                            href={`${URL}${submissaoParaEditar.URL_ARQUIVO}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Ver arquivo
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                    <hr />
+                  </>
+                )}
+                <form onSubmit={handleSubmitEditSubmissao}>
+                  <div className="mb-3">
+                    <label className="form-label">Nova descrição</label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={editandoSubmissao.DESCRICAO}
+                      onChange={(e) =>
+                        setEditandoSubmissao({
+                          ...editandoSubmissao,
+                          DESCRICAO: e.target.value,
+                        })
+                      }
+                      placeholder="Descreva seu trabalho ou deixe comentários para o formador"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Novo arquivo (opcional)
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      onChange={handleEditSubmissaoFileChange}
+                    />
+                    <small className="form-text text-muted">
+                      Deixe em branco para manter o arquivo atual
+                    </small>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={closeEditSubmissaoModal}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={uploading}
+                    >
+                      {uploading ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          A atualizar...
+                        </>
+                      ) : (
+                        "Atualizar Submissão"
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {showEditSubmissaoModal && (
+          <div
+            className="modal-backdrop fade show"
+            onClick={closeEditSubmissaoModal}
+          ></div>
+        )}
+
         {showAvaliacaoModal && (
           <div
             className="modal-backdrop fade show"
@@ -1000,14 +1332,34 @@ const AvaliacoesSincronas = ({
                           </td>
                           <td>
                             {isTeacher ? (
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => openSubmissoesModal(avaliacao)}
+                              <div
+                                className="d-flex gap-2"
                                 style={{ whiteSpace: "nowrap" }}
                               >
-                                <FileText size={16} className="me-1" />
-                                Ver Submissões
-                              </button>
+                                <button
+                                  className="btn btn-sm btn-outline-primary"
+                                  onClick={() => openSubmissoesModal(avaliacao)}
+                                >
+                                  <FileText size={16} className="me-1" />
+                                  Ver Submissões
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-warning"
+                                  onClick={() => handleEditAvaliacao(avaliacao)}
+                                >
+                                  <Pen size={16} />
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={() =>
+                                    handleDeleteAvaliacao(
+                                      avaliacao.ID_AVALIACAO_SINCRONA
+                                    )
+                                  }
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
                             ) : (
                               <>
                                 {jaSubmeti ? (
@@ -1026,6 +1378,28 @@ const AvaliacoesSincronas = ({
                                         Nota: {jaSubmeti.NOTA}/20
                                       </span>
                                     )}
+                                                                      {!jaSubmeti.NOTA && status === "Aberto" && (
+                                    <div className="mt-2">
+                                      <button
+                                        className="btn btn-sm btn-outline-warning me-1"
+                                        onClick={() =>
+                                          handleEditSubmissao(jaSubmeti)
+                                        }
+                                      >
+                                        <Pen size={16} />
+                                      </button>
+                                      <button
+                                        className="btn btn-sm btn-outline-danger"
+                                        onClick={() =>
+                                          handleDeleteSubmissao(
+                                            jaSubmeti.ID_SUBMISSAO
+                                          )
+                                        }
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    </div>
+                                  )}
                                   </div>
                                 ) : (
                                   <button

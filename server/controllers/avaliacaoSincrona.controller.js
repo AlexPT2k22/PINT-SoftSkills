@@ -169,21 +169,78 @@ const getAvaliacoesByCurso = async (req, res) => {
 const updateAvaliacao = async (req, res) => {
   try {
     const { id } = req.params;
-    const { NOTA, OBSERVACAO, ESTADO } = req.body;
+    const { TITULO, DESCRICAO, CRITERIOS, DATA_LIMITE_REALIZACAO } = req.body;
+    const userId = req.user.ID_UTILIZADOR;
 
+    // Verificar se a avaliação existe
     const avaliacao = await AvaliacaoSincrona.findByPk(id);
     if (!avaliacao) {
       return res.status(404).json({ message: "Avaliação não encontrada" });
     }
 
+    // Verificar se o usuário tem permissão para editar (formador ou gestor)
+    const perfil = await UtilizadorTemPerfil.findOne({
+      where: { ID_UTILIZADOR: userId },
+    });
+
+    if (perfil.ID_PERFIL === 1) {
+      return res.status(403).json({
+        message: "Apenas formadores e gestores podem editar avaliações",
+      });
+    }
+
     await avaliacao.update({
-      NOTA,
-      OBSERVACAO,
-      ESTADO,
+      TITULO,
+      DESCRICAO,
+      CRITERIOS,
+      DATA_LIMITE_REALIZACAO,
     });
 
     res.status(200).json(avaliacao);
   } catch (error) {
+    console.error("Erro ao atualizar avaliação:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteAvaliacao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.ID_UTILIZADOR;
+
+    // Verificar se a avaliação existe
+    const avaliacao = await AvaliacaoSincrona.findByPk(id);
+    if (!avaliacao) {
+      return res.status(404).json({ message: "Avaliação não encontrada" });
+    }
+
+    // Verificar se o usuário tem permissão para deletar (formador ou gestor)
+    const perfil = await UtilizadorTemPerfil.findOne({
+      where: { ID_UTILIZADOR: userId },
+    });
+
+    if (perfil.ID_PERFIL === 1) {
+      return res.status(403).json({
+        message: "Apenas formadores e gestores podem deletar avaliações",
+      });
+    }
+
+    // Verificar se há submissões associadas
+    const submissoes = await SubmissaoAvaliacao.findAll({
+      where: { ID_AVALIACAO_SINCRONA: id },
+    });
+
+    if (submissoes.length > 0) {
+      return res.status(400).json({
+        message:
+          "Não é possível deletar uma avaliação que já possui submissões",
+      });
+    }
+
+    await avaliacao.destroy();
+    res.status(200).json({ message: "Avaliação deletada com sucesso" });
+  } catch (error) {
+    console.error("Erro ao deletar avaliação:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -299,7 +356,6 @@ const submeterTrabalho = async (req, res) => {
         DATA_SUBMISSAO: new Date(),
         ESTADO: "Submetido",
       });
-
     } else {
       // Criar nova submissão
       submissao = await SubmissaoAvaliacao.create({
@@ -339,6 +395,179 @@ const avaliarSubmissao = async (req, res) => {
     res.status(200).json(submissao);
   } catch (error) {
     console.error("Erro ao avaliar submissão:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const updateSubmissao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.ID_UTILIZADOR;
+    const { DESCRICAO } = req.body;
+
+    // Verificar se a submissão existe e pertence ao usuário
+    const submissao = await SubmissaoAvaliacao.findOne({
+      where: {
+        ID_SUBMISSAO: id,
+        ID_UTILIZADOR: userId,
+      },
+    });
+
+    if (!submissao) {
+      return res.status(404).json({
+        message: "Submissão não encontrada ou não pertence ao usuário",
+      });
+    }
+
+    // Verificar se a submissão já foi avaliada
+    if (submissao.NOTA) {
+      return res.status(400).json({
+        message: "Não é possível editar uma submissão que já foi avaliada",
+      });
+    }
+
+    // Verificar se a avaliação ainda está aberta
+    const avaliacao = await AvaliacaoSincrona.findByPk(
+      submissao.ID_AVALIACAO_SINCRONA
+    );
+    const hoje = new Date();
+    const dataLimite = new Date(avaliacao.DATA_LIMITE_REALIZACAO);
+
+    if (hoje > dataLimite) {
+      return res.status(400).json({
+        message: "Não é possível editar submissão após o prazo limite",
+      });
+    }
+
+    let fileData = null;
+
+    // Verificar se há novo arquivo sendo enviado
+    if (req.file) {
+      try {
+        fileData = await saveEvaluationFile(
+          req.file,
+          userId,
+          submissao.ID_AVALIACAO_SINCRONA
+        );
+
+        // Deletar arquivo antigo se existir
+        if (submissao.URL_ARQUIVO) {
+          try {
+            if (submissao.URL_ARQUIVO.includes("supabase")) {
+              const url = new URL(submissao.URL_ARQUIVO);
+              const pathMatch = url.pathname.match(
+                /\/storage\/v1\/object\/public\/course-files\/(.+)$/
+              );
+              if (pathMatch) {
+                await deleteAvaliacaoFromSupabase(pathMatch[1]);
+              }
+            } else if (submissao.URL_ARQUIVO.startsWith("/uploads/")) {
+              const localPath = path.join(
+                __dirname,
+                "..",
+                "public",
+                submissao.URL_ARQUIVO
+              );
+              if (fs.existsSync(localPath)) {
+                fs.unlinkSync(localPath);
+              }
+            }
+          } catch (error) {
+            console.warn("Warning deleting old submission file:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Error uploading submission file:", error);
+        return res.status(500).json({
+          message: `Erro ao fazer upload do arquivo: ${error.message}`,
+        });
+      }
+    }
+
+    // Atualizar submissão
+    await submissao.update({
+      DESCRICAO,
+      URL_ARQUIVO: fileData ? fileData.url : submissao.URL_ARQUIVO,
+      DATA_SUBMISSAO: new Date(),
+    });
+
+    res.status(200).json(submissao);
+  } catch (error) {
+    console.error("Erro ao atualizar submissão:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteSubmissao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.ID_UTILIZADOR;
+
+    // Verificar se a submissão existe e pertence ao usuário
+    const submissao = await SubmissaoAvaliacao.findOne({
+      where: {
+        ID_SUBMISSAO: id,
+        ID_UTILIZADOR: userId,
+      },
+    });
+
+    if (!submissao) {
+      return res.status(404).json({
+        message: "Submissão não encontrada ou não pertence ao usuário",
+      });
+    }
+
+    // Verificar se a submissão já foi avaliada
+    if (submissao.NOTA) {
+      return res.status(400).json({
+        message: "Não é possível apagar uma submissão que já foi avaliada",
+      });
+    }
+
+    // Verificar se a avaliação ainda está aberta
+    const avaliacao = await AvaliacaoSincrona.findByPk(
+      submissao.ID_AVALIACAO_SINCRONA
+    );
+    const hoje = new Date();
+    const dataLimite = new Date(avaliacao.DATA_LIMITE_REALIZACAO);
+
+    if (hoje > dataLimite) {
+      return res.status(400).json({
+        message: "Não é possível apagar submissão após o prazo limite",
+      });
+    }
+
+    // Deletar arquivo se existir
+    if (submissao.URL_ARQUIVO) {
+      try {
+        if (submissao.URL_ARQUIVO.includes("supabase")) {
+          const url = new URL(submissao.URL_ARQUIVO);
+          const pathMatch = url.pathname.match(
+            /\/storage\/v1\/object\/public\/course-files\/(.+)$/
+          );
+          if (pathMatch) {
+            await deleteAvaliacaoFromSupabase(pathMatch[1]);
+          }
+        } else if (submissao.URL_ARQUIVO.startsWith("/uploads/")) {
+          const localPath = path.join(
+            __dirname,
+            "..",
+            "public",
+            submissao.URL_ARQUIVO
+          );
+          if (fs.existsSync(localPath)) {
+            fs.unlinkSync(localPath);
+          }
+        }
+      } catch (error) {
+        console.warn("Warning deleting submission file:", error);
+      }
+    }
+
+    await submissao.destroy();
+    res.status(200).json({ message: "Submissão apagada com sucesso" });
+  } catch (error) {
+    console.error("Erro ao apagar submissão:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -384,9 +613,12 @@ module.exports = {
   createAvaliacao,
   getAvaliacoesByCurso,
   updateAvaliacao,
+  deleteAvaliacao,
   getMinhasSubmissoesByCurso,
   getSubmissoesByAvaliacao,
   submeterTrabalho,
+  updateSubmissao,
+  deleteSubmissao,
   avaliarSubmissao,
   getProximasAvaliacoes,
 };
