@@ -175,18 +175,7 @@ function GerirUsers() {
       if (response.data.success) {
         await getUsers();
         setEditingUser(null);
-
-        const { updated } = response.data;
         let message = "Utilizador atualizado com sucesso!";
-
-        if (updated.dadosPessoais && updated.perfil) {
-          message += " (Dados pessoais e perfil alterados)";
-        } else if (updated.dadosPessoais) {
-          message += " (Dados pessoais alterados)";
-        } else if (updated.perfil) {
-          message += " (Perfil alterado)";
-        }
-
         showSuccess(message);
       }
     } catch (error) {
