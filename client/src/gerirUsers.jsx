@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import NavbarDashboard from "./components/navbarDashboard";
 import Sidebar from "./components/sidebar";
 import axios from "axios";
-import {
-  Edit,
-  UserX,
-  UserPlus
-} from "lucide-react";
+import { Edit, UserX, UserPlus } from "lucide-react";
 import "./styles/gerirUsers.css";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
@@ -126,38 +122,78 @@ function GerirUsers() {
   });
 
   const handleEditUser = (user) => {
+    const originalData = {
+      NOME: user.NOME,
+      EMAIL: user.EMAIL,
+      LINKEDIN: user.LINKEDIN,
+      selectedProfile: user.PERFILs?.[0]?.ID_PERFIL || null,
+    };
+
     setEditingUser({
       ...user,
       selectedProfile: user.PERFILs?.[0]?.ID_PERFIL || null,
+      originalData: originalData,
     });
   };
 
   const handleSaveUser = async () => {
     try {
       setLoadingButton(true);
-      const updateData = {
-        NOME: editingUser.NOME,
-        EMAIL: editingUser.EMAIL,
-        LINKEDIN: editingUser.LINKEDIN,
-        profileId: editingUser.selectedProfile,
-      };
 
-      await axios.put(
+      if (editingUser.NOME !== editingUser.originalData?.NOME) {
+        updateData.NOME = editingUser.NOME;
+      }
+
+      if (editingUser.EMAIL !== editingUser.originalData?.EMAIL) {
+        updateData.EMAIL = editingUser.EMAIL;
+      }
+
+      if (editingUser.LINKEDIN !== editingUser.originalData?.LINKEDIN) {
+        updateData.LINKEDIN = editingUser.LINKEDIN;
+      }
+
+      if (
+        editingUser.selectedProfile !==
+        editingUser.originalData?.selectedProfile
+      ) {
+        updateData.profileId = editingUser.selectedProfile;
+      }
+
+      const response = await axios.put(
         `${URL}/api/user/${editingUser.ID_UTILIZADOR}`,
         updateData,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
-      await getUsers();
-      setEditingUser(null);
-      showSuccess("Utilizador atualizado com sucesso!");
+      if (response.data.success) {
+        await getUsers();
+        setEditingUser(null);
+
+        const { updated } = response.data;
+        let message = "Utilizador atualizado com sucesso!";
+
+        if (updated.dadosPessoais && updated.perfil) {
+          message += " (Dados pessoais e perfil alterados)";
+        } else if (updated.dadosPessoais) {
+          message += " (Dados pessoais alterados)";
+        } else if (updated.perfil) {
+          message += " (Perfil alterado)";
+        }
+
+        showSuccess(message);
+      }
     } catch (error) {
       console.error("Error updating user:", error);
-      showError(
-        error.response?.data?.message || "Erro ao atualizar utilizador"
-      );
+      const errorMsg =
+        error.response?.data?.message || "Erro ao atualizar utilizador";
+
+      if (errorMsg.includes("cursos associados")) {
+        showError(`${errorMsg}`);
+      } else if (errorMsg.includes("Email já está em uso")) {
+        showError("Este email já está a ser usado por outro utilizador");
+      } else {
+        showError(`${errorMsg}`);
+      }
     } finally {
       setLoadingButton(false);
     }
@@ -265,7 +301,10 @@ function GerirUsers() {
                                 {user?.NOME || "Sem nome"}
                               </div>
                               <div className="user-username">
-                                <a className="text-secondary" href={`/user/${user.ID_UTILIZADOR}`}>
+                                <a
+                                  className="text-secondary"
+                                  href={`/user/${user.ID_UTILIZADOR}`}
+                                >
                                   @{user.USERNAME}
                                 </a>
                               </div>

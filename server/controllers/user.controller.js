@@ -583,8 +583,8 @@ const changeUser = async (req, res) => {
       utilizador.NOME = NOME;
     }
 
-    if (LINKEDIN) {
-      utilizador.LINKEDIN = LINKEDIN;
+    if (LINKEDIN !== undefined) {
+      utilizador.LINKEDIN = LINKEDIN || null;
     }
 
     if (EMAIL) {
@@ -607,14 +607,26 @@ const changeUser = async (req, res) => {
         return res.status(404).json({ message: "Perfil não encontrado" });
       }
 
-      const cursos = await CursoSincrono.findAll({
+      const perfilAtual = await UtilizadorTemPerfil.findOne({
         where: { ID_UTILIZADOR: userId },
       });
-      if (cursos.length > 0) {
-        return res.status(400).json({
-          message:
-            "Não é possível alterar o perfil de um formador ou gestor que possui cursos associados.",
+
+      if (perfilAtual && perfilAtual.ID_PERFIL !== parseInt(profileId)) {
+        const cursosSincronos = await CursoSincrono.findAll({
+          where: { ID_UTILIZADOR: userId },
         });
+
+        const totalCursos = cursosSincronos.length;
+
+        if (totalCursos > 0) {
+          return res.status(400).json({
+            message: `Não é possível alterar o perfil de um utilizador que possui cursos associados. Este utilizador tem ${totalCursos} curso(s) associado(s).`,
+            details: {
+              cursosSincronos: cursosSincronos.length,
+              totalCursos: totalCursos,
+            },
+          });
+        }
       }
 
       await UtilizadorTemPerfil.update(
