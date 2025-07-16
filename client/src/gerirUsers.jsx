@@ -140,6 +140,8 @@ function GerirUsers() {
     try {
       setLoadingButton(true);
 
+      const updateData = {};
+
       if (editingUser.NOME !== editingUser.originalData?.NOME) {
         updateData.NOME = editingUser.NOME;
       }
@@ -157,6 +159,11 @@ function GerirUsers() {
         editingUser.originalData?.selectedProfile
       ) {
         updateData.profileId = editingUser.selectedProfile;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        showError("Nenhuma alteração foi feita");
+        return;
       }
 
       const response = await axios.put(
