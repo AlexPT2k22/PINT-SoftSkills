@@ -95,7 +95,12 @@ function WelcomePage() {
                   Estude com mais de 100 cursos disponiveis!
                 </p>
                 <div className="d-flex justify-content-center justify-content-md-start">
-                  <button className="btn btn-primary px-4">Começar</button>
+                  <button
+                    className="btn btn-primary px-4"
+                    onClick={() => navigate("/find-courses")}
+                  >
+                    Começar
+                  </button>
                 </div>
               </div>
             </div>
