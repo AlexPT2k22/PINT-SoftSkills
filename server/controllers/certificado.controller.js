@@ -12,7 +12,7 @@ const {
   InscricaoAssincrono,
   CursoSincrono,
   CursoAssincrono,
-  AvaliacaoFinalSincrona
+  AvaliacaoFinalSincrona,
 } = require("../models/index.js");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
@@ -42,10 +42,14 @@ const calcularNotaFinal = async (userId, courseId) => {
 
     if (cursoSincrono) {
       // Para cursos síncronos: procurar notas das avaliações
-      notaFinal = await AvaliacaoFinalSincrona.findOne({
-        where: { ID_UTILIZADOR: userId, ID_CURSO: courseId },
+      const avaliacaoFinal = await AvaliacaoFinalSincrona.findOne({
+        where: {
+          UTI_ID_UTILIZADOR: cursoSincrono.ID_UTILIZADOR, // formador do curso
+          UTI_ID_UTILIZADOR2: userId, // aluno
+        },
         attributes: ["NOTA_FINAL"],
       });
+      notaFinal = avaliacaoFinal ? avaliacaoFinal.NOTA_FINAL : 0;
     }
 
     if (cursoAssincrono) {
