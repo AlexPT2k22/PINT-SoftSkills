@@ -12,6 +12,7 @@ const {
   InscricaoAssincrono,
   CursoSincrono,
   CursoAssincrono,
+  AvaliacaoFinalSincrona
 } = require("../models/index.js");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
@@ -41,22 +42,9 @@ const calcularNotaFinal = async (userId, courseId) => {
 
     if (cursoSincrono) {
       // Para cursos síncronos: procurar notas das avaliações
-      const submissoes = await SubmissaoAvaliacao.findAll({
-        where: { ID_UTILIZADOR: userId },
-        include: [
-          {
-            model: AvaliacaoSincrona,
-            where: { ID_CURSO: courseId },
-            required: true,
-          },
-        ],
-      });
-
-      submissoes.forEach((submissao) => {
-        if (submissao.NOTA !== null) {
-          somaNotas += submissao.NOTA;
-          totalAvaliacoes++;
-        }
+      notaFinal = await AvaliacaoFinalSincrona.findOne({
+        where: { ID_UTILIZADOR: userId, ID_CURSO: courseId },
+        attributes: ["NOTA_FINAL"],
       });
     }
 
@@ -81,11 +69,11 @@ const calcularNotaFinal = async (userId, courseId) => {
           totalAvaliacoes++;
         }
       });
-    }
 
-    // Calcular média final
-    if (totalAvaliacoes > 0) {
-      notaFinal = somaNotas / totalAvaliacoes;
+      // Calcular média final
+      if (totalAvaliacoes > 0) {
+        notaFinal = somaNotas / totalAvaliacoes;
+      }
     }
 
     return parseFloat(notaFinal.toFixed(1));
@@ -232,7 +220,7 @@ const gerarCertificado = async (req, res) => {
     const logoPath = path.join(__dirname, "../public/images/Logo.png");
     doc.image(logoPath, 50, 50, { width: 150 });
 
-    const centerY = doc.page.height / 2 - 100; 
+    const centerY = doc.page.height / 2 - 100;
 
     doc
       .font("Helvetica-Bold")
