@@ -405,7 +405,7 @@ function CoursePage() {
             </div>
           )}
 
-          <div className="container-fluid banner-curso pb-4 pb-md-5 pt-3">
+          <div className="container-fluid banner-curso pb-4 pt-3">
             <div className="container">
               <div className="row mb-3">
                 <div className="col-12">
