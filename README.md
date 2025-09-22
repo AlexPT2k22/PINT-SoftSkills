@@ -1,6 +1,6 @@
 [![wakatime](https://wakatime.com/badge/github/AlexPT2k22/PINT-SoftSkills.svg)](https://wakatime.com/badge/github/AlexPT2k22/PINT-SoftSkills)
 
-# SoftSkills
+# SoftSkills - A project for Softinsa (an IBM subsidiary)
 
 > Training & progress-tracking platform for remote teams — full-stack project with a Vite front-end and a Node/Express API. Features email delivery, media storage, PDF certificate generation and interactive experiences.
 
