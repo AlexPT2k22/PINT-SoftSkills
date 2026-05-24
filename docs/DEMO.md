@@ -6,7 +6,7 @@ This setup keeps the project live for recruiters without a paid server plan.
 
 - Frontend: Vercel (`client/`)
 - Backend API: Vercel Functions (`server/`)
-- Database: free PostgreSQL provider (Neon/Supabase)
+- Database: optional for demo if `MOCK_MODE=true`
 
 ## 1) Deploy backend on Vercel
 
@@ -18,14 +18,20 @@ Create a separate Vercel project for `server/`:
 
 `server/vercel.json` already defines:
 
-- route mapping to `server.js`
+- route mapping to `api/index.js`
 - hourly cron call to `/api/cron/maintenance`
 
 ## 2) Configure backend environment variables
 
 Use `server/.env.example` as baseline.
 
-Required minimum:
+Required minimum for mock demo (recommended):
+
+- `MOCK_MODE=true`
+- `CRON_SECRET`
+- `FRONTEND_URL` (your frontend Vercel domain)
+
+Required minimum for real backend mode:
 
 - `PROD_PG_URL`
 - `JWT_SECRET`
@@ -33,7 +39,7 @@ Required minimum:
 - `BACKEND_URL` (your backend Vercel domain)
 - `CRON_SECRET` (mandatory to secure cron endpoint)
 
-Feature-specific keys (if those features are enabled):
+Feature-specific keys (only if real backend features are enabled):
 
 - Cloudinary
 - Supabase
@@ -75,6 +81,8 @@ Recommended:
 - one stable certificate ID for verification page
 
 Keep sample data clean and non-sensitive.
+
+If you deploy with `MOCK_MODE=true`, the backend returns stable demo data without requiring a live DB.
 
 ## 6) 2-minute recruiter script
 

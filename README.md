@@ -103,7 +103,7 @@ PINT-SoftSkills/
 ### Prerequisites
 - Node.js 20+
 - npm
-- PostgreSQL instance
+- PostgreSQL instance (only for real backend mode)
 
 ### 1) Clone
 
@@ -140,6 +140,17 @@ npm run dev
 
 Frontend default URL: `http://localhost:5173`  
 Backend default URL: `http://localhost:4000`
+
+### Optional: run without database (mock mode)
+
+If you only need a recruiter demo and do not want to configure DB/integrations:
+
+```bash
+cd server
+npm run dev:mock
+```
+
+Then run frontend normally and keep `VITE_API_URL=http://localhost:4000`.
 
 ## Deployment guide (Vercel full free tier)
 
