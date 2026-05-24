@@ -16,18 +16,6 @@ SoftSkills centralizes remote learning operations in one product:
 - progress and attendance are tracked in real time
 - certificates are generated and can be publicly verified
 
-## Recruiter quick tour
-
-If you are evaluating this project in 2-3 minutes:
-
-1. Open the app at `https://pint-soft-skills.vercel.app/`
-2. Navigate through authentication and dashboard routes
-3. Check certificate verification flow at `/verify-certificate/:certificateId`
-4. Read architecture and technical docs:
-   - `docs/ARCHITECTURE.md`
-   - `docs/HOW-IT-WORKS.md`
-   - `docs/DEMO.md`
-
 ## Main capabilities
 
 - Authentication with protected routes (role-aware flows)
@@ -165,4 +153,3 @@ Use the step-by-step setup in `docs/DEMO.md` to publish and maintain a live envi
 ## Authors
 
 - Alexandre
-- Rodrigo
