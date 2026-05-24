@@ -12,7 +12,7 @@ require("./models/index.js");
 const categoriaRoutes = require("./routes/categoria.route.js");
 const topicoRoutes = require("./routes/topico.route");
 const cookieparser = require("cookie-parser");
-require("dotenv");
+require("dotenv").config();
 const { connectCloudinary } = require("./database/cloudinary.js");
 const notasRoutes = require("./routes/notas.route.js");
 const certificadoRoutes = require("./routes/certificado.route.js");
@@ -40,22 +40,44 @@ require("./config/firebase.js");
 const { cleanupInactiveTokens } = require("./jobs/fcmCleanup.js");
 const path = require("path");
 const port = process.env.PORT || 4000;
+const isServerlessRuntime = process.env.VERCEL === "1";
 
 app.use(express.json()); // Para ler JSON no corpo da requisição
+
+const normalizeOrigin = (value) => {
+  if (!value || typeof value !== "string") return null;
+  return value.trim().replace(/\/$/, "");
+};
+
+const baseAllowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://pint-soft-skills.vercel.app",
+  "https://pint-soft-skills-alexandres-projects-999f47dc.vercel.app",
+];
+
+const envAllowedOrigins = [
+  normalizeOrigin(process.env.FRONTEND_URL),
+  normalizeOrigin(process.env.CLIENT_URL),
+  normalizeOrigin(process.env.VERCEL_URL)
+    ? `https://${normalizeOrigin(process.env.VERCEL_URL).replace(/^https?:\/\//, "")}`
+    : null,
+].filter(Boolean);
+
+const allowedOrigins = [...new Set([...baseAllowedOrigins, ...envAllowedOrigins])];
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://pint-soft-skills.vercel.app",
-        "https://pint-soft-skills-alexandres-projects-999f47dc.vercel.app",
-      ];
-
       // Permitir requests sem origin
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      const normalizedOrigin = normalizeOrigin(origin);
+      const isVercelPreview =
+        typeof normalizedOrigin === "string" &&
+        /^https:\/\/pint-soft-skills[\w-]*\.vercel\.app$/.test(normalizedOrigin);
+
+      if (allowedOrigins.includes(normalizedOrigin) || isVercelPreview) {
         callback(null, true);
       } else {
         callback(new Error("Não permitido pelo CORS"));
@@ -78,23 +100,47 @@ app.use(
 );
 app.use(cookieparser()); // Para ler cookies
 
-// Executar atualização a cada hora
-setInterval(
-  async () => {
-    await updateAsyncCoursesStatus();
-    await updateSyncCoursesStatus();
-  },
-  60 * 60 * 1000
-);
+if (!isServerlessRuntime) {
+  // Executar atualização a cada hora em ambiente com processo persistente
+  setInterval(
+    async () => {
+      await updateAsyncCoursesStatus();
+      await updateSyncCoursesStatus();
+    },
+    60 * 60 * 1000
+  );
 
-setInterval(
-  async () => {
-    await cleanupInactiveTokens();
-  },
-  24 * 60 * 60 * 1000 // 24 horas
-);
+  setInterval(
+    async () => {
+      await cleanupInactiveTokens();
+    },
+    24 * 60 * 60 * 1000 // 24 horas
+  );
+}
 
 app.use("/api/fcm", fcmRoutes);
+app.post("/api/cron/maintenance", async (req, res) => {
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null;
+  const expectedToken = process.env.CRON_SECRET;
+
+  if (!expectedToken || token !== expectedToken) {
+    return res.status(401).json({ error: "Unauthorized cron request" });
+  }
+
+  try {
+    await updateAsyncCoursesStatus();
+    await updateSyncCoursesStatus();
+    await cleanupInactiveTokens();
+
+    return res.status(200).json({ ok: true, executed: "maintenance" });
+  } catch (error) {
+    console.error("Erro ao executar cron de manutenção:", error);
+    return res.status(500).json({ error: "Cron maintenance failed" });
+  }
+});
 app.use("/api/notificacoes", notificacaoRoutes); // Rota para notificações
 app.use("/api/areas", areaRoute); // Rota para áreas
 app.use("/api/anuncios", anuncioRotas); // Rota para anúncios
@@ -136,19 +182,28 @@ app.get("/api", (_, res) => {
 
 connectDB(); // Conectar ao banco de dados
 connectCloudinary(); // Conectar ao Cloudinary
-updateAsyncCoursesStatus(); // Atualizar status dos cursos assíncronos
-updateSyncCoursesStatus(); // Atualizar status dos cursos síncronos
+
+if (!isServerlessRuntime) {
+  updateAsyncCoursesStatus(); // Atualizar status dos cursos assíncronos
+  updateSyncCoursesStatus(); // Atualizar status dos cursos síncronos
+}
 
 // Sincronizar os modelos com o banco de dados
 (async () => {
   try {
-    await sequelize.sync({ force: false, alter: false });
-    console.log("Database configurada com sucesso!");
+    if (process.env.RUN_DB_SYNC === "true") {
+      await sequelize.sync({ force: false, alter: false });
+      console.log("Database configurada com sucesso!");
+    }
   } catch (error) {
     console.error("Erro a sincronizar base de dados:", error);
   }
 })();
 
-app.listen(port, () => {
-  console.log("Server started on port: ", port);
-});
+if (!isServerlessRuntime) {
+  app.listen(port, () => {
+    console.log("Server started on port: ", port);
+  });
+}
+
+module.exports = app;

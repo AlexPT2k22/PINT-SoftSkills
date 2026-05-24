@@ -1,93 +1,157 @@
 [![wakatime](https://wakatime.com/badge/github/AlexPT2k22/PINT-SoftSkills.svg)](https://wakatime.com/badge/github/AlexPT2k22/PINT-SoftSkills)
 
-# SoftSkills - A project for Softinsa (an IBM subsidiary)
+# SoftSkills
 
-> Training & progress-tracking platform for remote teams — full-stack project with a Vite front-end and a Node/Express API. Features email delivery, media storage, PDF certificate generation and interactive experiences.
+Training and progress-tracking platform for teams, with course management, forum workflows, quizzes, attendance, notifications and certificate verification.
 
-**Demo:** https://pint-soft-skills.vercel.app/
+- Live demo (Frontend on Vercel): `https://pint-soft-skills.vercel.app/`
+- API healthcheck (Backend on Vercel Functions): `GET /api`
 
----
+## Why this project matters
 
-## Table of contents
-- [About](#about)  
-- [Features](#features)  
-- [Tech stack](#tech-stack)  
-- [Getting started (local)](#getting-started-local)  
-- [Environment variables (example)](#environment-variables-example)  
+SoftSkills centralizes remote learning operations in one product:
 
----
+- admins create and manage training journeys
+- participants follow asynchronous and synchronous content
+- progress and attendance are tracked in real time
+- certificates are generated and can be publicly verified
 
-## About
-**SoftSkills** is a platform designed to centralize team training, track user progress and issue certificates. The project combines a modern front-end with server-side features (API, email delivery, file management, PDF generation)
+## Recruiter quick tour
 
----
+If you are evaluating this project in 2-3 minutes:
 
-## Features
-- Admin panel for creating and managing courses.  
-- User enrollment and progress tracking.  
-- Email notifications and certificate delivery.  
-- Media upload & storage (Cloudinary / Supabase suggested).  
-- PDF certificate generation.  
-- Auth / protected routes for users and admins.
+1. Open the app at `https://pint-soft-skills.vercel.app/`
+2. Navigate through authentication and dashboard routes
+3. Check certificate verification flow at `/verify-certificate/:certificateId`
+4. Read architecture and technical docs:
+   - `docs/ARCHITECTURE.md`
+   - `docs/HOW-IT-WORKS.md`
+   - `docs/DEMO.md`
 
----
+## Main capabilities
+
+- Authentication with protected routes (role-aware flows)
+- Course lifecycle management (create, edit, publish, enroll)
+- Learning progress tracking and attendance management
+- Forum module (topics, posts, evaluations, reports, requests)
+- Notifications and scheduled maintenance jobs
+- Certificate generation and verification
 
 ## Tech stack
-Core technologies used in the project (adjust as necessary to match your code):
-- Vite
-- NodeJS
-- ExpressJS
-- Render (API and Database hosting)
+
+### Frontend
+- React 19 + Vite
+- React Router
+- Zustand
+- Bootstrap / React-Bootstrap
+
+### Backend
+- Node.js + Express
+- Sequelize
 - PostgreSQL
-- Resend (Email sending)
-- Zustand (State management)
-- Cloudinary (Image and video storage)
-- PDFmaker (For certificates)
-- Supabase (Store files)
+- JWT + cookie-based auth
 
----
+### Integrations
+- Cloudinary (media)
+- Supabase (file storage use cases)
+- Resend/Mail services (email flows)
+- Firebase Admin / FCM (push notifications)
+- PDFKit + QRCode (certificate generation)
 
-## Getting started (local)
+### Deployment
+- Frontend: Vercel (`client/vercel.json`)
+- Backend/API: Vercel Functions (`server/vercel.json`)
 
-> Requirements: Node.js, npm or pnpm, PostgreSQL (or another compatible DB)
+## High-level architecture
 
-1. Clone the repo:
-bash git clone https://github.com/AlexPT2k22/PINT-SoftSkills.git
+```text
+React (Vite SPA on Vercel)
+        |
+        | HTTPS (REST + Cookies)
+        v
+Node/Express API (Vercel Functions)
+        |
+        +--> PostgreSQL (Sequelize)
+        +--> Cloudinary (media)
+        +--> Supabase (storage)
+        +--> Email provider (transactional emails)
+        +--> Firebase FCM (push notifications)
+```
+
+Detailed diagrams and request flows: `docs/ARCHITECTURE.md`.
+
+## Repository structure
+
+```text
+PINT-SoftSkills/
+|- client/                 # React + Vite app
+|  |- src/
+|  |- public/
+|  `- vercel.json
+|- server/                 # Express API
+|  |- controllers/
+|  |- routes/
+|  |- models/
+|  |- database/
+|  |- jobs/
+|  `- server.js
+`- docs/                   # Architecture, flows and demo guide
+```
+
+## Getting started locally
+
+### Prerequisites
+- Node.js 20+
+- npm
+- PostgreSQL instance
+
+### 1) Clone
+
+```bash
+git clone https://github.com/AlexPT2k22/PINT-SoftSkills.git
 cd PINT-SoftSkills
+```
 
-2.Install server dependencies:
+### 2) Install dependencies
+
+```bash
 cd server
 npm install
-
-3.Install client dependencies:
 cd ../client
 npm install
+```
 
-4.Create .env files (see example below) and start both apps
-# In one terminal (server)
+### 3) Configure environment variables
+
+- Copy `server/.env.example` to `server/.env`
+- Copy `client/.env.example` to `client/.env`
+
+### 4) Run locally
+
+```bash
+# terminal 1
 cd server
 npm run dev
 
-# In another terminal (client)
+# terminal 2
 cd client
 npm run dev
+```
 
-> Note: Replace npm run dev with the exact commands defined in each package.json if they differ (start, dev:server, etc.).
+Frontend default URL: `http://localhost:5173`  
+Backend default URL: `http://localhost:4000`
 
-## Environment variables (example)
+## Deployment guide (Vercel full free tier)
 
-# Server
+Use the step-by-step setup in `docs/DEMO.md` to publish and maintain a live environment for recruiters using Vercel (frontend + backend) and a free PostgreSQL provider.
 
-DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DATABASE
-PORT=4000
-JWT_SECRET=your_jwt_secret
-CLOUDINARY_URL=cloudinary://...
-RESEND_API_KEY=your_resend_key
-SUPABASE_URL=https://...
-SUPABASE_KEY=...
-NODE_ENV=development
+## Documentation index
 
-# Client
+- Architecture: `docs/ARCHITECTURE.md`
+- Functional walkthrough: `docs/HOW-IT-WORKS.md`
+- Demo and deployment playbook: `docs/DEMO.md`
 
-VITE_API_BASE_URL=http://localhost:4000/api
-VITE_CLOUDINARY_KEY=your_cloudinary_key
+## Authors
+
+- Alexandre
+- Rodrigo
