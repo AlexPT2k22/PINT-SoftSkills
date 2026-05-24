@@ -22,7 +22,7 @@ import {
 import useAuthStore from "../store/authStore.js";
 import Footer from "./footer.jsx";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 const ForumTopicoView = () => {
   const { topicoId } = useParams();

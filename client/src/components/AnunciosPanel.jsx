@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { MessageSquare, Calendar, User, AlertCircle } from "lucide-react";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 function AnunciosPanel({ courseId, courseData }) {
   const [anuncios, setAnuncios] = useState([]);

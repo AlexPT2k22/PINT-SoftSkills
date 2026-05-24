@@ -14,7 +14,7 @@ import {
 import Footer from "./footer.jsx";
 import useAuthStore from "../store/authStore.js";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 const ForumSolicitarTopico = () => {
   const navigate = useNavigate();

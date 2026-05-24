@@ -29,7 +29,7 @@ function QuizPage() {
   const [submitting, setSubmitting] = useState(false);
   const [startTime, setStartTime] = useState(null);
 
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
   useEffect(() => {
     const fetchQuizData = async () => {

@@ -5,7 +5,7 @@ import useAuthStore from "../store/authStore";
 import { Star, Save, Eye, FileText } from "lucide-react";
 
 const AvaliacaoFinalFormador = ({ cursoId }) => {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

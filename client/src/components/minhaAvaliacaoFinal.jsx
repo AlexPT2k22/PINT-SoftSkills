@@ -4,7 +4,7 @@ import ErrorMessage from "./error_message";
 import { FileText, Calendar, User } from "lucide-react";
 
 const MinhaAvaliacaoFinal = ({ cursoId, nomeCurso }) => {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [avaliacaoFinal, setAvaliacaoFinal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

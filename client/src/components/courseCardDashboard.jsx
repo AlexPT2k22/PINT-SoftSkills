@@ -17,7 +17,7 @@ function CourseCardDashboard({
   const [hasQuiz, setHasQuiz] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [loadingQuizStatus, setLoadingQuizStatus] = useState(true);
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
   useEffect(() => {
     checkQuizStatus();

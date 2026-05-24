@@ -3,7 +3,7 @@ import { Plus, Edit2, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
 function TopicManagement() {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [topics, setTopics] = useState([]);
   const [areas, setAreas] = useState([]);
   const [newTopic, setNewTopic] = useState({

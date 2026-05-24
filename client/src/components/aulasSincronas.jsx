@@ -12,7 +12,7 @@ import {
 import "../styles/aulasSincronas.css"
 
 const AulasSincronas = ({ cursoId, isTeacher = false }) => {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [aulas, setAulas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);

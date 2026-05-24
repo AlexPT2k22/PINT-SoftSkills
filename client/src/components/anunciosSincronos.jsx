@@ -11,7 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 const AnunciosView = ({ cursoId, isTeacher = false }) => {
   const [anuncios, setAnuncios] = useState([]);

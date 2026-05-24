@@ -35,7 +35,7 @@ function Dashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const [proximosTrabalhos, setProximosTrabalhos] = useState([]);
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
   useEffect(() => {
     const fetchData = async () => {

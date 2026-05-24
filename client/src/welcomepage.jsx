@@ -13,7 +13,7 @@ import { Star } from "lucide-react";
 import Footer from "./components/footer.jsx";
 import { useNavigate } from "react-router-dom";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 function WelcomePage() {
   const [courses, setCourses] = useState([]);

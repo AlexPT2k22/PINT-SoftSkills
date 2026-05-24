@@ -13,7 +13,7 @@ import AnunciosPanel from "./components/AnunciosPanel";
 import "./styles/AnunciosPanel.css";
 
 function CourseVideoPage() {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const { courseId, moduleId } = useParams();
   const [videoID, setVideoID] = useState("");
   const [courseData, setCourseData] = useState([]);

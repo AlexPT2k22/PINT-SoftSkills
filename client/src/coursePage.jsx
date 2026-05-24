@@ -18,7 +18,7 @@ import useAuthStore from "./store/authStore.js";
 import CourseReviews from "./components/courseReviews.jsx";
 
 function CoursePage() {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const { user } = useAuthStore();
   const [index, setIndex] = useState(0); // 0 - Info, 1 - Módulos, 2 - Reviews
   const [course, setCourse] = useState({});

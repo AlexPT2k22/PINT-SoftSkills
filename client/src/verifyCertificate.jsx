@@ -17,7 +17,7 @@ import Footer from "./components/footer";
 
 function VerifyCertificate() {
   const { certificateId } = useParams();
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [codigo, setCodigo] = useState("");
   const [certificado, setCertificado] = useState(null);
   const [isLoading, setIsLoading] = useState(false);

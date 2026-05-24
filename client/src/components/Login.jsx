@@ -18,7 +18,7 @@ function Login() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [Error, setError] = useState(null);
   const { signup, login, isLoading } = useAuthStore();
-  const redirectURL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const redirectURL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
   useEffect(() => {
     const loginType = searchParams.get("login");

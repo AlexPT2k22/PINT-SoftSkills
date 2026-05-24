@@ -7,7 +7,7 @@ import "./styles/gerirUsers.css";
 import SuccessMessage from "./components/sucess_message";
 import ErrorMessage from "./components/error_message";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 function GerirUsers() {
   const [users, setUsers] = useState([]);

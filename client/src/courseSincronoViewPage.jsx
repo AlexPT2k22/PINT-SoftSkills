@@ -16,7 +16,7 @@ const SynchronousCourseView = () => {
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const tab = searchParams.get("tab");
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
   useEffect(() => {
     const verificarFormador = async () => {

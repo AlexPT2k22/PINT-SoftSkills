@@ -7,7 +7,7 @@ import CourseCard from "./components/course_card.jsx";
 import { Filter, X, Star, BookOpen, SlidersHorizontal } from "lucide-react";
 import "./styles/findCourses.css";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 function FindCoursesPage() {
   const [searchParams, setSearchParams] = useSearchParams();

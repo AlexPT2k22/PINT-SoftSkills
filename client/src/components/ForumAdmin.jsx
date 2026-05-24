@@ -15,7 +15,7 @@ import {
 import SuccessMessage from "./sucess_message.jsx";
 import ErrorMessage from "./error_message.jsx";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 const ForumAdmin = () => {
   const navigate = useNavigate();

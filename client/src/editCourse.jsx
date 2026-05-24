@@ -12,7 +12,7 @@ import QuizManager from "./components/QuizManager";
 import useAuthStore from "./store/authStore";
 
 function EditCourse() {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const { courseId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();

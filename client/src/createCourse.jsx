@@ -12,7 +12,7 @@ import * as bootstrap from "bootstrap";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 function CreateCourse() {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [isValid, setIsValid] = useState(false);

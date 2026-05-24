@@ -25,7 +25,7 @@ import ErrorMessage from "./components/error_message";
 import MeuPercursoFormativo from "./components/meuPercursoFormativo";
 import "./styles/meuPercurso.css";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 const MeuPercurso = () => {
   const navigate = useNavigate();

@@ -13,7 +13,7 @@ import ErrorMessage from "./error_message";
 import SuccessMessage from "./sucess_message";
 
 const CourseReviews = ({ courseId, isEnrolled = false }) => {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [reviews, setReviews] = useState([]);
   const [myReview, setMyReview] = useState(null);
   const [statistics, setStatistics] = useState(null);

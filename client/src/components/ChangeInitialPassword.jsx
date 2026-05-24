@@ -32,7 +32,7 @@ function ChangeInitialPassword() {
     setIsLoading(true);
 
     try {
-      const url = import.meta.env.VITE_API_URL || "http://localhost:4000";
+      const url = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
       const response = await axios.post(
         `${url}/api/auth/change-initial-password`,

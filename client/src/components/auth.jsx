@@ -8,7 +8,7 @@ import "../styles/auth.css";
 import axios from "axios";
 
 function Auth() {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const reference = useRef([]);
   const navigate = useNavigate();

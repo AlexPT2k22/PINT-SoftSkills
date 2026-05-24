@@ -4,7 +4,7 @@ import axios from "axios";
 import "../styles/notes.css";
 
 function NotesPanel({ moduleId, currentTime }) {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [editingNoteId, setEditingNoteId] = useState(null);

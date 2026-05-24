@@ -38,7 +38,7 @@ const QuizManager = ({ courseId, courseType, userRole }) => {
     nota_minima: 9.5,
   });
 
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
   useEffect(() => {
     if (courseType === "Assíncrono") {

@@ -14,7 +14,7 @@ import NotificationsDropdown from "./NotificationsDropdown";
 import "../styles/notifications.css";
 import "../styles/userdropdown.css";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 function Navbar() {
   const navigate = useNavigate();

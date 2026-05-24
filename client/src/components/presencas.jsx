@@ -3,7 +3,7 @@ import axios from "axios";
 import { Check, X } from "lucide-react";
 
 const ListaPresenca = ({ aulaId }) => {
-  const URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
   const [presencas, setPresencas] = useState([]);
   const [loading, setLoading] = useState(true);
 
