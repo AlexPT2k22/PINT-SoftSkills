@@ -60,9 +60,17 @@ function ListCoursesDashboard() {
         }
 
         const data = await response.json();
-        setCourses(data);
+        const normalizedCourses = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.cursos)
+          ? data.cursos
+          : [];
 
-        console.log(`Carregados ${data.length} cursos para o usuário`);
+        setCourses(normalizedCourses);
+
+        console.log(
+          `Carregados ${normalizedCourses.length} cursos para o usuário`
+        );
       } catch (error) {
         console.error("Error fetching courses:", error);
         setErrorMessage("Erro ao carregar cursos");

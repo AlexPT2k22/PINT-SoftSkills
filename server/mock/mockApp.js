@@ -31,20 +31,58 @@ const mockUser = {
   primeiroLogin: false,
 };
 
+const mockCategorias = [
+  {
+    ID_CATEGORIA__PK___: 1,
+    NOME__: "Soft Skills",
+    DESCRICAO__: "Competências comportamentais e comunicação",
+  },
+  {
+    ID_CATEGORIA__PK___: 2,
+    NOME__: "Gestão",
+    DESCRICAO__: "Liderança, planeamento e melhoria contínua",
+  },
+];
+
+const mockAreas = [
+  {
+    ID_AREA: 1,
+    ID_AREA___PK___: 1,
+    ID_CATEGORIA__PK___: 1,
+    NOME: "Comunicação",
+    DESCRICAO: "Comunicação interpessoal e feedback",
+    Categoria: mockCategorias[0],
+  },
+  {
+    ID_AREA: 2,
+    ID_AREA___PK___: 2,
+    ID_CATEGORIA__PK___: 2,
+    NOME: "Liderança",
+    DESCRICAO: "Gestão de equipas e tomada de decisão",
+    Categoria: mockCategorias[1],
+  },
+];
+
 const mockCourses = [
   {
     ID_CURSO: 1,
+    ID_AREA: 1,
     NOME: "Comunicação em Equipa",
     DESCRICAO: "Curso prático para melhorar comunicação no contexto profissional.",
+    DESCRICAO_OBJETIVOS__:
+      "Dominar escuta ativa, feedback e colaboração no dia a dia.",
+    DATA_CRIACAO__: now.toISOString(),
     DIFICULDADE_CURSO__: "Iniciante",
     IMAGEM: "https://placehold.co/530x300?text=SoftSkills+Course",
     averageRating: 4.7,
     totalReviews: 18,
+    AREA: mockAreas[0],
     CURSO_ASSINCRONO: {
       ESTADO: "Ativo",
       DATA_INICIO: now.toISOString(),
       DATA_FIM: in60Days.toISOString(),
     },
+    CURSO_SINCRONO: null,
     MODULOS: [
       { ID_MODULO: 11, TITULO: "Introdução", TEMPO_ESTIMADO_MIN: 20 },
       { ID_MODULO: 12, TITULO: "Escuta ativa", TEMPO_ESTIMADO_MIN: 35 },
@@ -53,12 +91,18 @@ const mockCourses = [
   },
   {
     ID_CURSO: 2,
+    ID_AREA: 2,
     NOME: "Liderança Colaborativa",
     DESCRICAO: "Fundamentos para liderar equipas remotas com foco em resultados.",
+    DESCRICAO_OBJETIVOS__:
+      "Aplicar práticas de liderança colaborativa em contextos híbridos.",
+    DATA_CRIACAO__: now.toISOString(),
     DIFICULDADE_CURSO__: "Intermédio",
     IMAGEM: "https://placehold.co/530x300?text=Leadership",
     averageRating: 4.5,
     totalReviews: 11,
+    AREA: mockAreas[1],
+    CURSO_ASSINCRONO: null,
     CURSO_SINCRONO: {
       ESTADO: "Ativo",
       DATA_INICIO: in30Days.toISOString(),
@@ -139,6 +183,14 @@ app.post("/api/auth/resetpassword/:token", (_req, res) => {
 });
 
 app.get("/api/cursos/popular", (_req, res) => {
+  res.status(200).json(mockCourses);
+});
+
+app.get("/api/cursos", (_req, res) => {
+  res.status(200).json(mockCourses);
+});
+
+app.get("/api/cursos/formador", (_req, res) => {
   res.status(200).json(mockCourses);
 });
 
@@ -242,24 +294,22 @@ app.post("/api/quiz/submeter", (_req, res) => {
 });
 
 app.get("/api/categorias", (_req, res) => {
-  res.status(200).json([
-    { ID_CATEGORIA__PK___: 1, NOME: "Soft Skills" },
-    { ID_CATEGORIA__PK___: 2, NOME: "Gestão" },
-  ]);
+  res.status(200).json(mockCategorias);
 });
 
 app.get("/api/areas", (_req, res) => {
-  res.status(200).json([{ ID_AREA___PK___: 1, NOME: "Comunicação" }]);
+  res.status(200).json(mockAreas);
 });
 
 app.get("/api/categorias/com-areas", (_req, res) => {
-  res.status(200).json([
-    {
-      ID_CATEGORIA__PK___: 1,
-      NOME: "Soft Skills",
-      AREAs: [{ ID_AREA___PK___: 1, NOME: "Comunicação" }],
-    },
-  ]);
+  const categoriasComAreas = mockCategorias.map((categoria) => ({
+    ...categoria,
+    AREAs: mockAreas.filter(
+      (area) => area.ID_CATEGORIA__PK___ === categoria.ID_CATEGORIA__PK___
+    ),
+  }));
+
+  res.status(200).json(categoriasComAreas);
 });
 
 app.get("/api/topicos", (_req, res) => {
