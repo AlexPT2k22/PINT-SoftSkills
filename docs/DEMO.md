@@ -19,7 +19,7 @@ Create a separate Vercel project for `server/`:
 `server/vercel.json` already defines:
 
 - route mapping to `api/index.js`
-- hourly cron call to `/api/cron/maintenance`
+- daily cron call to `/api/cron/maintenance`
 
 ## 2) Configure backend environment variables
 
@@ -69,7 +69,7 @@ Because Vercel Functions are not always running, `setInterval` is not used in pr
 Maintenance tasks are executed through:
 
 - `POST /api/cron/maintenance`
-- hourly scheduler from `server/vercel.json`
+- daily scheduler from `server/vercel.json`
 - `Authorization: Bearer <CRON_SECRET>` verification in backend
 
 ## 5) Recruiter demo mode
